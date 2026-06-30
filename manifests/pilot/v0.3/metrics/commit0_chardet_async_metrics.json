@@ -1,0 +1,184 @@
+{
+  "aggregate_metrics": {
+    "ADPR_denominator": "All dependency_points unless a paper section explicitly reports primary_async_dependency_ids only.",
+    "dependency_point_count": 3,
+    "minimum_success_condition_for_task_level_async_dependency_resolution": "Both primary_async_dependency_ids pass in the final integrated workspace.",
+    "primary_async_dependency_ids": [
+      "chardet.probers_to_detector.input_state_confidence_contract",
+      "chardet.multibyte_to_group.distribution_state_contract"
+    ],
+    "primary_paper_dependency_id": "chardet.probers_to_detector.input_state_confidence_contract"
+  },
+  "annotation_notes": [
+    "The prober_to_detector dependency is primary because the public API and UniversalDetector can fail broadly if they use stale prober state or confidence assumptions.",
+    "The multibyte dependency captures the group-prober async risk without requiring the benchmark to treat every language model table as a separate subtask.",
+    "These labels identify public test-observable contracts and implicated files, not solution code."
+  ],
+  "dependency_points": [
+    {
+      "consumer_agent": "detector_agent",
+      "consumer_files": [
+        "chardet/__init__.py",
+        "chardet/universaldetector.py"
+      ],
+      "consumer_subproblem": "public_api_and_detector_state",
+      "contract_summary": "UniversalDetector and detect_all must consume prober state, confidence, active/inactive status, and charset result names consistently.",
+      "dependency_id": "chardet.probers_to_detector.input_state_confidence_contract",
+      "dependency_type": "interface_dependency",
+      "downstream_probe_tests": [
+        "test.py::test_encoding_detection[tests/Big5/_ude_1.txt-big5]",
+        "test.py::test_encoding_detection[tests/windows-1251-russian/_ude_1.txt-windows-1251]"
+      ],
+      "integrated_probe_tests": [
+        "test.py::test_encoding_detection[tests/ascii/howto.diveintomark.org.xml-ascii]",
+        "test.py::test_encoding_detection[tests/Big5/_ude_1.txt-big5]",
+        "test.py::test_encoding_detection[tests/windows-1251-russian/_ude_1.txt-windows-1251]"
+      ],
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL",
+        "SAD"
+      ],
+      "primary_paper_probe": true,
+      "producer_agent": "group_prober_agent",
+      "producer_files": [
+        "chardet/charsetprober.py",
+        "chardet/charsetgroupprober.py",
+        "chardet/sbcsgroupprober.py",
+        "chardet/mbcsgroupprober.py"
+      ],
+      "producer_subproblem": "prober_base_and_grouping",
+      "resolution_criteria": "Resolved when public API detector probes and representative prober-backed corpus probes pass in the integrated workspace.",
+      "stale_failure_mode": "The detector agent may expose input_state/result behavior against stale prober status or confidence semantics, causing broad corpus failures despite clean imports.",
+      "upstream_probe_tests": [
+        "test.py::test_encoding_detection[tests/ascii/howto.diveintomark.org.xml-ascii]",
+        "test.py::test_encoding_detection[tests/utf-8/_ude_1.txt-utf-8]"
+      ]
+    },
+    {
+      "consumer_agent": "group_prober_agent",
+      "consumer_files": [
+        "chardet/mbcharsetprober.py",
+        "chardet/mbcsgroupprober.py"
+      ],
+      "consumer_subproblem": "prober_base_and_grouping",
+      "contract_summary": "Multi-byte probers must expose feed/state/confidence and charset names compatible with group aggregation and UniversalDetector result selection.",
+      "dependency_id": "chardet.multibyte_to_group.distribution_state_contract",
+      "dependency_type": "integration_contract",
+      "downstream_probe_tests": [
+        "test.py::test_encoding_detection[tests/SHIFT_JIS/_ude_1.txt-shift_jis]",
+        "test.py::test_encoding_detection[tests/EUC-KR/_ude_euc1.txt-euc-kr]"
+      ],
+      "integrated_probe_tests": [
+        "test.py::test_encoding_detection[tests/Big5/_ude_1.txt-big5]",
+        "test.py::test_encoding_detection[tests/EUC-JP/_ude_1.txt-euc-jp]",
+        "test.py::test_encoding_detection[tests/SHIFT_JIS/_ude_1.txt-shift_jis]"
+      ],
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL",
+        "SAD"
+      ],
+      "producer_agent": "multibyte_agent",
+      "producer_files": [
+        "chardet/chardistribution.py",
+        "chardet/codingstatemachine.py",
+        "chardet/big5prober.py",
+        "chardet/eucjpprober.py",
+        "chardet/sjisprober.py"
+      ],
+      "producer_subproblem": "multibyte_state_and_distribution",
+      "resolution_criteria": "Resolved when representative multi-byte corpus probes pass after state/distribution and group prober integration.",
+      "stale_failure_mode": "The group prober agent may aggregate multi-byte prober results using stale state-machine or distribution analyzer semantics, failing Big5/EUC/SHIFT_JIS corpus probes.",
+      "upstream_probe_tests": [
+        "test.py::test_encoding_detection[tests/Big5/_ude_1.txt-big5]",
+        "test.py::test_encoding_detection[tests/EUC-JP/_ude_1.txt-euc-jp]"
+      ]
+    },
+    {
+      "consumer_agent": "detector_agent",
+      "consumer_files": [
+        "chardet/universaldetector.py",
+        "chardet/__init__.py"
+      ],
+      "consumer_subproblem": "public_api_and_detector_state",
+      "contract_summary": "UTF, Latin-1, Hebrew, and single-byte probers must share charset labels, confidence thresholds, and done/not-done state semantics with UniversalDetector.",
+      "dependency_id": "chardet.singlebyte_unicode_to_detector.result_contract",
+      "dependency_type": "shared_api_contract",
+      "downstream_probe_tests": [
+        "test.py::test_encoding_detection[tests/windows-1251-russian/_ude_1.txt-windows-1251]",
+        "test.py::test_encoding_detection[tests/KOI8-R/_ude_1.txt-koi8-r]"
+      ],
+      "integrated_probe_tests": [
+        "test.py::test_encoding_detection[tests/utf-8/_ude_1.txt-utf-8]",
+        "test.py::test_encoding_detection[tests/UTF-16/bom-utf-16-be.srt-utf-16]",
+        "test.py::test_encoding_detection[tests/windows-1251-russian/_ude_1.txt-windows-1251]"
+      ],
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL",
+        "SAD"
+      ],
+      "producer_agent": "singlebyte_unicode_agent",
+      "producer_files": [
+        "chardet/utf8prober.py",
+        "chardet/utf1632prober.py",
+        "chardet/latin1prober.py",
+        "chardet/hebrewprober.py",
+        "chardet/sbcharsetprober.py"
+      ],
+      "producer_subproblem": "singlebyte_unicode_probers",
+      "resolution_criteria": "Resolved when representative Unicode and single-byte corpus probes pass with the integrated detector.",
+      "stale_failure_mode": "The detector agent may finalize results using stale single-byte or Unicode confidence semantics, producing late corpus mismatches after integration.",
+      "upstream_probe_tests": [
+        "test.py::test_encoding_detection[tests/utf-8/_ude_1.txt-utf-8]",
+        "test.py::test_encoding_detection[tests/UTF-16/bom-utf-16-be.srt-utf-16]"
+      ]
+    }
+  ],
+  "evaluation_checkpoint_policy": {
+    "checkpoint_record_fields": [
+      "run_id",
+      "scenario_id",
+      "checkpoint_id",
+      "logical_iteration",
+      "agent_id",
+      "visible_upstream_artifact_version",
+      "integrated_workspace_version",
+      "probe_test_results"
+    ],
+    "minimum_policy": "Run probe tests after each agent final artifact and after final integration.",
+    "recommended_policy": "Run probe tests after every committed patch, every explicit artifact transfer, and final integration."
+  },
+  "metric_annotation_id": "commit0-chardet.async-metrics.v0.3",
+  "metric_definitions": {
+    "ADPR": {
+      "definition": "Fraction of registered dependency_points whose required integrated_probe_tests pass in the final integrated workspace.",
+      "name": "Async Dependency Pass Rate",
+      "unit": "fraction"
+    },
+    "CAIL": {
+      "definition": "downstream_resolution_step minus upstream_resolution_step when both probe groups have been evaluated.",
+      "name": "Cross-Agent Integration Lag",
+      "unit": "agent iteration or evaluation checkpoint"
+    },
+    "DRS": {
+      "definition": "First recorded checkpoint at which all required integrated_probe_tests for a dependency point pass.",
+      "name": "Dependency Resolution Step",
+      "unit": "agent iteration or evaluation checkpoint"
+    },
+    "SAD": {
+      "definition": "Interval during which a downstream worker acts on a contract assumption inconsistent with the latest upstream artifact visible in the integrated history.",
+      "name": "Stale Assumption Duration",
+      "unit": "agent iteration or event interval"
+    }
+  },
+  "purpose": "Dependency-level labels for measuring whether asynchronous multi-agent coding resolves chardet's detector/prober contracts.",
+  "schema_version": "0.3-async-metrics",
+  "source_quality_record": "manifests/pilot/v0.3/quality/commit0_chardet.json",
+  "source_task_record": "manifests/pilot/v0.3/tasks/commit0_chardet.json",
+  "task_id": "commit0:chardet"
+}

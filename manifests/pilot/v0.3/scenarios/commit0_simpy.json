@@ -1,0 +1,477 @@
+{
+  "scenarios": [
+    {
+      "agent_count": 1,
+      "assignments": [
+        {
+          "agent_id": "integrator",
+          "primary_test_targets": [
+            "tests",
+            "-q",
+            "-m",
+            "not benchmark",
+            "-k",
+            "not test_simpy_version"
+          ],
+          "role": "iterative full-task coding agent",
+          "schema_version": "0.3",
+          "subproblem_id": "full_task",
+          "writable_paths": [
+            "src/simpy/core.py",
+            "src/simpy/events.py",
+            "src/simpy/exceptions.py",
+            "src/simpy/resources/base.py",
+            "src/simpy/resources/resource.py",
+            "src/simpy/resources/container.py",
+            "src/simpy/resources/store.py",
+            "src/simpy/rt.py",
+            "src/simpy/util.py"
+          ]
+        }
+      ],
+      "communication_condition": "not_applicable",
+      "competence_gate_required": true,
+      "concurrent_execution": false,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "event_lifecycle",
+          "dependency_type": "api_contract",
+          "description": "Event, Process, Timeout, and Condition semantics consume the Environment scheduling contract: now/peek/step/run, event ordering, callback execution, and exception propagation.",
+          "evidence_paths": [
+            "src/simpy/core.py",
+            "src/simpy/events.py",
+            "tests/test_environment.py",
+            "tests/test_event.py",
+            "tests/test_process.py",
+            "tests/test_timeout.py"
+          ],
+          "producer_subproblem": "environment_core",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "resource_layer",
+          "dependency_type": "integration",
+          "description": "Resource, Container, Store, and PriorityStore behavior depends on event triggering, callback cleanup, process resumption, interrupt handling, and condition composition.",
+          "evidence_paths": [
+            "src/simpy/events.py",
+            "src/simpy/resources/base.py",
+            "src/simpy/resources/resource.py",
+            "src/simpy/resources/container.py",
+            "src/simpy/resources/store.py",
+            "tests/test_event.py",
+            "tests/test_resources.py"
+          ],
+          "producer_subproblem": "event_lifecycle",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "realtime_and_utilities",
+          "dependency_type": "api_contract",
+          "description": "RealtimeEnvironment and utility helpers consume the same Environment.run(), timeout, process, and scheduling behavior while adding wall-clock pacing and delayed-start helpers.",
+          "evidence_paths": [
+            "src/simpy/core.py",
+            "src/simpy/rt.py",
+            "src/simpy/util.py",
+            "tests/test_rt.py",
+            "tests/test_util.py"
+          ],
+          "producer_subproblem": "environment_core",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "iterative_single",
+      "information_profile": "complete-task",
+      "integration_policy": "Agent submits its final workspace.",
+      "message_delivery_policy": "No inter-agent messages.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-simpy.iterative-single.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 28,
+      "task_id": "commit0:simpy",
+      "test_budget_per_agent": 10,
+      "token_budget_per_agent": 70000,
+      "wall_clock_budget_seconds": 2400
+    },
+    {
+      "agent_count": 4,
+      "assignments": [
+        {
+          "agent_id": "environment_agent",
+          "primary_test_targets": [
+            "tests/test_environment.py",
+            "tests/test_timeout.py"
+          ],
+          "role": "environment scheduling specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "environment_core",
+          "writable_paths": [
+            "src/simpy/core.py"
+          ]
+        },
+        {
+          "agent_id": "event_agent",
+          "primary_test_targets": [
+            "tests/test_event.py",
+            "tests/test_process.py",
+            "tests/test_interrupts.py",
+            "tests/test_condition.py"
+          ],
+          "role": "event lifecycle and process specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "event_lifecycle",
+          "writable_paths": [
+            "src/simpy/events.py",
+            "src/simpy/exceptions.py"
+          ]
+        },
+        {
+          "agent_id": "resource_agent",
+          "primary_test_targets": [
+            "tests/test_resources.py"
+          ],
+          "role": "resource/container/store specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "resource_layer",
+          "writable_paths": [
+            "src/simpy/resources/base.py",
+            "src/simpy/resources/resource.py",
+            "src/simpy/resources/container.py",
+            "src/simpy/resources/store.py"
+          ]
+        },
+        {
+          "agent_id": "realtime_util_agent",
+          "primary_test_targets": [
+            "tests/test_rt.py",
+            "tests/test_util.py"
+          ],
+          "role": "realtime environment and utility specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "realtime_and_utilities",
+          "writable_paths": [
+            "src/simpy/rt.py",
+            "src/simpy/util.py"
+          ]
+        }
+      ],
+      "communication_condition": "completed_artifact_handoff",
+      "competence_gate_required": true,
+      "concurrent_execution": false,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "event_lifecycle",
+          "dependency_type": "api_contract",
+          "description": "Event, Process, Timeout, and Condition semantics consume the Environment scheduling contract: now/peek/step/run, event ordering, callback execution, and exception propagation.",
+          "evidence_paths": [
+            "src/simpy/core.py",
+            "src/simpy/events.py",
+            "tests/test_environment.py",
+            "tests/test_event.py",
+            "tests/test_process.py",
+            "tests/test_timeout.py"
+          ],
+          "producer_subproblem": "environment_core",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "resource_layer",
+          "dependency_type": "integration",
+          "description": "Resource, Container, Store, and PriorityStore behavior depends on event triggering, callback cleanup, process resumption, interrupt handling, and condition composition.",
+          "evidence_paths": [
+            "src/simpy/events.py",
+            "src/simpy/resources/base.py",
+            "src/simpy/resources/resource.py",
+            "src/simpy/resources/container.py",
+            "src/simpy/resources/store.py",
+            "tests/test_event.py",
+            "tests/test_resources.py"
+          ],
+          "producer_subproblem": "event_lifecycle",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "realtime_and_utilities",
+          "dependency_type": "api_contract",
+          "description": "RealtimeEnvironment and utility helpers consume the same Environment.run(), timeout, process, and scheduling behavior while adding wall-clock pacing and delayed-start helpers.",
+          "evidence_paths": [
+            "src/simpy/core.py",
+            "src/simpy/rt.py",
+            "src/simpy/util.py",
+            "tests/test_rt.py",
+            "tests/test_util.py"
+          ],
+          "producer_subproblem": "environment_core",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "serial_specialists",
+      "information_profile": "private-workspace",
+      "integration_policy": "Apply environment and event artifacts before dependent resource and realtime/utility artifacts, then run the evaluator.",
+      "message_delivery_policy": "Specialists run with barrier synchronization. Dependent workers receive completed upstream artifacts and targeted test results before they start.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-simpy.serial-specialists.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 28,
+      "task_id": "commit0:simpy",
+      "test_budget_per_agent": 10,
+      "token_budget_per_agent": 70000,
+      "wall_clock_budget_seconds": 2400
+    },
+    {
+      "agent_count": 4,
+      "assignments": [
+        {
+          "agent_id": "environment_agent",
+          "primary_test_targets": [
+            "tests/test_environment.py",
+            "tests/test_timeout.py"
+          ],
+          "role": "environment scheduling specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "environment_core",
+          "writable_paths": [
+            "src/simpy/core.py"
+          ]
+        },
+        {
+          "agent_id": "event_agent",
+          "primary_test_targets": [
+            "tests/test_event.py",
+            "tests/test_process.py",
+            "tests/test_interrupts.py",
+            "tests/test_condition.py"
+          ],
+          "role": "event lifecycle and process specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "event_lifecycle",
+          "writable_paths": [
+            "src/simpy/events.py",
+            "src/simpy/exceptions.py"
+          ]
+        },
+        {
+          "agent_id": "resource_agent",
+          "primary_test_targets": [
+            "tests/test_resources.py"
+          ],
+          "role": "resource/container/store specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "resource_layer",
+          "writable_paths": [
+            "src/simpy/resources/base.py",
+            "src/simpy/resources/resource.py",
+            "src/simpy/resources/container.py",
+            "src/simpy/resources/store.py"
+          ]
+        },
+        {
+          "agent_id": "realtime_util_agent",
+          "primary_test_targets": [
+            "tests/test_rt.py",
+            "tests/test_util.py"
+          ],
+          "role": "realtime environment and utility specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "realtime_and_utilities",
+          "writable_paths": [
+            "src/simpy/rt.py",
+            "src/simpy/util.py"
+          ]
+        }
+      ],
+      "communication_condition": "none_in_flight",
+      "competence_gate_required": true,
+      "concurrent_execution": true,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "event_lifecycle",
+          "dependency_type": "api_contract",
+          "description": "Event, Process, Timeout, and Condition semantics consume the Environment scheduling contract: now/peek/step/run, event ordering, callback execution, and exception propagation.",
+          "evidence_paths": [
+            "src/simpy/core.py",
+            "src/simpy/events.py",
+            "tests/test_environment.py",
+            "tests/test_event.py",
+            "tests/test_process.py",
+            "tests/test_timeout.py"
+          ],
+          "producer_subproblem": "environment_core",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "resource_layer",
+          "dependency_type": "integration",
+          "description": "Resource, Container, Store, and PriorityStore behavior depends on event triggering, callback cleanup, process resumption, interrupt handling, and condition composition.",
+          "evidence_paths": [
+            "src/simpy/events.py",
+            "src/simpy/resources/base.py",
+            "src/simpy/resources/resource.py",
+            "src/simpy/resources/container.py",
+            "src/simpy/resources/store.py",
+            "tests/test_event.py",
+            "tests/test_resources.py"
+          ],
+          "producer_subproblem": "event_lifecycle",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "realtime_and_utilities",
+          "dependency_type": "api_contract",
+          "description": "RealtimeEnvironment and utility helpers consume the same Environment.run(), timeout, process, and scheduling behavior while adding wall-clock pacing and delayed-start helpers.",
+          "evidence_paths": [
+            "src/simpy/core.py",
+            "src/simpy/rt.py",
+            "src/simpy/util.py",
+            "tests/test_rt.py",
+            "tests/test_util.py"
+          ],
+          "producer_subproblem": "environment_core",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "async_private",
+      "information_profile": "private-workspace",
+      "integration_policy": "Run specialists concurrently in private workspaces and integrate final artifacts after all workers finish.",
+      "message_delivery_policy": "No in-flight worker messages or artifacts are delivered.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-simpy.async-private.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 28,
+      "task_id": "commit0:simpy",
+      "test_budget_per_agent": 10,
+      "token_budget_per_agent": 70000,
+      "wall_clock_budget_seconds": 2400
+    },
+    {
+      "agent_count": 4,
+      "assignments": [
+        {
+          "agent_id": "environment_agent",
+          "primary_test_targets": [
+            "tests/test_environment.py",
+            "tests/test_timeout.py"
+          ],
+          "role": "environment scheduling specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "environment_core",
+          "writable_paths": [
+            "src/simpy/core.py"
+          ]
+        },
+        {
+          "agent_id": "event_agent",
+          "primary_test_targets": [
+            "tests/test_event.py",
+            "tests/test_process.py",
+            "tests/test_interrupts.py",
+            "tests/test_condition.py"
+          ],
+          "role": "event lifecycle and process specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "event_lifecycle",
+          "writable_paths": [
+            "src/simpy/events.py",
+            "src/simpy/exceptions.py"
+          ]
+        },
+        {
+          "agent_id": "resource_agent",
+          "primary_test_targets": [
+            "tests/test_resources.py"
+          ],
+          "role": "resource/container/store specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "resource_layer",
+          "writable_paths": [
+            "src/simpy/resources/base.py",
+            "src/simpy/resources/resource.py",
+            "src/simpy/resources/container.py",
+            "src/simpy/resources/store.py"
+          ]
+        },
+        {
+          "agent_id": "realtime_util_agent",
+          "primary_test_targets": [
+            "tests/test_rt.py",
+            "tests/test_util.py"
+          ],
+          "role": "realtime environment and utility specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "realtime_and_utilities",
+          "writable_paths": [
+            "src/simpy/rt.py",
+            "src/simpy/util.py"
+          ]
+        }
+      ],
+      "communication_condition": "structured_message_and_artifact",
+      "competence_gate_required": true,
+      "concurrent_execution": true,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "event_lifecycle",
+          "dependency_type": "api_contract",
+          "description": "Event, Process, Timeout, and Condition semantics consume the Environment scheduling contract: now/peek/step/run, event ordering, callback execution, and exception propagation.",
+          "evidence_paths": [
+            "src/simpy/core.py",
+            "src/simpy/events.py",
+            "tests/test_environment.py",
+            "tests/test_event.py",
+            "tests/test_process.py",
+            "tests/test_timeout.py"
+          ],
+          "producer_subproblem": "environment_core",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "resource_layer",
+          "dependency_type": "integration",
+          "description": "Resource, Container, Store, and PriorityStore behavior depends on event triggering, callback cleanup, process resumption, interrupt handling, and condition composition.",
+          "evidence_paths": [
+            "src/simpy/events.py",
+            "src/simpy/resources/base.py",
+            "src/simpy/resources/resource.py",
+            "src/simpy/resources/container.py",
+            "src/simpy/resources/store.py",
+            "tests/test_event.py",
+            "tests/test_resources.py"
+          ],
+          "producer_subproblem": "event_lifecycle",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "realtime_and_utilities",
+          "dependency_type": "api_contract",
+          "description": "RealtimeEnvironment and utility helpers consume the same Environment.run(), timeout, process, and scheduling behavior while adding wall-clock pacing and delayed-start helpers.",
+          "evidence_paths": [
+            "src/simpy/core.py",
+            "src/simpy/rt.py",
+            "src/simpy/util.py",
+            "tests/test_rt.py",
+            "tests/test_util.py"
+          ],
+          "producer_subproblem": "environment_core",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "async_message",
+      "information_profile": "private-workspace",
+      "integration_policy": "Integrate latest explicitly transferred artifacts and record stale scheduling/event/resource assumptions.",
+      "message_delivery_policy": "Workers may transfer scheduler, event, resource, realtime, and targeted test assumptions while active.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-simpy.async-message.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 28,
+      "task_id": "commit0:simpy",
+      "test_budget_per_agent": 10,
+      "token_budget_per_agent": 70000,
+      "wall_clock_budget_seconds": 2400
+    }
+  ],
+  "schema_version": "0.3",
+  "task_id": "commit0:simpy"
+}

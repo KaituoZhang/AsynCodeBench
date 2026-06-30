@@ -1,0 +1,14 @@
+diff --git a/src/flask/cli.py b/src/flask/cli.py
+index f8373d0..40bdf33 100644
+--- a/src/flask/cli.py
++++ b/src/flask/cli.py
+@@ -97,7 +97,7 @@ def with_appcontext(f: F) -> F:
+         The app context is active for subcommands as well as the
+         decorated callback. The app context is always available to
+         ``app.cli`` command and parameter callbacks.
+     """
+-    pass
++    return f
+ 
+ class AppGroup(click.Group):
+     """This works similar to a regular click :class:`~click.Group` but it

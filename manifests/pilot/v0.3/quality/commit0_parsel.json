@@ -1,0 +1,242 @@
+{
+  "coordination_structure_tags": [
+    "interface_dependency",
+    "shared_abstraction"
+  ],
+  "environment_requirements": [
+    "Python 3.10.12",
+    "pytest==9.0.3",
+    "lxml==6.0.3",
+    "cssselect==1.4.0",
+    "jmespath==1.1.0",
+    "w3lib==2.4.1",
+    "packaging==24.1",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
+    "Run from the repository root with PYTHONPATH=.",
+    "Use the stripped source ref origin/commit0_combined plus bootstrap overlays from configs/tasks/commit0_curated_tasks.v0.3.json."
+  ],
+  "evaluation_snapshots": [
+    {
+      "collected": 208,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_selector.py",
+        "tests/test_selector_csstranslator.py",
+        "tests/test_selector_jmespath.py",
+        "tests/test_utils.py",
+        "tests/test_xml_attacks.py",
+        "tests/test_xpathfuncs.py"
+      ],
+      "dependency_versions": {
+        "cssselect": "1.4.0",
+        "jmespath": "1.1.0",
+        "lxml": "6.0.3",
+        "packaging": "24.1",
+        "pytest": "9.0.3",
+        "w3lib": "2.4.1"
+      },
+      "duration_seconds": 5.19,
+      "errors": 0,
+      "evidence_scope": "public_initial_state",
+      "failed": 193,
+      "notes": [
+        "Verified with PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 and PYTHONPATH=. after applying only the checksum-recorded setup bootstrap overlay.",
+        "Failures are caused by unfinished utility, XPath function, CSS translation, selector, JMESPath, and XML protection behavior."
+      ],
+      "passed": 13,
+      "python_version": "3.10.12",
+      "return_code": 1,
+      "schema_version": "0.3",
+      "skipped": 2,
+      "snapshot_id": "curated_commit0_initial_evaluator",
+      "source_ref": "origin/commit0_combined:7e73d60665ef2e3ddfe3c1bb01eed981cd317c6f+setup-bootstrap-overlay"
+    },
+    {
+      "collected": 208,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_selector.py",
+        "tests/test_selector_csstranslator.py",
+        "tests/test_selector_jmespath.py",
+        "tests/test_utils.py",
+        "tests/test_xml_attacks.py",
+        "tests/test_xpathfuncs.py"
+      ],
+      "dependency_versions": {
+        "cssselect": "1.4.0",
+        "jmespath": "1.1.0",
+        "lxml": "6.0.3",
+        "packaging": "24.1",
+        "pytest": "9.0.3",
+        "w3lib": "2.4.1"
+      },
+      "duration_seconds": 0.33,
+      "errors": 0,
+      "evidence_scope": "evaluator_sanity_only",
+      "failed": 0,
+      "notes": [
+        "The complete/default local commit0 ref passes the same scoped evaluator in the same environment.",
+        "The complete ref is evaluator validation only and must not define decomposition, prompts, or agent-visible evidence."
+      ],
+      "passed": 206,
+      "python_version": "3.10.12",
+      "return_code": 0,
+      "schema_version": "0.3",
+      "skipped": 2,
+      "snapshot_id": "complete_commit0_evaluator_sanity",
+      "source_ref": "commit0:740734252efd246679e5c6ee4028a47d5851712d"
+    }
+  ],
+  "known_limitations": [
+    "The local commit0/default branch is complete. Benchmark workspaces must be materialized from origin/commit0_combined.",
+    "Raw origin/commit0_combined collection fails before the setup bootstrap because parsel.__init__ calls xpathfuncs.setup().",
+    "The bootstrap overlay supplies only the setup import hook; it does not implement selector, CSS translator, utility, or XPath behavior.",
+    "Typing-only checks under tests/typing are not part of this behavioral v0.3 evaluator.",
+    "Single-agent and multi-agent model results are evaluation outputs to report, not dataset qualification gates."
+  ],
+  "public_statement_sources": [
+    "README.rst@origin/commit0_combined",
+    "parsel/*.py docstrings@origin/commit0_combined",
+    "tests/test_*.py@origin/commit0_combined",
+    "manifests/candidates/commit0_async_screening_v0.3.json"
+  ],
+  "quality_status": "qualification_ready",
+  "remaining_gates": [
+    "two independent human inclusion/exclusion annotations"
+  ],
+  "schema_version": "0.3",
+  "structure_rationale": "Parsel exposes semantic async dependencies between utility/XPath support, CSS pseudo-element translation, and the selector query core. Selector workers can make stale assumptions about flattening, regex extraction, has-class registration, or CSS-to-XPath output that only fail once query chaining and selector integration tests run.",
+  "task_id": "commit0:parsel",
+  "test_groups": [
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_utils.py",
+        "tests/test_xpathfuncs.py"
+      ],
+      "description": "Flattening, regex extraction, shortening, XPath function registration, and has-class semantics.",
+      "group_id": "utility_xpath_support_local",
+      "owner_subproblem": "utility_xpath_support",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_selector_csstranslator.py"
+      ],
+      "description": "CSS-to-XPath translation and pseudo-element behavior.",
+      "group_id": "css_translation_layer_local",
+      "owner_subproblem": "css_translation_layer",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_selector.py",
+        "tests/test_selector_jmespath.py",
+        "tests/test_xml_attacks.py"
+      ],
+      "description": "Selector/SelectorList root parsing, XPath, CSS, JMESPath, serialization, namespaces, node removal, and XML protections.",
+      "group_id": "selector_query_core_local",
+      "owner_subproblem": "selector_query_core",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_selector_csstranslator.py::TranslatorTestMixin::test_text_pseudo_element",
+        "tests/test_selector_csstranslator.py::CSSSelectorTest::test_pseudoclass_has",
+        "tests/test_selector.py::SelectorTestCase::test_select_on_text_nodes"
+      ],
+      "description": "Selector.css behavior after CSS pseudo-element translation and selector query execution are integrated.",
+      "group_id": "css_selector_cross_contract",
+      "owner_subproblem": null,
+      "prerequisites": [
+        "css_translation_layer artifact is integrated",
+        "selector_query_core artifact is integrated"
+      ],
+      "purpose": "cross_subproblem",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_utils.py::test_extract_regex",
+        "tests/test_xpathfuncs.py::XPathFuncsTestCase::test_has_class_simple",
+        "tests/test_selector.py::ExsltTestCase::test_regexp"
+      ],
+      "description": "Selector regex and XPath extension behavior after utility and XPath support are integrated.",
+      "group_id": "utility_selector_cross_contract",
+      "owner_subproblem": null,
+      "prerequisites": [
+        "utility_xpath_support artifact is integrated",
+        "selector_query_core artifact is integrated"
+      ],
+      "purpose": "cross_subproblem",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_selector.py",
+        "tests/test_selector_csstranslator.py",
+        "tests/test_selector_jmespath.py",
+        "tests/test_utils.py",
+        "tests/test_xml_attacks.py",
+        "tests/test_xpathfuncs.py"
+      ],
+      "description": "Scoped public Parsel test suite excluding typing-only checks.",
+      "group_id": "full_evaluator",
+      "owner_subproblem": null,
+      "prerequisites": [],
+      "purpose": "full_evaluator",
+      "schema_version": "0.3"
+    }
+  ]
+}

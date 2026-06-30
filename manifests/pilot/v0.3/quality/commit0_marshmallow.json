@@ -1,0 +1,275 @@
+{
+  "coordination_structure_tags": [
+    "interface_dependency",
+    "shared_abstraction",
+    "shared_state"
+  ],
+  "environment_requirements": [
+    "Python 3.10.12",
+    "pytest==9.0.3",
+    "packaging==24.1",
+    "simplejson==4.1.1",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
+    "Run from the repository root with PYTHONPATH=src.",
+    "Use origin/commit0_combined plus bootstrap overlays from configs/tasks/commit0_curated_tasks.v0.3.json."
+  ],
+  "evaluation_snapshots": [
+    {
+      "collected": 1228,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_registry.py",
+        "tests/test_validate.py",
+        "tests/test_fields.py",
+        "tests/test_schema.py",
+        "tests/test_serialization.py",
+        "tests/test_deserialization.py",
+        "tests/test_decorators.py",
+        "tests/test_exceptions.py",
+        "tests/test_utils.py",
+        "tests/test_options.py",
+        "tests/test_error_store.py"
+      ],
+      "dependency_versions": {
+        "packaging": "24.1",
+        "pytest": "9.0.3",
+        "simplejson": "4.1.1"
+      },
+      "duration_seconds": 51.3,
+      "errors": 0,
+      "evidence_scope": "public_initial_state",
+      "failed": 1080,
+      "notes": [
+        "Verified with PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 and PYTHONPATH=<materialized>/src after applying only checksum-recorded bootstrap overlays.",
+        "Failures are caused by unfinished registry, fields, validators, schema load/dump, nested, decorator, utility, and error-store behavior."
+      ],
+      "passed": 148,
+      "python_version": "3.10.12",
+      "return_code": 1,
+      "schema_version": "0.3",
+      "skipped": 0,
+      "snapshot_id": "curated_commit0_initial_evaluator",
+      "source_ref": "origin/commit0_combined:bd290d2b49f5030a2369aedc5538cffa4815982d+bootstrap-overlays"
+    },
+    {
+      "collected": 1230,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_registry.py",
+        "tests/test_validate.py",
+        "tests/test_fields.py",
+        "tests/test_schema.py",
+        "tests/test_serialization.py",
+        "tests/test_deserialization.py",
+        "tests/test_decorators.py",
+        "tests/test_exceptions.py",
+        "tests/test_utils.py",
+        "tests/test_options.py",
+        "tests/test_error_store.py"
+      ],
+      "dependency_versions": {
+        "packaging": "24.1",
+        "pytest": "9.0.3",
+        "simplejson": "4.1.1"
+      },
+      "duration_seconds": 1.47,
+      "errors": 0,
+      "evidence_scope": "evaluator_sanity_only",
+      "failed": 0,
+      "notes": [
+        "The complete/default local commit0 ref passes the same scoped evaluator in the same environment.",
+        "The complete ref is evaluator validation only and must not define decomposition, prompts, or agent-visible evidence."
+      ],
+      "passed": 1230,
+      "python_version": "3.10.12",
+      "return_code": 0,
+      "schema_version": "0.3",
+      "skipped": 0,
+      "snapshot_id": "complete_commit0_evaluator_sanity",
+      "source_ref": "commit0:947724c7391814a740b94239807eb964c9bf40d7"
+    }
+  ],
+  "known_limitations": [
+    "The local commit0/default branch is complete. Benchmark workspaces must be materialized from origin/commit0_combined.",
+    "Raw origin/commit0_combined collection fails before bootstrap overlays because public imports need missing utility symbols, metaclass placeholders, collection predicates, and decorator callables.",
+    "Bootstrap overlays only make the public tests collectable; they do not implement marshmallow registry, field, validation, schema, decorator, or error-store behavior.",
+    "tests/test_version_attributes.py is excluded because direct checkout execution lacks installed distribution metadata for marshmallow.",
+    "Single-agent and multi-agent model results are evaluation outputs to report, not dataset qualification gates."
+  ],
+  "public_statement_sources": [
+    "README.rst@origin/commit0_combined",
+    "src/marshmallow/*.py docstrings@origin/commit0_combined",
+    "tests/test_*.py@origin/commit0_combined",
+    "manifests/candidates/commit0_async_screening_v0.3.json"
+  ],
+  "quality_status": "qualification_ready",
+  "remaining_gates": [
+    "two independent human inclusion/exclusion annotations"
+  ],
+  "schema_version": "0.3",
+  "structure_rationale": "marshmallow exposes semantic async dependencies between schema declaration/registry, field and validator contracts, and schema processing/hooks. Downstream schema workers can make stale assumptions about field binding, missing/default handling, nested class resolution, or decorator metadata that only fail once load/dump and nested integration tests run.",
+  "task_id": "commit0:marshmallow",
+  "test_groups": [
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_registry.py",
+        "tests/test_options.py"
+      ],
+      "description": "Schema class registry, declared fields, Meta options, ordering, and nested class-name resolution.",
+      "group_id": "registry_declaration_local",
+      "owner_subproblem": "registry_declaration_layer",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_fields.py",
+        "tests/test_validate.py",
+        "tests/test_serialization.py",
+        "tests/test_deserialization.py",
+        "tests/test_utils.py"
+      ],
+      "description": "Field binding, field serialization/deserialization, validators, missing/default/null handling, and utilities.",
+      "group_id": "field_validation_local",
+      "owner_subproblem": "field_validation_layer",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_schema.py",
+        "tests/test_decorators.py",
+        "tests/test_error_store.py"
+      ],
+      "description": "Schema load/dump, decorators, hook processing, nested schemas, custom errors, and error merging.",
+      "group_id": "schema_processing_local",
+      "owner_subproblem": "schema_processing_layer",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_validate.py::test_range_min",
+        "tests/test_deserialization.py::TestValidation::test_integer_with_validator",
+        "tests/test_schema.py::TestValidate::test_validate_required"
+      ],
+      "description": "Schema validation after field validators and field deserialization are integrated.",
+      "group_id": "field_schema_cross_contract",
+      "owner_subproblem": null,
+      "prerequisites": [
+        "field_validation_layer artifact is integrated",
+        "schema_processing_layer artifact is integrated"
+      ],
+      "purpose": "cross_subproblem",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_registry.py::test_serializer_has_class_registry",
+        "tests/test_registry.py::test_two_way_nesting",
+        "tests/test_schema.py::TestSelfReference::test_nesting_schema_by_passing_class_name"
+      ],
+      "description": "Nested field behavior after schema registry and field nested-resolution contracts are integrated.",
+      "group_id": "registry_nested_cross_contract",
+      "owner_subproblem": null,
+      "prerequisites": [
+        "registry_declaration_layer artifact is integrated",
+        "field_validation_layer artifact is integrated"
+      ],
+      "purpose": "cross_subproblem",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_decorators.py::TestValidatesDecorator::test_validates",
+        "tests/test_decorators.py::TestValidatesSchemaDecorator::test_decorated_validators",
+        "tests/test_schema.py::MySchema::test_custom_error_handler_with_validates_schema_decorator"
+      ],
+      "description": "Schema hook/error behavior after decorator metadata and schema processing are integrated.",
+      "group_id": "decorator_schema_cross_contract",
+      "owner_subproblem": null,
+      "prerequisites": [
+        "schema_processing_layer artifact is integrated",
+        "field_validation_layer artifact is integrated"
+      ],
+      "purpose": "cross_subproblem",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_registry.py",
+        "tests/test_validate.py",
+        "tests/test_fields.py",
+        "tests/test_schema.py",
+        "tests/test_serialization.py",
+        "tests/test_deserialization.py",
+        "tests/test_decorators.py",
+        "tests/test_exceptions.py",
+        "tests/test_utils.py",
+        "tests/test_options.py",
+        "tests/test_error_store.py"
+      ],
+      "description": "Scoped public marshmallow tests excluding direct-checkout distribution metadata version tests.",
+      "group_id": "full_evaluator",
+      "owner_subproblem": null,
+      "prerequisites": [],
+      "purpose": "full_evaluator",
+      "schema_version": "0.3"
+    }
+  ]
+}

@@ -1,0 +1,488 @@
+{
+  "scenarios": [
+    {
+      "agent_count": 1,
+      "assignments": [
+        {
+          "agent_id": "integrator",
+          "primary_test_targets": [
+            "tests/test_common.py",
+            "tests/test_key.py",
+            "tests/test_load_save_keys.py",
+            "tests/test_pem.py",
+            "tests/test_pkcs1.py",
+            "tests/test_prime.py",
+            "tests/test_transform.py",
+            "tests/test_strings.py"
+          ],
+          "role": "iterative full-task coding agent",
+          "schema_version": "0.3",
+          "subproblem_id": "full_task",
+          "writable_paths": [
+            "rsa/common.py",
+            "rsa/prime.py",
+            "rsa/randnum.py",
+            "rsa/transform.py",
+            "rsa/core.py",
+            "rsa/key.py",
+            "rsa/asn1.py",
+            "rsa/pem.py",
+            "rsa/pkcs1.py"
+          ]
+        }
+      ],
+      "communication_condition": "not_applicable",
+      "competence_gate_required": true,
+      "concurrent_execution": false,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "key_generation_and_model",
+          "dependency_type": "api_contract",
+          "description": "Key generation and PrivateKey/PublicKey helpers consume common arithmetic, modular inverse, primality, random-prime, and integer-size contracts. Stale assumptions about inverse or byte-size behavior cause key exponent, coefficient, and blinding failures.",
+          "evidence_paths": [
+            "rsa/common.py",
+            "rsa/prime.py",
+            "rsa/randnum.py",
+            "rsa/transform.py",
+            "rsa/key.py",
+            "tests/test_common.py",
+            "tests/test_prime.py",
+            "tests/test_transform.py",
+            "tests/test_key.py"
+          ],
+          "producer_subproblem": "arithmetic_and_codec_core",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "serialization_contracts",
+          "dependency_type": "integration",
+          "description": "DER/PEM load-save behavior depends on the key model's field layout, CRT exponent/coefficient recalculation, equality semantics, and pyasn1 DER conversion contract.",
+          "evidence_paths": [
+            "rsa/key.py",
+            "rsa/asn1.py",
+            "rsa/pem.py",
+            "tests/test_load_save_keys.py",
+            "tests/test_pem.py"
+          ],
+          "producer_subproblem": "key_generation_and_model",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "pkcs1_crypto_api",
+          "dependency_type": "api_contract",
+          "description": "PKCS#1 encryption, decryption, signing, verification, and padding validation consume integer/byte codecs, byte-size calculation, key generation, and key serialization behavior.",
+          "evidence_paths": [
+            "rsa/common.py",
+            "rsa/core.py",
+            "rsa/transform.py",
+            "rsa/key.py",
+            "rsa/pkcs1.py",
+            "tests/test_pkcs1.py",
+            "tests/test_strings.py"
+          ],
+          "producer_subproblem": "arithmetic_and_codec_core",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "iterative_single",
+      "information_profile": "complete-task",
+      "integration_policy": "Agent submits its final workspace.",
+      "message_delivery_policy": "No inter-agent messages.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-python-rsa.iterative-single.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "task_id": "commit0:python-rsa",
+      "test_budget_per_agent": 10,
+      "token_budget_per_agent": 65000,
+      "wall_clock_budget_seconds": 2400
+    },
+    {
+      "agent_count": 4,
+      "assignments": [
+        {
+          "agent_id": "arithmetic_agent",
+          "primary_test_targets": [
+            "tests/test_common.py",
+            "tests/test_prime.py",
+            "tests/test_transform.py"
+          ],
+          "role": "number theory and integer codec specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "arithmetic_and_codec_core",
+          "writable_paths": [
+            "rsa/common.py",
+            "rsa/prime.py",
+            "rsa/randnum.py",
+            "rsa/transform.py",
+            "rsa/core.py"
+          ]
+        },
+        {
+          "agent_id": "key_agent",
+          "primary_test_targets": [
+            "tests/test_key.py"
+          ],
+          "role": "RSA key generation and key model specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "key_generation_and_model",
+          "writable_paths": [
+            "rsa/key.py"
+          ]
+        },
+        {
+          "agent_id": "serialization_agent",
+          "primary_test_targets": [
+            "tests/test_load_save_keys.py",
+            "tests/test_pem.py"
+          ],
+          "role": "DER and PEM serialization specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "serialization_contracts",
+          "writable_paths": [
+            "rsa/asn1.py",
+            "rsa/pem.py"
+          ]
+        },
+        {
+          "agent_id": "pkcs1_agent",
+          "primary_test_targets": [
+            "tests/test_pkcs1.py",
+            "tests/test_strings.py"
+          ],
+          "role": "PKCS#1 encryption and signing API specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "pkcs1_crypto_api",
+          "writable_paths": [
+            "rsa/pkcs1.py"
+          ]
+        }
+      ],
+      "communication_condition": "completed_artifact_handoff",
+      "competence_gate_required": true,
+      "concurrent_execution": false,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "key_generation_and_model",
+          "dependency_type": "api_contract",
+          "description": "Key generation and PrivateKey/PublicKey helpers consume common arithmetic, modular inverse, primality, random-prime, and integer-size contracts. Stale assumptions about inverse or byte-size behavior cause key exponent, coefficient, and blinding failures.",
+          "evidence_paths": [
+            "rsa/common.py",
+            "rsa/prime.py",
+            "rsa/randnum.py",
+            "rsa/transform.py",
+            "rsa/key.py",
+            "tests/test_common.py",
+            "tests/test_prime.py",
+            "tests/test_transform.py",
+            "tests/test_key.py"
+          ],
+          "producer_subproblem": "arithmetic_and_codec_core",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "serialization_contracts",
+          "dependency_type": "integration",
+          "description": "DER/PEM load-save behavior depends on the key model's field layout, CRT exponent/coefficient recalculation, equality semantics, and pyasn1 DER conversion contract.",
+          "evidence_paths": [
+            "rsa/key.py",
+            "rsa/asn1.py",
+            "rsa/pem.py",
+            "tests/test_load_save_keys.py",
+            "tests/test_pem.py"
+          ],
+          "producer_subproblem": "key_generation_and_model",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "pkcs1_crypto_api",
+          "dependency_type": "api_contract",
+          "description": "PKCS#1 encryption, decryption, signing, verification, and padding validation consume integer/byte codecs, byte-size calculation, key generation, and key serialization behavior.",
+          "evidence_paths": [
+            "rsa/common.py",
+            "rsa/core.py",
+            "rsa/transform.py",
+            "rsa/key.py",
+            "rsa/pkcs1.py",
+            "tests/test_pkcs1.py",
+            "tests/test_strings.py"
+          ],
+          "producer_subproblem": "arithmetic_and_codec_core",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "serial_specialists",
+      "information_profile": "private-workspace",
+      "integration_policy": "Apply arithmetic/codec artifacts first, then key artifacts, then serialization and PKCS#1 artifacts before running the full evaluator.",
+      "message_delivery_policy": "Specialists run with barrier synchronization. Key, serialization, and PKCS#1 workers receive completed upstream arithmetic/key artifacts and targeted test results before dependent work starts.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-python-rsa.serial-specialists.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "task_id": "commit0:python-rsa",
+      "test_budget_per_agent": 10,
+      "token_budget_per_agent": 65000,
+      "wall_clock_budget_seconds": 2400
+    },
+    {
+      "agent_count": 4,
+      "assignments": [
+        {
+          "agent_id": "arithmetic_agent",
+          "primary_test_targets": [
+            "tests/test_common.py",
+            "tests/test_prime.py",
+            "tests/test_transform.py"
+          ],
+          "role": "number theory and integer codec specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "arithmetic_and_codec_core",
+          "writable_paths": [
+            "rsa/common.py",
+            "rsa/prime.py",
+            "rsa/randnum.py",
+            "rsa/transform.py",
+            "rsa/core.py"
+          ]
+        },
+        {
+          "agent_id": "key_agent",
+          "primary_test_targets": [
+            "tests/test_key.py"
+          ],
+          "role": "RSA key generation and key model specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "key_generation_and_model",
+          "writable_paths": [
+            "rsa/key.py"
+          ]
+        },
+        {
+          "agent_id": "serialization_agent",
+          "primary_test_targets": [
+            "tests/test_load_save_keys.py",
+            "tests/test_pem.py"
+          ],
+          "role": "DER and PEM serialization specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "serialization_contracts",
+          "writable_paths": [
+            "rsa/asn1.py",
+            "rsa/pem.py"
+          ]
+        },
+        {
+          "agent_id": "pkcs1_agent",
+          "primary_test_targets": [
+            "tests/test_pkcs1.py",
+            "tests/test_strings.py"
+          ],
+          "role": "PKCS#1 encryption and signing API specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "pkcs1_crypto_api",
+          "writable_paths": [
+            "rsa/pkcs1.py"
+          ]
+        }
+      ],
+      "communication_condition": "none_in_flight",
+      "competence_gate_required": true,
+      "concurrent_execution": true,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "key_generation_and_model",
+          "dependency_type": "api_contract",
+          "description": "Key generation and PrivateKey/PublicKey helpers consume common arithmetic, modular inverse, primality, random-prime, and integer-size contracts. Stale assumptions about inverse or byte-size behavior cause key exponent, coefficient, and blinding failures.",
+          "evidence_paths": [
+            "rsa/common.py",
+            "rsa/prime.py",
+            "rsa/randnum.py",
+            "rsa/transform.py",
+            "rsa/key.py",
+            "tests/test_common.py",
+            "tests/test_prime.py",
+            "tests/test_transform.py",
+            "tests/test_key.py"
+          ],
+          "producer_subproblem": "arithmetic_and_codec_core",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "serialization_contracts",
+          "dependency_type": "integration",
+          "description": "DER/PEM load-save behavior depends on the key model's field layout, CRT exponent/coefficient recalculation, equality semantics, and pyasn1 DER conversion contract.",
+          "evidence_paths": [
+            "rsa/key.py",
+            "rsa/asn1.py",
+            "rsa/pem.py",
+            "tests/test_load_save_keys.py",
+            "tests/test_pem.py"
+          ],
+          "producer_subproblem": "key_generation_and_model",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "pkcs1_crypto_api",
+          "dependency_type": "api_contract",
+          "description": "PKCS#1 encryption, decryption, signing, verification, and padding validation consume integer/byte codecs, byte-size calculation, key generation, and key serialization behavior.",
+          "evidence_paths": [
+            "rsa/common.py",
+            "rsa/core.py",
+            "rsa/transform.py",
+            "rsa/key.py",
+            "rsa/pkcs1.py",
+            "tests/test_pkcs1.py",
+            "tests/test_strings.py"
+          ],
+          "producer_subproblem": "arithmetic_and_codec_core",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "async_private",
+      "information_profile": "private-workspace",
+      "integration_policy": "Run specialists concurrently in private workspaces and integrate final artifacts after all workers finish.",
+      "message_delivery_policy": "No in-flight worker messages or artifacts are delivered.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-python-rsa.async-private.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "task_id": "commit0:python-rsa",
+      "test_budget_per_agent": 10,
+      "token_budget_per_agent": 65000,
+      "wall_clock_budget_seconds": 2400
+    },
+    {
+      "agent_count": 4,
+      "assignments": [
+        {
+          "agent_id": "arithmetic_agent",
+          "primary_test_targets": [
+            "tests/test_common.py",
+            "tests/test_prime.py",
+            "tests/test_transform.py"
+          ],
+          "role": "number theory and integer codec specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "arithmetic_and_codec_core",
+          "writable_paths": [
+            "rsa/common.py",
+            "rsa/prime.py",
+            "rsa/randnum.py",
+            "rsa/transform.py",
+            "rsa/core.py"
+          ]
+        },
+        {
+          "agent_id": "key_agent",
+          "primary_test_targets": [
+            "tests/test_key.py"
+          ],
+          "role": "RSA key generation and key model specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "key_generation_and_model",
+          "writable_paths": [
+            "rsa/key.py"
+          ]
+        },
+        {
+          "agent_id": "serialization_agent",
+          "primary_test_targets": [
+            "tests/test_load_save_keys.py",
+            "tests/test_pem.py"
+          ],
+          "role": "DER and PEM serialization specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "serialization_contracts",
+          "writable_paths": [
+            "rsa/asn1.py",
+            "rsa/pem.py"
+          ]
+        },
+        {
+          "agent_id": "pkcs1_agent",
+          "primary_test_targets": [
+            "tests/test_pkcs1.py",
+            "tests/test_strings.py"
+          ],
+          "role": "PKCS#1 encryption and signing API specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "pkcs1_crypto_api",
+          "writable_paths": [
+            "rsa/pkcs1.py"
+          ]
+        }
+      ],
+      "communication_condition": "structured_message_and_artifact",
+      "competence_gate_required": true,
+      "concurrent_execution": true,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "key_generation_and_model",
+          "dependency_type": "api_contract",
+          "description": "Key generation and PrivateKey/PublicKey helpers consume common arithmetic, modular inverse, primality, random-prime, and integer-size contracts. Stale assumptions about inverse or byte-size behavior cause key exponent, coefficient, and blinding failures.",
+          "evidence_paths": [
+            "rsa/common.py",
+            "rsa/prime.py",
+            "rsa/randnum.py",
+            "rsa/transform.py",
+            "rsa/key.py",
+            "tests/test_common.py",
+            "tests/test_prime.py",
+            "tests/test_transform.py",
+            "tests/test_key.py"
+          ],
+          "producer_subproblem": "arithmetic_and_codec_core",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "serialization_contracts",
+          "dependency_type": "integration",
+          "description": "DER/PEM load-save behavior depends on the key model's field layout, CRT exponent/coefficient recalculation, equality semantics, and pyasn1 DER conversion contract.",
+          "evidence_paths": [
+            "rsa/key.py",
+            "rsa/asn1.py",
+            "rsa/pem.py",
+            "tests/test_load_save_keys.py",
+            "tests/test_pem.py"
+          ],
+          "producer_subproblem": "key_generation_and_model",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "pkcs1_crypto_api",
+          "dependency_type": "api_contract",
+          "description": "PKCS#1 encryption, decryption, signing, verification, and padding validation consume integer/byte codecs, byte-size calculation, key generation, and key serialization behavior.",
+          "evidence_paths": [
+            "rsa/common.py",
+            "rsa/core.py",
+            "rsa/transform.py",
+            "rsa/key.py",
+            "rsa/pkcs1.py",
+            "tests/test_pkcs1.py",
+            "tests/test_strings.py"
+          ],
+          "producer_subproblem": "arithmetic_and_codec_core",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "async_message",
+      "information_profile": "private-workspace",
+      "integration_policy": "Integrate latest explicitly transferred artifacts and record stale arithmetic/key/serialization assumptions.",
+      "message_delivery_policy": "Workers may transfer arithmetic, key-model, serialization, and PKCS#1 contract assumptions while active.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-python-rsa.async-message.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "task_id": "commit0:python-rsa",
+      "test_budget_per_agent": 10,
+      "token_budget_per_agent": 65000,
+      "wall_clock_budget_seconds": 2400
+    }
+  ],
+  "schema_version": "0.3",
+  "task_id": "commit0:python-rsa"
+}

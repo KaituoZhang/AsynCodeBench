@@ -1,0 +1,114 @@
+{
+  "$defs": {
+    "ParallelizabilityLabel": {
+      "enum": [
+        "parallelizable",
+        "partially_parallelizable",
+        "effectively_serial"
+      ],
+      "title": "ParallelizabilityLabel",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Answer-free form assigned to one genuinely independent human.",
+  "properties": {
+    "allowed_labels": {
+      "items": {
+        "$ref": "#/$defs/ParallelizabilityLabel"
+      },
+      "title": "Allowed Labels",
+      "type": "array"
+    },
+    "annotator_id": {
+      "minLength": 1,
+      "title": "Annotator Id",
+      "type": "string"
+    },
+    "candidate_evidence_file": {
+      "minLength": 1,
+      "title": "Candidate Evidence File",
+      "type": "string"
+    },
+    "exclusion_reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Exclusion Reason"
+    },
+    "include": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Include"
+    },
+    "independence_instructions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Independence Instructions",
+      "type": "array"
+    },
+    "parallelizability_label": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ParallelizabilityLabel"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "rationale": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Rationale"
+    },
+    "schema_version": {
+      "const": "0.3",
+      "default": "0.3",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "task_id": {
+      "minLength": 1,
+      "title": "Task Id",
+      "type": "string"
+    },
+    "task_record_file": {
+      "minLength": 1,
+      "title": "Task Record File",
+      "type": "string"
+    }
+  },
+  "required": [
+    "task_id",
+    "annotator_id",
+    "candidate_evidence_file",
+    "task_record_file",
+    "allowed_labels",
+    "independence_instructions"
+  ],
+  "title": "AnnotationForm",
+  "type": "object"
+}

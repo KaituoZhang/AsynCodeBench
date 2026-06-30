@@ -1,0 +1,179 @@
+{
+  "aggregate_metrics": {
+    "ADPR_denominator": "All dependency_points unless a paper section explicitly reports primary_async_dependency_ids only.",
+    "dependency_point_count": 3,
+    "minimum_success_condition_for_task_level_async_dependency_resolution": "All primary_async_dependency_ids pass in the final integrated workspace.",
+    "primary_async_dependency_ids": [
+      "pexpect.expect_to_spawn.match_state_contract",
+      "pexpect.transport_to_spawn.read_timeout_contract",
+      "pexpect.spawn_to_wrappers.run_async_contract"
+    ],
+    "primary_paper_dependency_id": "pexpect.expect_to_spawn.match_state_contract"
+  },
+  "annotation_notes": [
+    "The expect_to_spawn dependency is the primary signal because SpawnBase public state is highly sensitive to stale searcher and Expecter matching semantics.",
+    "The transport_to_spawn dependency captures stale assumptions around read_nonblocking, EOF/TIMEOUT, CRLF, and output type behavior.",
+    "The spawn_to_wrappers dependency captures stale assumptions in run, replwrap, and async wrappers.",
+    "These labels identify public test-observable contracts, not solution code."
+  ],
+  "dependency_points": [
+    {
+      "consumer_agent": "spawn_agent",
+      "consumer_files": [
+        "pexpect/spawnbase.py"
+      ],
+      "consumer_subproblem": "spawn_api_state_layer",
+      "contract_summary": "Expecter and searcher matching semantics must be stable for SpawnBase.expect, expect_exact, before/after/match, buffer, and searchwindowsize behavior.",
+      "dependency_id": "pexpect.expect_to_spawn.match_state_contract",
+      "dependency_type": "interface_dependency",
+      "downstream_probe_tests": [
+        "tests/test_expect.py::ExpectTestCase::test_before_after",
+        "tests/test_expect.py::ExpectTestCase::test_searchwindowsize"
+      ],
+      "integrated_probe_tests": [
+        "tests/test_expect.py::ExpectTestCase::test_expect_order",
+        "tests/test_expect.py::ExpectTestCase::test_before_after",
+        "tests/test_expect.py::ExpectTestCase::test_searchwindowsize"
+      ],
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL",
+        "SAD"
+      ],
+      "primary_paper_probe": true,
+      "producer_agent": "expect_agent",
+      "producer_files": [
+        "pexpect/expect.py"
+      ],
+      "producer_subproblem": "expect_search_layer",
+      "resolution_criteria": "Resolved when expect/search ordering, buffer state, and search window probes pass in the integrated workspace.",
+      "stale_failure_mode": "The SpawnBase agent may update before/after/match or buffer state around stale searcher return semantics or search window assumptions.",
+      "upstream_probe_tests": [
+        "tests/test_expect.py::ExpectTestCase::test_expect_order",
+        "tests/test_expect.py::ExpectTestCase::test_ordering"
+      ]
+    },
+    {
+      "consumer_agent": "spawn_agent",
+      "consumer_files": [
+        "pexpect/spawnbase.py"
+      ],
+      "consumer_subproblem": "spawn_api_state_layer",
+      "contract_summary": "pty and popen transports must present read_nonblocking, EOF, TIMEOUT, bytes/text, and CRLF behavior that SpawnBase and Expecter consume consistently.",
+      "dependency_id": "pexpect.transport_to_spawn.read_timeout_contract",
+      "dependency_type": "shared_api_contract",
+      "downstream_probe_tests": [
+        "tests/test_expect.py::ExpectTestCase::test_expect_timeout",
+        "tests/test_expect.py::ExpectTestCase::test_unexpected_eof"
+      ],
+      "integrated_probe_tests": [
+        "tests/test_popen_spawn.py::ExpectTestCase::test_expect",
+        "tests/test_popen_spawn.py::ExpectTestCase::test_crlf",
+        "tests/test_expect.py::ExpectTestCase::test_expect_timeout",
+        "tests/test_expect.py::ExpectTestCase::test_unexpected_eof"
+      ],
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL",
+        "SAD"
+      ],
+      "producer_agent": "transport_agent",
+      "producer_files": [
+        "pexpect/popen_spawn.py",
+        "pexpect/pty_spawn.py",
+        "pexpect/_async.py"
+      ],
+      "producer_subproblem": "transport_layer",
+      "resolution_criteria": "Resolved when transport probes and SpawnBase EOF/TIMEOUT consumer probes pass together after integration.",
+      "stale_failure_mode": "SpawnBase or Expecter code may assume stale transport output type, line ending, EOF, or timeout behavior.",
+      "upstream_probe_tests": [
+        "tests/test_popen_spawn.py::ExpectTestCase::test_expect",
+        "tests/test_popen_spawn.py::ExpectTestCase::test_crlf"
+      ]
+    },
+    {
+      "consumer_agent": "wrapper_agent",
+      "consumer_files": [
+        "pexpect/run.py",
+        "pexpect/replwrap.py"
+      ],
+      "consumer_subproblem": "wrapper_layer",
+      "contract_summary": "run, replwrap, and async wrappers must consume SpawnBase expect/read behavior, EOF/TIMEOUT handling, callback events, and transport output normalization consistently.",
+      "dependency_id": "pexpect.spawn_to_wrappers.run_async_contract",
+      "dependency_type": "shared_state_contract",
+      "downstream_probe_tests": [
+        "tests/test_run.py::RunFuncTestCase::test_run",
+        "tests/test_async.py::AsyncTests::test_async_replwrap"
+      ],
+      "integrated_probe_tests": [
+        "tests/test_expect.py::ExpectTestCase::test_expect",
+        "tests/test_popen_spawn.py::ExpectTestCase::test_expect",
+        "tests/test_run.py::RunFuncTestCase::test_run",
+        "tests/test_async.py::AsyncTests::test_async_replwrap"
+      ],
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL",
+        "SAD"
+      ],
+      "producer_agent": "spawn_agent",
+      "producer_files": [
+        "pexpect/spawnbase.py",
+        "pexpect/popen_spawn.py",
+        "pexpect/pty_spawn.py"
+      ],
+      "producer_subproblem": "spawn_api_state_layer",
+      "resolution_criteria": "Resolved when SpawnBase/transport expect probes and run/replwrap/async wrapper probes pass in the final integrated workspace.",
+      "stale_failure_mode": "Wrapper code may duplicate or bypass stale SpawnBase semantics, causing callbacks or async wrappers to disagree with expect behavior.",
+      "upstream_probe_tests": [
+        "tests/test_expect.py::ExpectTestCase::test_expect",
+        "tests/test_popen_spawn.py::ExpectTestCase::test_expect"
+      ]
+    }
+  ],
+  "evaluation_checkpoint_policy": {
+    "checkpoint_record_fields": [
+      "run_id",
+      "scenario_id",
+      "checkpoint_id",
+      "logical_iteration",
+      "agent_id",
+      "visible_upstream_artifact_version",
+      "integrated_workspace_version",
+      "probe_test_results"
+    ],
+    "minimum_policy": "Run probe tests after each agent final artifact and after final integration.",
+    "recommended_policy": "Run probe tests after every committed patch, every explicit artifact transfer, and final integration."
+  },
+  "metric_annotation_id": "commit0-pexpect.async-metrics.v0.3",
+  "metric_definitions": {
+    "ADPR": {
+      "definition": "Fraction of registered dependency_points whose required integrated_probe_tests pass in the final integrated workspace.",
+      "name": "Async Dependency Pass Rate",
+      "unit": "fraction"
+    },
+    "CAIL": {
+      "definition": "downstream_resolution_step minus upstream_resolution_step when both probe groups have been evaluated.",
+      "name": "Cross-Agent Integration Lag",
+      "unit": "agent iteration or evaluation checkpoint"
+    },
+    "DRS": {
+      "definition": "First recorded checkpoint at which all required integrated_probe_tests for a dependency point pass.",
+      "name": "Dependency Resolution Step",
+      "unit": "agent iteration or evaluation checkpoint"
+    },
+    "SAD": {
+      "definition": "Interval during which a downstream worker acts on a contract assumption inconsistent with the latest upstream artifact.",
+      "name": "Stale Assumption Duration",
+      "unit": "agent iteration or event interval"
+    }
+  },
+  "purpose": "Dependency-level labels for measuring whether asynchronous multi-agent coding resolves Pexpect expect/search, SpawnBase state, transport, run, and async wrapper contracts.",
+  "schema_version": "0.3-async-metrics",
+  "source_quality_record": "manifests/pilot/v0.3/quality/commit0_pexpect.json",
+  "source_task_record": "manifests/pilot/v0.3/tasks/commit0_pexpect.json",
+  "task_id": "commit0:pexpect"
+}

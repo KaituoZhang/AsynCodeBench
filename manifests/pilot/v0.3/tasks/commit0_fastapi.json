@@ -1,0 +1,122 @@
+{
+  "annotation_provenance": [],
+  "candidate_evidence_file": "manifests/candidates/commit0_async_screening_v0.3.json",
+  "dependency_annotations": [
+    {
+      "consumer_subproblem": "dependency_solving_layer",
+      "dependency_type": "api_contract",
+      "description": "FastAPI dependency solving and route model construction consume marker objects produced by Path, Query, Depends, Security, and related parameter functions.",
+      "evidence_paths": [
+        "fastapi/param_functions.py",
+        "fastapi/params.py",
+        "fastapi/dependencies/models.py",
+        "fastapi/dependencies/utils.py",
+        "tests/test_dependency_cache.py",
+        "tests/test_param_class.py"
+      ],
+      "producer_subproblem": "parameter_marker_layer",
+      "schema_version": "0.3"
+    },
+    {
+      "consumer_subproblem": "serialization_schema_layer",
+      "dependency_type": "integration",
+      "description": "OpenAPI generation and response schema construction consume APIRoute metadata, operation IDs, response fields, default response classes, callbacks, and include_router defaults.",
+      "evidence_paths": [
+        "fastapi/routing.py",
+        "fastapi/applications.py",
+        "fastapi/openapi/utils.py",
+        "fastapi/utils.py",
+        "tests/test_generate_unique_id_function.py",
+        "tests/test_include_router_defaults_overrides.py"
+      ],
+      "producer_subproblem": "routing_application_layer",
+      "schema_version": "0.3"
+    },
+    {
+      "consumer_subproblem": "routing_application_layer",
+      "dependency_type": "api_contract",
+      "description": "Route handlers and response-model filtering consume jsonable_encoder, Pydantic field compatibility, and serialization helper behavior.",
+      "evidence_paths": [
+        "fastapi/encoders.py",
+        "fastapi/_compat.py",
+        "fastapi/routing.py",
+        "tests/test_jsonable_encoder.py",
+        "tests/test_response_model_data_filter.py"
+      ],
+      "producer_subproblem": "serialization_schema_layer",
+      "schema_version": "0.3"
+    }
+  ],
+  "evaluator_command": [
+    "/home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "-W",
+    "ignore::DeprecationWarning",
+    "tests/test_jsonable_encoder.py"
+  ],
+  "inclusion_decision": null,
+  "natural_subproblems": {
+    "dependency_solving_layer": [
+      "fastapi/dependencies/models.py",
+      "fastapi/dependencies/utils.py",
+      "tests/test_dependency_cache.py"
+    ],
+    "parameter_marker_layer": [
+      "fastapi/param_functions.py",
+      "fastapi/params.py",
+      "tests/test_param_class.py",
+      "tests/test_params_repr.py"
+    ],
+    "routing_application_layer": [
+      "fastapi/applications.py",
+      "fastapi/routing.py",
+      "tests/test_default_response_class.py",
+      "tests/test_include_router_defaults_overrides.py"
+    ],
+    "serialization_schema_layer": [
+      "fastapi/_compat.py",
+      "fastapi/encoders.py",
+      "fastapi/openapi/utils.py",
+      "fastapi/utils.py",
+      "tests/test_jsonable_encoder.py",
+      "tests/test_generate_unique_id_function.py",
+      "tests/test_response_model_data_filter.py"
+    ]
+  },
+  "notes": [
+    "The Commit0 screening record marks FastAPI as weak_or_unclear because many docs_src tutorial files also contain stubs; this task scopes the benchmark to core FastAPI modules and flags the scope for human review.",
+    "The local master/commit0 branch is complete. Benchmark workspaces must be materialized from origin/commit0_combined.",
+    "The bootstrap overlay exposes import-time compatibility symbols only; it must be reviewed before release because FastAPI's import graph is broad.",
+    "The locally runnable evaluator slice is jsonable_encoder. Route/TestClient and OpenAPI probe groups are retained as public dependency probes but need a fully pinned FastAPI test environment before final release."
+  ],
+  "problem_statement": "Restore the scoped FastAPI parameter marker, dependency solving, routing/application, and serialization/OpenAPI behavior exercised by the public Commit0 tests without modifying tests.\n\nThe parameter marker layer must produce stable Path, Query, Depends, Security, and related marker contracts. The dependency solving layer must consume those markers to construct Dependant graphs, cache keys, and request dependency execution behavior. The routing/application layer must consume dependency and response contracts to register routes, include routers, apply default response classes, and build route handlers. The serialization/schema layer must provide jsonable_encoder, compatibility helpers, response-field/schema helpers, and OpenAPI metadata consumed by routing and response model filtering.\n\nThe initial benchmark source is the stripped Commit0-style ref origin/commit0_combined, plus checksum-recorded bootstrap overlays that only address import blockers.",
+  "proposed_parallelizability_label": "partially_parallelizable",
+  "publicly_implicated_modules": [
+    "fastapi/_compat.py",
+    "fastapi/applications.py",
+    "fastapi/dependencies/models.py",
+    "fastapi/dependencies/utils.py",
+    "fastapi/encoders.py",
+    "fastapi/openapi/utils.py",
+    "fastapi/param_functions.py",
+    "fastapi/params.py",
+    "fastapi/routing.py",
+    "fastapi/utils.py"
+  ],
+  "qualification_label": null,
+  "qualification_status": "pending_independent_annotation",
+  "quality_evidence_file": "manifests/pilot/v0.3/quality/commit0_fastapi.json",
+  "repository": "commit0/fastapi",
+  "schema_version": "0.3",
+  "source_materialization": "git archive of the stripped Commit0-style FastAPI ref origin/commit0_combined at 0ee9d513da2f664b076c13a5f0969ecd1bfd25dd, plus checksum-recorded bootstrap overlays in configs/tasks/commit0_curated_tasks.v0.3.json",
+  "task_id": "commit0:fastapi",
+  "task_source": "Commit0",
+  "test_targets": [
+    "tests/test_jsonable_encoder.py"
+  ],
+  "upstream_version": "0ee9d513da2f664b076c13a5f0969ecd1bfd25dd"
+}

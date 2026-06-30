@@ -1,0 +1,22 @@
+diff --git a/tinydb/utils.py b/tinydb/utils.py
+index bd59d41..77ac9f2 100644
+--- a/tinydb/utils.py
++++ b/tinydb/utils.py
+@@ -23,6 +23,6 @@ def with_typehint(baseclass: Type[T]):
+     ``mypy_plugin.py`` that adds support for this pattern.
+     """
+-    pass
++    return object
+ 
+ class LRUCache(abc.MutableMapping, Generic[K, V]):
+     """
+@@ -74,6 +74,9 @@ class FrozenDict(dict):
+ 
+     def __hash__(self):
+         return hash(tuple(sorted(self.items())))
++
++    def _immutable(self, *args, **kwargs):
++        pass
+     __setitem__ = _immutable
+     __delitem__ = _immutable
+     clear = _immutable

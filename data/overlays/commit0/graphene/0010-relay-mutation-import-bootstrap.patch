@@ -1,0 +1,15 @@
+diff --git a/graphene/relay/mutation.py b/graphene/relay/mutation.py
+index 3619a34..73e22cf 100644
+--- a/graphene/relay/mutation.py
++++ b/graphene/relay/mutation.py
+@@ -27,4 +27,8 @@ class ClientIDMutation(Mutation):
+         if not name:
+             name = f'{base_name}Payload'
+         super(ClientIDMutation, cls).__init_subclass_with_meta__(output=None, arguments=arguments, name=name, **options)
+-        cls._meta.fields['client_mutation_id'] = Field(String, name='clientMutationId')
+\ No newline at end of file
++        cls._meta.fields['client_mutation_id'] = Field(String, name='clientMutationId')
++
++    @classmethod
++    def mutate(cls, root, info, input):
++        pass

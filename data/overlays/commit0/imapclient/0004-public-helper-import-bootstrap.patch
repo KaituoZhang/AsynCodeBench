@@ -1,0 +1,30 @@
+diff --git a/imapclient/imapclient.py b/imapclient/imapclient.py
+index c7b7194..9d104d7 100644
+--- a/imapclient/imapclient.py
++++ b/imapclient/imapclient.py
+@@ -1130,6 +1130,12 @@ def join_message_ids(messages):
+     pass
+ _not_present = object()
+ 
++def _parse_quota(data):
++    pass
++
++def _normalise_search_criteria(criteria, charset=None):
++    pass
++
+ def iteritems(self):
+     pass
+ 
+diff --git a/imapclient/version.py b/imapclient/version.py
+index 53ddd0b..28bcec8 100644
+--- a/imapclient/version.py
++++ b/imapclient/version.py
+@@ -1,4 +1,8 @@
+ from typing import Tuple
++
++def _imapclient_version_string(version_info: Tuple[int, int, int, str]) -> str:
++    pass
++
+ version_info = (3, 0, 1, 'final')
+ version = _imapclient_version_string(version_info)
+ maintainer = 'IMAPClient Maintainers'

@@ -1,0 +1,305 @@
+{
+  "schema_version": "commit0-repositories-v0.3",
+  "repositories": [
+    {
+      "name": "minitorch",
+      "origin_url": "https://github.com/commit-0/minitorch.git",
+      "commit0_sha": "7d35d597ad226e73289e6920fbc1e83ea6148c8b"
+    },
+    {
+      "name": "simpy",
+      "origin_url": "https://github.com/commit-0/simpy.git",
+      "commit0_sha": "22cb5d8676f6ecccf0790d609103e975ed4cd120"
+    },
+    {
+      "name": "bitstring",
+      "origin_url": "https://github.com/commit-0/bitstring.git",
+      "commit0_sha": "38fc95283d67397cfd38857e52aa26d2855b7163"
+    },
+    {
+      "name": "tinydb",
+      "origin_url": "https://github.com/commit-0/tinydb.git",
+      "commit0_sha": "ed761a72c8c1e1cb24ca4dbcc089f35c5264d357"
+    },
+    {
+      "name": "marshmallow",
+      "origin_url": "https://github.com/commit-0/marshmallow.git",
+      "commit0_sha": "947724c7391814a740b94239807eb964c9bf40d7"
+    },
+    {
+      "name": "python-prompt-toolkit",
+      "origin_url": "https://github.com/commit-0/python-prompt-toolkit.git",
+      "commit0_sha": "435bd99cf2abb229c13d5b1106467c7f6af599ed"
+    },
+    {
+      "name": "parsel",
+      "origin_url": "https://github.com/commit-0/parsel.git",
+      "commit0_sha": "740734252efd246679e5c6ee4028a47d5851712d"
+    },
+    {
+      "name": "pyjwt",
+      "origin_url": "https://github.com/commit-0/pyjwt.git",
+      "commit0_sha": "6c7cc61169c367f2fc820445fdaddac35e5b5dbb"
+    },
+    {
+      "name": "networkx",
+      "origin_url": "https://github.com/commit-0/networkx.git",
+      "commit0_sha": "0aaa392fc0a9b2c672193850b6b518bb7b6de0c2"
+    },
+    {
+      "name": "graphene",
+      "origin_url": "https://github.com/commit-0/graphene.git",
+      "commit0_sha": "48678afba44fc6e43334133f92ea089613a29d93"
+    },
+    {
+      "name": "tlslite-ng",
+      "origin_url": "https://github.com/commit-0/tlslite-ng.git",
+      "commit0_sha": "01567273707efa0575663fbba265f915f1b89a2e"
+    },
+    {
+      "name": "wcwidth",
+      "origin_url": "https://github.com/commit-0/wcwidth.git",
+      "commit0_sha": "0d0054189bdb0fc7b9de0456fc3cee2b67a6ceba"
+    },
+    {
+      "name": "chardet",
+      "origin_url": "https://github.com/commit-0/chardet.git",
+      "commit0_sha": "98b2acd6216e9a0fa4f47940b9f8adabdfd8aa8a"
+    },
+    {
+      "name": "dnspython",
+      "origin_url": "https://github.com/commit-0/dnspython.git",
+      "commit0_sha": "f57440349a6837bc91e8ad9e9ce260d9065bbd5c"
+    },
+    {
+      "name": "imapclient",
+      "origin_url": "https://github.com/commit-0/imapclient.git",
+      "commit0_sha": "391cc6d66d35c16bed11292ff00835646cd50ae5"
+    },
+    {
+      "name": "virtualenv",
+      "origin_url": "https://github.com/commit-0/virtualenv.git",
+      "commit0_sha": "349eddcb7fbe525aa70d0a18eff12fc398b1ee1b"
+    },
+    {
+      "name": "pexpect",
+      "origin_url": "https://github.com/commit-0/pexpect.git",
+      "commit0_sha": "eb2820cec514c3ed5482e80ad3438cd31f2fa1ef"
+    },
+    {
+      "name": "web3.py",
+      "origin_url": "https://github.com/commit-0/web3.py.git",
+      "commit0_sha": "283b536c7d53e605c61468941e3fc07a6c5d0c09"
+    },
+    {
+      "name": "babel",
+      "origin_url": "https://github.com/commit-0/babel.git",
+      "commit0_sha": "f91754b01cb9f32b83aeaa80b74ed10b5dfccb6a"
+    },
+    {
+      "name": "geopandas",
+      "origin_url": "https://github.com/commit-0/geopandas.git",
+      "commit0_sha": "a78dbf3a48eaa0f84d12d9935fce4927e381d146"
+    },
+    {
+      "name": "dulwich",
+      "origin_url": "https://github.com/commit-0/dulwich.git",
+      "commit0_sha": "be5d53457f7ea6d8b71c3b3d276ea45a70b33a6a"
+    },
+    {
+      "name": "flask",
+      "origin_url": "https://github.com/commit-0/flask.git",
+      "commit0_sha": "2fec0b206c6e83ea813ab26597e15c96fab08be7"
+    },
+    {
+      "name": "voluptuous",
+      "origin_url": "https://github.com/commit-0/voluptuous.git",
+      "commit0_sha": "d98e0a0b6a909d26dca6ac1a87cf1a3b60fb62d4"
+    },
+    {
+      "name": "jinja",
+      "origin_url": "https://github.com/commit-0/jinja.git",
+      "commit0_sha": "eb0df049deac83610f2ff09026fd39554bd4072b"
+    },
+    {
+      "name": "seaborn",
+      "origin_url": "https://github.com/commit-0/seaborn.git",
+      "commit0_sha": "b4e5f8d261d6d5524a00b7dd35e00a40e4855872"
+    },
+    {
+      "name": "requests",
+      "origin_url": "https://github.com/commit-0/requests.git",
+      "commit0_sha": "1ae6fc3137a11e11565ed22436aa1e77277ac98c"
+    },
+    {
+      "name": "scrapy",
+      "origin_url": "https://github.com/commit-0/scrapy.git",
+      "commit0_sha": "ae967d1c0671b2296e5efd92ef0a9ce02f68f5b3"
+    },
+    {
+      "name": "fastapi",
+      "origin_url": "https://github.com/commit-0/fastapi.git",
+      "commit0_sha": "847296e885ed83bc333b6cc0a3000d6242083b87"
+    },
+    {
+      "name": "click",
+      "origin_url": "https://github.com/commit-0/click.git",
+      "commit0_sha": "4a758f5c38636ecd9d030356d85bcca3d8fbd0ca"
+    },
+    {
+      "name": "python-rsa",
+      "origin_url": "https://github.com/commit-0/python-rsa.git",
+      "commit0_sha": "63772a68c3cd74b8714302f33d1ac13ec1a1fa52"
+    },
+    {
+      "name": "statsmodels",
+      "origin_url": "https://github.com/commit-0/statsmodels.git",
+      "commit0_sha": "410e351dca347195779a2993c7c590e553ba2b1f"
+    },
+    {
+      "name": "more-itertools",
+      "origin_url": "https://github.com/commit-0/more-itertools.git",
+      "commit0_sha": "4dc5e8bc6865b3c8890a0956d0aa4358ab2bc3f9"
+    },
+    {
+      "name": "moviepy",
+      "origin_url": "https://github.com/commit-0/moviepy.git",
+      "commit0_sha": "0f6f6d4d9b96c69d109975549fe6293931f1a19d"
+    },
+    {
+      "name": "deprecated",
+      "origin_url": "https://github.com/commit-0/deprecated.git",
+      "commit0_sha": "b7e2114c046abb489e4e23ab9f829778b076650d"
+    },
+    {
+      "name": "pydantic",
+      "origin_url": "https://github.com/commit-0/pydantic.git",
+      "commit0_sha": "01b59297ef840d16049f125a8b0abef9fe0c991f"
+    },
+    {
+      "name": "loguru",
+      "origin_url": "https://github.com/commit-0/loguru.git",
+      "commit0_sha": "80f05fd2635a9f728565585fed02bed7c2be968a"
+    },
+    {
+      "name": "pypdf",
+      "origin_url": "https://github.com/commit-0/pypdf.git",
+      "commit0_sha": "c8220c6443ff94955b2cef6bf3f9411e51c2018e"
+    },
+    {
+      "name": "attrs",
+      "origin_url": "https://github.com/commit-0/attrs.git",
+      "commit0_sha": "a59c5d7292228dfec5480388b5f6a14ecdf0626c"
+    },
+    {
+      "name": "mimesis",
+      "origin_url": "https://github.com/commit-0/mimesis.git",
+      "commit0_sha": "4212746d62d7f73a3cd85a0c3c2599a16928b3e2"
+    },
+    {
+      "name": "cookiecutter",
+      "origin_url": "https://github.com/commit-0/cookiecutter.git",
+      "commit0_sha": "b4451231809fb9e4fc2a1e95d433cb030e4b9e06"
+    },
+    {
+      "name": "tornado",
+      "origin_url": "https://github.com/commit-0/tornado.git",
+      "commit0_sha": "ac0daf7d5916139c6cba37a623d52b1e049cf0c3"
+    },
+    {
+      "name": "imbalanced-learn",
+      "origin_url": "https://github.com/commit-0/imbalanced-learn.git",
+      "commit0_sha": "2b6269f9aaea5f058606bf318b8bc36150137dd6"
+    },
+    {
+      "name": "python-progressbar",
+      "origin_url": "https://github.com/commit-0/python-progressbar.git",
+      "commit0_sha": "edb9803924ab60ede3077dc72331c41d13e0c322"
+    },
+    {
+      "name": "pylint",
+      "origin_url": "https://github.com/commit-0/pylint.git",
+      "commit0_sha": "8630cfd34a211b0d8135dbd79244a1fab4780b1d"
+    },
+    {
+      "name": "sphinx",
+      "origin_url": "https://github.com/commit-0/sphinx.git",
+      "commit0_sha": "4319c16f6a06834b605ec2981859c39fb6f628bc"
+    },
+    {
+      "name": "joblib",
+      "origin_url": "https://github.com/commit-0/joblib.git",
+      "commit0_sha": "e02400a41b8bef0688865ff379ea13f3f7cb4f3b"
+    },
+    {
+      "name": "xarray",
+      "origin_url": "https://github.com/commit-0/xarray.git",
+      "commit0_sha": "cde720f21788a1dbff2bdb0775a56b3ee6da6b1a"
+    },
+    {
+      "name": "cachetools",
+      "origin_url": "https://github.com/commit-0/cachetools.git",
+      "commit0_sha": "a0a7e2b73f9e146b8a8f2912948b17a918e5fe83"
+    },
+    {
+      "name": "paramiko",
+      "origin_url": "https://github.com/commit-0/paramiko.git",
+      "commit0_sha": "23f92003898b060df0e2b8b1d889455264e63a3e"
+    },
+    {
+      "name": "fabric",
+      "origin_url": "https://github.com/commit-0/fabric.git",
+      "commit0_sha": "988dd0fd05db47331cb43d0ea9787908ef33219c"
+    },
+    {
+      "name": "filesystem_spec",
+      "origin_url": "https://github.com/commit-0/filesystem_spec.git",
+      "commit0_sha": "b842cf4cc7e4e22caa3110157cec9b4959582993"
+    },
+    {
+      "name": "jedi",
+      "origin_url": "https://github.com/commit-0/jedi.git",
+      "commit0_sha": "91ffdead3291263a356a66e40c7e82cfa431107f"
+    },
+    {
+      "name": "sqlparse",
+      "origin_url": "https://github.com/commit-0/sqlparse.git",
+      "commit0_sha": "a2c7e642dc992d5b3972641144c4b05d6c6623ff"
+    },
+    {
+      "name": "portalocker",
+      "origin_url": "https://github.com/commit-0/portalocker.git",
+      "commit0_sha": "300136afca11ea23c79ecfd110ed0d2819322f11"
+    },
+    {
+      "name": "astropy",
+      "origin_url": "https://github.com/commit-0/astropy.git",
+      "commit0_sha": "9b363bd47d7d321e93be7efc0cdae1196969979f"
+    },
+    {
+      "name": "django",
+      "origin_url": "https://github.com/commit-0/django.git",
+      "commit0_sha": "555f2412cba4c5844408042e92f3bf9fa5c2392c"
+    },
+    {
+      "name": "matplotlib",
+      "origin_url": "https://github.com/commit-0/matplotlib.git",
+      "commit0_sha": "36daea4deaf5f96d6f19aaca81df1f97b5d35b44"
+    },
+    {
+      "name": "pytest",
+      "origin_url": "https://github.com/commit-0/pytest.git",
+      "commit0_sha": "256203a5c9aae87741ca195c29510414dd5ddc73"
+    },
+    {
+      "name": "scikit-learn",
+      "origin_url": "https://github.com/commit-0/scikit-learn.git",
+      "commit0_sha": "f3b1da311c2b1200ed482374341d57c71a0f3069"
+    },
+    {
+      "name": "sympy",
+      "origin_url": "https://github.com/commit-0/sympy.git",
+      "commit0_sha": "0b344e62d72ce9ae45d6b10de8fafdc910baddf4"
+    }
+  ]
+}

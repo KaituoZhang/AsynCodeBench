@@ -1,0 +1,100 @@
+{
+  "annotation_provenance": [],
+  "candidate_evidence_file": "manifests/candidates/commit0_async_screening_v0.3.json",
+  "dependency_annotations": [
+    {
+      "consumer_subproblem": "selector_query_core",
+      "dependency_type": "api_contract",
+      "description": "Selector and SelectorList behavior consumes utility flattening, regex extraction, shortening, XPath extension registration, and has-class semantics.",
+      "evidence_paths": [
+        "parsel/utils.py",
+        "parsel/xpathfuncs.py",
+        "parsel/selector.py",
+        "tests/test_utils.py",
+        "tests/test_xpathfuncs.py",
+        "tests/test_selector.py"
+      ],
+      "producer_subproblem": "utility_xpath_support",
+      "schema_version": "0.3"
+    },
+    {
+      "consumer_subproblem": "selector_query_core",
+      "dependency_type": "api_contract",
+      "description": "Selector.css() consumes the CSS translator contract for ::text, ::attr(), pseudo-element errors, and CSS-to-XPath translation before executing XPath queries.",
+      "evidence_paths": [
+        "parsel/csstranslator.py",
+        "parsel/selector.py",
+        "tests/test_selector_csstranslator.py",
+        "tests/test_selector.py"
+      ],
+      "producer_subproblem": "css_translation_layer",
+      "schema_version": "0.3"
+    }
+  ],
+  "evaluator_command": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "tests/test_selector.py",
+    "tests/test_selector_csstranslator.py",
+    "tests/test_selector_jmespath.py",
+    "tests/test_utils.py",
+    "tests/test_xml_attacks.py",
+    "tests/test_xpathfuncs.py"
+  ],
+  "inclusion_decision": null,
+  "natural_subproblems": {
+    "css_translation_layer": [
+      "parsel/csstranslator.py",
+      "tests/test_selector_csstranslator.py"
+    ],
+    "selector_query_core": [
+      "parsel/__init__.py",
+      "parsel/selector.py",
+      "tests/test_selector.py",
+      "tests/test_selector_jmespath.py",
+      "tests/test_xml_attacks.py"
+    ],
+    "utility_xpath_support": [
+      "parsel/utils.py",
+      "parsel/xpathfuncs.py",
+      "tests/test_utils.py",
+      "tests/test_xpathfuncs.py"
+    ]
+  },
+  "notes": [
+    "Task source and tests are unchanged; only the setup bootstrap overlay is applied.",
+    "The local commit0/default branch is complete. Benchmark workspaces must be materialized from origin/commit0_combined.",
+    "The screening manifest marked Parsel as manual_review because raw collection failed before the setup bootstrap was audited.",
+    "The proposed label is a draft curation decision and not a final independent annotation."
+  ],
+  "problem_statement": "Restore the public Parsel selector behavior exercised by the scoped Commit0\ntests without modifying the tests.\n\nThe utility and XPath support layer must implement flattening, regex\nextraction, shortening, XPath function registration, and has-class semantics.\nThe CSS translation layer must implement pseudo-element handling for ::text\nand ::attr(), unknown pseudo-element errors, and cached CSS-to-XPath\ntranslation. The selector query core must consume those contracts to implement\nHTML/XML/JSON root creation, Selector and SelectorList query chaining, XPath,\nCSS, JMESPath, regex extraction, serialization, namespace handling, node\nremoval/drop behavior, XML attack protections, and package imports.\n\nThe initial benchmark source is the stripped Commit0-style ref\n`origin/commit0_combined`, plus a checksum-recorded bootstrap overlay that only\nexposes the setup() import hook required by parsel.__init__.",
+  "proposed_parallelizability_label": "partially_parallelizable",
+  "publicly_implicated_modules": [
+    "parsel/__init__.py",
+    "parsel/csstranslator.py",
+    "parsel/selector.py",
+    "parsel/utils.py",
+    "parsel/xpathfuncs.py"
+  ],
+  "qualification_label": null,
+  "qualification_status": "pending_independent_annotation",
+  "quality_evidence_file": "manifests/pilot/v0.3/quality/commit0_parsel.json",
+  "repository": "commit0/parsel",
+  "schema_version": "0.3",
+  "source_materialization": "git archive of the stripped Commit0-style Parsel ref origin/commit0_combined at 7e73d60665ef2e3ddfe3c1bb01eed981cd317c6f, plus the checksum-recorded setup bootstrap overlay in configs/tasks/commit0_curated_tasks.v0.3.json",
+  "task_id": "commit0:parsel",
+  "task_source": "Commit0",
+  "test_targets": [
+    "tests/test_selector.py",
+    "tests/test_selector_csstranslator.py",
+    "tests/test_selector_jmespath.py",
+    "tests/test_utils.py",
+    "tests/test_xml_attacks.py",
+    "tests/test_xpathfuncs.py"
+  ],
+  "upstream_version": "7e73d60665ef2e3ddfe3c1bb01eed981cd317c6f"
+}

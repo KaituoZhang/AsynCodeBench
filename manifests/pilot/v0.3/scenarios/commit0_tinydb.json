@@ -1,0 +1,408 @@
+{
+  "scenarios": [
+    {
+      "agent_count": 1,
+      "assignments": [
+        {
+          "agent_id": "integrator",
+          "primary_test_targets": [
+            "tests/test_utils.py",
+            "tests/test_queries.py",
+            "tests/test_operations.py",
+            "tests/test_storages.py",
+            "tests/test_tables.py",
+            "tests/test_tinydb.py",
+            "tests/test_middlewares.py"
+          ],
+          "role": "iterative full-task coding agent",
+          "schema_version": "0.3",
+          "subproblem_id": "full_task",
+          "writable_paths": [
+            "tinydb/utils.py",
+            "tinydb/queries.py",
+            "tinydb/operations.py",
+            "tinydb/storages.py",
+            "tinydb/table.py",
+            "tinydb/database.py",
+            "tinydb/middlewares.py"
+          ]
+        }
+      ],
+      "communication_condition": "not_applicable",
+      "competence_gate_required": true,
+      "concurrent_execution": false,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "database_state_stack",
+          "dependency_type": "api_contract",
+          "description": "Table search and query caching consume QueryLike, freeze, and LRUCache behavior from the query and utility layer.",
+          "evidence_paths": [
+            "tinydb/utils.py",
+            "tinydb/queries.py",
+            "tinydb/table.py",
+            "tests/test_utils.py",
+            "tests/test_queries.py",
+            "tests/test_tables.py"
+          ],
+          "producer_subproblem": "query_contract_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "integration_validation",
+          "dependency_type": "integration",
+          "description": "TinyDB, Table, Storage, and CachingMiddleware must agree on the complete database mapping, table names, document IDs, read/write lifecycle, and cache invalidation semantics.",
+          "evidence_paths": [
+            "tinydb/storages.py",
+            "tinydb/table.py",
+            "tinydb/database.py",
+            "tinydb/middlewares.py",
+            "tests/test_storages.py",
+            "tests/test_tables.py",
+            "tests/test_tinydb.py",
+            "tests/test_middlewares.py"
+          ],
+          "producer_subproblem": "database_state_stack",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "integration_validation",
+          "dependency_type": "test_contract",
+          "description": "Document transforms and composed queries are exercised through integrated TinyDB update, search, and cache paths.",
+          "evidence_paths": [
+            "tinydb/operations.py",
+            "tinydb/queries.py",
+            "tinydb/table.py",
+            "tests/test_operations.py",
+            "tests/test_tinydb.py"
+          ],
+          "producer_subproblem": "query_contract_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "iterative_single",
+      "information_profile": "complete-task",
+      "integration_policy": "Agent submits its final workspace.",
+      "message_delivery_policy": "No inter-agent messages.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-tinydb.iterative-single.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 40,
+      "task_id": "commit0:tinydb",
+      "test_budget_per_agent": 12,
+      "token_budget_per_agent": 100000,
+      "wall_clock_budget_seconds": 3600
+    },
+    {
+      "agent_count": 2,
+      "assignments": [
+        {
+          "agent_id": "query_agent",
+          "primary_test_targets": [
+            "tests/test_utils.py",
+            "tests/test_queries.py",
+            "tests/test_operations.py"
+          ],
+          "role": "query, utility, and document-operation specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "query_contract_layer",
+          "writable_paths": [
+            "tinydb/utils.py",
+            "tinydb/queries.py",
+            "tinydb/operations.py"
+          ]
+        },
+        {
+          "agent_id": "state_agent",
+          "primary_test_targets": [
+            "tests/test_storages.py",
+            "tests/test_tables.py",
+            "tests/test_tinydb.py",
+            "tests/test_middlewares.py"
+          ],
+          "role": "shared database-state stack specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "database_state_stack",
+          "writable_paths": [
+            "tinydb/storages.py",
+            "tinydb/table.py",
+            "tinydb/database.py",
+            "tinydb/middlewares.py"
+          ]
+        }
+      ],
+      "communication_condition": "completed_artifact_handoff",
+      "competence_gate_required": true,
+      "concurrent_execution": false,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "database_state_stack",
+          "dependency_type": "api_contract",
+          "description": "Table search and query caching consume QueryLike, freeze, and LRUCache behavior from the query and utility layer.",
+          "evidence_paths": [
+            "tinydb/utils.py",
+            "tinydb/queries.py",
+            "tinydb/table.py",
+            "tests/test_utils.py",
+            "tests/test_queries.py",
+            "tests/test_tables.py"
+          ],
+          "producer_subproblem": "query_contract_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "integration_validation",
+          "dependency_type": "integration",
+          "description": "TinyDB, Table, Storage, and CachingMiddleware must agree on the complete database mapping, table names, document IDs, read/write lifecycle, and cache invalidation semantics.",
+          "evidence_paths": [
+            "tinydb/storages.py",
+            "tinydb/table.py",
+            "tinydb/database.py",
+            "tinydb/middlewares.py",
+            "tests/test_storages.py",
+            "tests/test_tables.py",
+            "tests/test_tinydb.py",
+            "tests/test_middlewares.py"
+          ],
+          "producer_subproblem": "database_state_stack",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "integration_validation",
+          "dependency_type": "test_contract",
+          "description": "Document transforms and composed queries are exercised through integrated TinyDB update, search, and cache paths.",
+          "evidence_paths": [
+            "tinydb/operations.py",
+            "tinydb/queries.py",
+            "tinydb/table.py",
+            "tests/test_operations.py",
+            "tests/test_tinydb.py"
+          ],
+          "producer_subproblem": "query_contract_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "serial_specialists",
+      "information_profile": "private-workspace",
+      "integration_policy": "Integrate each completed layer before starting its consumer, then run the full evaluator.",
+      "message_delivery_policy": "The query-contract specialist completes first. The shared database-state specialist then receives its completed artifact and targeted test result.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-tinydb.serial-specialists.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 40,
+      "task_id": "commit0:tinydb",
+      "test_budget_per_agent": 12,
+      "token_budget_per_agent": 100000,
+      "wall_clock_budget_seconds": 3600
+    },
+    {
+      "agent_count": 2,
+      "assignments": [
+        {
+          "agent_id": "query_agent",
+          "primary_test_targets": [
+            "tests/test_utils.py",
+            "tests/test_queries.py",
+            "tests/test_operations.py"
+          ],
+          "role": "query, utility, and document-operation specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "query_contract_layer",
+          "writable_paths": [
+            "tinydb/utils.py",
+            "tinydb/queries.py",
+            "tinydb/operations.py"
+          ]
+        },
+        {
+          "agent_id": "state_agent",
+          "primary_test_targets": [
+            "tests/test_storages.py",
+            "tests/test_tables.py",
+            "tests/test_tinydb.py",
+            "tests/test_middlewares.py"
+          ],
+          "role": "shared database-state stack specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "database_state_stack",
+          "writable_paths": [
+            "tinydb/storages.py",
+            "tinydb/table.py",
+            "tinydb/database.py",
+            "tinydb/middlewares.py"
+          ]
+        }
+      ],
+      "communication_condition": "none_in_flight",
+      "competence_gate_required": true,
+      "concurrent_execution": true,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "database_state_stack",
+          "dependency_type": "api_contract",
+          "description": "Table search and query caching consume QueryLike, freeze, and LRUCache behavior from the query and utility layer.",
+          "evidence_paths": [
+            "tinydb/utils.py",
+            "tinydb/queries.py",
+            "tinydb/table.py",
+            "tests/test_utils.py",
+            "tests/test_queries.py",
+            "tests/test_tables.py"
+          ],
+          "producer_subproblem": "query_contract_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "integration_validation",
+          "dependency_type": "integration",
+          "description": "TinyDB, Table, Storage, and CachingMiddleware must agree on the complete database mapping, table names, document IDs, read/write lifecycle, and cache invalidation semantics.",
+          "evidence_paths": [
+            "tinydb/storages.py",
+            "tinydb/table.py",
+            "tinydb/database.py",
+            "tinydb/middlewares.py",
+            "tests/test_storages.py",
+            "tests/test_tables.py",
+            "tests/test_tinydb.py",
+            "tests/test_middlewares.py"
+          ],
+          "producer_subproblem": "database_state_stack",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "integration_validation",
+          "dependency_type": "test_contract",
+          "description": "Document transforms and composed queries are exercised through integrated TinyDB update, search, and cache paths.",
+          "evidence_paths": [
+            "tinydb/operations.py",
+            "tinydb/queries.py",
+            "tinydb/table.py",
+            "tests/test_operations.py",
+            "tests/test_tinydb.py"
+          ],
+          "producer_subproblem": "query_contract_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "async_private",
+      "information_profile": "private-workspace",
+      "integration_policy": "Run all specialists concurrently and integrate final artifacts only after all workers finish.",
+      "message_delivery_policy": "No in-flight worker messages or artifacts are delivered.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-tinydb.async-private.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 40,
+      "task_id": "commit0:tinydb",
+      "test_budget_per_agent": 12,
+      "token_budget_per_agent": 100000,
+      "wall_clock_budget_seconds": 3600
+    },
+    {
+      "agent_count": 2,
+      "assignments": [
+        {
+          "agent_id": "query_agent",
+          "primary_test_targets": [
+            "tests/test_utils.py",
+            "tests/test_queries.py",
+            "tests/test_operations.py"
+          ],
+          "role": "query, utility, and document-operation specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "query_contract_layer",
+          "writable_paths": [
+            "tinydb/utils.py",
+            "tinydb/queries.py",
+            "tinydb/operations.py"
+          ]
+        },
+        {
+          "agent_id": "state_agent",
+          "primary_test_targets": [
+            "tests/test_storages.py",
+            "tests/test_tables.py",
+            "tests/test_tinydb.py",
+            "tests/test_middlewares.py"
+          ],
+          "role": "shared database-state stack specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "database_state_stack",
+          "writable_paths": [
+            "tinydb/storages.py",
+            "tinydb/table.py",
+            "tinydb/database.py",
+            "tinydb/middlewares.py"
+          ]
+        }
+      ],
+      "communication_condition": "structured_message_and_artifact",
+      "competence_gate_required": true,
+      "concurrent_execution": true,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "database_state_stack",
+          "dependency_type": "api_contract",
+          "description": "Table search and query caching consume QueryLike, freeze, and LRUCache behavior from the query and utility layer.",
+          "evidence_paths": [
+            "tinydb/utils.py",
+            "tinydb/queries.py",
+            "tinydb/table.py",
+            "tests/test_utils.py",
+            "tests/test_queries.py",
+            "tests/test_tables.py"
+          ],
+          "producer_subproblem": "query_contract_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "integration_validation",
+          "dependency_type": "integration",
+          "description": "TinyDB, Table, Storage, and CachingMiddleware must agree on the complete database mapping, table names, document IDs, read/write lifecycle, and cache invalidation semantics.",
+          "evidence_paths": [
+            "tinydb/storages.py",
+            "tinydb/table.py",
+            "tinydb/database.py",
+            "tinydb/middlewares.py",
+            "tests/test_storages.py",
+            "tests/test_tables.py",
+            "tests/test_tinydb.py",
+            "tests/test_middlewares.py"
+          ],
+          "producer_subproblem": "database_state_stack",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "integration_validation",
+          "dependency_type": "test_contract",
+          "description": "Document transforms and composed queries are exercised through integrated TinyDB update, search, and cache paths.",
+          "evidence_paths": [
+            "tinydb/operations.py",
+            "tinydb/queries.py",
+            "tinydb/table.py",
+            "tests/test_operations.py",
+            "tests/test_tinydb.py"
+          ],
+          "producer_subproblem": "query_contract_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "async_message",
+      "information_profile": "private-workspace",
+      "integration_policy": "Integrate the latest explicitly transferred artifacts and record stale shared-state or API assumptions.",
+      "message_delivery_policy": "Workers may transfer database-representation assumptions, API contracts, cache semantics, targeted tests, and explicit artifacts while active.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-tinydb.async-message.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 40,
+      "task_id": "commit0:tinydb",
+      "test_budget_per_agent": 12,
+      "token_budget_per_agent": 100000,
+      "wall_clock_budget_seconds": 3600
+    }
+  ],
+  "schema_version": "0.3",
+  "task_id": "commit0:tinydb"
+}

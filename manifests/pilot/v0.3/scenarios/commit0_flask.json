@@ -1,0 +1,469 @@
+{
+  "scenarios": [
+    {
+      "agent_count": 1,
+      "assignments": [
+        {
+          "agent_id": "integrator",
+          "primary_test_targets": [
+            "tests/test_basic.py",
+            "tests/test_reqctx.py",
+            "tests/test_appctx.py",
+            "tests/test_json.py",
+            "tests/test_session_interface.py",
+            "tests/test_templating.py",
+            "tests/test_testing.py"
+          ],
+          "role": "iterative full-task coding agent",
+          "schema_version": "0.3",
+          "subproblem_id": "full_task",
+          "writable_paths": [
+            "src/flask/app.py",
+            "src/flask/config.py",
+            "src/flask/ctx.py",
+            "src/flask/json/provider.py",
+            "src/flask/json/tag.py",
+            "src/flask/sansio/app.py",
+            "src/flask/sansio/scaffold.py",
+            "src/flask/sessions.py",
+            "src/flask/templating.py",
+            "src/flask/testing.py"
+          ]
+        }
+      ],
+      "communication_condition": "not_applicable",
+      "concurrent_execution": false,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "dispatch_context_layer",
+          "dependency_type": "api_contract",
+          "description": "Flask request dispatch consumes sansio scaffold route registration, endpoint naming, URL map, and callback registry semantics.",
+          "evidence_paths": [
+            "src/flask/sansio/scaffold.py",
+            "src/flask/sansio/app.py",
+            "src/flask/app.py",
+            "tests/test_basic.py"
+          ],
+          "producer_subproblem": "scaffold_app_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "dispatch_context_layer",
+          "dependency_type": "shared_state_contract",
+          "description": "Request and app context lifecycle code consumes session opening/saving, JSON provider response, and tagged session serialization contracts.",
+          "evidence_paths": [
+            "src/flask/app.py",
+            "src/flask/ctx.py",
+            "src/flask/sessions.py",
+            "src/flask/json/provider.py",
+            "tests/test_basic.py",
+            "tests/test_json.py",
+            "tests/test_session_interface.py"
+          ],
+          "producer_subproblem": "session_json_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "templating_testing_layer",
+          "dependency_type": "integration_contract",
+          "description": "Template rendering and the test client consume current_app/request/session context state, URL defaults, JSON dumps, and response conversion behavior.",
+          "evidence_paths": [
+            "src/flask/ctx.py",
+            "src/flask/templating.py",
+            "src/flask/testing.py",
+            "tests/test_templating.py",
+            "tests/test_testing.py"
+          ],
+          "producer_subproblem": "dispatch_context_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "iterative_single",
+      "information_profile": "complete-task",
+      "integration_policy": "Agent submits its final workspace.",
+      "message_delivery_policy": "No inter-agent messages.",
+      "scenario_id": "commit0-flask.iterative-single.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 34,
+      "task_id": "commit0:flask",
+      "test_budget_per_agent": 12,
+      "token_budget_per_agent": 85000,
+      "wall_clock_budget_seconds": 3600
+    },
+    {
+      "agent_count": 4,
+      "assignments": [
+        {
+          "agent_id": "scaffold_agent",
+          "primary_test_targets": [
+            "tests/test_basic.py::test_route_decorator_custom_endpoint",
+            "tests/test_basic.py::test_url_mapping"
+          ],
+          "role": "sansio Scaffold/App route registration, config, URL map, and callback registry specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "scaffold_app_layer",
+          "writable_paths": [
+            "src/flask/sansio/scaffold.py",
+            "src/flask/sansio/app.py",
+            "src/flask/config.py"
+          ]
+        },
+        {
+          "agent_id": "dispatch_agent",
+          "primary_test_targets": [
+            "tests/test_basic.py::test_request_dispatching",
+            "tests/test_reqctx.py::test_context_binding",
+            "tests/test_appctx.py::test_request_context_means_app_context"
+          ],
+          "role": "Flask request dispatch, response conversion, error handling, and app/request context specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "dispatch_context_layer",
+          "writable_paths": [
+            "src/flask/app.py",
+            "src/flask/ctx.py"
+          ]
+        },
+        {
+          "agent_id": "session_json_agent",
+          "primary_test_targets": [
+            "tests/test_basic.py::test_session",
+            "tests/test_json.py::test_jsonify_basic_types",
+            "tests/test_session_interface.py::test_open_session_with_endpoint"
+          ],
+          "role": "session interface, tagged session serialization, and JSON provider specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "session_json_layer",
+          "writable_paths": [
+            "src/flask/sessions.py",
+            "src/flask/json/provider.py",
+            "src/flask/json/tag.py"
+          ]
+        },
+        {
+          "agent_id": "template_testing_agent",
+          "primary_test_targets": [
+            "tests/test_templating.py::test_context_processing",
+            "tests/test_testing.py::test_json_request_and_response"
+          ],
+          "role": "templating context processors and test client environment/session behavior specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "templating_testing_layer",
+          "writable_paths": [
+            "src/flask/templating.py",
+            "src/flask/testing.py"
+          ]
+        }
+      ],
+      "communication_condition": "completed_artifact_handoff",
+      "concurrent_execution": false,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "dispatch_context_layer",
+          "dependency_type": "api_contract",
+          "description": "Flask request dispatch consumes sansio scaffold route registration, endpoint naming, URL map, and callback registry semantics.",
+          "evidence_paths": [
+            "src/flask/sansio/scaffold.py",
+            "src/flask/sansio/app.py",
+            "src/flask/app.py",
+            "tests/test_basic.py"
+          ],
+          "producer_subproblem": "scaffold_app_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "dispatch_context_layer",
+          "dependency_type": "shared_state_contract",
+          "description": "Request and app context lifecycle code consumes session opening/saving, JSON provider response, and tagged session serialization contracts.",
+          "evidence_paths": [
+            "src/flask/app.py",
+            "src/flask/ctx.py",
+            "src/flask/sessions.py",
+            "src/flask/json/provider.py",
+            "tests/test_basic.py",
+            "tests/test_json.py",
+            "tests/test_session_interface.py"
+          ],
+          "producer_subproblem": "session_json_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "templating_testing_layer",
+          "dependency_type": "integration_contract",
+          "description": "Template rendering and the test client consume current_app/request/session context state, URL defaults, JSON dumps, and response conversion behavior.",
+          "evidence_paths": [
+            "src/flask/ctx.py",
+            "src/flask/templating.py",
+            "src/flask/testing.py",
+            "tests/test_templating.py",
+            "tests/test_testing.py"
+          ],
+          "producer_subproblem": "dispatch_context_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "serial_specialists",
+      "information_profile": "private-workspace",
+      "integration_policy": "Apply scaffold/app and session/JSON artifacts before dispatch/context integration, then templating/testing artifacts.",
+      "message_delivery_policy": "Specialists run with barrier synchronization. Downstream specialists receive completed upstream artifacts before final validation.",
+      "scenario_id": "commit0-flask.serial-specialists.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 34,
+      "task_id": "commit0:flask",
+      "test_budget_per_agent": 12,
+      "token_budget_per_agent": 85000,
+      "wall_clock_budget_seconds": 3600
+    },
+    {
+      "agent_count": 4,
+      "assignments": [
+        {
+          "agent_id": "scaffold_agent",
+          "primary_test_targets": [
+            "tests/test_basic.py::test_route_decorator_custom_endpoint",
+            "tests/test_basic.py::test_url_mapping"
+          ],
+          "role": "sansio Scaffold/App route registration, config, URL map, and callback registry specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "scaffold_app_layer",
+          "writable_paths": [
+            "src/flask/sansio/scaffold.py",
+            "src/flask/sansio/app.py",
+            "src/flask/config.py"
+          ]
+        },
+        {
+          "agent_id": "dispatch_agent",
+          "primary_test_targets": [
+            "tests/test_basic.py::test_request_dispatching",
+            "tests/test_reqctx.py::test_context_binding",
+            "tests/test_appctx.py::test_request_context_means_app_context"
+          ],
+          "role": "Flask request dispatch, response conversion, error handling, and app/request context specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "dispatch_context_layer",
+          "writable_paths": [
+            "src/flask/app.py",
+            "src/flask/ctx.py"
+          ]
+        },
+        {
+          "agent_id": "session_json_agent",
+          "primary_test_targets": [
+            "tests/test_basic.py::test_session",
+            "tests/test_json.py::test_jsonify_basic_types",
+            "tests/test_session_interface.py::test_open_session_with_endpoint"
+          ],
+          "role": "session interface, tagged session serialization, and JSON provider specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "session_json_layer",
+          "writable_paths": [
+            "src/flask/sessions.py",
+            "src/flask/json/provider.py",
+            "src/flask/json/tag.py"
+          ]
+        },
+        {
+          "agent_id": "template_testing_agent",
+          "primary_test_targets": [
+            "tests/test_templating.py::test_context_processing",
+            "tests/test_testing.py::test_json_request_and_response"
+          ],
+          "role": "templating context processors and test client environment/session behavior specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "templating_testing_layer",
+          "writable_paths": [
+            "src/flask/templating.py",
+            "src/flask/testing.py"
+          ]
+        }
+      ],
+      "communication_condition": "private_concurrent_workspaces",
+      "concurrent_execution": true,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "dispatch_context_layer",
+          "dependency_type": "api_contract",
+          "description": "Flask request dispatch consumes sansio scaffold route registration, endpoint naming, URL map, and callback registry semantics.",
+          "evidence_paths": [
+            "src/flask/sansio/scaffold.py",
+            "src/flask/sansio/app.py",
+            "src/flask/app.py",
+            "tests/test_basic.py"
+          ],
+          "producer_subproblem": "scaffold_app_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "dispatch_context_layer",
+          "dependency_type": "shared_state_contract",
+          "description": "Request and app context lifecycle code consumes session opening/saving, JSON provider response, and tagged session serialization contracts.",
+          "evidence_paths": [
+            "src/flask/app.py",
+            "src/flask/ctx.py",
+            "src/flask/sessions.py",
+            "src/flask/json/provider.py",
+            "tests/test_basic.py",
+            "tests/test_json.py",
+            "tests/test_session_interface.py"
+          ],
+          "producer_subproblem": "session_json_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "templating_testing_layer",
+          "dependency_type": "integration_contract",
+          "description": "Template rendering and the test client consume current_app/request/session context state, URL defaults, JSON dumps, and response conversion behavior.",
+          "evidence_paths": [
+            "src/flask/ctx.py",
+            "src/flask/templating.py",
+            "src/flask/testing.py",
+            "tests/test_templating.py",
+            "tests/test_testing.py"
+          ],
+          "producer_subproblem": "dispatch_context_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "async_private",
+      "information_profile": "private-workspace",
+      "integration_policy": "Integrate independently produced specialist artifacts at the end, then run dependency probes and the scoped evaluator.",
+      "message_delivery_policy": "Agents work concurrently without messages while dispatch, session, JSON, templating, and testing assumptions may become stale.",
+      "scenario_id": "commit0-flask.async-private.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 34,
+      "task_id": "commit0:flask",
+      "test_budget_per_agent": 12,
+      "token_budget_per_agent": 85000,
+      "wall_clock_budget_seconds": 3600
+    },
+    {
+      "agent_count": 4,
+      "assignments": [
+        {
+          "agent_id": "scaffold_agent",
+          "primary_test_targets": [
+            "tests/test_basic.py::test_route_decorator_custom_endpoint",
+            "tests/test_basic.py::test_url_mapping"
+          ],
+          "role": "sansio Scaffold/App route registration, config, URL map, and callback registry specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "scaffold_app_layer",
+          "writable_paths": [
+            "src/flask/sansio/scaffold.py",
+            "src/flask/sansio/app.py",
+            "src/flask/config.py"
+          ]
+        },
+        {
+          "agent_id": "dispatch_agent",
+          "primary_test_targets": [
+            "tests/test_basic.py::test_request_dispatching",
+            "tests/test_reqctx.py::test_context_binding",
+            "tests/test_appctx.py::test_request_context_means_app_context"
+          ],
+          "role": "Flask request dispatch, response conversion, error handling, and app/request context specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "dispatch_context_layer",
+          "writable_paths": [
+            "src/flask/app.py",
+            "src/flask/ctx.py"
+          ]
+        },
+        {
+          "agent_id": "session_json_agent",
+          "primary_test_targets": [
+            "tests/test_basic.py::test_session",
+            "tests/test_json.py::test_jsonify_basic_types",
+            "tests/test_session_interface.py::test_open_session_with_endpoint"
+          ],
+          "role": "session interface, tagged session serialization, and JSON provider specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "session_json_layer",
+          "writable_paths": [
+            "src/flask/sessions.py",
+            "src/flask/json/provider.py",
+            "src/flask/json/tag.py"
+          ]
+        },
+        {
+          "agent_id": "template_testing_agent",
+          "primary_test_targets": [
+            "tests/test_templating.py::test_context_processing",
+            "tests/test_testing.py::test_json_request_and_response"
+          ],
+          "role": "templating context processors and test client environment/session behavior specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "templating_testing_layer",
+          "writable_paths": [
+            "src/flask/templating.py",
+            "src/flask/testing.py"
+          ]
+        }
+      ],
+      "communication_condition": "asynchronous_message_handoff",
+      "concurrent_execution": true,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "dispatch_context_layer",
+          "dependency_type": "api_contract",
+          "description": "Flask request dispatch consumes sansio scaffold route registration, endpoint naming, URL map, and callback registry semantics.",
+          "evidence_paths": [
+            "src/flask/sansio/scaffold.py",
+            "src/flask/sansio/app.py",
+            "src/flask/app.py",
+            "tests/test_basic.py"
+          ],
+          "producer_subproblem": "scaffold_app_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "dispatch_context_layer",
+          "dependency_type": "shared_state_contract",
+          "description": "Request and app context lifecycle code consumes session opening/saving, JSON provider response, and tagged session serialization contracts.",
+          "evidence_paths": [
+            "src/flask/app.py",
+            "src/flask/ctx.py",
+            "src/flask/sessions.py",
+            "src/flask/json/provider.py",
+            "tests/test_basic.py",
+            "tests/test_json.py",
+            "tests/test_session_interface.py"
+          ],
+          "producer_subproblem": "session_json_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "templating_testing_layer",
+          "dependency_type": "integration_contract",
+          "description": "Template rendering and the test client consume current_app/request/session context state, URL defaults, JSON dumps, and response conversion behavior.",
+          "evidence_paths": [
+            "src/flask/ctx.py",
+            "src/flask/templating.py",
+            "src/flask/testing.py",
+            "tests/test_templating.py",
+            "tests/test_testing.py"
+          ],
+          "producer_subproblem": "dispatch_context_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "async_message",
+      "information_profile": "message-passing",
+      "integration_policy": "Integrate independently produced specialist artifacts after asynchronous handoffs, then run dependency probes and the scoped evaluator.",
+      "message_delivery_policy": "Agents may send artifact summaries asynchronously; downstream workers are not guaranteed to see the newest scaffold, dispatch, session, or JSON contract before acting.",
+      "scenario_id": "commit0-flask.async-message.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 34,
+      "task_id": "commit0:flask",
+      "test_budget_per_agent": 12,
+      "token_budget_per_agent": 85000,
+      "wall_clock_budget_seconds": 3600
+    }
+  ],
+  "schema_version": "0.3",
+  "task_id": "commit0:flask"
+}

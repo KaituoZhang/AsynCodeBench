@@ -1,0 +1,15 @@
+diff --git a/parsel/xpathfuncs.py b/parsel/xpathfuncs.py
+index 6507a7a..c2fdf49 100644
+--- a/parsel/xpathfuncs.py
++++ b/parsel/xpathfuncs.py
+@@ -17,6 +17,10 @@ def set_xpathfunc(fname: str, func: Optional[Callable]) -> None:
+ 
+     """
+     pass
++
++def setup() -> None:
++    set_xpathfunc('has-class', has_class)
++
+ 
+ def has_class(context: Any, *classes: str) -> bool:
+     """has-class function.

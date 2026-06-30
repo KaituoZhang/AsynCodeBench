@@ -1,0 +1,246 @@
+{
+  "coordination_structure_tags": [
+    "interface_dependency",
+    "shared_abstraction"
+  ],
+  "environment_requirements": [
+    "Python 3.12.12 from reproductions/async-swe-agents/.venv",
+    "pytest==9.0.2",
+    "starlette==0.52.1",
+    "pydantic==2.12.5",
+    "httpx==0.28.1",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
+    "PYTHONPATH=<materialized-root>",
+    "Use -W ignore::DeprecationWarning for the current local Starlette/FastAPI compatibility warning.",
+    "Use origin/commit0_combined plus bootstrap overlays from configs/tasks/commit0_curated_tasks.v0.3.json."
+  ],
+  "evaluation_snapshots": [
+    {
+      "collected": 1,
+      "command": [
+        "/home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "-W",
+        "ignore::DeprecationWarning",
+        "tests/test_jsonable_encoder.py"
+      ],
+      "dependency_versions": {
+        "httpx": "0.28.1",
+        "pydantic": "2.12.5",
+        "pytest": "9.0.2",
+        "starlette": "0.52.1"
+      },
+      "duration_seconds": 1.40,
+      "errors": 1,
+      "evidence_scope": "public_initial_state",
+      "failed": 0,
+      "notes": [
+        "The stripped initial ref plus the current import bootstrap still encounters additional FastAPI import-graph blockers before jsonable_encoder tests collect.",
+        "The snapshot is recorded as one collection error rather than semantic test execution. This is a remaining validation gate before release."
+      ],
+      "passed": 0,
+      "python_version": "3.12.12",
+      "return_code": 2,
+      "schema_version": "0.3",
+      "skipped": 0,
+      "snapshot_id": "curated_commit0_initial_fastapi_encoder_evaluator_collection",
+      "source_ref": "origin/commit0_combined:0ee9d513da2f664b076c13a5f0969ecd1bfd25dd+bootstrap-overlays"
+    },
+    {
+      "collected": 21,
+      "command": [
+        "/home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "-W",
+        "ignore::DeprecationWarning",
+        "tests/test_jsonable_encoder.py"
+      ],
+      "dependency_versions": {
+        "httpx": "0.28.1",
+        "pydantic": "2.12.5",
+        "pytest": "9.0.2",
+        "starlette": "0.52.1"
+      },
+      "duration_seconds": 0.56,
+      "errors": 0,
+      "evidence_scope": "evaluator_sanity_only",
+      "failed": 0,
+      "notes": [
+        "The complete local master/commit0 ref passes the same jsonable_encoder evaluator slice in the available local environment.",
+        "Route, TestClient, and OpenAPI probe groups are public and labeled but need a fully pinned FastAPI dependency environment before final release."
+      ],
+      "passed": 18,
+      "python_version": "3.12.12",
+      "return_code": 0,
+      "schema_version": "0.3",
+      "skipped": 3,
+      "snapshot_id": "complete_commit0_fastapi_encoder_evaluator_sanity",
+      "source_ref": "master:847296e885ed83bc333b6cc0a3000d6242083b87"
+    }
+  ],
+  "known_limitations": [
+    "The Commit0 screening record marked FastAPI weak_or_unclear because many docs_src tutorial files are also stripped. This v0.3 candidate intentionally scopes to core FastAPI modules.",
+    "FastAPI has a wide import graph. The bootstrap overlay is larger than the overlays for smaller libraries and must be independently reviewed before release.",
+    "The currently available local environment lacks dirty_equals and has newer Starlette deprecation behavior, so full path/query/TestClient/OpenAPI scoped tests were not used for final snapshot counts.",
+    "Only jsonable_encoder was locally sanity-checked on the complete ref. Public route, dependency-cache, include-router, and response-model probes are labeled for async metrics but require a pinned FastAPI test environment for execution.",
+    "This record is not release-ready and should not be used as a formal benchmark instance until the remaining gates are closed."
+  ],
+  "public_statement_sources": [
+    "README.md@origin/commit0_combined",
+    "fastapi/*.py and fastapi/*/*.py docstrings@origin/commit0_combined",
+    "tests/test_*.py@origin/commit0_combined",
+    "manifests/candidates/commit0_async_screening_v0.3.json"
+  ],
+  "quality_status": "needs_revision",
+  "remaining_gates": [
+    "reduce or justify the bootstrap overlay so it is clearly import-only and does not implement benchmark behavior",
+    "make the stripped initial ref collect the scoped public evaluator after bootstrap overlays",
+    "rerun the full scoped evaluator in a pinned FastAPI test environment",
+    "two independent human inclusion/exclusion annotations",
+    "human review that the bootstrap overlay is import-only and does not implement benchmark behavior"
+  ],
+  "schema_version": "0.3",
+  "structure_rationale": "FastAPI exposes semantic async dependencies between parameter marker factories, dependency graph solving, APIRoute/FastAPI route registration, and serialization/OpenAPI consumers. Downstream agents can write against stale marker object shapes, route metadata, response field behavior, or jsonable_encoder contracts even when patches merge textually.",
+  "task_id": "commit0:fastapi",
+  "test_groups": [
+    {
+      "command": [
+        "/home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "-W",
+        "ignore::DeprecationWarning",
+        "tests/test_param_class.py",
+        "tests/test_params_repr.py"
+      ],
+      "description": "Parameter marker and FieldInfo wrapper behavior.",
+      "group_id": "parameter_marker_local",
+      "owner_subproblem": "parameter_marker_layer",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "/home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "-W",
+        "ignore::DeprecationWarning",
+        "tests/test_dependency_cache.py"
+      ],
+      "description": "Dependency graph cache key and Security/Depends cache behavior.",
+      "group_id": "dependency_solving_local",
+      "owner_subproblem": "dependency_solving_layer",
+      "prerequisites": [
+        "parameter marker contracts are implemented"
+      ],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "/home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "-W",
+        "ignore::DeprecationWarning",
+        "tests/test_default_response_class.py",
+        "tests/test_include_router_defaults_overrides.py"
+      ],
+      "description": "FastAPI/APIRouter route registration, defaults, include-router propagation, and response class behavior.",
+      "group_id": "routing_application_local",
+      "owner_subproblem": "routing_application_layer",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "/home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "-W",
+        "ignore::DeprecationWarning",
+        "tests/test_jsonable_encoder.py",
+        "tests/test_generate_unique_id_function.py",
+        "tests/test_response_model_data_filter.py"
+      ],
+      "description": "JSON-compatible encoding, response-model filtering, operation ID, and schema generation behavior.",
+      "group_id": "serialization_schema_local",
+      "owner_subproblem": "serialization_schema_layer",
+      "prerequisites": [
+        "routing and response field contracts are implemented"
+      ],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "/home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "-W",
+        "ignore::DeprecationWarning",
+        "tests/test_dependency_cache.py::test_security_cache",
+        "tests/test_generate_unique_id_function.py::test_top_level_generate_unique_id",
+        "tests/test_response_model_data_filter.py::test_filter_second_level_model"
+      ],
+      "description": "Cross-subproblem probes for dependency marker consumption, route metadata to OpenAPI, and encoder to response filtering integration.",
+      "group_id": "fastapi_cross_dependency_probes",
+      "owner_subproblem": null,
+      "prerequisites": [
+        "parameter_marker_layer artifact is integrated",
+        "dependency_solving_layer artifact is integrated",
+        "routing_application_layer artifact is integrated",
+        "serialization_schema_layer artifact is integrated"
+      ],
+      "purpose": "cross_subproblem",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "/home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "-W",
+        "ignore::DeprecationWarning",
+        "tests/test_jsonable_encoder.py"
+      ],
+      "description": "Currently runnable local sanity slice for the FastAPI candidate.",
+      "group_id": "jsonable_encoder_sanity_evaluator",
+      "owner_subproblem": null,
+      "prerequisites": [
+        "serialization_schema_layer artifact is integrated"
+      ],
+      "purpose": "full_evaluator",
+      "schema_version": "0.3"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+diff --git a/imapclient/imapclient.py b/imapclient/imapclient.py
+index 9d104d7..ef19752 100644
+--- a/imapclient/imapclient.py
++++ b/imapclient/imapclient.py
+@@ -1136,6 +1136,15 @@ def _normalise_search_criteria(criteria, charset=None):
+ def iteritems(self):
+     pass
+ 
++def normalise_text_list(items):
++    pass
++
++def seq_to_parenstr(items):
++    pass
++
++def seq_to_parenstr_upper(items):
++    pass
++
+ class _dict_bytes_normaliser:
+     """Wrap a dict with unicode/bytes keys and normalise the keys to
+     bytes.

@@ -1,0 +1,113 @@
+{
+  "annotation_provenance": [],
+  "candidate_evidence_file": "manifests/candidates/commit0_async_screening_v0.3.json",
+  "dependency_annotations": [
+    {
+      "consumer_subproblem": "repo_refs_integration",
+      "dependency_type": "api_contract",
+      "description": "Repo.init() and DiskRefsContainer symbolic-ref behavior consume StackedConfig.default_backends(). If the config layer raises on an inaccessible global config path, refs tests fail before ref semantics can be validated.",
+      "evidence_paths": [
+        "dulwich/config.py",
+        "dulwich/repo.py",
+        "dulwich/refs.py",
+        "tests/test_config.py",
+        "tests/test_refs.py"
+      ],
+      "producer_subproblem": "config_defaults",
+      "schema_version": "0.3"
+    },
+    {
+      "consumer_subproblem": "object_store_layer",
+      "dependency_type": "integration",
+      "description": "Object-store add/read behavior depends on the pack layer's object iteration, checksums, and raw object lookup contract.",
+      "evidence_paths": [
+        "dulwich/pack.py",
+        "dulwich/object_store.py",
+        "dulwich/objects.py",
+        "tests/test_pack.py",
+        "tests/test_object_store.py"
+      ],
+      "producer_subproblem": "pack_format_layer",
+      "schema_version": "0.3"
+    }
+  ],
+  "evaluator_command": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/test_object_store.py",
+    "tests/test_pack.py",
+    "tests/test_refs.py",
+    "tests/test_config.py",
+    "tests/test_objectspec.py",
+    "tests/test_objects.py",
+    "tests/test_diff_tree.py",
+    "tests/test_walk.py"
+  ],
+  "inclusion_decision": null,
+  "natural_subproblems": {
+    "config_defaults": [
+      "dulwich/config.py",
+      "tests/test_config.py"
+    ],
+    "integration_validation": [
+      "tests/test_objectspec.py",
+      "tests/test_diff_tree.py",
+      "tests/test_walk.py"
+    ],
+    "object_store_layer": [
+      "dulwich/object_store.py",
+      "tests/test_object_store.py"
+    ],
+    "pack_format_layer": [
+      "dulwich/pack.py",
+      "dulwich/objects.py",
+      "tests/test_pack.py",
+      "tests/test_objects.py"
+    ],
+    "repo_refs_integration": [
+      "dulwich/repo.py",
+      "dulwich/refs.py",
+      "tests/test_refs.py"
+    ]
+  },
+  "notes": [
+    "Task source, tests, and Commit0 implementation are unchanged.",
+    "The evaluator subset excludes fuzzing and contrib/swift smoke tests that require optional dependencies not needed for the core config/refs/object-store task.",
+    "This construction follows the manual audit in docs/audits/COMMIT0_CANDIDATE_REVIEW_dulwich_scrapy_v0.3.md.",
+    "The proposed label is a draft curation decision and not a final independent annotation."
+  ],
+  "problem_statement": "Restore the core Dulwich behavior exercised by the public Commit0 tests without\nmodifying the tests.\n\nThe config layer must treat missing or inaccessible default user/system config\nfiles as absent configuration sources. Repository initialization and refs\noperations must consume that config behavior without surfacing environment\npermission errors, preserve symbolic HEAD behavior, and update concrete branch\nrefs consistently.\n\nThe pack/object-store layer must preserve the shared Git-object contract between\npack reading/writing and object-store insertion/lookup. Optional fuzzing,\ncompatibility, and contrib smoke tests that require unavailable external\ndependencies are excluded from this v0.3 evaluator subset.",
+  "proposed_parallelizability_label": "partially_parallelizable",
+  "publicly_implicated_modules": [
+    "dulwich/config.py",
+    "dulwich/repo.py",
+    "dulwich/refs.py",
+    "dulwich/pack.py",
+    "dulwich/object_store.py",
+    "dulwich/objects.py",
+    "dulwich/objectspec.py",
+    "dulwich/diff_tree.py",
+    "dulwich/walk.py"
+  ],
+  "qualification_label": null,
+  "qualification_status": "pending_independent_annotation",
+  "quality_evidence_file": "manifests/pilot/v0.3/quality/commit0_dulwich.json",
+  "repository": "commit0/dulwich",
+  "schema_version": "0.3",
+  "source_materialization": "git archive of the upstream Commit0 dulwich repository at be5d53457f7ea6d8b71c3b3d276ea45a70b33a6a",
+  "task_id": "commit0:dulwich",
+  "task_source": "Commit0",
+  "test_targets": [
+    "tests/test_object_store.py",
+    "tests/test_pack.py",
+    "tests/test_refs.py",
+    "tests/test_config.py",
+    "tests/test_objectspec.py",
+    "tests/test_objects.py",
+    "tests/test_diff_tree.py",
+    "tests/test_walk.py"
+  ],
+  "upstream_version": "be5d53457f7ea6d8b71c3b3d276ea45a70b33a6a"
+}

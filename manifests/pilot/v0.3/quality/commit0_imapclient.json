@@ -1,0 +1,242 @@
+{
+  "coordination_structure_tags": [
+    "interface_dependency",
+    "shared_abstraction",
+    "shared_state"
+  ],
+  "environment_requirements": [
+    "Python 3.10.12",
+    "pytest==9.0.3",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
+    "Run from the repository root with PYTHONPATH=.",
+    "Use origin/commit0_combined plus bootstrap overlays from configs/tasks/commit0_curated_tasks.v0.3.json."
+  ],
+  "evaluation_snapshots": [
+    {
+      "collected": 229,
+      "command": [
+        "python3.10",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_response_lexer.py",
+        "tests/test_response_parser.py",
+        "tests/test_imapclient.py",
+        "tests/test_search.py",
+        "tests/test_folder_status.py",
+        "tests/test_store.py",
+        "tests/test_datetime_util.py",
+        "tests/test_imap_utf7.py",
+        "tests/test_util_functions.py"
+      ],
+      "dependency_versions": {
+        "pytest": "9.0.3"
+      },
+      "duration_seconds": 3.95,
+      "errors": 0,
+      "evidence_scope": "public_initial_state",
+      "failed": 229,
+      "notes": [
+        "Verified with PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 and PYTHONPATH=<materialized-root> after applying only checksum-recorded bootstrap overlays.",
+        "Failures are caused by unfinished lexer, parser, typed response, datetime, UTF-7, utility, and client command behavior."
+      ],
+      "passed": 0,
+      "python_version": "3.10.12",
+      "return_code": 1,
+      "schema_version": "0.3",
+      "skipped": 0,
+      "snapshot_id": "curated_commit0_initial_response_client_evaluator",
+      "source_ref": "origin/commit0_combined:7ca5a23640bcb0b102673eaaf5eaa6e7fcebd76b+bootstrap-overlays"
+    },
+    {
+      "collected": 229,
+      "command": [
+        "python3.10",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_response_lexer.py",
+        "tests/test_response_parser.py",
+        "tests/test_imapclient.py",
+        "tests/test_search.py",
+        "tests/test_folder_status.py",
+        "tests/test_store.py",
+        "tests/test_datetime_util.py",
+        "tests/test_imap_utf7.py",
+        "tests/test_util_functions.py"
+      ],
+      "dependency_versions": {
+        "pytest": "9.0.3"
+      },
+      "duration_seconds": 0.44,
+      "errors": 0,
+      "evidence_scope": "evaluator_sanity_only",
+      "failed": 0,
+      "notes": [
+        "The complete local master/commit0 ref passes the same scoped evaluator in the same environment.",
+        "The complete ref is evaluator validation only and must not define decomposition, prompts, or agent-visible evidence."
+      ],
+      "passed": 229,
+      "python_version": "3.10.12",
+      "return_code": 0,
+      "schema_version": "0.3",
+      "skipped": 0,
+      "snapshot_id": "complete_commit0_response_client_evaluator_sanity",
+      "source_ref": "master:391cc6d66d35c16bed11292ff00835646cd50ae5"
+    }
+  ],
+  "known_limitations": [
+    "The local master/commit0 branch is complete. Benchmark workspaces must be materialized from origin/commit0_combined.",
+    "Raw origin/commit0_combined collection fails before bootstrap overlays because public imports need utility, decorator, datetime, iteritems, version, and helper symbols.",
+    "Bootstrap overlays only make the public tests importable and collectable; they do not implement lexer, parser, UTF-7, datetime, command, quota, search, or store behavior.",
+    "Several bootstrap symbols are directly tested utility helpers. Human review should explicitly verify that the released task scope remains parser/client integration rather than hidden utility implementation.",
+    "Single-agent and multi-agent model results are evaluation outputs to report, not dataset qualification gates."
+  ],
+  "public_statement_sources": [
+    "README.rst@origin/commit0_combined",
+    "imapclient/*.py docstrings@origin/commit0_combined",
+    "tests/test_*.py@origin/commit0_combined",
+    "docs/audits/COMMIT0_CANDIDATE_REVIEW_chardet_dnspython_imapclient_v0.3.md"
+  ],
+  "quality_status": "qualification_ready",
+  "remaining_gates": [
+    "two independent human inclusion/exclusion annotations"
+  ],
+  "schema_version": "0.3",
+  "structure_rationale": "imapclient exposes semantic async dependencies between lexer/utility token contracts, typed parser outputs, and high-level client commands. Downstream client workers can make stale assumptions about SearchIds.modseq, fetch response keys, UID-vs-message-id semantics, bytes/str normalization, or date/UTF-7 conversion that only fail after parser and client tests integrate.",
+  "task_id": "commit0:imapclient",
+  "test_groups": [
+    {
+      "command": [
+        "python3.10",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_response_lexer.py",
+        "tests/test_datetime_util.py",
+        "tests/test_imap_utf7.py",
+        "tests/test_util_functions.py"
+      ],
+      "description": "Lexer, IMAP UTF-7, datetime/fixed-offset, and utility command formatting behavior.",
+      "group_id": "utility_lexer_local",
+      "owner_subproblem": "utility_lexer_layer",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python3.10",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_response_parser.py"
+      ],
+      "description": "IMAP response parsing, typed response objects, message lists, and fetch response shape.",
+      "group_id": "response_parser_local",
+      "owner_subproblem": "response_parser_layer",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python3.10",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_imapclient.py",
+        "tests/test_search.py",
+        "tests/test_folder_status.py",
+        "tests/test_store.py"
+      ],
+      "description": "High-level IMAPClient command construction and response normalization behavior.",
+      "group_id": "client_command_local",
+      "owner_subproblem": "client_command_layer",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python3.10",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_response_lexer.py::TestTokenSource::test_literal",
+        "tests/test_response_parser.py::TestParseResponse::test_literal"
+      ],
+      "description": "Parser behavior after lexer literal-token contracts are integrated.",
+      "group_id": "lexer_parser_cross_contract",
+      "owner_subproblem": null,
+      "prerequisites": [
+        "utility_lexer_layer artifact is integrated",
+        "response_parser_layer artifact is integrated"
+      ],
+      "purpose": "cross_subproblem",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python3.10",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_response_parser.py::TestParseMessageList::test_modseq",
+        "tests/test_search.py::TestSearch::test_modseq"
+      ],
+      "description": "Client search behavior after parser SearchIds/modseq contracts are integrated.",
+      "group_id": "parser_client_search_cross_contract",
+      "owner_subproblem": null,
+      "prerequisites": [
+        "response_parser_layer artifact is integrated",
+        "client_command_layer artifact is integrated"
+      ],
+      "purpose": "cross_subproblem",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python3.10",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_response_lexer.py",
+        "tests/test_response_parser.py",
+        "tests/test_imapclient.py",
+        "tests/test_search.py",
+        "tests/test_folder_status.py",
+        "tests/test_store.py",
+        "tests/test_datetime_util.py",
+        "tests/test_imap_utf7.py",
+        "tests/test_util_functions.py"
+      ],
+      "description": "Full scoped response/client evaluator.",
+      "group_id": "full_scoped_evaluator",
+      "owner_subproblem": null,
+      "prerequisites": [
+        "utility_lexer_layer artifact is integrated",
+        "response_parser_layer artifact is integrated",
+        "client_command_layer artifact is integrated"
+      ],
+      "purpose": "full_evaluator",
+      "schema_version": "0.3"
+    }
+  ]
+}

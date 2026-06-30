@@ -1,0 +1,71 @@
+diff --git a/src/marshmallow/decorators.py b/src/marshmallow/decorators.py
+index f0406d9..1104bcc 100644
+--- a/src/marshmallow/decorators.py
++++ b/src/marshmallow/decorators.py
+@@ -82,7 +82,7 @@ def validates(field_name: str) -> Callable[..., Any]:
+ 
+     :param str field_name: Name of the field that the method validates.
+     """
+-    pass
++    return set_hook(None, VALIDATES, field_name=field_name)
+ 
+ def validates_schema(fn: Callable[..., Any] | None=None, pass_many: bool=False, pass_original: bool=False, skip_on_field_errors: bool=True) -> Callable[..., Any]:
+     """Register a schema-level validator.
+@@ -104,7 +104,7 @@ def validates_schema(fn: Callable[..., Any] | None=None, pass_many: bool=False,
+         ``partial`` and ``many`` are always passed as keyword arguments to
+         the decorated method.
+     """
+-    pass
++    return set_hook(fn, VALIDATES_SCHEMA, pass_many=pass_many, pass_original=pass_original, skip_on_field_errors=skip_on_field_errors)
+ 
+ def pre_dump(fn: Callable[..., Any] | None=None, pass_many: bool=False) -> Callable[..., Any]:
+     """Register a method to invoke before serializing an object. The method
+@@ -117,7 +117,7 @@ def pre_dump(fn: Callable[..., Any] | None=None, pass_many: bool=False) -> Calla
+     .. versionchanged:: 3.0.0
+         ``many`` is always passed as a keyword arguments to the decorated method.
+     """
+-    pass
++    return set_hook(fn, (PRE_DUMP, pass_many))
+ 
+ def post_dump(fn: Callable[..., Any] | None=None, pass_many: bool=False, pass_original: bool=False) -> Callable[..., Any]:
+     """Register a method to invoke after serializing an object. The method
+@@ -133,7 +133,7 @@ def post_dump(fn: Callable[..., Any] | None=None, pass_many: bool=False, pass_or
+     .. versionchanged:: 3.0.0
+         ``many`` is always passed as a keyword arguments to the decorated method.
+     """
+-    pass
++    return set_hook(fn, (POST_DUMP, pass_many), pass_original=pass_original)
+ 
+ def pre_load(fn: Callable[..., Any] | None=None, pass_many: bool=False) -> Callable[..., Any]:
+     """Register a method to invoke before deserializing an object. The method
+@@ -147,7 +147,7 @@ def pre_load(fn: Callable[..., Any] | None=None, pass_many: bool=False) -> Calla
+         ``partial`` and ``many`` are always passed as keyword arguments to
+         the decorated method.
+     """
+-    pass
++    return set_hook(fn, (PRE_LOAD, pass_many))
+ 
+ def post_load(fn: Callable[..., Any] | None=None, pass_many: bool=False, pass_original: bool=False) -> Callable[..., Any]:
+     """Register a method to invoke after deserializing an object. The method
+@@ -164,7 +164,7 @@ def post_load(fn: Callable[..., Any] | None=None, pass_many: bool=False, pass_or
+         ``partial`` and ``many`` are always passed as keyword arguments to
+         the decorated method.
+     """
+-    pass
++    return set_hook(fn, (POST_LOAD, pass_many), pass_original=pass_original)
+ 
+ def set_hook(fn: Callable[..., Any] | None, key: tuple[str, bool] | str, **kwargs: Any) -> Callable[..., Any]:
+     """Mark decorated function as a hook to be picked up later.
+@@ -177,4 +177,9 @@ def set_hook(fn: Callable[..., Any] | None, key: tuple[str, bool] | str, **kwarg
+     :return: Decorated function if supplied, else this decorator with its args
+         bound.
+     """
+-    pass
+\ No newline at end of file
++    def decorator(func):
++        hook_config = getattr(func, "__marshmallow_hook__", None) or {}
++        hook_config[key] = kwargs
++        setattr(func, "__marshmallow_hook__", hook_config)
++        return func
++    return decorator if fn is None else decorator(fn)
+\ No newline at end of file

@@ -1,0 +1,54 @@
+{
+  "protocol_version": "qualification-v0.2",
+  "candidates": [
+    {
+      "protocol_version": "qualification-v0.2",
+      "task_id": "source:task-id",
+      "task_source": "Commit0",
+      "upstream_version": "public-upstream-commit",
+      "issue_summary": "Public task description only.",
+      "publicly_implicated_modules": [],
+      "public_module_count": 0,
+      "dependency_separability": "Describe separability from public evidence.",
+      "static_dependency_edges": [],
+      "test_targets": [],
+      "test_target_independence": "Describe target independence.",
+      "measured_test_and_build_duration": 0.0,
+      "measurement_command": ["python", "-m", "pytest", "-q"],
+      "measurement_return_code": null,
+      "measurement_timed_out": false,
+      "measurement_environment": {
+        "python_version": "",
+        "platform": "",
+        "user_site_disabled": "1"
+      },
+      "candidate_parallel_subproblems": [],
+      "cross_module_constraints": [],
+      "expected_overlap_surface": [],
+      "expected_shared_resource_contention": "Describe shared contention.",
+      "public_evidence_sources": [],
+      "gold_informed_secondary_label": null
+    }
+  ],
+  "annotator_decisions": [
+    {
+      "protocol_version": "qualification-v0.2",
+      "task_id": "source:task-id",
+      "annotator_id": "annotator-a",
+      "parallelizability_label": "partially_parallelizable",
+      "include": true,
+      "rationale": "Decision based only on preregistered public evidence.",
+      "exclusion_reason": null
+    },
+    {
+      "protocol_version": "qualification-v0.2",
+      "task_id": "source:task-id",
+      "annotator_id": "annotator-b",
+      "parallelizability_label": "partially_parallelizable",
+      "include": true,
+      "rationale": "Independent decision based only on public evidence.",
+      "exclusion_reason": null
+    }
+  ],
+  "adjudications": []
+}

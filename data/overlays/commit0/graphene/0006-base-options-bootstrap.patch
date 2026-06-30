@@ -1,0 +1,14 @@
+diff --git a/graphene/types/base.py b/graphene/types/base.py
+index 2b3e7ec..f3793db 100644
+--- a/graphene/types/base.py
++++ b/graphene/types/base.py
+@@ -10,6 +10,9 @@ class BaseOptions:
+     def __init__(self, class_type):
+         self.class_type = class_type
+ 
++    def freeze(self):
++        pass
++
+     def __setattr__(self, name, value):
+         if not self._frozen:
+             super(BaseOptions, self).__setattr__(name, value)

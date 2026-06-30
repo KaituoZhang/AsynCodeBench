@@ -1,0 +1,90 @@
+{
+  "annotation_provenance": [],
+  "candidate_evidence_file": "manifests/candidates/commit0_public_candidates_v0.2.json",
+  "dependency_annotations": [
+    {
+      "consumer_subproblem": "width_algorithm",
+      "dependency_type": "api_contract",
+      "description": "The width algorithm imports list_versions() and depends on its ordering and string format when matching requested Unicode versions.",
+      "evidence_paths": [
+        "wcwidth/unicode_versions.py",
+        "wcwidth/wcwidth.py",
+        "tests/test_ucslevel.py"
+      ],
+      "producer_subproblem": "unicode_version_catalog",
+      "schema_version": "0.3"
+    },
+    {
+      "consumer_subproblem": "integration_validation",
+      "dependency_type": "test_contract",
+      "description": "Core, emoji, table-integrity, and Unicode-version tests jointly validate binary search, version matching, single codepoint width, and whole-string width semantics.",
+      "evidence_paths": [
+        "wcwidth/wcwidth.py",
+        "tests/test_core.py",
+        "tests/test_emojis.py",
+        "tests/test_table_integrity.py",
+        "tests/test_ucslevel.py"
+      ],
+      "producer_subproblem": "width_algorithm",
+      "schema_version": "0.3"
+    }
+  ],
+  "evaluator_command": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "-o",
+    "addopts=",
+    "tests",
+    "-k",
+    "not test_package_version"
+  ],
+  "inclusion_decision": null,
+  "natural_subproblems": {
+    "integration_validation": [
+      "tests/test_core.py",
+      "tests/test_emojis.py",
+      "tests/test_table_integrity.py",
+      "tests/test_ucslevel.py"
+    ],
+    "unicode_version_catalog": [
+      "wcwidth/unicode_versions.py",
+      "tests/test_ucslevel.py"
+    ],
+    "width_algorithm": [
+      "wcwidth/wcwidth.py",
+      "tests/test_core.py",
+      "tests/test_emojis.py",
+      "tests/test_table_integrity.py"
+    ]
+  },
+  "notes": [
+    "Task source, tests, and Commit0 implementation are unchanged.",
+    "The evaluator excludes tests/test_core.py::test_package_version because it checks distribution metadata rather than implementation behavior.",
+    "The proposed label is a draft curation decision and not a final independent annotation."
+  ],
+  "problem_statement": "Restore the unfinished Unicode terminal-width APIs in the wcwidth repository\nwithout modifying the tests.\n\nThe Unicode-version layer must expose the supported Unicode version strings in\nascending order.\n\nThe width-computation layer must implement interval-table lookup, Unicode\nversion matching, single-codepoint width calculation, string width\ncalculation, control-character handling, combining/zero-width behavior,\nEast-Asian wide character behavior, VS-16 emoji presentation behavior, and\nthe public `wcwidth()` / `wcswidth()` API.\n\nPreserve the public package API and make the core non-packaging evaluator pass.\nThe package-metadata version test is excluded because it depends on editable\ninstallation metadata rather than the unfinished implementation.",
+  "proposed_parallelizability_label": "partially_parallelizable",
+  "publicly_implicated_modules": [
+    "wcwidth/unicode_versions.py",
+    "wcwidth/wcwidth.py"
+  ],
+  "qualification_label": null,
+  "qualification_status": "pending_independent_annotation",
+  "quality_evidence_file": "manifests/pilot/v0.3/quality/commit0_wcwidth.json",
+  "repository": "commit0/wcwidth",
+  "schema_version": "0.3",
+  "source_materialization": "git archive of the upstream Commit0 wcwidth repository at 0d0054189bdb0fc7b9de0456fc3cee2b67a6ceba",
+  "task_id": "commit0:wcwidth",
+  "task_source": "Commit0",
+  "test_targets": [
+    "tests/test_core.py",
+    "tests/test_emojis.py",
+    "tests/test_table_integrity.py",
+    "tests/test_ucslevel.py"
+  ],
+  "upstream_version": "0d0054189bdb0fc7b9de0456fc3cee2b67a6ceba"
+}

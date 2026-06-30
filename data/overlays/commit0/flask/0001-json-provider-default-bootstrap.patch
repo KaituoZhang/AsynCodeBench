@@ -1,0 +1,14 @@
+diff --git a/src/flask/json/provider.py b/src/flask/json/provider.py
+index 33a2642..ab9ab4e 100644
+--- a/src/flask/json/provider.py
++++ b/src/flask/json/provider.py
+@@ -66,6 +66,9 @@ class JSONProvider:
+         """
+         pass
+ 
++def _default(o: t.Any) -> t.Any:
++    pass
++
+ class DefaultJSONProvider(JSONProvider):
+     """Provide JSON operations using Python's built-in :mod:`json`
+     library. Serializes the following additional data types:

@@ -1,0 +1,372 @@
+{
+  "scenarios": [
+    {
+      "agent_count": 1,
+      "assignments": [
+        {
+          "agent_id": "integrator",
+          "primary_test_targets": [
+            "tests/test_deprecated.py",
+            "tests/test_deprecated_class.py",
+            "tests/test_deprecated_metaclass.py",
+            "tests/test_sphinx.py",
+            "tests/test_sphinx_adapter.py",
+            "tests/test_sphinx_class.py",
+            "tests/test_sphinx_metaclass.py"
+          ],
+          "role": "iterative full-task coding agent",
+          "schema_version": "0.3",
+          "subproblem_id": "full_task",
+          "writable_paths": [
+            "deprecated/classic.py",
+            "deprecated/sphinx.py"
+          ]
+        }
+      ],
+      "communication_condition": "not_applicable",
+      "competence_gate_required": true,
+      "concurrent_execution": false,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "sphinx_directive_layer",
+          "dependency_type": "api_contract",
+          "description": "SphinxAdapter inherits ClassicAdapter and relies on its constructor, __call__, warning-message, action, category, reason, and version behavior.",
+          "evidence_paths": [
+            "deprecated/classic.py",
+            "deprecated/sphinx.py",
+            "tests/test_deprecated.py",
+            "tests/test_sphinx.py"
+          ],
+          "producer_subproblem": "classic_warning_core",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "sphinx_directive_layer",
+          "dependency_type": "integration",
+          "description": "The Sphinx deprecated decorator must preserve the classic function, method, class, staticmethod, classmethod, warning filter, and custom warning-category semantics.",
+          "evidence_paths": [
+            "deprecated/classic.py",
+            "deprecated/sphinx.py",
+            "tests/test_deprecated_class.py",
+            "tests/test_deprecated_metaclass.py",
+            "tests/test_sphinx.py",
+            "tests/test_sphinx_class.py",
+            "tests/test_sphinx_metaclass.py"
+          ],
+          "producer_subproblem": "classic_warning_core",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "integration_validation",
+          "dependency_type": "test_contract",
+          "description": "Integrated behavior must add correctly wrapped Sphinx directives, strip cross-reference syntax from warnings, preserve class identity, and emit warnings only for the deprecated directive.",
+          "evidence_paths": [
+            "deprecated/sphinx.py",
+            "tests/test_sphinx.py",
+            "tests/test_sphinx_adapter.py",
+            "tests/test_sphinx_class.py"
+          ],
+          "producer_subproblem": "sphinx_directive_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "iterative_single",
+      "information_profile": "complete-task",
+      "integration_policy": "Agent submits its final workspace.",
+      "message_delivery_policy": "No inter-agent messages.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-deprecated.iterative-single.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "task_id": "commit0:deprecated",
+      "test_budget_per_agent": 8,
+      "token_budget_per_agent": 60000,
+      "wall_clock_budget_seconds": 1800
+    },
+    {
+      "agent_count": 2,
+      "assignments": [
+        {
+          "agent_id": "classic_agent",
+          "primary_test_targets": [
+            "tests/test_deprecated.py",
+            "tests/test_deprecated_class.py",
+            "tests/test_deprecated_metaclass.py",
+            "tests/test_sphinx_metaclass.py"
+          ],
+          "role": "classic warning and decorator specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "classic_warning_core",
+          "writable_paths": [
+            "deprecated/classic.py"
+          ]
+        },
+        {
+          "agent_id": "sphinx_agent",
+          "primary_test_targets": [
+            "tests/test_sphinx.py",
+            "tests/test_sphinx_adapter.py",
+            "tests/test_sphinx_class.py"
+          ],
+          "role": "Sphinx directive and adapter specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "sphinx_directive_layer",
+          "writable_paths": [
+            "deprecated/sphinx.py"
+          ]
+        }
+      ],
+      "communication_condition": "completed_artifact_handoff",
+      "competence_gate_required": true,
+      "concurrent_execution": false,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "sphinx_directive_layer",
+          "dependency_type": "api_contract",
+          "description": "SphinxAdapter inherits ClassicAdapter and relies on its constructor, __call__, warning-message, action, category, reason, and version behavior.",
+          "evidence_paths": [
+            "deprecated/classic.py",
+            "deprecated/sphinx.py",
+            "tests/test_deprecated.py",
+            "tests/test_sphinx.py"
+          ],
+          "producer_subproblem": "classic_warning_core",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "sphinx_directive_layer",
+          "dependency_type": "integration",
+          "description": "The Sphinx deprecated decorator must preserve the classic function, method, class, staticmethod, classmethod, warning filter, and custom warning-category semantics.",
+          "evidence_paths": [
+            "deprecated/classic.py",
+            "deprecated/sphinx.py",
+            "tests/test_deprecated_class.py",
+            "tests/test_deprecated_metaclass.py",
+            "tests/test_sphinx.py",
+            "tests/test_sphinx_class.py",
+            "tests/test_sphinx_metaclass.py"
+          ],
+          "producer_subproblem": "classic_warning_core",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "integration_validation",
+          "dependency_type": "test_contract",
+          "description": "Integrated behavior must add correctly wrapped Sphinx directives, strip cross-reference syntax from warnings, preserve class identity, and emit warnings only for the deprecated directive.",
+          "evidence_paths": [
+            "deprecated/sphinx.py",
+            "tests/test_sphinx.py",
+            "tests/test_sphinx_adapter.py",
+            "tests/test_sphinx_class.py"
+          ],
+          "producer_subproblem": "sphinx_directive_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "serial_specialists",
+      "information_profile": "private-workspace",
+      "integration_policy": "Apply and validate the Classic artifact before starting the Sphinx agent; then evaluate the combined workspace.",
+      "message_delivery_policy": "The Sphinx agent starts after receiving the completed Classic artifact and its targeted test results.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-deprecated.serial-specialists.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "task_id": "commit0:deprecated",
+      "test_budget_per_agent": 8,
+      "token_budget_per_agent": 60000,
+      "wall_clock_budget_seconds": 1800
+    },
+    {
+      "agent_count": 2,
+      "assignments": [
+        {
+          "agent_id": "classic_agent",
+          "primary_test_targets": [
+            "tests/test_deprecated.py",
+            "tests/test_deprecated_class.py",
+            "tests/test_deprecated_metaclass.py",
+            "tests/test_sphinx_metaclass.py"
+          ],
+          "role": "classic warning and decorator specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "classic_warning_core",
+          "writable_paths": [
+            "deprecated/classic.py"
+          ]
+        },
+        {
+          "agent_id": "sphinx_agent",
+          "primary_test_targets": [
+            "tests/test_sphinx.py",
+            "tests/test_sphinx_adapter.py",
+            "tests/test_sphinx_class.py"
+          ],
+          "role": "Sphinx directive and adapter specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "sphinx_directive_layer",
+          "writable_paths": [
+            "deprecated/sphinx.py"
+          ]
+        }
+      ],
+      "communication_condition": "none_in_flight",
+      "competence_gate_required": true,
+      "concurrent_execution": true,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "sphinx_directive_layer",
+          "dependency_type": "api_contract",
+          "description": "SphinxAdapter inherits ClassicAdapter and relies on its constructor, __call__, warning-message, action, category, reason, and version behavior.",
+          "evidence_paths": [
+            "deprecated/classic.py",
+            "deprecated/sphinx.py",
+            "tests/test_deprecated.py",
+            "tests/test_sphinx.py"
+          ],
+          "producer_subproblem": "classic_warning_core",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "sphinx_directive_layer",
+          "dependency_type": "integration",
+          "description": "The Sphinx deprecated decorator must preserve the classic function, method, class, staticmethod, classmethod, warning filter, and custom warning-category semantics.",
+          "evidence_paths": [
+            "deprecated/classic.py",
+            "deprecated/sphinx.py",
+            "tests/test_deprecated_class.py",
+            "tests/test_deprecated_metaclass.py",
+            "tests/test_sphinx.py",
+            "tests/test_sphinx_class.py",
+            "tests/test_sphinx_metaclass.py"
+          ],
+          "producer_subproblem": "classic_warning_core",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "integration_validation",
+          "dependency_type": "test_contract",
+          "description": "Integrated behavior must add correctly wrapped Sphinx directives, strip cross-reference syntax from warnings, preserve class identity, and emit warnings only for the deprecated directive.",
+          "evidence_paths": [
+            "deprecated/sphinx.py",
+            "tests/test_sphinx.py",
+            "tests/test_sphinx_adapter.py",
+            "tests/test_sphinx_class.py"
+          ],
+          "producer_subproblem": "sphinx_directive_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "async_private",
+      "information_profile": "private-workspace",
+      "integration_policy": "Run Classic and Sphinx workers concurrently in private workspaces and integrate final artifacts after both finish.",
+      "message_delivery_policy": "No in-flight worker messages or artifacts are delivered.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-deprecated.async-private.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "task_id": "commit0:deprecated",
+      "test_budget_per_agent": 8,
+      "token_budget_per_agent": 60000,
+      "wall_clock_budget_seconds": 1800
+    },
+    {
+      "agent_count": 2,
+      "assignments": [
+        {
+          "agent_id": "classic_agent",
+          "primary_test_targets": [
+            "tests/test_deprecated.py",
+            "tests/test_deprecated_class.py",
+            "tests/test_deprecated_metaclass.py",
+            "tests/test_sphinx_metaclass.py"
+          ],
+          "role": "classic warning and decorator specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "classic_warning_core",
+          "writable_paths": [
+            "deprecated/classic.py"
+          ]
+        },
+        {
+          "agent_id": "sphinx_agent",
+          "primary_test_targets": [
+            "tests/test_sphinx.py",
+            "tests/test_sphinx_adapter.py",
+            "tests/test_sphinx_class.py"
+          ],
+          "role": "Sphinx directive and adapter specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "sphinx_directive_layer",
+          "writable_paths": [
+            "deprecated/sphinx.py"
+          ]
+        }
+      ],
+      "communication_condition": "structured_message_and_artifact",
+      "competence_gate_required": true,
+      "concurrent_execution": true,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "sphinx_directive_layer",
+          "dependency_type": "api_contract",
+          "description": "SphinxAdapter inherits ClassicAdapter and relies on its constructor, __call__, warning-message, action, category, reason, and version behavior.",
+          "evidence_paths": [
+            "deprecated/classic.py",
+            "deprecated/sphinx.py",
+            "tests/test_deprecated.py",
+            "tests/test_sphinx.py"
+          ],
+          "producer_subproblem": "classic_warning_core",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "sphinx_directive_layer",
+          "dependency_type": "integration",
+          "description": "The Sphinx deprecated decorator must preserve the classic function, method, class, staticmethod, classmethod, warning filter, and custom warning-category semantics.",
+          "evidence_paths": [
+            "deprecated/classic.py",
+            "deprecated/sphinx.py",
+            "tests/test_deprecated_class.py",
+            "tests/test_deprecated_metaclass.py",
+            "tests/test_sphinx.py",
+            "tests/test_sphinx_class.py",
+            "tests/test_sphinx_metaclass.py"
+          ],
+          "producer_subproblem": "classic_warning_core",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "integration_validation",
+          "dependency_type": "test_contract",
+          "description": "Integrated behavior must add correctly wrapped Sphinx directives, strip cross-reference syntax from warnings, preserve class identity, and emit warnings only for the deprecated directive.",
+          "evidence_paths": [
+            "deprecated/sphinx.py",
+            "tests/test_sphinx.py",
+            "tests/test_sphinx_adapter.py",
+            "tests/test_sphinx_class.py"
+          ],
+          "producer_subproblem": "sphinx_directive_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "async_message",
+      "information_profile": "private-workspace",
+      "integration_policy": "Integrate the latest explicitly transferred artifacts and record whether delivered information changed later actions.",
+      "message_delivery_policy": "Workers may send adapter/decorator API assumptions, status, targeted test results, and explicit artifact transfers.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-deprecated.async-message.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "task_id": "commit0:deprecated",
+      "test_budget_per_agent": 8,
+      "token_budget_per_agent": 60000,
+      "wall_clock_budget_seconds": 1800
+    }
+  ],
+  "schema_version": "0.3",
+  "task_id": "commit0:deprecated"
+}

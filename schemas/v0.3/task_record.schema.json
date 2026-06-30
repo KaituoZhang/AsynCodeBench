@@ -1,0 +1,240 @@
+{
+  "$defs": {
+    "DependencyAnnotation": {
+      "additionalProperties": false,
+      "description": "Publicly justified semantic dependency between natural subproblems.",
+      "properties": {
+        "consumer_subproblem": {
+          "minLength": 1,
+          "title": "Consumer Subproblem",
+          "type": "string"
+        },
+        "dependency_type": {
+          "enum": [
+            "import",
+            "api_contract",
+            "test_contract",
+            "integration"
+          ],
+          "title": "Dependency Type",
+          "type": "string"
+        },
+        "description": {
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "evidence_paths": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Paths",
+          "type": "array"
+        },
+        "producer_subproblem": {
+          "minLength": 1,
+          "title": "Producer Subproblem",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.3",
+          "default": "0.3",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "producer_subproblem",
+        "consumer_subproblem",
+        "dependency_type",
+        "description"
+      ],
+      "title": "DependencyAnnotation",
+      "type": "object"
+    },
+    "ParallelizabilityLabel": {
+      "enum": [
+        "parallelizable",
+        "partially_parallelizable",
+        "effectively_serial"
+      ],
+      "title": "ParallelizabilityLabel",
+      "type": "string"
+    },
+    "QualificationStatus": {
+      "enum": [
+        "pending_independent_annotation",
+        "pending_adjudication",
+        "finalized"
+      ],
+      "title": "QualificationStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Frozen upstream task data, independent of agent organization.",
+  "properties": {
+    "annotation_provenance": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Annotation Provenance",
+      "type": "array"
+    },
+    "candidate_evidence_file": {
+      "minLength": 1,
+      "title": "Candidate Evidence File",
+      "type": "string"
+    },
+    "dependency_annotations": {
+      "items": {
+        "$ref": "#/$defs/DependencyAnnotation"
+      },
+      "title": "Dependency Annotations",
+      "type": "array"
+    },
+    "evaluator_command": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evaluator Command",
+      "type": "array"
+    },
+    "inclusion_decision": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Inclusion Decision"
+    },
+    "natural_subproblems": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Natural Subproblems",
+      "type": "object"
+    },
+    "notes": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "problem_statement": {
+      "minLength": 1,
+      "title": "Problem Statement",
+      "type": "string"
+    },
+    "proposed_parallelizability_label": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ParallelizabilityLabel"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "publicly_implicated_modules": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Publicly Implicated Modules",
+      "type": "array"
+    },
+    "qualification_label": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ParallelizabilityLabel"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "qualification_status": {
+      "$ref": "#/$defs/QualificationStatus"
+    },
+    "quality_evidence_file": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Quality Evidence File"
+    },
+    "repository": {
+      "minLength": 1,
+      "title": "Repository",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "0.3",
+      "default": "0.3",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_materialization": {
+      "minLength": 1,
+      "title": "Source Materialization",
+      "type": "string"
+    },
+    "task_id": {
+      "minLength": 1,
+      "title": "Task Id",
+      "type": "string"
+    },
+    "task_source": {
+      "minLength": 1,
+      "title": "Task Source",
+      "type": "string"
+    },
+    "test_targets": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Test Targets",
+      "type": "array"
+    },
+    "upstream_version": {
+      "minLength": 1,
+      "title": "Upstream Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "task_id",
+    "task_source",
+    "upstream_version",
+    "repository",
+    "source_materialization",
+    "problem_statement",
+    "evaluator_command",
+    "test_targets",
+    "publicly_implicated_modules",
+    "natural_subproblems",
+    "dependency_annotations",
+    "qualification_status",
+    "candidate_evidence_file"
+  ],
+  "title": "TaskRecord",
+  "type": "object"
+}

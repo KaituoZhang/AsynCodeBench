@@ -1,0 +1,86 @@
+{
+  "annotation_provenance": [],
+  "candidate_evidence_file": "manifests/candidates/commit0_public_candidates_v0.2.json",
+  "dependency_annotations": [
+    {
+      "consumer_subproblem": "file_lock_utilities",
+      "dependency_type": "api_contract",
+      "description": "Lock, RLock, and semaphore utilities call the platform lock/unlock backend and depend on its flags and exceptions.",
+      "evidence_paths": [
+        "portalocker/portalocker.py",
+        "portalocker/utils.py",
+        "portalocker_tests/tests.py"
+      ],
+      "producer_subproblem": "platform_lock_backend",
+      "schema_version": "0.3"
+    },
+    {
+      "consumer_subproblem": "integration_validation",
+      "dependency_type": "test_contract",
+      "description": "Semaphore, temporary-file, process-lock, and combined-module tests require consistent backend and utility semantics.",
+      "evidence_paths": [
+        "portalocker/utils.py",
+        "portalocker_tests/tests.py",
+        "portalocker_tests/test_semaphore.py",
+        "portalocker_tests/temporary_file_lock.py",
+        "portalocker_tests/test_combined.py"
+      ],
+      "producer_subproblem": "file_lock_utilities",
+      "schema_version": "0.3"
+    }
+  ],
+  "evaluator_command": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "-o",
+    "addopts=",
+    "portalocker_tests",
+    "--ignore=portalocker_tests/test_redis.py"
+  ],
+  "inclusion_decision": null,
+  "natural_subproblems": {
+    "file_lock_utilities": [
+      "portalocker/utils.py"
+    ],
+    "integration_validation": [
+      "portalocker_tests/tests.py",
+      "portalocker_tests/test_semaphore.py",
+      "portalocker_tests/temporary_file_lock.py",
+      "portalocker_tests/test_combined.py"
+    ],
+    "platform_lock_backend": [
+      "portalocker/portalocker.py"
+    ]
+  },
+  "notes": [
+    "The benchmark initial state is curated from raw Commit0 by data/overlays/commit0/portalocker/0001-import-bootstrap.patch with SHA-256 954c4855872d8c4695e981cc257f72a22a4d6e5302f09f0965c2062cee8d6c54.",
+    "exceptions.py marker-only classes and the HasFileno Protocol are not treated as implementation subproblems.",
+    "RedisLock and test_redis.py are excluded from the POSIX core task because they require a separate Python dependency and running Redis service."
+  ],
+  "problem_statement": "Restore the unfinished POSIX file-locking APIs in the Portalocker repository\nwithout modifying the tests.\n\nThe platform backend must provide the documented POSIX `lock()` and\n`unlock()` operations and translate operating-system locking failures into the\npublic exception hierarchy.\n\nThe utility layer must implement coalescing, atomic file replacement, timeout\nhandling, file-handle preparation, `Lock`, reentrant `RLock`, temporary-file\nlocks, and bounded semaphore behavior while preserving the existing public\nflags, exceptions, context-manager API, and file lifecycle.\n\nPreserve the public core package API and make the applicable non-Redis\nupstream tests pass. RedisLock is outside this task.",
+  "proposed_parallelizability_label": "partially_parallelizable",
+  "publicly_implicated_modules": [
+    "portalocker/portalocker.py",
+    "portalocker/utils.py"
+  ],
+  "qualification_label": null,
+  "qualification_status": "pending_independent_annotation",
+  "quality_evidence_file": "manifests/pilot/v0.3/quality/commit0_portalocker.json",
+  "repository": "commit0/portalocker",
+  "schema_version": "0.3",
+  "source_materialization": "git archive of the upstream Commit0 Portalocker repository at 300136afca11ea23c79ecfd110ed0d2819322f11 plus the verified curated bootstrap overlay recorded in configs/tasks/commit0_curated_tasks.v0.3.json",
+  "task_id": "commit0:portalocker",
+  "task_source": "Commit0",
+  "test_targets": [
+    "portalocker_tests/conftest.py",
+    "portalocker_tests/temporary_file_lock.py",
+    "portalocker_tests/test_combined.py",
+    "portalocker_tests/test_semaphore.py",
+    "portalocker_tests/tests.py"
+  ],
+  "upstream_version": "300136afca11ea23c79ecfd110ed0d2819322f11"
+}

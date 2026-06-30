@@ -1,0 +1,354 @@
+{
+  "scenarios": [
+    {
+      "agent_count": 1,
+      "assignments": [
+        {
+          "agent_id": "integrator",
+          "primary_test_targets": [
+            "tests/test_selector.py",
+            "tests/test_selector_csstranslator.py",
+            "tests/test_selector_jmespath.py",
+            "tests/test_utils.py",
+            "tests/test_xml_attacks.py",
+            "tests/test_xpathfuncs.py"
+          ],
+          "role": "iterative full-task coding agent",
+          "schema_version": "0.3",
+          "subproblem_id": "full_task",
+          "writable_paths": [
+            "parsel/utils.py",
+            "parsel/xpathfuncs.py",
+            "parsel/csstranslator.py",
+            "parsel/__init__.py",
+            "parsel/selector.py"
+          ]
+        }
+      ],
+      "communication_condition": "not_applicable",
+      "competence_gate_required": true,
+      "concurrent_execution": false,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "selector_query_core",
+          "dependency_type": "api_contract",
+          "description": "Selector and SelectorList behavior consumes utility flattening, regex extraction, shortening, XPath extension registration, and has-class semantics.",
+          "evidence_paths": [
+            "parsel/utils.py",
+            "parsel/xpathfuncs.py",
+            "parsel/selector.py",
+            "tests/test_utils.py",
+            "tests/test_xpathfuncs.py",
+            "tests/test_selector.py"
+          ],
+          "producer_subproblem": "utility_xpath_support",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "selector_query_core",
+          "dependency_type": "api_contract",
+          "description": "Selector.css() consumes the CSS translator contract for ::text, ::attr(), pseudo-element errors, and CSS-to-XPath translation before executing XPath queries.",
+          "evidence_paths": [
+            "parsel/csstranslator.py",
+            "parsel/selector.py",
+            "tests/test_selector_csstranslator.py",
+            "tests/test_selector.py"
+          ],
+          "producer_subproblem": "css_translation_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "iterative_single",
+      "information_profile": "complete-task",
+      "integration_policy": "Agent submits its final workspace.",
+      "message_delivery_policy": "No inter-agent messages.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-parsel.iterative-single.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 28,
+      "task_id": "commit0:parsel",
+      "test_budget_per_agent": 10,
+      "token_budget_per_agent": 70000,
+      "wall_clock_budget_seconds": 2400
+    },
+    {
+      "agent_count": 3,
+      "assignments": [
+        {
+          "agent_id": "utility_xpath_agent",
+          "primary_test_targets": [
+            "tests/test_utils.py",
+            "tests/test_xpathfuncs.py"
+          ],
+          "role": "utility flattening, regex extraction, shortening, and XPath function specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "utility_xpath_support",
+          "writable_paths": [
+            "parsel/utils.py",
+            "parsel/xpathfuncs.py"
+          ]
+        },
+        {
+          "agent_id": "css_agent",
+          "primary_test_targets": [
+            "tests/test_selector_csstranslator.py"
+          ],
+          "role": "CSS-to-XPath translator and pseudo-element specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "css_translation_layer",
+          "writable_paths": [
+            "parsel/csstranslator.py"
+          ]
+        },
+        {
+          "agent_id": "selector_agent",
+          "primary_test_targets": [
+            "tests/test_selector.py",
+            "tests/test_selector_jmespath.py",
+            "tests/test_xml_attacks.py"
+          ],
+          "role": "Selector, SelectorList, root parsing, XPath, CSS, JMESPath, and package integration specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "selector_query_core",
+          "writable_paths": [
+            "parsel/__init__.py",
+            "parsel/selector.py"
+          ]
+        }
+      ],
+      "communication_condition": "completed_artifact_handoff",
+      "competence_gate_required": true,
+      "concurrent_execution": false,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "selector_query_core",
+          "dependency_type": "api_contract",
+          "description": "Selector and SelectorList behavior consumes utility flattening, regex extraction, shortening, XPath extension registration, and has-class semantics.",
+          "evidence_paths": [
+            "parsel/utils.py",
+            "parsel/xpathfuncs.py",
+            "parsel/selector.py",
+            "tests/test_utils.py",
+            "tests/test_xpathfuncs.py",
+            "tests/test_selector.py"
+          ],
+          "producer_subproblem": "utility_xpath_support",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "selector_query_core",
+          "dependency_type": "api_contract",
+          "description": "Selector.css() consumes the CSS translator contract for ::text, ::attr(), pseudo-element errors, and CSS-to-XPath translation before executing XPath queries.",
+          "evidence_paths": [
+            "parsel/csstranslator.py",
+            "parsel/selector.py",
+            "tests/test_selector_csstranslator.py",
+            "tests/test_selector.py"
+          ],
+          "producer_subproblem": "css_translation_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "serial_specialists",
+      "information_profile": "private-workspace",
+      "integration_policy": "Apply utility/XPath and CSS artifacts before selector core, then run the full scoped evaluator.",
+      "message_delivery_policy": "Specialists run with barrier synchronization. Selector receives completed utility/XPath and CSS translator artifacts before dependent validation.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-parsel.serial-specialists.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 28,
+      "task_id": "commit0:parsel",
+      "test_budget_per_agent": 10,
+      "token_budget_per_agent": 70000,
+      "wall_clock_budget_seconds": 2400
+    },
+    {
+      "agent_count": 3,
+      "assignments": [
+        {
+          "agent_id": "utility_xpath_agent",
+          "primary_test_targets": [
+            "tests/test_utils.py",
+            "tests/test_xpathfuncs.py"
+          ],
+          "role": "utility flattening, regex extraction, shortening, and XPath function specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "utility_xpath_support",
+          "writable_paths": [
+            "parsel/utils.py",
+            "parsel/xpathfuncs.py"
+          ]
+        },
+        {
+          "agent_id": "css_agent",
+          "primary_test_targets": [
+            "tests/test_selector_csstranslator.py"
+          ],
+          "role": "CSS-to-XPath translator and pseudo-element specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "css_translation_layer",
+          "writable_paths": [
+            "parsel/csstranslator.py"
+          ]
+        },
+        {
+          "agent_id": "selector_agent",
+          "primary_test_targets": [
+            "tests/test_selector.py",
+            "tests/test_selector_jmespath.py",
+            "tests/test_xml_attacks.py"
+          ],
+          "role": "Selector, SelectorList, root parsing, XPath, CSS, JMESPath, and package integration specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "selector_query_core",
+          "writable_paths": [
+            "parsel/__init__.py",
+            "parsel/selector.py"
+          ]
+        }
+      ],
+      "communication_condition": "none_in_flight",
+      "competence_gate_required": true,
+      "concurrent_execution": true,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "selector_query_core",
+          "dependency_type": "api_contract",
+          "description": "Selector and SelectorList behavior consumes utility flattening, regex extraction, shortening, XPath extension registration, and has-class semantics.",
+          "evidence_paths": [
+            "parsel/utils.py",
+            "parsel/xpathfuncs.py",
+            "parsel/selector.py",
+            "tests/test_utils.py",
+            "tests/test_xpathfuncs.py",
+            "tests/test_selector.py"
+          ],
+          "producer_subproblem": "utility_xpath_support",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "selector_query_core",
+          "dependency_type": "api_contract",
+          "description": "Selector.css() consumes the CSS translator contract for ::text, ::attr(), pseudo-element errors, and CSS-to-XPath translation before executing XPath queries.",
+          "evidence_paths": [
+            "parsel/csstranslator.py",
+            "parsel/selector.py",
+            "tests/test_selector_csstranslator.py",
+            "tests/test_selector.py"
+          ],
+          "producer_subproblem": "css_translation_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "async_private",
+      "information_profile": "private-workspace",
+      "integration_policy": "Run specialists concurrently in private workspaces and integrate final artifacts after all workers finish.",
+      "message_delivery_policy": "No in-flight worker messages or artifacts are delivered.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-parsel.async-private.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 28,
+      "task_id": "commit0:parsel",
+      "test_budget_per_agent": 10,
+      "token_budget_per_agent": 70000,
+      "wall_clock_budget_seconds": 2400
+    },
+    {
+      "agent_count": 3,
+      "assignments": [
+        {
+          "agent_id": "utility_xpath_agent",
+          "primary_test_targets": [
+            "tests/test_utils.py",
+            "tests/test_xpathfuncs.py"
+          ],
+          "role": "utility flattening, regex extraction, shortening, and XPath function specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "utility_xpath_support",
+          "writable_paths": [
+            "parsel/utils.py",
+            "parsel/xpathfuncs.py"
+          ]
+        },
+        {
+          "agent_id": "css_agent",
+          "primary_test_targets": [
+            "tests/test_selector_csstranslator.py"
+          ],
+          "role": "CSS-to-XPath translator and pseudo-element specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "css_translation_layer",
+          "writable_paths": [
+            "parsel/csstranslator.py"
+          ]
+        },
+        {
+          "agent_id": "selector_agent",
+          "primary_test_targets": [
+            "tests/test_selector.py",
+            "tests/test_selector_jmespath.py",
+            "tests/test_xml_attacks.py"
+          ],
+          "role": "Selector, SelectorList, root parsing, XPath, CSS, JMESPath, and package integration specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "selector_query_core",
+          "writable_paths": [
+            "parsel/__init__.py",
+            "parsel/selector.py"
+          ]
+        }
+      ],
+      "communication_condition": "structured_message_and_artifact",
+      "competence_gate_required": true,
+      "concurrent_execution": true,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "selector_query_core",
+          "dependency_type": "api_contract",
+          "description": "Selector and SelectorList behavior consumes utility flattening, regex extraction, shortening, XPath extension registration, and has-class semantics.",
+          "evidence_paths": [
+            "parsel/utils.py",
+            "parsel/xpathfuncs.py",
+            "parsel/selector.py",
+            "tests/test_utils.py",
+            "tests/test_xpathfuncs.py",
+            "tests/test_selector.py"
+          ],
+          "producer_subproblem": "utility_xpath_support",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "selector_query_core",
+          "dependency_type": "api_contract",
+          "description": "Selector.css() consumes the CSS translator contract for ::text, ::attr(), pseudo-element errors, and CSS-to-XPath translation before executing XPath queries.",
+          "evidence_paths": [
+            "parsel/csstranslator.py",
+            "parsel/selector.py",
+            "tests/test_selector_csstranslator.py",
+            "tests/test_selector.py"
+          ],
+          "producer_subproblem": "css_translation_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "async_message",
+      "information_profile": "private-workspace",
+      "integration_policy": "Integrate latest explicitly transferred artifacts and record stale selector utility or CSS translation assumptions.",
+      "message_delivery_policy": "Workers may transfer utility, XPath function, CSS translator, and selector-query assumptions while active.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-parsel.async-message.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 28,
+      "task_id": "commit0:parsel",
+      "test_budget_per_agent": 10,
+      "token_budget_per_agent": 70000,
+      "wall_clock_budget_seconds": 2400
+    }
+  ],
+  "schema_version": "0.3",
+  "task_id": "commit0:parsel"
+}

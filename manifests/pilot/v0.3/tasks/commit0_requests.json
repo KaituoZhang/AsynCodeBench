@@ -1,0 +1,118 @@
+{
+  "annotation_provenance": [],
+  "candidate_evidence_file": "manifests/candidates/commit0_async_screening_v0.3.json",
+  "dependency_annotations": [
+    {
+      "consumer_subproblem": "session_transport_layer",
+      "dependency_type": "api_contract",
+      "description": "Session and adapter request flow consumes PreparedRequest, Response, cookie, hook, authentication, proxy, URL, and body length contracts from the preparation core.",
+      "evidence_paths": [
+        "src/requests/models.py",
+        "src/requests/cookies.py",
+        "src/requests/hooks.py",
+        "src/requests/auth.py",
+        "src/requests/utils.py",
+        "src/requests/sessions.py",
+        "src/requests/adapters.py",
+        "tests/test_utils.py",
+        "tests/test_hooks.py",
+        "tests/test_adapters.py"
+      ],
+      "producer_subproblem": "request_preparation_core",
+      "schema_version": "0.3"
+    },
+    {
+      "consumer_subproblem": "integration_validation",
+      "dependency_type": "integration",
+      "description": "Package-level import and vendored dependency compatibility consume foundation structures, status codes, utility helpers, and public module exports.",
+      "evidence_paths": [
+        "src/requests/__init__.py",
+        "src/requests/status_codes.py",
+        "src/requests/structures.py",
+        "src/requests/utils.py",
+        "tests/test_packages.py",
+        "tests/test_structures.py"
+      ],
+      "producer_subproblem": "request_preparation_core",
+      "schema_version": "0.3"
+    }
+  ],
+  "evaluator_command": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "tests/test_structures.py",
+    "tests/test_utils.py",
+    "tests/test_hooks.py",
+    "tests/test_adapters.py",
+    "tests/test_packages.py"
+  ],
+  "inclusion_decision": null,
+  "natural_subproblems": {
+    "integration_validation": [
+      "src/requests/__init__.py",
+      "tests/test_packages.py"
+    ],
+    "request_preparation_core": [
+      "src/requests/_internal_utils.py",
+      "src/requests/auth.py",
+      "src/requests/compat.py",
+      "src/requests/cookies.py",
+      "src/requests/hooks.py",
+      "src/requests/models.py",
+      "src/requests/status_codes.py",
+      "src/requests/structures.py",
+      "src/requests/utils.py",
+      "tests/test_structures.py",
+      "tests/test_utils.py",
+      "tests/test_hooks.py"
+    ],
+    "session_transport_layer": [
+      "src/requests/api.py",
+      "src/requests/sessions.py",
+      "src/requests/adapters.py",
+      "tests/test_adapters.py"
+    ]
+  },
+  "notes": [
+    "Task source and tests are unchanged; only bootstrap overlays are applied.",
+    "The local commit0/default branch is complete. Benchmark workspaces must be materialized from origin/commit0_combined.",
+    "The evaluator is a local-core subset because this environment cannot run httpbin and pyOpenSSL help tests reliably.",
+    "The proposed label is a draft curation decision and not a final independent annotation."
+  ],
+  "problem_statement": "Restore the public Requests behavior exercised by the scoped public Commit0\ntests without modifying the tests.\n\nThe request-preparation core must implement case-insensitive and lookup\nstructures, status-code lookup, URL/proxy/header/body-length utilities, hooks,\ncookies, authentication, Request, PreparedRequest, and Response behavior. The\nsession and transport layer must implement public API helpers, Session\npreparation/sending/redirect/environment merge behavior, adapter selection,\nconnection/proxy/TLS handling, and response construction.\n\nThe v0.3 local evaluator uses a public local-core subset that excludes\nhttpbin-dependent integration tests and the pyOpenSSL help test because the\naudited environment lacks pytest-httpbin and has a pyOpenSSL/OpenSSL mismatch.\nThe initial benchmark source is the stripped Commit0-style ref\n`origin/commit0_combined`, with checksum-recorded bootstrap overlays that only\nmake the public source importable.",
+  "proposed_parallelizability_label": "partially_parallelizable",
+  "publicly_implicated_modules": [
+    "src/requests/__init__.py",
+    "src/requests/adapters.py",
+    "src/requests/api.py",
+    "src/requests/auth.py",
+    "src/requests/compat.py",
+    "src/requests/cookies.py",
+    "src/requests/hooks.py",
+    "src/requests/models.py",
+    "src/requests/sessions.py",
+    "src/requests/status_codes.py",
+    "src/requests/structures.py",
+    "src/requests/utils.py"
+  ],
+  "qualification_label": null,
+  "qualification_status": "pending_independent_annotation",
+  "quality_evidence_file": "manifests/pilot/v0.3/quality/commit0_requests.json",
+  "repository": "commit0/requests",
+  "schema_version": "0.3",
+  "source_materialization": "git archive of the stripped Commit0-style Requests ref origin/commit0_combined at 0e5a01d0ed71fd20b6a72cafe92b9a917ce93d7b, plus the checksum-recorded import/bootstrap overlays in configs/tasks/commit0_curated_tasks.v0.3.json",
+  "task_id": "commit0:requests",
+  "task_source": "Commit0",
+  "test_targets": [
+    "tests/test_structures.py",
+    "tests/test_utils.py",
+    "tests/test_hooks.py",
+    "tests/test_adapters.py",
+    "tests/test_packages.py"
+  ],
+  "upstream_version": "0e5a01d0ed71fd20b6a72cafe92b9a917ce93d7b"
+}

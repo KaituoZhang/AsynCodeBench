@@ -1,0 +1,122 @@
+{
+  "$defs": {
+    "JobKind": {
+      "enum": [
+        "llm",
+        "tool",
+        "test",
+        "build",
+        "experiment",
+        "review",
+        "integration"
+      ],
+      "title": "JobKind",
+      "type": "string"
+    },
+    "JobStatus": {
+      "enum": [
+        "queued",
+        "running",
+        "completed",
+        "failed",
+        "cancelled",
+        "timed_out"
+      ],
+      "title": "JobStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "command": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Command",
+      "type": "array"
+    },
+    "failure": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Failure"
+    },
+    "finish_event": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Finish Event"
+    },
+    "input_snapshot_id": {
+      "minLength": 1,
+      "title": "Input Snapshot Id",
+      "type": "string"
+    },
+    "job_id": {
+      "minLength": 1,
+      "title": "Job Id",
+      "type": "string"
+    },
+    "kind": {
+      "$ref": "#/$defs/JobKind"
+    },
+    "output_artifact_ids": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Output Artifact Ids",
+      "type": "array"
+    },
+    "owner": {
+      "minLength": 1,
+      "title": "Owner",
+      "type": "string"
+    },
+    "resource_ids": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Resource Ids",
+      "type": "array"
+    },
+    "schema_version": {
+      "const": "asynccodebench-v0.2",
+      "default": "asynccodebench-v0.2",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "start_event": {
+      "minLength": 1,
+      "title": "Start Event",
+      "type": "string"
+    },
+    "status": {
+      "$ref": "#/$defs/JobStatus"
+    }
+  },
+  "required": [
+    "job_id",
+    "owner",
+    "kind",
+    "status",
+    "input_snapshot_id",
+    "start_event"
+  ],
+  "title": "JobRecord",
+  "type": "object"
+}

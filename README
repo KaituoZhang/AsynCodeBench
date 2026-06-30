@@ -1,0 +1,449 @@
+# AsyncCodeBench
+
+AsyncCodeBench is a benchmark and construction pipeline for evaluating
+asynchronous multi-agent software-engineering agents on real coding tasks.
+
+The project studies a specific failure mode that standard final-pass coding
+benchmarks usually hide: agents working concurrently from private, stale local
+state while teammates' patches, test results, messages, and integration work
+are still in flight.
+
+The current active specification is:
+
+```text
+SPECIFICATION_v0.3.md
+```
+
+If this README conflicts with `SPECIFICATION_v0.3.md`, the specification takes
+precedence.
+
+## What This Project Is
+
+AsyncCodeBench is not a synthetic task set and it is not just a collection of
+multi-agent prompts. The v0.3 project turns public coding benchmark tasks into
+dependency-aware asynchronous benchmark instances.
+
+The core transformation is:
+
+```text
+public coding task
+-> natural subproblem identification
+-> producer/consumer dependency labeling
+-> async scenario recomposition
+-> dependency-level metrics
+-> automatic validation gates
+-> independent human annotation and adjudication
+```
+
+The current v0.3 data construction focuses on Commit0-derived tasks. Each
+qualified task keeps the public source and public tests as the substrate, then
+adds AsyncCodeBench metadata:
+
+- task record;
+- scenario record;
+- quality record;
+- async metrics manifest;
+- human annotation forms;
+- optional checksum-pinned bootstrap overlays;
+- contract tests that validate the generated records.
+
+The generated records are candidates for human review. They are not
+`release_ready` just because the machine checks pass.
+
+## How It Differs From Prior Work
+
+Most repository-level coding benchmarks evaluate whether an agent can produce a
+correct final patch. Most multi-agent benchmarks evaluate collaboration in
+simulated, conversational, general, or embodied environments.
+
+AsyncCodeBench targets the intersection:
+
+```text
+real repository-level coding tasks
++
+asynchronous LLM software agents
++
+private workspaces and controlled information visibility
++
+public-test-observable dependency contracts
+```
+
+The main novelty is not "using multiple agents." It is making asynchrony itself
+observable in real coding tasks. Async agents do not share a single up-to-date
+workspace or a synchronized view of tests, messages, and teammate edits. One
+agent can keep implementing against an assumption that was already invalidated
+by another agent's hidden or delayed work.
+
+AsyncCodeBench therefore asks whether teams can resolve dependency contracts
+under delayed visibility and stale local state. The concrete contracts include:
+
+- parser output shapes consumed by high-level APIs;
+- schema or registry contracts consumed by nested behavior;
+- utility parsing and normalization contracts consumed by core logic;
+- shared state or type contracts that downstream agents may assume incorrectly.
+
+This lets us measure failures caused by asynchronous execution, not just final
+wrong answers: stale assumptions, late discovery of contract changes, delayed
+integration, duplicated work, missing or ineffective communication, and
+downstream code written against an outdated upstream artifact. These failures
+can occur even when patches merge textually.
+
+## Current v0.3 Status
+
+As of the current repository state:
+
+- Commit0 task manifests: `20`
+- Commit0 scenario manifests: `20`
+- Commit0 quality manifests: `20`
+- Commit0 async metrics manifests: `20`
+- Commit0 annotation directories: `20`
+- Quality status: `18` qualification-ready candidates and `2` needs-revision
+  candidates.
+
+Current Commit0 v0.3 qualification-ready task records:
+
+```text
+commit0:cachetools
+commit0:chardet
+commit0:cookiecutter
+commit0:deprecated
+commit0:dulwich
+commit0:filesystem_spec
+commit0:flask
+commit0:graphene
+commit0:imapclient
+commit0:marshmallow
+commit0:parsel
+commit0:pexpect
+commit0:portalocker
+commit0:python-rsa
+commit0:requests
+commit0:simpy
+commit0:tinydb
+commit0:wcwidth
+```
+
+The current needs-revision candidates are:
+
+```text
+commit0:fastapi
+commit0:python-progressbar
+```
+
+All 20 candidates currently have async metrics manifests. The 18
+qualification-ready candidates are the current experimental set unless and
+until the human annotation and release rules mark them otherwise.
+
+Some tasks, such as `graphene` and `imapclient`, require larger bootstrap
+surfaces than simpler tasks. Their quality records and annotation instructions
+explicitly flag those risks for human review.
+
+## Repository Layout
+
+```text
+AsyncCodeBench/
+├── README
+├── SPECIFICATION_v0.3.md
+├── configs/
+│   └── tasks/
+│       ├── commit0_repositories.v0.3.json
+│       └── commit0_curated_tasks.v0.3.json
+├── data/
+│   ├── repos/commit0/          # local materialized public repos
+│   └── overlays/commit0/       # checksum-pinned bootstrap overlays
+├── docs/
+│   ├── audits/                 # candidate audit notes
+│   └── protocols/              # construction and metric-label guides
+├── manifests/
+│   ├── candidates/             # screening outputs
+│   ├── pilot/v0.3/
+│   │   ├── tasks/
+│   │   ├── scenarios/
+│   │   ├── quality/
+│   │   └── metrics/
+│   └── annotations/commit0_v0.3/
+├── schemas/v0.3/               # machine-readable contracts
+├── scripts/                    # generation and validation entry points
+├── skills/
+│   └── commit0-to-asynccodebench/
+├── reproductions/
+│   └── async-swe-agents/       # CAID-based agent runners and protocols
+├── src/asynccodebench/         # library code
+└── tests/contracts/            # artifact and metric contract tests
+```
+
+Important protocol documents:
+
+```text
+SPECIFICATION_v0.3.md
+docs/COLLABORATOR_RUNBOOK.md
+docs/protocols/COMMIT0_DATA_EXAMPLE_GUIDE_v0.3.md
+docs/protocols/COMMIT0_DATA_AND_METRIC_LABEL_GUIDE_v0.3.md
+docs/protocols/README.md
+```
+
+Use `docs/COLLABORATOR_RUNBOOK.md` for GitHub upload, fresh-clone setup,
+agent-runner configuration, model switching, and experiment commands.
+
+## Data Artifacts
+
+For a transformed task `<repo>`, the standard v0.3 files are:
+
+```text
+src/asynccodebench/dataset/<repo>_v03.py
+scripts/build_<repo>_v03_data.py
+manifests/pilot/v0.3/tasks/commit0_<repo>.json
+manifests/pilot/v0.3/scenarios/commit0_<repo>.json
+manifests/pilot/v0.3/quality/commit0_<repo>.json
+manifests/pilot/v0.3/metrics/commit0_<repo>_async_metrics.json
+manifests/annotations/commit0_v0.3/<repo>/annotator_a.json
+manifests/annotations/commit0_v0.3/<repo>/annotator_b.json
+manifests/annotations/commit0_v0.3/<repo>/adjudication.template.json
+tests/contracts/test_<repo>_dataset_v03.py
+tests/contracts/test_<repo>_async_metrics_v03.py
+```
+
+The task record describes the public task, natural subproblems, evaluator, and
+source materialization. The scenario record defines the four benchmark
+conditions. The quality record records evaluator sanity, limitations, bootstrap
+risks, and remaining gates. The metrics manifest defines dependency points for
+async-specific evaluation.
+
+## The Transformation Pipeline
+
+The operational pipeline is encoded as a Codex skill:
+
+```text
+skills/commit0-to-asynccodebench/SKILL.md
+```
+
+The skill is intentionally written as a reusable task-construction protocol.
+It is not only a prompt; it is the procedure we use to convert public coding
+tasks into AsyncCodeBench candidates.
+
+The skill stages are:
+
+1. Skip already processed tasks.
+2. Read public candidate evidence and public initial source.
+3. Build a scoped public-test evaluator.
+4. Add only minimal bootstrap overlays when collection/import fails.
+5. Identify natural subproblems and producer/consumer dependencies.
+6. Generate four execution scenarios.
+7. Generate task, scenario, quality, metrics, annotation, and contract-test
+   artifacts.
+8. Run validation gates.
+9. Leave inclusion and final label decisions to independent humans.
+
+This is the part of the project that supports the paper story:
+
+```text
+public coding benchmark
+-> dependency-aware async benchmark transformation
+-> human-validated benchmark instances
+```
+
+When using Codex or another agent with the skill, the intended instruction is
+roughly:
+
+```text
+Use skills/commit0-to-asynccodebench/SKILL.md to process the next unprocessed
+task from the selected Commit0 list. Do not repeat tasks that already have both
+a task manifest and async metrics manifest. Use only public evidence, preserve
+tests, add only collection/import bootstrap overlays, generate all v0.3
+artifacts, and run the validation gates.
+```
+
+## Bootstrap Overlays
+
+Some Commit0 stripped refs cannot even import or collect public tests because
+symbols needed for module loading were removed. In those cases AsyncCodeBench
+uses checksum-pinned bootstrap overlays under:
+
+```text
+data/overlays/commit0/<repo>/
+configs/tasks/commit0_curated_tasks.v0.3.json
+```
+
+Bootstrap overlays are allowed only for mechanical blockers:
+
+- import symbol stubs;
+- setup hooks;
+- syntax fixes;
+- class-construction placeholders.
+
+They must not implement benchmark behavior or satisfy semantic tests. The
+quality record must document the overlay rationale, evaluator impact, and any
+human-review risk.
+
+## Scenarios
+
+Each transformed task has four standard scenario modes:
+
+```text
+iterative_single
+serial_specialists
+async_private
+async_message
+```
+
+`iterative_single` is the strong single-agent baseline. `serial_specialists`
+uses the same decomposition but avoids asynchronous stale-state effects.
+`async_private` runs specialists concurrently in private workspaces.
+`async_message` allows asynchronous message or artifact handoff, but downstream
+workers may still act before seeing the newest upstream contract.
+
+The benchmark should expose weaknesses in the asynchronous organization, not
+weaknesses caused by giving workers a worse coding loop. The same inspect,
+edit, test, repair scaffold should be used across conditions.
+
+## Async Metrics
+
+Normal final pass/fail remains important, but AsyncCodeBench also tracks
+dependency-level coordination.
+
+Each metrics manifest lives at:
+
+```text
+manifests/pilot/v0.3/metrics/commit0_<repo>_async_metrics.json
+```
+
+Each dependency point records a public-test-observable producer/consumer
+contract with exact upstream, downstream, and integrated probe tests.
+
+The current async metrics are:
+
+- `ADPR` — Async Dependency Pass Rate. Fraction of dependency points whose
+  integrated probe tests pass in the final integrated workspace.
+- `DRS` — Dependency Resolution Step. First checkpoint where a dependency
+  point's integrated probes pass.
+- `CAIL` — Cross-Agent Integration Lag. Difference between downstream and
+  upstream dependency resolution when both are observed.
+- `SAD` — Stale Assumption Duration. Interval where a downstream agent acts on
+  an upstream contract assumption that has become stale.
+
+These metrics answer a narrower question than final correctness:
+
+```text
+When did the run actually resolve the dependency that makes asynchronous
+coordination hard?
+```
+
+## Human Annotation
+
+Automatic gates are not enough. Every generated task remains pending until
+independent annotation and adjudication are complete.
+
+For each task, annotators review:
+
+- whether the task should be included;
+- the parallelizability label;
+- whether the natural subproblem split is meaningful;
+- whether dependency points are real and public-test-observable;
+- whether bootstrap overlays stay within non-solution collection/import
+  boundaries;
+- whether any task should be excluded or narrowed before release.
+
+Annotation files live at:
+
+```text
+manifests/annotations/commit0_v0.3/<repo>/annotator_a.json
+manifests/annotations/commit0_v0.3/<repo>/annotator_b.json
+manifests/annotations/commit0_v0.3/<repo>/adjudication.template.json
+```
+
+`qualification_ready` means the records are internally consistent and ready for
+human review. It does not mean release-ready.
+
+## Common Commands
+
+Materialize the pinned public Commit0 repositories:
+
+```bash
+PYTHONPATH=src python scripts/materialize_commit0_repositories.py
+```
+
+Screen the remaining Commit0 pool:
+
+```bash
+PYTHONPATH=src python scripts/screen_commit0_async_candidates.py
+```
+
+Regenerate one task's records:
+
+```bash
+python3.10 scripts/build_<repo>_v03_data.py
+```
+
+Run one task's contract tests:
+
+```bash
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3.10 -m pytest -q \
+  tests/contracts/test_<repo>_dataset_v03.py \
+  tests/contracts/test_<repo>_async_metrics_v03.py
+```
+
+Run the global missing-metrics check with a task:
+
+```bash
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3.10 -m pytest -q \
+  tests/contracts/test_missing_async_metrics_v03.py \
+  tests/contracts/test_<repo>_dataset_v03.py \
+  tests/contracts/test_<repo>_async_metrics_v03.py
+```
+
+Build annotation packets:
+
+```bash
+PYTHONPATH=src python scripts/qualification_build_annotation_packets.py
+```
+
+## Validation Expectations
+
+A transformed task should pass these gates before being handed to humans:
+
+- generated JSON parses;
+- task/scenario/quality/metrics records are internally consistent;
+- async metrics use `schema_version == "0.3-async-metrics"`;
+- every probe selector points to a public test;
+- the primary dependency has upstream and downstream probes;
+- bootstrap overlay checksums match the curated config;
+- overlays apply cleanly to the public initial ref;
+- complete reference sanity evaluator passes;
+- stripped initial evaluator, plus only allowed overlays, collects and fails
+  for semantic reasons;
+- task-specific contract tests pass;
+- global missing-metrics check passes.
+
+## Current Research Use
+
+The current repository is primarily a benchmark-construction and qualification
+workspace. The next empirical step is to run comparable agent organizations:
+
+```text
+strong iterative single agent
+serial specialists
+async private-workspace specialists
+manager-mediated CAID specialists
+```
+
+The paper should report single-agent and serial-specialist baselines for every
+task. If all organizations fail, the result is model/task difficulty rather
+than evidence of asynchronous coordination failure.
+
+## Release Discipline
+
+Do not use final benchmark claims from generated manifests alone. The release
+boundary is:
+
+```text
+generated candidate
+-> validation gates
+-> independent annotation
+-> adjudication
+-> release-ready record
+```
+
+The transformation pipeline and skill are part of the intended open-source
+release. They make the dataset construction process reproducible and auditable,
+and they let future contributors extend AsyncCodeBench from additional public
+coding datasets without rewriting the methodology.

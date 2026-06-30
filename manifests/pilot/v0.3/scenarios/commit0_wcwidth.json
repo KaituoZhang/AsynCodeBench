@@ -1,0 +1,296 @@
+{
+  "scenarios": [
+    {
+      "agent_count": 1,
+      "assignments": [
+        {
+          "agent_id": "integrator",
+          "primary_test_targets": [
+            "tests/test_core.py",
+            "tests/test_emojis.py",
+            "tests/test_table_integrity.py",
+            "tests/test_ucslevel.py"
+          ],
+          "role": "iterative full-task coding agent",
+          "schema_version": "0.3",
+          "subproblem_id": "full_task",
+          "writable_paths": [
+            "wcwidth/unicode_versions.py",
+            "wcwidth/wcwidth.py"
+          ]
+        }
+      ],
+      "communication_condition": "not_applicable",
+      "competence_gate_required": true,
+      "concurrent_execution": false,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "width_algorithm",
+          "dependency_type": "api_contract",
+          "description": "The width algorithm imports list_versions() and depends on its ordering and string format when matching requested Unicode versions.",
+          "evidence_paths": [
+            "wcwidth/unicode_versions.py",
+            "wcwidth/wcwidth.py",
+            "tests/test_ucslevel.py"
+          ],
+          "producer_subproblem": "unicode_version_catalog",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "integration_validation",
+          "dependency_type": "test_contract",
+          "description": "Core, emoji, table-integrity, and Unicode-version tests jointly validate binary search, version matching, single codepoint width, and whole-string width semantics.",
+          "evidence_paths": [
+            "wcwidth/wcwidth.py",
+            "tests/test_core.py",
+            "tests/test_emojis.py",
+            "tests/test_table_integrity.py",
+            "tests/test_ucslevel.py"
+          ],
+          "producer_subproblem": "width_algorithm",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "iterative_single",
+      "information_profile": "complete-task",
+      "integration_policy": "Agent submits its final workspace.",
+      "message_delivery_policy": "No inter-agent messages.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-wcwidth.iterative-single.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "task_id": "commit0:wcwidth",
+      "test_budget_per_agent": 8,
+      "token_budget_per_agent": 60000,
+      "wall_clock_budget_seconds": 1800
+    },
+    {
+      "agent_count": 2,
+      "assignments": [
+        {
+          "agent_id": "version_agent",
+          "primary_test_targets": [
+            "tests/test_ucslevel.py"
+          ],
+          "role": "Unicode version catalog specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "unicode_version_catalog",
+          "writable_paths": [
+            "wcwidth/unicode_versions.py"
+          ]
+        },
+        {
+          "agent_id": "width_agent",
+          "primary_test_targets": [
+            "tests/test_core.py",
+            "tests/test_emojis.py",
+            "tests/test_table_integrity.py"
+          ],
+          "role": "terminal width algorithm specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "width_algorithm",
+          "writable_paths": [
+            "wcwidth/wcwidth.py"
+          ]
+        }
+      ],
+      "communication_condition": "completed_artifact_handoff",
+      "competence_gate_required": true,
+      "concurrent_execution": false,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "width_algorithm",
+          "dependency_type": "api_contract",
+          "description": "The width algorithm imports list_versions() and depends on its ordering and string format when matching requested Unicode versions.",
+          "evidence_paths": [
+            "wcwidth/unicode_versions.py",
+            "wcwidth/wcwidth.py",
+            "tests/test_ucslevel.py"
+          ],
+          "producer_subproblem": "unicode_version_catalog",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "integration_validation",
+          "dependency_type": "test_contract",
+          "description": "Core, emoji, table-integrity, and Unicode-version tests jointly validate binary search, version matching, single codepoint width, and whole-string width semantics.",
+          "evidence_paths": [
+            "wcwidth/wcwidth.py",
+            "tests/test_core.py",
+            "tests/test_emojis.py",
+            "tests/test_table_integrity.py",
+            "tests/test_ucslevel.py"
+          ],
+          "producer_subproblem": "width_algorithm",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "serial_specialists",
+      "information_profile": "private-workspace",
+      "integration_policy": "Apply the version artifact before starting the width algorithm agent, then run the core evaluator.",
+      "message_delivery_policy": "The version specialist completes first. The width algorithm specialist then receives the completed version catalog artifact and its targeted test result.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-wcwidth.serial-specialists.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "task_id": "commit0:wcwidth",
+      "test_budget_per_agent": 8,
+      "token_budget_per_agent": 60000,
+      "wall_clock_budget_seconds": 1800
+    },
+    {
+      "agent_count": 2,
+      "assignments": [
+        {
+          "agent_id": "version_agent",
+          "primary_test_targets": [
+            "tests/test_ucslevel.py"
+          ],
+          "role": "Unicode version catalog specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "unicode_version_catalog",
+          "writable_paths": [
+            "wcwidth/unicode_versions.py"
+          ]
+        },
+        {
+          "agent_id": "width_agent",
+          "primary_test_targets": [
+            "tests/test_core.py",
+            "tests/test_emojis.py",
+            "tests/test_table_integrity.py"
+          ],
+          "role": "terminal width algorithm specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "width_algorithm",
+          "writable_paths": [
+            "wcwidth/wcwidth.py"
+          ]
+        }
+      ],
+      "communication_condition": "none_in_flight",
+      "competence_gate_required": true,
+      "concurrent_execution": true,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "width_algorithm",
+          "dependency_type": "api_contract",
+          "description": "The width algorithm imports list_versions() and depends on its ordering and string format when matching requested Unicode versions.",
+          "evidence_paths": [
+            "wcwidth/unicode_versions.py",
+            "wcwidth/wcwidth.py",
+            "tests/test_ucslevel.py"
+          ],
+          "producer_subproblem": "unicode_version_catalog",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "integration_validation",
+          "dependency_type": "test_contract",
+          "description": "Core, emoji, table-integrity, and Unicode-version tests jointly validate binary search, version matching, single codepoint width, and whole-string width semantics.",
+          "evidence_paths": [
+            "wcwidth/wcwidth.py",
+            "tests/test_core.py",
+            "tests/test_emojis.py",
+            "tests/test_table_integrity.py",
+            "tests/test_ucslevel.py"
+          ],
+          "producer_subproblem": "width_algorithm",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "async_private",
+      "information_profile": "private-workspace",
+      "integration_policy": "Run both specialists concurrently in private workspaces and integrate final artifacts after both finish.",
+      "message_delivery_policy": "No in-flight worker messages or artifacts are delivered.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-wcwidth.async-private.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "task_id": "commit0:wcwidth",
+      "test_budget_per_agent": 8,
+      "token_budget_per_agent": 60000,
+      "wall_clock_budget_seconds": 1800
+    },
+    {
+      "agent_count": 2,
+      "assignments": [
+        {
+          "agent_id": "version_agent",
+          "primary_test_targets": [
+            "tests/test_ucslevel.py"
+          ],
+          "role": "Unicode version catalog specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "unicode_version_catalog",
+          "writable_paths": [
+            "wcwidth/unicode_versions.py"
+          ]
+        },
+        {
+          "agent_id": "width_agent",
+          "primary_test_targets": [
+            "tests/test_core.py",
+            "tests/test_emojis.py",
+            "tests/test_table_integrity.py"
+          ],
+          "role": "terminal width algorithm specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "width_algorithm",
+          "writable_paths": [
+            "wcwidth/wcwidth.py"
+          ]
+        }
+      ],
+      "communication_condition": "structured_message_and_artifact",
+      "competence_gate_required": true,
+      "concurrent_execution": true,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "width_algorithm",
+          "dependency_type": "api_contract",
+          "description": "The width algorithm imports list_versions() and depends on its ordering and string format when matching requested Unicode versions.",
+          "evidence_paths": [
+            "wcwidth/unicode_versions.py",
+            "wcwidth/wcwidth.py",
+            "tests/test_ucslevel.py"
+          ],
+          "producer_subproblem": "unicode_version_catalog",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "integration_validation",
+          "dependency_type": "test_contract",
+          "description": "Core, emoji, table-integrity, and Unicode-version tests jointly validate binary search, version matching, single codepoint width, and whole-string width semantics.",
+          "evidence_paths": [
+            "wcwidth/wcwidth.py",
+            "tests/test_core.py",
+            "tests/test_emojis.py",
+            "tests/test_table_integrity.py",
+            "tests/test_ucslevel.py"
+          ],
+          "producer_subproblem": "width_algorithm",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "async_message",
+      "information_profile": "private-workspace",
+      "integration_policy": "Integrate the latest explicitly transferred artifacts and record stale version-catalog or API assumptions.",
+      "message_delivery_policy": "Workers may transfer Unicode version assumptions, public API contracts, targeted test results, and explicit artifacts while active.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-wcwidth.async-message.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "task_id": "commit0:wcwidth",
+      "test_budget_per_agent": 8,
+      "token_budget_per_agent": 60000,
+      "wall_clock_budget_seconds": 1800
+    }
+  ],
+  "schema_version": "0.3",
+  "task_id": "commit0:wcwidth"
+}

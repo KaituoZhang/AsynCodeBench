@@ -1,0 +1,451 @@
+{
+  "scenarios": [
+    {
+      "agent_count": 1,
+      "assignments": [
+        {
+          "agent_id": "integrator",
+          "primary_test_targets": [
+            "tests/test_expect.py",
+            "tests/test_popen_spawn.py",
+            "tests/test_run.py",
+            "tests/test_async.py"
+          ],
+          "role": "iterative full-task coding agent",
+          "schema_version": "0.3",
+          "subproblem_id": "full_task",
+          "writable_paths": [
+            "pexpect/_async.py",
+            "pexpect/_async_pre_await.py",
+            "pexpect/_async_w_await.py",
+            "pexpect/expect.py",
+            "pexpect/popen_spawn.py",
+            "pexpect/pty_spawn.py",
+            "pexpect/replwrap.py",
+            "pexpect/run.py",
+            "pexpect/spawnbase.py"
+          ]
+        }
+      ],
+      "communication_condition": "not_applicable",
+      "concurrent_execution": false,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "spawn_api_state_layer",
+          "dependency_type": "api_contract",
+          "description": "SpawnBase expect, expect_list, expect_exact, buffer, before, after, and match behavior consume Expecter and searcher matching semantics.",
+          "evidence_paths": [
+            "pexpect/expect.py",
+            "pexpect/spawnbase.py",
+            "tests/test_expect.py"
+          ],
+          "producer_subproblem": "expect_search_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "spawn_api_state_layer",
+          "dependency_type": "api_contract",
+          "description": "SpawnBase and Expecter consume transport-specific read_nonblocking, send, close, EOF, TIMEOUT, and encoding behavior from pty and popen transports.",
+          "evidence_paths": [
+            "pexpect/spawnbase.py",
+            "pexpect/pty_spawn.py",
+            "pexpect/popen_spawn.py",
+            "tests/test_expect.py",
+            "tests/test_popen_spawn.py"
+          ],
+          "producer_subproblem": "transport_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "wrapper_layer",
+          "dependency_type": "shared_state_contract",
+          "description": "run, replwrap, and async wrappers consume SpawnBase expect/read state, EOF/TIMEOUT behavior, and transport output normalization.",
+          "evidence_paths": [
+            "pexpect/spawnbase.py",
+            "pexpect/run.py",
+            "pexpect/replwrap.py",
+            "pexpect/_async.py",
+            "tests/test_run.py",
+            "tests/test_async.py"
+          ],
+          "producer_subproblem": "spawn_api_state_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "iterative_single",
+      "information_profile": "complete-task",
+      "integration_policy": "Agent submits its final workspace.",
+      "message_delivery_policy": "No inter-agent messages.",
+      "scenario_id": "commit0-pexpect.iterative-single.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 34,
+      "task_id": "commit0:pexpect",
+      "test_budget_per_agent": 12,
+      "token_budget_per_agent": 85000,
+      "wall_clock_budget_seconds": 3600
+    },
+    {
+      "agent_count": 4,
+      "assignments": [
+        {
+          "agent_id": "expect_agent",
+          "primary_test_targets": [
+            "tests/test_expect.py::ExpectTestCase::test_expect_order",
+            "tests/test_expect.py::ExpectTestCase::test_searchwindowsize"
+          ],
+          "role": "Expecter, searcher_string, searcher_re, and match-loop specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "expect_search_layer",
+          "writable_paths": [
+            "pexpect/expect.py"
+          ]
+        },
+        {
+          "agent_id": "spawn_agent",
+          "primary_test_targets": [
+            "tests/test_expect.py",
+            "tests/test_popen_spawn.py"
+          ],
+          "role": "SpawnBase public API, pattern compilation, buffer, before/after, and match-state specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "spawn_api_state_layer",
+          "writable_paths": [
+            "pexpect/spawnbase.py"
+          ]
+        },
+        {
+          "agent_id": "transport_agent",
+          "primary_test_targets": [
+            "tests/test_popen_spawn.py",
+            "tests/test_async.py"
+          ],
+          "role": "pty, popen, and async transport read/write/EOF/TIMEOUT specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "transport_layer",
+          "writable_paths": [
+            "pexpect/_async.py",
+            "pexpect/_async_pre_await.py",
+            "pexpect/_async_w_await.py",
+            "pexpect/popen_spawn.py",
+            "pexpect/pty_spawn.py"
+          ]
+        },
+        {
+          "agent_id": "wrapper_agent",
+          "primary_test_targets": [
+            "tests/test_run.py",
+            "tests/test_async.py::AsyncTests::test_async_replwrap",
+            "tests/test_async.py::AsyncTests::test_async_replwrap_multiline"
+          ],
+          "role": "run and replwrap high-level wrapper specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "wrapper_layer",
+          "writable_paths": [
+            "pexpect/replwrap.py",
+            "pexpect/run.py"
+          ]
+        }
+      ],
+      "communication_condition": "completed_artifact_handoff",
+      "concurrent_execution": false,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "spawn_api_state_layer",
+          "dependency_type": "api_contract",
+          "description": "SpawnBase expect, expect_list, expect_exact, buffer, before, after, and match behavior consume Expecter and searcher matching semantics.",
+          "evidence_paths": [
+            "pexpect/expect.py",
+            "pexpect/spawnbase.py",
+            "tests/test_expect.py"
+          ],
+          "producer_subproblem": "expect_search_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "spawn_api_state_layer",
+          "dependency_type": "api_contract",
+          "description": "SpawnBase and Expecter consume transport-specific read_nonblocking, send, close, EOF, TIMEOUT, and encoding behavior from pty and popen transports.",
+          "evidence_paths": [
+            "pexpect/spawnbase.py",
+            "pexpect/pty_spawn.py",
+            "pexpect/popen_spawn.py",
+            "tests/test_expect.py",
+            "tests/test_popen_spawn.py"
+          ],
+          "producer_subproblem": "transport_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "wrapper_layer",
+          "dependency_type": "shared_state_contract",
+          "description": "run, replwrap, and async wrappers consume SpawnBase expect/read state, EOF/TIMEOUT behavior, and transport output normalization.",
+          "evidence_paths": [
+            "pexpect/spawnbase.py",
+            "pexpect/run.py",
+            "pexpect/replwrap.py",
+            "pexpect/_async.py",
+            "tests/test_run.py",
+            "tests/test_async.py"
+          ],
+          "producer_subproblem": "spawn_api_state_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "serial_specialists",
+      "information_profile": "private-workspace",
+      "integration_policy": "Apply expect/search and transport artifacts before SpawnBase integration, then wrapper artifacts, then run the scoped evaluator.",
+      "message_delivery_policy": "Specialists run with barrier synchronization. Spawn receives expect/search and transport artifacts before final validation; wrappers receive SpawnBase artifacts.",
+      "scenario_id": "commit0-pexpect.serial-specialists.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 34,
+      "task_id": "commit0:pexpect",
+      "test_budget_per_agent": 12,
+      "token_budget_per_agent": 85000,
+      "wall_clock_budget_seconds": 3600
+    },
+    {
+      "agent_count": 4,
+      "assignments": [
+        {
+          "agent_id": "expect_agent",
+          "primary_test_targets": [
+            "tests/test_expect.py::ExpectTestCase::test_expect_order",
+            "tests/test_expect.py::ExpectTestCase::test_searchwindowsize"
+          ],
+          "role": "Expecter, searcher_string, searcher_re, and match-loop specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "expect_search_layer",
+          "writable_paths": [
+            "pexpect/expect.py"
+          ]
+        },
+        {
+          "agent_id": "spawn_agent",
+          "primary_test_targets": [
+            "tests/test_expect.py",
+            "tests/test_popen_spawn.py"
+          ],
+          "role": "SpawnBase public API, pattern compilation, buffer, before/after, and match-state specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "spawn_api_state_layer",
+          "writable_paths": [
+            "pexpect/spawnbase.py"
+          ]
+        },
+        {
+          "agent_id": "transport_agent",
+          "primary_test_targets": [
+            "tests/test_popen_spawn.py",
+            "tests/test_async.py"
+          ],
+          "role": "pty, popen, and async transport read/write/EOF/TIMEOUT specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "transport_layer",
+          "writable_paths": [
+            "pexpect/_async.py",
+            "pexpect/_async_pre_await.py",
+            "pexpect/_async_w_await.py",
+            "pexpect/popen_spawn.py",
+            "pexpect/pty_spawn.py"
+          ]
+        },
+        {
+          "agent_id": "wrapper_agent",
+          "primary_test_targets": [
+            "tests/test_run.py",
+            "tests/test_async.py::AsyncTests::test_async_replwrap",
+            "tests/test_async.py::AsyncTests::test_async_replwrap_multiline"
+          ],
+          "role": "run and replwrap high-level wrapper specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "wrapper_layer",
+          "writable_paths": [
+            "pexpect/replwrap.py",
+            "pexpect/run.py"
+          ]
+        }
+      ],
+      "communication_condition": "private_concurrent_workspaces",
+      "concurrent_execution": true,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "spawn_api_state_layer",
+          "dependency_type": "api_contract",
+          "description": "SpawnBase expect, expect_list, expect_exact, buffer, before, after, and match behavior consume Expecter and searcher matching semantics.",
+          "evidence_paths": [
+            "pexpect/expect.py",
+            "pexpect/spawnbase.py",
+            "tests/test_expect.py"
+          ],
+          "producer_subproblem": "expect_search_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "spawn_api_state_layer",
+          "dependency_type": "api_contract",
+          "description": "SpawnBase and Expecter consume transport-specific read_nonblocking, send, close, EOF, TIMEOUT, and encoding behavior from pty and popen transports.",
+          "evidence_paths": [
+            "pexpect/spawnbase.py",
+            "pexpect/pty_spawn.py",
+            "pexpect/popen_spawn.py",
+            "tests/test_expect.py",
+            "tests/test_popen_spawn.py"
+          ],
+          "producer_subproblem": "transport_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "wrapper_layer",
+          "dependency_type": "shared_state_contract",
+          "description": "run, replwrap, and async wrappers consume SpawnBase expect/read state, EOF/TIMEOUT behavior, and transport output normalization.",
+          "evidence_paths": [
+            "pexpect/spawnbase.py",
+            "pexpect/run.py",
+            "pexpect/replwrap.py",
+            "pexpect/_async.py",
+            "tests/test_run.py",
+            "tests/test_async.py"
+          ],
+          "producer_subproblem": "spawn_api_state_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "async_private",
+      "information_profile": "private-workspace",
+      "integration_policy": "Integrate independently produced specialist artifacts at the end, then run dependency probes and the scoped evaluator.",
+      "message_delivery_policy": "Agents work concurrently without messages while expect, transport, and wrapper assumptions may become stale.",
+      "scenario_id": "commit0-pexpect.async-private.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 34,
+      "task_id": "commit0:pexpect",
+      "test_budget_per_agent": 12,
+      "token_budget_per_agent": 85000,
+      "wall_clock_budget_seconds": 3600
+    },
+    {
+      "agent_count": 4,
+      "assignments": [
+        {
+          "agent_id": "expect_agent",
+          "primary_test_targets": [
+            "tests/test_expect.py::ExpectTestCase::test_expect_order",
+            "tests/test_expect.py::ExpectTestCase::test_searchwindowsize"
+          ],
+          "role": "Expecter, searcher_string, searcher_re, and match-loop specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "expect_search_layer",
+          "writable_paths": [
+            "pexpect/expect.py"
+          ]
+        },
+        {
+          "agent_id": "spawn_agent",
+          "primary_test_targets": [
+            "tests/test_expect.py",
+            "tests/test_popen_spawn.py"
+          ],
+          "role": "SpawnBase public API, pattern compilation, buffer, before/after, and match-state specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "spawn_api_state_layer",
+          "writable_paths": [
+            "pexpect/spawnbase.py"
+          ]
+        },
+        {
+          "agent_id": "transport_agent",
+          "primary_test_targets": [
+            "tests/test_popen_spawn.py",
+            "tests/test_async.py"
+          ],
+          "role": "pty, popen, and async transport read/write/EOF/TIMEOUT specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "transport_layer",
+          "writable_paths": [
+            "pexpect/_async.py",
+            "pexpect/_async_pre_await.py",
+            "pexpect/_async_w_await.py",
+            "pexpect/popen_spawn.py",
+            "pexpect/pty_spawn.py"
+          ]
+        },
+        {
+          "agent_id": "wrapper_agent",
+          "primary_test_targets": [
+            "tests/test_run.py",
+            "tests/test_async.py::AsyncTests::test_async_replwrap",
+            "tests/test_async.py::AsyncTests::test_async_replwrap_multiline"
+          ],
+          "role": "run and replwrap high-level wrapper specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "wrapper_layer",
+          "writable_paths": [
+            "pexpect/replwrap.py",
+            "pexpect/run.py"
+          ]
+        }
+      ],
+      "communication_condition": "asynchronous_message_handoff",
+      "concurrent_execution": true,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "spawn_api_state_layer",
+          "dependency_type": "api_contract",
+          "description": "SpawnBase expect, expect_list, expect_exact, buffer, before, after, and match behavior consume Expecter and searcher matching semantics.",
+          "evidence_paths": [
+            "pexpect/expect.py",
+            "pexpect/spawnbase.py",
+            "tests/test_expect.py"
+          ],
+          "producer_subproblem": "expect_search_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "spawn_api_state_layer",
+          "dependency_type": "api_contract",
+          "description": "SpawnBase and Expecter consume transport-specific read_nonblocking, send, close, EOF, TIMEOUT, and encoding behavior from pty and popen transports.",
+          "evidence_paths": [
+            "pexpect/spawnbase.py",
+            "pexpect/pty_spawn.py",
+            "pexpect/popen_spawn.py",
+            "tests/test_expect.py",
+            "tests/test_popen_spawn.py"
+          ],
+          "producer_subproblem": "transport_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "wrapper_layer",
+          "dependency_type": "shared_state_contract",
+          "description": "run, replwrap, and async wrappers consume SpawnBase expect/read state, EOF/TIMEOUT behavior, and transport output normalization.",
+          "evidence_paths": [
+            "pexpect/spawnbase.py",
+            "pexpect/run.py",
+            "pexpect/replwrap.py",
+            "pexpect/_async.py",
+            "tests/test_run.py",
+            "tests/test_async.py"
+          ],
+          "producer_subproblem": "spawn_api_state_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "async_message",
+      "information_profile": "message-passing",
+      "integration_policy": "Integrate independently produced specialist artifacts after asynchronous handoffs, then run dependency probes and the scoped evaluator.",
+      "message_delivery_policy": "Agents may send artifact summaries asynchronously; downstream workers are not guaranteed to see the newest expect/search or transport contract before acting.",
+      "scenario_id": "commit0-pexpect.async-message.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 34,
+      "task_id": "commit0:pexpect",
+      "test_budget_per_agent": 12,
+      "token_budget_per_agent": 85000,
+      "wall_clock_budget_seconds": 3600
+    }
+  ],
+  "schema_version": "0.3",
+  "task_id": "commit0:pexpect"
+}

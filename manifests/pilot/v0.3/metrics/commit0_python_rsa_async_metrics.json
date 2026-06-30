@@ -1,0 +1,186 @@
+{
+  "aggregate_metrics": {
+    "ADPR_denominator": "All dependency_points unless a paper section explicitly reports primary_async_dependency_ids only.",
+    "dependency_point_count": 3,
+    "minimum_success_condition_for_task_level_async_dependency_resolution": "Both primary_async_dependency_ids pass in the final integrated workspace.",
+    "primary_async_dependency_ids": [
+      "python_rsa.arithmetic_to_key_generation.inverse_prime_contract",
+      "python_rsa.codec_key_to_pkcs1.crypto_api_contract"
+    ],
+    "primary_paper_dependency_id": "python_rsa.arithmetic_to_key_generation.inverse_prime_contract"
+  },
+  "annotation_notes": [
+    "The arithmetic_to_key_generation dependency is the primary signal because key generation can appear locally plausible while consuming stale inverse, primality, or byte-size behavior.",
+    "The codec_key_to_pkcs1 dependency captures the crypto API async risk: PKCS#1 logic depends on shared integer/byte and key contracts and can fail after clean patch integration.",
+    "These labels identify public test-observable contracts and implicated files, not solution code."
+  ],
+  "dependency_points": [
+    {
+      "consumer_agent": "key_agent",
+      "consumer_files": [
+        "rsa/key.py"
+      ],
+      "consumer_subproblem": "key_generation_and_model",
+      "contract_summary": "Key generation must consume modular inverse, primality, prime selection, byte-size, and integer codec behavior with the same return types and exception semantics.",
+      "dependency_id": "python_rsa.arithmetic_to_key_generation.inverse_prime_contract",
+      "dependency_type": "interface_dependency",
+      "downstream_probe_tests": [
+        "tests/test_key.py::KeyGenTest::test_default_exponent",
+        "tests/test_key.py::KeyGenTest::test_custom_exponent",
+        "tests/test_key.py::KeyGenTest::test_exponents_coefficient_calculation"
+      ],
+      "integrated_probe_tests": [
+        "tests/test_common.py::TestInverse::test_normal",
+        "tests/test_prime.py::PrimeTest::test_is_prime",
+        "tests/test_key.py::KeyGenTest::test_default_exponent",
+        "tests/test_key.py::KeyGenTest::test_custom_exponent"
+      ],
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL",
+        "SAD"
+      ],
+      "primary_paper_probe": true,
+      "producer_agent": "arithmetic_agent",
+      "producer_files": [
+        "rsa/common.py",
+        "rsa/prime.py",
+        "rsa/randnum.py",
+        "rsa/transform.py"
+      ],
+      "producer_subproblem": "arithmetic_and_codec_core",
+      "resolution_criteria": "Resolved when arithmetic probes and key-generation consumer probes pass in the integrated workspace.",
+      "stale_failure_mode": "The key agent may implement gen_keys/newkeys or CRT fields against stale inverse/prime/byte-size assumptions, causing key tests and downstream PKCS#1 setup to fail.",
+      "upstream_probe_tests": [
+        "tests/test_common.py::TestInverse::test_normal",
+        "tests/test_prime.py::PrimeTest::test_is_prime",
+        "tests/test_transform.py::Test_int2bytes::test_codec_identity"
+      ]
+    },
+    {
+      "consumer_agent": "serialization_agent",
+      "consumer_files": [
+        "rsa/asn1.py",
+        "rsa/pem.py"
+      ],
+      "consumer_subproblem": "serialization_contracts",
+      "contract_summary": "DER/PEM load-save functions must preserve the PublicKey and PrivateKey field layout, CRT exponent/coefficient recalculation, equality semantics, and byte return types.",
+      "dependency_id": "python_rsa.key_to_serialization.pem_der_contract",
+      "dependency_type": "integration_contract",
+      "downstream_probe_tests": [
+        "tests/test_load_save_keys.py::PemTest::test_load_private_key",
+        "tests/test_load_save_keys.py::DerTest::test_load_public_key",
+        "tests/test_pem.py::TestMarkers::test_values"
+      ],
+      "integrated_probe_tests": [
+        "tests/test_key.py::KeyGenTest::test_exponents_coefficient_calculation",
+        "tests/test_load_save_keys.py::PemTest::test_load_private_key",
+        "tests/test_load_save_keys.py::DerTest::test_load_public_key",
+        "tests/test_pem.py::TestMarkers::test_values"
+      ],
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL",
+        "SAD"
+      ],
+      "producer_agent": "key_agent",
+      "producer_files": [
+        "rsa/key.py"
+      ],
+      "producer_subproblem": "key_generation_and_model",
+      "resolution_criteria": "Resolved when key-field probes and public DER/PEM load-save probes pass after integration.",
+      "stale_failure_mode": "The serialization agent may assume a stale key field layout or malformed-key behavior, leading to clean file edits that fail only in load/save integration tests.",
+      "upstream_probe_tests": [
+        "tests/test_key.py::KeyGenTest::test_exponents_coefficient_calculation",
+        "tests/test_key.py::HashTest::test_hash_possible"
+      ]
+    },
+    {
+      "consumer_agent": "pkcs1_agent",
+      "consumer_files": [
+        "rsa/pkcs1.py"
+      ],
+      "consumer_subproblem": "pkcs1_crypto_api",
+      "contract_summary": "PKCS#1 encrypt/decrypt and sign/verify must consume byte-size, int2bytes/bytes2int, raw encrypt/decrypt, and key-generation behavior consistently.",
+      "dependency_id": "python_rsa.codec_key_to_pkcs1.crypto_api_contract",
+      "dependency_type": "shared_api_contract",
+      "downstream_probe_tests": [
+        "tests/test_pkcs1.py::BinaryTest::test_enc_dec",
+        "tests/test_pkcs1.py::SignatureTest::test_sign_verify",
+        "tests/test_strings.py::StringTest::test_enc_dec"
+      ],
+      "integrated_probe_tests": [
+        "tests/test_common.py::TestByteSize::test_values",
+        "tests/test_transform.py::Test_int2bytes::test_accuracy",
+        "tests/test_key.py::KeyGenTest::test_default_exponent",
+        "tests/test_pkcs1.py::BinaryTest::test_enc_dec",
+        "tests/test_pkcs1.py::SignatureTest::test_sign_verify"
+      ],
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL",
+        "SAD"
+      ],
+      "producer_agent": "arithmetic_agent",
+      "producer_files": [
+        "rsa/common.py",
+        "rsa/core.py",
+        "rsa/transform.py",
+        "rsa/key.py"
+      ],
+      "producer_subproblem": "arithmetic_and_codec_core",
+      "resolution_criteria": "Resolved when codec/key probes and PKCS#1 encryption/signature probes pass in the integrated workspace.",
+      "stale_failure_mode": "The PKCS#1 agent may implement padding or signature logic against stale byte-size or key assumptions, causing late integrated failures in encryption or signature tests.",
+      "upstream_probe_tests": [
+        "tests/test_common.py::TestByteSize::test_values",
+        "tests/test_transform.py::Test_int2bytes::test_accuracy",
+        "tests/test_key.py::KeyGenTest::test_default_exponent"
+      ]
+    }
+  ],
+  "evaluation_checkpoint_policy": {
+    "checkpoint_record_fields": [
+      "run_id",
+      "scenario_id",
+      "checkpoint_id",
+      "logical_iteration",
+      "agent_id",
+      "visible_upstream_artifact_version",
+      "integrated_workspace_version",
+      "probe_test_results"
+    ],
+    "minimum_policy": "Run probe tests after each agent final artifact and after final integration.",
+    "recommended_policy": "Run probe tests after every committed patch, every explicit artifact transfer, and final integration."
+  },
+  "metric_annotation_id": "commit0-python-rsa.async-metrics.v0.3",
+  "metric_definitions": {
+    "ADPR": {
+      "definition": "Fraction of registered dependency_points whose required integrated_probe_tests pass in the final integrated workspace.",
+      "name": "Async Dependency Pass Rate",
+      "unit": "fraction"
+    },
+    "CAIL": {
+      "definition": "downstream_resolution_step minus upstream_resolution_step when both probe groups have been evaluated.",
+      "name": "Cross-Agent Integration Lag",
+      "unit": "agent iteration or evaluation checkpoint"
+    },
+    "DRS": {
+      "definition": "First recorded checkpoint at which all required integrated_probe_tests for a dependency point pass.",
+      "name": "Dependency Resolution Step",
+      "unit": "agent iteration or evaluation checkpoint"
+    },
+    "SAD": {
+      "definition": "Interval during which a downstream worker acts on a contract assumption inconsistent with the latest upstream artifact visible in the integrated history.",
+      "name": "Stale Assumption Duration",
+      "unit": "agent iteration or event interval"
+    }
+  },
+  "purpose": "Dependency-level labels for measuring whether asynchronous multi-agent coding resolves python-rsa's arithmetic, key, serialization, and PKCS#1 contracts promptly.",
+  "schema_version": "0.3-async-metrics",
+  "source_quality_record": "manifests/pilot/v0.3/quality/commit0_python_rsa.json",
+  "source_task_record": "manifests/pilot/v0.3/tasks/commit0_python_rsa.json",
+  "task_id": "commit0:python-rsa"
+}

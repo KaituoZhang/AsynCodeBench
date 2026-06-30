@@ -1,0 +1,23 @@
+diff --git a/graphene/types/resolver.py b/graphene/types/resolver.py
+index aed4dfb..d62ff3f 100644
+--- a/graphene/types/resolver.py
++++ b/graphene/types/resolver.py
+@@ -1 +1,16 @@
+-default_resolver = dict_or_attr_resolver
+\ No newline at end of file
++def attr_resolver(attname, default_value, root, info, **args):
++    pass
++
++def dict_resolver(attname, default_value, root, info, **args):
++    pass
++
++def dict_or_attr_resolver(attname, default_value, root, info, **args):
++    pass
++
++default_resolver = dict_or_attr_resolver
++
++def set_default_resolver(resolver):
++    pass
++
++def get_default_resolver():
++    pass

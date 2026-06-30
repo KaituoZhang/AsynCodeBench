@@ -1,0 +1,56 @@
+diff --git a/src/requests/adapters.py b/src/requests/adapters.py
+index e740d2c..62a4675 100644
+--- a/src/requests/adapters.py
++++ b/src/requests/adapters.py
+@@ -31,6 +31,7 @@ from .utils import DEFAULT_CA_BUNDLE_PATH, extract_zipped_paths, get_auth_from_u
+ try:
+     from urllib3.contrib.socks import SOCKSProxyManager
+ except ImportError:
++    pass
+ if typing.TYPE_CHECKING:
+     from .models import PreparedRequest
+ DEFAULT_POOLBLOCK = False
+diff --git a/src/requests/cookies.py b/src/requests/cookies.py
+index 931dfb4..cfbcae8 100644
+--- a/src/requests/cookies.py
++++ b/src/requests/cookies.py
+@@ -291,5 +291,9 @@ def cookiejar_from_dict(cookie_dict, cookiejar=None, overwrite=True):
+     """
+     pass
+ 
++def _copy_cookie_jar(jar):
++    """Bootstrap placeholder required by requests.models imports."""
++    pass
++
+ def merge_cookies(cookiejar, cookies):
+     """Add cookies to cookiejar and returns a merged CookieJar.
+diff --git a/src/requests/hooks.py b/src/requests/hooks.py
+index 0c60ea2..f572234 100644
+--- a/src/requests/hooks.py
++++ b/src/requests/hooks.py
+@@ -13,6 +13,10 @@ Available hooks:
+     The response generated from a Request.
+ """
+ HOOKS = ['response']
++
++def default_hooks():
++    """Bootstrap placeholder required by request/session construction."""
++    pass
+ 
+ def dispatch_hook(key, hooks, hook_data, **kwargs):
+     """Dispatches a hook dictionary on a given piece of data."""
+diff --git a/src/requests/utils.py b/src/requests/utils.py
+index cf4e23a..3e402e6 100644
+--- a/src/requests/utils.py
++++ b/src/requests/utils.py
+@@ -47,6 +47,10 @@ def dict_to_sequence(d):
+     """Returns an internal sequence dictionary update."""
+     pass
+ 
++def super_len(o):
++    """Bootstrap placeholder required by requests.models imports."""
++    pass
++
+ def get_netrc_auth(url, raise_errors=False):
+     """Returns the Requests tuple auth for a given url from netrc."""
+     pass

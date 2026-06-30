@@ -1,0 +1,19 @@
+diff --git a/portalocker/portalocker.py b/portalocker/portalocker.py
+index 70217a3..68e5596 100644
+--- a/portalocker/portalocker.py
++++ b/portalocker/portalocker.py
+@@ -18,4 +18,12 @@ elif os.name == 'posix':
+     import fcntl
+     LOCKER = fcntl.flock
+ else:
+-    raise RuntimeError('PortaLocker only defined for nt and posix platforms')
+\ No newline at end of file
++    raise RuntimeError('PortaLocker only defined for nt and posix platforms')
++
++
++def lock(file, flags):
++    pass
++
++
++def unlock(file):
++    pass

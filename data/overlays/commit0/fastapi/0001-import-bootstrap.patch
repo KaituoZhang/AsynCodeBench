@@ -1,0 +1,149 @@
+diff --git a/fastapi/_compat.py b/fastapi/_compat.py
+--- a/fastapi/_compat.py
++++ b/fastapi/_compat.py
+@@ -53,6 +53,72 @@ if PYDANTIC_V2:
+ 
+         def __hash__(self) -> int:
+             return id(self)
++
++    def _model_rebuild(model: Type[BaseModel]) -> None:
++        pass
++
++    def _model_dump(model: BaseModel, **kwargs: Any) -> Dict[str, Any]:
++        return {}
++
++    def _get_model_config(model: BaseModel) -> Any:
++        return {}
++
++    def _normalize_errors(errors: Sequence[Any]) -> List[Any]:
++        return list(errors)
++
++    def _regenerate_error_with_loc(*, errors: Sequence[Any], loc_prefix: Tuple[Any, ...]) -> List[Any]:
++        return list(errors)
++
++    def copy_field_info(*, field_info: FieldInfo, annotation: Any) -> FieldInfo:
++        return copy(field_info)
++
++    def create_body_model(*, fields: Sequence[ModelField], model_name: str) -> Type[BaseModel]:
++        return create_model(model_name)
++
++    def field_annotation_is_scalar(annotation: Any) -> bool:
++        return False
++
++    def get_compat_model_name_map(fields: List[ModelField]) -> ModelNameMap:
++        return {}
++
++    def get_definitions(*args: Any, **kwargs: Any) -> Tuple[Dict[Any, Any], Dict[str, Any]]:
++        return {}, {}
++
++    def get_missing_field_error(loc: Tuple[str, ...]) -> Dict[str, Any]:
++        return {"loc": loc, "msg": "field required", "type": "missing"}
++
++    def get_schema_from_model_field(*args: Any, **kwargs: Any) -> Dict[str, Any]:
++        return {}
++
++    def get_annotation_from_field_info(annotation: Any, field_info: FieldInfo, field_name: str) -> Any:
++        return annotation
++
++    def is_bytes_field(field: ModelField) -> bool:
++        return False
++
++    def is_bytes_sequence_field(field: ModelField) -> bool:
++        return False
++
++    def is_scalar_field(field: ModelField) -> bool:
++        return False
++
++    def is_scalar_sequence_field(field: ModelField) -> bool:
++        return False
++
++    def is_sequence_field(field: ModelField) -> bool:
++        return False
++
++    def is_uploadfile_or_nonable_uploadfile_annotation(annotation: Any) -> bool:
++        return False
++
++    def is_uploadfile_sequence_annotation(annotation: Any) -> bool:
++        return False
++
++    def serialize_sequence_value(*, field: ModelField, value: Any) -> Any:
++        return value
++
++    def value_is_sequence(value: Any) -> bool:
++        return isinstance(value, sequence_types)
+ else:
+     from fastapi.openapi.constants import REF_PREFIX as REF_PREFIX
+     from pydantic import AnyUrl as Url
+diff --git a/fastapi/encoders.py b/fastapi/encoders.py
+--- a/fastapi/encoders.py
++++ b/fastapi/encoders.py
+@@ -17,6 +17,12 @@ from pydantic.types import SecretBytes, SecretStr
+ from typing_extensions import Annotated, Doc
+ from ._compat import PYDANTIC_V2, UndefinedType, Url, _model_dump
+ 
++def isoformat(o: Any) -> str:
++    return o.isoformat()
++
++def generate_encoders_by_class_tuples(type_encoder_map: Dict[Type[Any], Callable[[Any], Any]]) -> Dict[Callable[[Any], Any], Tuple[Type[Any], ...]]:
++    return {}
++
+ def decimal_encoder(dec_value: Decimal) -> Union[int, float]:
+     """
+     Encodes a Decimal as int of there's no exponent, otherwise float
+diff --git a/fastapi/security/utils.py b/fastapi/security/utils.py
+--- a/fastapi/security/utils.py
++++ b/fastapi/security/utils.py
+@@ -1 +1,6 @@
+-from typing import Optional, Tuple
+\ No newline at end of file
++from typing import Optional, Tuple
++
++def get_authorization_scheme_param(authorization_header_value: Optional[str]) -> Tuple[str, str]:
++    if not authorization_header_value:
++        return "", ""
++    return "", authorization_header_value
+diff --git a/fastapi/param_functions.py b/fastapi/param_functions.py
+--- a/fastapi/param_functions.py
++++ b/fastapi/param_functions.py
+@@ -98,3 +98,27 @@
+     ```
+     """
+     pass
+\ No newline at end of file
++
++def Query(*args: Any, **kwargs: Any) -> Any:
++    pass
++
++def Header(*args: Any, **kwargs: Any) -> Any:
++    pass
++
++def Cookie(*args: Any, **kwargs: Any) -> Any:
++    pass
++
++def Body(*args: Any, **kwargs: Any) -> Any:
++    pass
++
++def Form(*args: Any, **kwargs: Any) -> Any:
++    pass
++
++def File(*args: Any, **kwargs: Any) -> Any:
++    pass
++
++def UploadFile(*args: Any, **kwargs: Any) -> Any:
++    pass
++
++def WebSocket(*args: Any, **kwargs: Any) -> Any:
++    pass
+diff --git a/fastapi/concurrency.py b/fastapi/concurrency.py
+--- a/fastapi/concurrency.py
++++ b/fastapi/concurrency.py
+@@ -6,3 +6,8 @@ import anyio
+ from starlette.concurrency import run_in_threadpool as run_in_threadpool
+ from starlette.concurrency import run_until_first_complete as run_until_first_complete
+ _T = TypeVar('_T')
+\ No newline at end of file
++
++@asynccontextmanager
++async def contextmanager_in_threadpool(cm: ContextManager[_T]) -> AsyncGenerator[_T, None]:
++    yield cm.__enter__()
++    cm.__exit__(None, None, None)

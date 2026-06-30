@@ -1,0 +1,476 @@
+{
+  "scenarios": [
+    {
+      "agent_count": 1,
+      "assignments": [
+        {
+          "agent_id": "integrator",
+          "primary_test_targets": [
+            "addopts=",
+            "-k",
+            "not test_objecttype_container_benchmark",
+            "graphene/types/tests/test_definition.py",
+            "graphene/types/tests/test_objecttype.py",
+            "graphene/types/tests/test_inputobjecttype.py",
+            "graphene/types/tests/test_schema.py",
+            "graphene/types/tests/test_scalars_serialization.py"
+          ],
+          "role": "iterative full-task coding agent",
+          "schema_version": "0.3",
+          "subproblem_id": "full_task",
+          "writable_paths": [
+            "graphene/types/argument.py",
+            "graphene/types/base.py",
+            "graphene/types/definitions.py",
+            "graphene/types/enum.py",
+            "graphene/types/field.py",
+            "graphene/types/inputfield.py",
+            "graphene/types/inputobjecttype.py",
+            "graphene/types/interface.py",
+            "graphene/types/objecttype.py",
+            "graphene/types/resolver.py",
+            "graphene/types/scalars.py",
+            "graphene/types/schema.py",
+            "graphene/types/structures.py",
+            "graphene/types/union.py",
+            "graphene/types/unmountedtype.py",
+            "graphene/types/utils.py"
+          ]
+        }
+      ],
+      "communication_condition": "not_applicable",
+      "concurrent_execution": false,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "object_input_metadata_layer",
+          "dependency_type": "api_contract",
+          "description": "ObjectType and InputObjectType metadata consume UnmountedType mounting into Field, InputField, Argument, and ordered field structures.",
+          "evidence_paths": [
+            "graphene/types/unmountedtype.py",
+            "graphene/types/field.py",
+            "graphene/types/inputfield.py",
+            "graphene/types/argument.py",
+            "graphene/types/objecttype.py",
+            "graphene/types/inputobjecttype.py",
+            "graphene/types/tests/test_scalars_serialization.py",
+            "graphene/types/tests/test_objecttype.py",
+            "graphene/types/tests/test_inputobjecttype.py"
+          ],
+          "producer_subproblem": "type_mounting_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "schema_typemap_layer",
+          "dependency_type": "api_contract",
+          "description": "Schema and TypeMap conversion consume object, input object, interface, union, enum, field, and argument metadata contracts.",
+          "evidence_paths": [
+            "graphene/types/objecttype.py",
+            "graphene/types/inputobjecttype.py",
+            "graphene/types/interface.py",
+            "graphene/types/union.py",
+            "graphene/types/enum.py",
+            "graphene/types/schema.py",
+            "graphene/types/tests/test_definition.py",
+            "graphene/types/tests/test_schema.py"
+          ],
+          "producer_subproblem": "object_input_metadata_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "schema_typemap_layer",
+          "dependency_type": "api_contract",
+          "description": "Schema construction and GraphQL-core conversion consume scalar get_type, serialize, and coercion contracts.",
+          "evidence_paths": [
+            "graphene/types/scalars.py",
+            "graphene/types/schema.py",
+            "graphene/types/definitions.py",
+            "graphene/types/tests/test_scalars_serialization.py",
+            "graphene/types/tests/test_schema.py"
+          ],
+          "producer_subproblem": "type_mounting_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "iterative_single",
+      "information_profile": "complete-task",
+      "integration_policy": "Agent submits its final workspace.",
+      "message_delivery_policy": "No inter-agent messages.",
+      "scenario_id": "commit0-graphene.iterative-single.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 34,
+      "task_id": "commit0:graphene",
+      "test_budget_per_agent": 12,
+      "token_budget_per_agent": 85000,
+      "wall_clock_budget_seconds": 3000
+    },
+    {
+      "agent_count": 3,
+      "assignments": [
+        {
+          "agent_id": "mounting_agent",
+          "primary_test_targets": [
+            "graphene/types/tests/test_scalars_serialization.py",
+            "graphene/types/tests/test_definition.py::test_stringifies_simple_types"
+          ],
+          "role": "field mounting, argument, scalar, and type wrapper specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "type_mounting_layer",
+          "writable_paths": [
+            "graphene/types/argument.py",
+            "graphene/types/field.py",
+            "graphene/types/inputfield.py",
+            "graphene/types/scalars.py",
+            "graphene/types/structures.py",
+            "graphene/types/unmountedtype.py"
+          ]
+        },
+        {
+          "agent_id": "metadata_agent",
+          "primary_test_targets": [
+            "graphene/types/tests/test_objecttype.py",
+            "graphene/types/tests/test_inputobjecttype.py"
+          ],
+          "role": "object, input object, interface, union, enum, and metadata specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "object_input_metadata_layer",
+          "writable_paths": [
+            "graphene/types/base.py",
+            "graphene/types/enum.py",
+            "graphene/types/inputobjecttype.py",
+            "graphene/types/interface.py",
+            "graphene/types/objecttype.py",
+            "graphene/types/union.py",
+            "graphene/types/utils.py"
+          ]
+        },
+        {
+          "agent_id": "schema_agent",
+          "primary_test_targets": [
+            "graphene/types/tests/test_definition.py",
+            "graphene/types/tests/test_schema.py"
+          ],
+          "role": "schema, TypeMap, definition conversion, and resolver specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "schema_typemap_layer",
+          "writable_paths": [
+            "graphene/types/definitions.py",
+            "graphene/types/resolver.py",
+            "graphene/types/schema.py"
+          ]
+        }
+      ],
+      "communication_condition": "completed_artifact_handoff",
+      "concurrent_execution": false,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "object_input_metadata_layer",
+          "dependency_type": "api_contract",
+          "description": "ObjectType and InputObjectType metadata consume UnmountedType mounting into Field, InputField, Argument, and ordered field structures.",
+          "evidence_paths": [
+            "graphene/types/unmountedtype.py",
+            "graphene/types/field.py",
+            "graphene/types/inputfield.py",
+            "graphene/types/argument.py",
+            "graphene/types/objecttype.py",
+            "graphene/types/inputobjecttype.py",
+            "graphene/types/tests/test_scalars_serialization.py",
+            "graphene/types/tests/test_objecttype.py",
+            "graphene/types/tests/test_inputobjecttype.py"
+          ],
+          "producer_subproblem": "type_mounting_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "schema_typemap_layer",
+          "dependency_type": "api_contract",
+          "description": "Schema and TypeMap conversion consume object, input object, interface, union, enum, field, and argument metadata contracts.",
+          "evidence_paths": [
+            "graphene/types/objecttype.py",
+            "graphene/types/inputobjecttype.py",
+            "graphene/types/interface.py",
+            "graphene/types/union.py",
+            "graphene/types/enum.py",
+            "graphene/types/schema.py",
+            "graphene/types/tests/test_definition.py",
+            "graphene/types/tests/test_schema.py"
+          ],
+          "producer_subproblem": "object_input_metadata_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "schema_typemap_layer",
+          "dependency_type": "api_contract",
+          "description": "Schema construction and GraphQL-core conversion consume scalar get_type, serialize, and coercion contracts.",
+          "evidence_paths": [
+            "graphene/types/scalars.py",
+            "graphene/types/schema.py",
+            "graphene/types/definitions.py",
+            "graphene/types/tests/test_scalars_serialization.py",
+            "graphene/types/tests/test_schema.py"
+          ],
+          "producer_subproblem": "type_mounting_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "serial_specialists",
+      "information_profile": "private-workspace",
+      "integration_policy": "Apply mounting artifacts before object/input metadata artifacts, then schema/type-map artifacts, then run the scoped evaluator.",
+      "message_delivery_policy": "Specialists run with barrier synchronization. Metadata receives mounting artifacts before final work; schema receives mounting and metadata artifacts before validation.",
+      "scenario_id": "commit0-graphene.serial-specialists.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 34,
+      "task_id": "commit0:graphene",
+      "test_budget_per_agent": 12,
+      "token_budget_per_agent": 85000,
+      "wall_clock_budget_seconds": 3000
+    },
+    {
+      "agent_count": 3,
+      "assignments": [
+        {
+          "agent_id": "mounting_agent",
+          "primary_test_targets": [
+            "graphene/types/tests/test_scalars_serialization.py",
+            "graphene/types/tests/test_definition.py::test_stringifies_simple_types"
+          ],
+          "role": "field mounting, argument, scalar, and type wrapper specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "type_mounting_layer",
+          "writable_paths": [
+            "graphene/types/argument.py",
+            "graphene/types/field.py",
+            "graphene/types/inputfield.py",
+            "graphene/types/scalars.py",
+            "graphene/types/structures.py",
+            "graphene/types/unmountedtype.py"
+          ]
+        },
+        {
+          "agent_id": "metadata_agent",
+          "primary_test_targets": [
+            "graphene/types/tests/test_objecttype.py",
+            "graphene/types/tests/test_inputobjecttype.py"
+          ],
+          "role": "object, input object, interface, union, enum, and metadata specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "object_input_metadata_layer",
+          "writable_paths": [
+            "graphene/types/base.py",
+            "graphene/types/enum.py",
+            "graphene/types/inputobjecttype.py",
+            "graphene/types/interface.py",
+            "graphene/types/objecttype.py",
+            "graphene/types/union.py",
+            "graphene/types/utils.py"
+          ]
+        },
+        {
+          "agent_id": "schema_agent",
+          "primary_test_targets": [
+            "graphene/types/tests/test_definition.py",
+            "graphene/types/tests/test_schema.py"
+          ],
+          "role": "schema, TypeMap, definition conversion, and resolver specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "schema_typemap_layer",
+          "writable_paths": [
+            "graphene/types/definitions.py",
+            "graphene/types/resolver.py",
+            "graphene/types/schema.py"
+          ]
+        }
+      ],
+      "communication_condition": "private_concurrent_workspaces",
+      "concurrent_execution": true,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "object_input_metadata_layer",
+          "dependency_type": "api_contract",
+          "description": "ObjectType and InputObjectType metadata consume UnmountedType mounting into Field, InputField, Argument, and ordered field structures.",
+          "evidence_paths": [
+            "graphene/types/unmountedtype.py",
+            "graphene/types/field.py",
+            "graphene/types/inputfield.py",
+            "graphene/types/argument.py",
+            "graphene/types/objecttype.py",
+            "graphene/types/inputobjecttype.py",
+            "graphene/types/tests/test_scalars_serialization.py",
+            "graphene/types/tests/test_objecttype.py",
+            "graphene/types/tests/test_inputobjecttype.py"
+          ],
+          "producer_subproblem": "type_mounting_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "schema_typemap_layer",
+          "dependency_type": "api_contract",
+          "description": "Schema and TypeMap conversion consume object, input object, interface, union, enum, field, and argument metadata contracts.",
+          "evidence_paths": [
+            "graphene/types/objecttype.py",
+            "graphene/types/inputobjecttype.py",
+            "graphene/types/interface.py",
+            "graphene/types/union.py",
+            "graphene/types/enum.py",
+            "graphene/types/schema.py",
+            "graphene/types/tests/test_definition.py",
+            "graphene/types/tests/test_schema.py"
+          ],
+          "producer_subproblem": "object_input_metadata_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "schema_typemap_layer",
+          "dependency_type": "api_contract",
+          "description": "Schema construction and GraphQL-core conversion consume scalar get_type, serialize, and coercion contracts.",
+          "evidence_paths": [
+            "graphene/types/scalars.py",
+            "graphene/types/schema.py",
+            "graphene/types/definitions.py",
+            "graphene/types/tests/test_scalars_serialization.py",
+            "graphene/types/tests/test_schema.py"
+          ],
+          "producer_subproblem": "type_mounting_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "async_private",
+      "information_profile": "private-workspace",
+      "integration_policy": "Integrate independently produced specialist artifacts at the end, then run dependency probes and the scoped evaluator.",
+      "message_delivery_policy": "Agents work concurrently without messages while their local tests and assumptions may become stale.",
+      "scenario_id": "commit0-graphene.async-private.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 34,
+      "task_id": "commit0:graphene",
+      "test_budget_per_agent": 12,
+      "token_budget_per_agent": 85000,
+      "wall_clock_budget_seconds": 3000
+    },
+    {
+      "agent_count": 3,
+      "assignments": [
+        {
+          "agent_id": "mounting_agent",
+          "primary_test_targets": [
+            "graphene/types/tests/test_scalars_serialization.py",
+            "graphene/types/tests/test_definition.py::test_stringifies_simple_types"
+          ],
+          "role": "field mounting, argument, scalar, and type wrapper specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "type_mounting_layer",
+          "writable_paths": [
+            "graphene/types/argument.py",
+            "graphene/types/field.py",
+            "graphene/types/inputfield.py",
+            "graphene/types/scalars.py",
+            "graphene/types/structures.py",
+            "graphene/types/unmountedtype.py"
+          ]
+        },
+        {
+          "agent_id": "metadata_agent",
+          "primary_test_targets": [
+            "graphene/types/tests/test_objecttype.py",
+            "graphene/types/tests/test_inputobjecttype.py"
+          ],
+          "role": "object, input object, interface, union, enum, and metadata specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "object_input_metadata_layer",
+          "writable_paths": [
+            "graphene/types/base.py",
+            "graphene/types/enum.py",
+            "graphene/types/inputobjecttype.py",
+            "graphene/types/interface.py",
+            "graphene/types/objecttype.py",
+            "graphene/types/union.py",
+            "graphene/types/utils.py"
+          ]
+        },
+        {
+          "agent_id": "schema_agent",
+          "primary_test_targets": [
+            "graphene/types/tests/test_definition.py",
+            "graphene/types/tests/test_schema.py"
+          ],
+          "role": "schema, TypeMap, definition conversion, and resolver specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "schema_typemap_layer",
+          "writable_paths": [
+            "graphene/types/definitions.py",
+            "graphene/types/resolver.py",
+            "graphene/types/schema.py"
+          ]
+        }
+      ],
+      "communication_condition": "asynchronous_message_handoff",
+      "concurrent_execution": true,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "object_input_metadata_layer",
+          "dependency_type": "api_contract",
+          "description": "ObjectType and InputObjectType metadata consume UnmountedType mounting into Field, InputField, Argument, and ordered field structures.",
+          "evidence_paths": [
+            "graphene/types/unmountedtype.py",
+            "graphene/types/field.py",
+            "graphene/types/inputfield.py",
+            "graphene/types/argument.py",
+            "graphene/types/objecttype.py",
+            "graphene/types/inputobjecttype.py",
+            "graphene/types/tests/test_scalars_serialization.py",
+            "graphene/types/tests/test_objecttype.py",
+            "graphene/types/tests/test_inputobjecttype.py"
+          ],
+          "producer_subproblem": "type_mounting_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "schema_typemap_layer",
+          "dependency_type": "api_contract",
+          "description": "Schema and TypeMap conversion consume object, input object, interface, union, enum, field, and argument metadata contracts.",
+          "evidence_paths": [
+            "graphene/types/objecttype.py",
+            "graphene/types/inputobjecttype.py",
+            "graphene/types/interface.py",
+            "graphene/types/union.py",
+            "graphene/types/enum.py",
+            "graphene/types/schema.py",
+            "graphene/types/tests/test_definition.py",
+            "graphene/types/tests/test_schema.py"
+          ],
+          "producer_subproblem": "object_input_metadata_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "schema_typemap_layer",
+          "dependency_type": "api_contract",
+          "description": "Schema construction and GraphQL-core conversion consume scalar get_type, serialize, and coercion contracts.",
+          "evidence_paths": [
+            "graphene/types/scalars.py",
+            "graphene/types/schema.py",
+            "graphene/types/definitions.py",
+            "graphene/types/tests/test_scalars_serialization.py",
+            "graphene/types/tests/test_schema.py"
+          ],
+          "producer_subproblem": "type_mounting_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "async_message",
+      "information_profile": "message-passing",
+      "integration_policy": "Integrate independently produced specialist artifacts after asynchronous handoffs, then run dependency probes and the scoped evaluator.",
+      "message_delivery_policy": "Agents may send artifact summaries asynchronously; downstream workers are not guaranteed to see the newest upstream contract before acting.",
+      "scenario_id": "commit0-graphene.async-message.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 34,
+      "task_id": "commit0:graphene",
+      "test_budget_per_agent": 12,
+      "token_budget_per_agent": 85000,
+      "wall_clock_budget_seconds": 3000
+    }
+  ],
+  "schema_version": "0.3",
+  "task_id": "commit0:graphene"
+}

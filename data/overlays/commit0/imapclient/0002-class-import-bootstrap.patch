@@ -1,0 +1,30 @@
+diff --git a/imapclient/datetime_util.py b/imapclient/datetime_util.py
+index 33e7a7a..452753a 100644
+--- a/imapclient/datetime_util.py
++++ b/imapclient/datetime_util.py
+@@ -14,6 +14,9 @@ def parse_to_datetime(timestamp: bytes, normalise: bool=True) -> datetime:
+     """
+     pass
+ 
++def datetime_to_native(dt: datetime) -> datetime:
++    pass
++
+ def datetime_to_INTERNALDATE(dt: datetime) -> str:
+     """Convert a datetime instance to a IMAP INTERNALDATE string.
+ 
+diff --git a/imapclient/imapclient.py b/imapclient/imapclient.py
+index 9b8cfbe..488b3e4 100644
+--- a/imapclient/imapclient.py
++++ b/imapclient/imapclient.py
+@@ -105,7 +105,10 @@ class Quota:
+ 
+ def require_capability(capability):
+     """Decorator raising CapabilityError when a capability is not available."""
+-    pass
++    def decorator(func):
++        return func
++
++    return decorator
+ 
+ class IMAPClient:
+     """A connection to the IMAP server specified by *host* is made when

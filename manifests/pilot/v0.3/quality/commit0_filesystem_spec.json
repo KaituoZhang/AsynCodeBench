@@ -1,0 +1,222 @@
+{
+  "coordination_structure_tags": [
+    "interface_dependency",
+    "shared_abstraction"
+  ],
+  "environment_requirements": [
+    "Python 3.10.12",
+    "pytest==9.0.3",
+    "zstandard==0.25.0",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
+    "Run from the repository root with PYTHONPATH=.",
+    "Use origin/commit0_combined plus bootstrap overlays from configs/tasks/commit0_curated_tasks.v0.3.json."
+  ],
+  "evaluation_snapshots": [
+    {
+      "collected": 140,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "fsspec/tests/test_registry.py",
+        "fsspec/tests/test_utils.py",
+        "fsspec/tests/test_compression.py",
+        "fsspec/tests/test_core.py"
+      ],
+      "dependency_versions": {
+        "pytest": "9.0.3",
+        "zstandard": "0.25.0"
+      },
+      "duration_seconds": 1.64,
+      "errors": 3,
+      "evidence_scope": "public_initial_state",
+      "failed": 128,
+      "notes": [
+        "Verified with PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 and PYTHONPATH=. after applying only checksum-recorded bootstrap overlays.",
+        "Failures/errors are caused by unfinished registry, utility, compression, core open/path, and memory-fixture behavior."
+      ],
+      "passed": 1,
+      "python_version": "3.10.12",
+      "return_code": 1,
+      "schema_version": "0.3",
+      "skipped": 8,
+      "snapshot_id": "curated_commit0_initial_core_evaluator",
+      "source_ref": "origin/commit0_combined:0d34761eb6ca0af8a6f33eb83dd9630a4a370da0+bootstrap-overlays"
+    },
+    {
+      "collected": 137,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "fsspec/tests/test_registry.py",
+        "fsspec/tests/test_utils.py",
+        "fsspec/tests/test_compression.py",
+        "fsspec/tests/test_core.py"
+      ],
+      "dependency_versions": {
+        "pytest": "9.0.3",
+        "zstandard": "0.25.0"
+      },
+      "duration_seconds": 0.41,
+      "errors": 0,
+      "evidence_scope": "evaluator_sanity_only",
+      "failed": 0,
+      "notes": [
+        "The complete/default local commit0 ref passes the same scoped evaluator after the version bootstrap in the same environment.",
+        "The complete ref is evaluator validation only and must not define decomposition, prompts, or agent-visible evidence."
+      ],
+      "passed": 129,
+      "python_version": "3.10.12",
+      "return_code": 0,
+      "schema_version": "0.3",
+      "skipped": 8,
+      "snapshot_id": "complete_commit0_core_evaluator_sanity",
+      "source_ref": "commit0:b842cf4cc7e4e22caa3110157cec9b4959582993"
+    }
+  ],
+  "known_limitations": [
+    "The local commit0/default branch is complete. Benchmark workspaces must be materialized from origin/commit0_combined.",
+    "The evaluator excludes fsspec/tests/test_spec.py because it imports HTTP/Arrow-dependent paths in the stripped source.",
+    "The evaluator excludes implementation backend tests, callbacks requiring pytest-mock, and optional service/backend tests.",
+    "Bootstrap overlays expose only import-time symbols and do not implement fsspec behavior.",
+    "Single-agent and multi-agent model results are evaluation outputs to report, not dataset qualification gates."
+  ],
+  "public_statement_sources": [
+    "README.md@origin/commit0_combined",
+    "fsspec/*.py docstrings@origin/commit0_combined",
+    "fsspec/tests/test_*.py@origin/commit0_combined",
+    "manifests/candidates/commit0_async_screening_v0.3.json"
+  ],
+  "quality_status": "qualification_ready",
+  "remaining_gates": [
+    "two independent human inclusion/exclusion annotations"
+  ],
+  "schema_version": "0.3",
+  "structure_rationale": "The scoped fsspec task exposes natural async contracts from the registry and utility/compression layers into core OpenFile/OpenFiles, URL-to-filesystem resolution, path expansion, and compression selection.",
+  "task_id": "commit0:filesystem_spec",
+  "test_groups": [
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "fsspec/tests/test_registry.py"
+      ],
+      "description": "Protocol registry, deferred imports, entry points, and filesystem lookup.",
+      "group_id": "registry_protocol_local",
+      "owner_subproblem": "registry_protocol_layer",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "fsspec/tests/test_utils.py",
+        "fsspec/tests/test_compression.py"
+      ],
+      "description": "URL/path helpers, read-block behavior, and compression inference/registration.",
+      "group_id": "utility_compression_local",
+      "owner_subproblem": "utility_compression_layer",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "fsspec/tests/test_core.py"
+      ],
+      "description": "OpenFile/OpenFiles, path expansion, open_local, and URL-to-filesystem behavior.",
+      "group_id": "core_open_path_local",
+      "owner_subproblem": "core_open_path_layer",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "fsspec/tests/test_registry.py::test_registry_readonly",
+        "fsspec/tests/test_core.py::test_url_to_fs",
+        "fsspec/tests/test_core.py::test_list"
+      ],
+      "description": "Core URL/open behavior after protocol registry lookup is integrated.",
+      "group_id": "registry_core_cross_contract",
+      "owner_subproblem": null,
+      "prerequisites": [
+        "registry_protocol_layer artifact is integrated",
+        "core_open_path_layer artifact is integrated"
+      ],
+      "purpose": "cross_subproblem",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "fsspec/tests/test_utils.py::test_get_protocol",
+        "fsspec/tests/test_compression.py::test_infer_custom_compression",
+        "fsspec/tests/test_core.py::test_expand_paths"
+      ],
+      "description": "Core path expansion and compression behavior after utility/compression helpers are integrated.",
+      "group_id": "utility_core_cross_contract",
+      "owner_subproblem": null,
+      "prerequisites": [
+        "utility_compression_layer artifact is integrated",
+        "core_open_path_layer artifact is integrated"
+      ],
+      "purpose": "cross_subproblem",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "fsspec/tests/test_registry.py",
+        "fsspec/tests/test_utils.py",
+        "fsspec/tests/test_compression.py",
+        "fsspec/tests/test_core.py"
+      ],
+      "description": "Scoped public core fsspec tests excluding optional backend and HTTP/Arrow paths.",
+      "group_id": "full_evaluator",
+      "owner_subproblem": null,
+      "prerequisites": [],
+      "purpose": "full_evaluator",
+      "schema_version": "0.3"
+    }
+  ]
+}

@@ -1,0 +1,462 @@
+{
+  "scenarios": [
+    {
+      "agent_count": 1,
+      "assignments": [
+        {
+          "agent_id": "integrator",
+          "primary_test_targets": [
+            "addopts=",
+            "tests/test_registry.py",
+            "tests/test_validate.py",
+            "tests/test_fields.py",
+            "tests/test_schema.py",
+            "tests/test_serialization.py",
+            "tests/test_deserialization.py",
+            "tests/test_decorators.py",
+            "tests/test_exceptions.py",
+            "tests/test_utils.py",
+            "tests/test_options.py",
+            "tests/test_error_store.py"
+          ],
+          "role": "iterative full-task coding agent",
+          "schema_version": "0.3",
+          "subproblem_id": "full_task",
+          "writable_paths": [
+            "src/marshmallow/base.py",
+            "src/marshmallow/class_registry.py",
+            "src/marshmallow/decorators.py",
+            "src/marshmallow/error_store.py",
+            "src/marshmallow/fields.py",
+            "src/marshmallow/schema.py",
+            "src/marshmallow/utils.py",
+            "src/marshmallow/validate.py"
+          ]
+        }
+      ],
+      "communication_condition": "not_applicable",
+      "concurrent_execution": false,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "schema_processing_layer",
+          "dependency_type": "api_contract",
+          "description": "Schema load/dump behavior consumes field serialization/deserialization, validator, missing/default, and utility conversion contracts.",
+          "evidence_paths": [
+            "src/marshmallow/fields.py",
+            "src/marshmallow/validate.py",
+            "src/marshmallow/schema.py",
+            "tests/test_fields.py",
+            "tests/test_validate.py",
+            "tests/test_schema.py",
+            "tests/test_serialization.py",
+            "tests/test_deserialization.py"
+          ],
+          "producer_subproblem": "field_validation_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "field_validation_layer",
+          "dependency_type": "api_contract",
+          "description": "Nested fields consume schema class registration, declared-field collection, only/exclude propagation, and class-name resolution contracts.",
+          "evidence_paths": [
+            "src/marshmallow/class_registry.py",
+            "src/marshmallow/schema.py",
+            "src/marshmallow/fields.py",
+            "tests/test_registry.py",
+            "tests/test_fields.py",
+            "tests/test_schema.py"
+          ],
+          "producer_subproblem": "registry_declaration_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "field_validation_layer",
+          "dependency_type": "shared_state_contract",
+          "description": "Decorator metadata, schema hooks, and ErrorStore merging must agree with field/schema validation errors and nested load/dump processors.",
+          "evidence_paths": [
+            "src/marshmallow/decorators.py",
+            "src/marshmallow/error_store.py",
+            "src/marshmallow/schema.py",
+            "src/marshmallow/fields.py",
+            "tests/test_decorators.py",
+            "tests/test_error_store.py",
+            "tests/test_schema.py"
+          ],
+          "producer_subproblem": "schema_processing_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "iterative_single",
+      "information_profile": "complete-task",
+      "integration_policy": "Agent submits its final workspace.",
+      "message_delivery_policy": "No inter-agent messages.",
+      "scenario_id": "commit0-marshmallow.iterative-single.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 34,
+      "task_id": "commit0:marshmallow",
+      "test_budget_per_agent": 12,
+      "token_budget_per_agent": 85000,
+      "wall_clock_budget_seconds": 3000
+    },
+    {
+      "agent_count": 3,
+      "assignments": [
+        {
+          "agent_id": "registry_agent",
+          "primary_test_targets": [
+            "tests/test_registry.py",
+            "tests/test_options.py"
+          ],
+          "role": "schema registry, declaration, options, and nested resolution specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "registry_declaration_layer",
+          "writable_paths": [
+            "src/marshmallow/class_registry.py",
+            "src/marshmallow/schema.py"
+          ]
+        },
+        {
+          "agent_id": "field_agent",
+          "primary_test_targets": [
+            "tests/test_fields.py",
+            "tests/test_validate.py",
+            "tests/test_serialization.py",
+            "tests/test_deserialization.py",
+            "tests/test_utils.py"
+          ],
+          "role": "field, validator, and utility conversion specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "field_validation_layer",
+          "writable_paths": [
+            "src/marshmallow/fields.py",
+            "src/marshmallow/validate.py",
+            "src/marshmallow/utils.py",
+            "src/marshmallow/base.py",
+            "src/marshmallow/warnings.py"
+          ]
+        },
+        {
+          "agent_id": "schema_agent",
+          "primary_test_targets": [
+            "tests/test_schema.py",
+            "tests/test_decorators.py",
+            "tests/test_error_store.py"
+          ],
+          "role": "schema load/dump, decorator hook, and error-store specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "schema_processing_layer",
+          "writable_paths": [
+            "src/marshmallow/schema.py",
+            "src/marshmallow/decorators.py",
+            "src/marshmallow/error_store.py"
+          ]
+        }
+      ],
+      "communication_condition": "completed_artifact_handoff",
+      "concurrent_execution": false,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "schema_processing_layer",
+          "dependency_type": "api_contract",
+          "description": "Schema load/dump behavior consumes field serialization/deserialization, validator, missing/default, and utility conversion contracts.",
+          "evidence_paths": [
+            "src/marshmallow/fields.py",
+            "src/marshmallow/validate.py",
+            "src/marshmallow/schema.py",
+            "tests/test_fields.py",
+            "tests/test_validate.py",
+            "tests/test_schema.py",
+            "tests/test_serialization.py",
+            "tests/test_deserialization.py"
+          ],
+          "producer_subproblem": "field_validation_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "field_validation_layer",
+          "dependency_type": "api_contract",
+          "description": "Nested fields consume schema class registration, declared-field collection, only/exclude propagation, and class-name resolution contracts.",
+          "evidence_paths": [
+            "src/marshmallow/class_registry.py",
+            "src/marshmallow/schema.py",
+            "src/marshmallow/fields.py",
+            "tests/test_registry.py",
+            "tests/test_fields.py",
+            "tests/test_schema.py"
+          ],
+          "producer_subproblem": "registry_declaration_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "field_validation_layer",
+          "dependency_type": "shared_state_contract",
+          "description": "Decorator metadata, schema hooks, and ErrorStore merging must agree with field/schema validation errors and nested load/dump processors.",
+          "evidence_paths": [
+            "src/marshmallow/decorators.py",
+            "src/marshmallow/error_store.py",
+            "src/marshmallow/schema.py",
+            "src/marshmallow/fields.py",
+            "tests/test_decorators.py",
+            "tests/test_error_store.py",
+            "tests/test_schema.py"
+          ],
+          "producer_subproblem": "schema_processing_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "serial_specialists",
+      "information_profile": "private-workspace",
+      "integration_policy": "Apply registry/declaration and field/validation artifacts before schema/decorator artifacts, then run the scoped evaluator.",
+      "message_delivery_policy": "Specialists run with barrier synchronization. Schema receives completed registry and field artifacts before final validation.",
+      "scenario_id": "commit0-marshmallow.serial-specialists.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 34,
+      "task_id": "commit0:marshmallow",
+      "test_budget_per_agent": 12,
+      "token_budget_per_agent": 85000,
+      "wall_clock_budget_seconds": 3000
+    },
+    {
+      "agent_count": 3,
+      "assignments": [
+        {
+          "agent_id": "registry_agent",
+          "primary_test_targets": [
+            "tests/test_registry.py",
+            "tests/test_options.py"
+          ],
+          "role": "schema registry, declaration, options, and nested resolution specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "registry_declaration_layer",
+          "writable_paths": [
+            "src/marshmallow/class_registry.py",
+            "src/marshmallow/schema.py"
+          ]
+        },
+        {
+          "agent_id": "field_agent",
+          "primary_test_targets": [
+            "tests/test_fields.py",
+            "tests/test_validate.py",
+            "tests/test_serialization.py",
+            "tests/test_deserialization.py",
+            "tests/test_utils.py"
+          ],
+          "role": "field, validator, and utility conversion specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "field_validation_layer",
+          "writable_paths": [
+            "src/marshmallow/fields.py",
+            "src/marshmallow/validate.py",
+            "src/marshmallow/utils.py",
+            "src/marshmallow/base.py",
+            "src/marshmallow/warnings.py"
+          ]
+        },
+        {
+          "agent_id": "schema_agent",
+          "primary_test_targets": [
+            "tests/test_schema.py",
+            "tests/test_decorators.py",
+            "tests/test_error_store.py"
+          ],
+          "role": "schema load/dump, decorator hook, and error-store specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "schema_processing_layer",
+          "writable_paths": [
+            "src/marshmallow/schema.py",
+            "src/marshmallow/decorators.py",
+            "src/marshmallow/error_store.py"
+          ]
+        }
+      ],
+      "communication_condition": "none_in_flight",
+      "concurrent_execution": true,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "schema_processing_layer",
+          "dependency_type": "api_contract",
+          "description": "Schema load/dump behavior consumes field serialization/deserialization, validator, missing/default, and utility conversion contracts.",
+          "evidence_paths": [
+            "src/marshmallow/fields.py",
+            "src/marshmallow/validate.py",
+            "src/marshmallow/schema.py",
+            "tests/test_fields.py",
+            "tests/test_validate.py",
+            "tests/test_schema.py",
+            "tests/test_serialization.py",
+            "tests/test_deserialization.py"
+          ],
+          "producer_subproblem": "field_validation_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "field_validation_layer",
+          "dependency_type": "api_contract",
+          "description": "Nested fields consume schema class registration, declared-field collection, only/exclude propagation, and class-name resolution contracts.",
+          "evidence_paths": [
+            "src/marshmallow/class_registry.py",
+            "src/marshmallow/schema.py",
+            "src/marshmallow/fields.py",
+            "tests/test_registry.py",
+            "tests/test_fields.py",
+            "tests/test_schema.py"
+          ],
+          "producer_subproblem": "registry_declaration_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "field_validation_layer",
+          "dependency_type": "shared_state_contract",
+          "description": "Decorator metadata, schema hooks, and ErrorStore merging must agree with field/schema validation errors and nested load/dump processors.",
+          "evidence_paths": [
+            "src/marshmallow/decorators.py",
+            "src/marshmallow/error_store.py",
+            "src/marshmallow/schema.py",
+            "src/marshmallow/fields.py",
+            "tests/test_decorators.py",
+            "tests/test_error_store.py",
+            "tests/test_schema.py"
+          ],
+          "producer_subproblem": "schema_processing_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "async_private",
+      "information_profile": "private-workspace",
+      "integration_policy": "Run specialists concurrently in private workspaces and integrate final artifacts after all workers finish.",
+      "message_delivery_policy": "No in-flight worker messages or artifacts are delivered.",
+      "scenario_id": "commit0-marshmallow.async-private.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 34,
+      "task_id": "commit0:marshmallow",
+      "test_budget_per_agent": 12,
+      "token_budget_per_agent": 85000,
+      "wall_clock_budget_seconds": 3000
+    },
+    {
+      "agent_count": 3,
+      "assignments": [
+        {
+          "agent_id": "registry_agent",
+          "primary_test_targets": [
+            "tests/test_registry.py",
+            "tests/test_options.py"
+          ],
+          "role": "schema registry, declaration, options, and nested resolution specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "registry_declaration_layer",
+          "writable_paths": [
+            "src/marshmallow/class_registry.py",
+            "src/marshmallow/schema.py"
+          ]
+        },
+        {
+          "agent_id": "field_agent",
+          "primary_test_targets": [
+            "tests/test_fields.py",
+            "tests/test_validate.py",
+            "tests/test_serialization.py",
+            "tests/test_deserialization.py",
+            "tests/test_utils.py"
+          ],
+          "role": "field, validator, and utility conversion specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "field_validation_layer",
+          "writable_paths": [
+            "src/marshmallow/fields.py",
+            "src/marshmallow/validate.py",
+            "src/marshmallow/utils.py",
+            "src/marshmallow/base.py",
+            "src/marshmallow/warnings.py"
+          ]
+        },
+        {
+          "agent_id": "schema_agent",
+          "primary_test_targets": [
+            "tests/test_schema.py",
+            "tests/test_decorators.py",
+            "tests/test_error_store.py"
+          ],
+          "role": "schema load/dump, decorator hook, and error-store specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "schema_processing_layer",
+          "writable_paths": [
+            "src/marshmallow/schema.py",
+            "src/marshmallow/decorators.py",
+            "src/marshmallow/error_store.py"
+          ]
+        }
+      ],
+      "communication_condition": "structured_message_and_artifact",
+      "concurrent_execution": true,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "schema_processing_layer",
+          "dependency_type": "api_contract",
+          "description": "Schema load/dump behavior consumes field serialization/deserialization, validator, missing/default, and utility conversion contracts.",
+          "evidence_paths": [
+            "src/marshmallow/fields.py",
+            "src/marshmallow/validate.py",
+            "src/marshmallow/schema.py",
+            "tests/test_fields.py",
+            "tests/test_validate.py",
+            "tests/test_schema.py",
+            "tests/test_serialization.py",
+            "tests/test_deserialization.py"
+          ],
+          "producer_subproblem": "field_validation_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "field_validation_layer",
+          "dependency_type": "api_contract",
+          "description": "Nested fields consume schema class registration, declared-field collection, only/exclude propagation, and class-name resolution contracts.",
+          "evidence_paths": [
+            "src/marshmallow/class_registry.py",
+            "src/marshmallow/schema.py",
+            "src/marshmallow/fields.py",
+            "tests/test_registry.py",
+            "tests/test_fields.py",
+            "tests/test_schema.py"
+          ],
+          "producer_subproblem": "registry_declaration_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "field_validation_layer",
+          "dependency_type": "shared_state_contract",
+          "description": "Decorator metadata, schema hooks, and ErrorStore merging must agree with field/schema validation errors and nested load/dump processors.",
+          "evidence_paths": [
+            "src/marshmallow/decorators.py",
+            "src/marshmallow/error_store.py",
+            "src/marshmallow/schema.py",
+            "src/marshmallow/fields.py",
+            "tests/test_decorators.py",
+            "tests/test_error_store.py",
+            "tests/test_schema.py"
+          ],
+          "producer_subproblem": "schema_processing_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "async_message",
+      "information_profile": "private-workspace",
+      "integration_policy": "Integrate latest explicitly transferred artifacts and record stale field, registry, or decorator assumptions used by schema behavior.",
+      "message_delivery_policy": "Workers may transfer schema option, field binding, validator, nested-resolution, and hook metadata assumptions while active.",
+      "scenario_id": "commit0-marshmallow.async-message.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 34,
+      "task_id": "commit0:marshmallow",
+      "test_budget_per_agent": 12,
+      "token_budget_per_agent": 85000,
+      "wall_clock_budget_seconds": 3000
+    }
+  ],
+  "schema_version": "0.3",
+  "task_id": "commit0:marshmallow"
+}

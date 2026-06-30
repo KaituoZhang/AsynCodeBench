@@ -1,0 +1,118 @@
+{
+  "$defs": {
+    "OperationType": {
+      "enum": [
+        "inspect",
+        "search",
+        "read",
+        "edit",
+        "apply_patch",
+        "run_targeted_test",
+        "run_full_test",
+        "build",
+        "launch_experiment",
+        "inspect_experiment",
+        "request_status",
+        "request_artifact",
+        "send_message",
+        "transfer_artifact",
+        "synchronize_workspace",
+        "verify_artifact",
+        "review",
+        "integrate",
+        "reject",
+        "defer",
+        "wait",
+        "cancel_job",
+        "submit",
+        "terminate"
+      ],
+      "title": "OperationType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "allowed_actions": {
+      "items": {
+        "$ref": "#/$defs/OperationType"
+      },
+      "title": "Allowed Actions",
+      "type": "array"
+    },
+    "budget": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "integer"
+          }
+        ]
+      },
+      "title": "Budget",
+      "type": "object"
+    },
+    "decomposition_input": {
+      "title": "Decomposition Input",
+      "type": "string"
+    },
+    "future_information": {
+      "enum": [
+        "none",
+        "completion_times",
+        "outputs"
+      ],
+      "title": "Future Information",
+      "type": "string"
+    },
+    "hidden_state": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Hidden State",
+      "type": "array"
+    },
+    "model_and_tools": {
+      "additionalProperties": true,
+      "title": "Model And Tools",
+      "type": "object"
+    },
+    "policy_id": {
+      "minLength": 1,
+      "title": "Policy Id",
+      "type": "string"
+    },
+    "runtime_protection": {
+      "title": "Runtime Protection",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "asynccodebench-v0.2",
+      "default": "asynccodebench-v0.2",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "visible_state": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Visible State",
+      "type": "array"
+    }
+  },
+  "required": [
+    "policy_id",
+    "visible_state",
+    "hidden_state",
+    "allowed_actions",
+    "decomposition_input",
+    "future_information",
+    "model_and_tools",
+    "budget",
+    "runtime_protection"
+  ],
+  "title": "CapabilityCard",
+  "type": "object"
+}

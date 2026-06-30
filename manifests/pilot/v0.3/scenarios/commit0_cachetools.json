@@ -1,0 +1,328 @@
+{
+  "scenarios": [
+    {
+      "agent_count": 1,
+      "assignments": [
+        {
+          "agent_id": "integrator",
+          "primary_test_targets": [
+            "tests/test_keys.py",
+            "tests/test_func.py"
+          ],
+          "role": "iterative full-task coding agent",
+          "schema_version": "0.3",
+          "subproblem_id": "full_task",
+          "writable_paths": [
+            "src/cachetools/keys.py",
+            "src/cachetools/func.py"
+          ]
+        }
+      ],
+      "communication_condition": "not_applicable",
+      "competence_gate_required": true,
+      "concurrent_execution": false,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "decorator_factories",
+          "dependency_type": "api_contract",
+          "description": "Decorator factories compose cache classes and cached() from src/cachetools/__init__.py.",
+          "evidence_paths": [
+            "src/cachetools/__init__.py",
+            "src/cachetools/func.py",
+            "tests/test_func.py"
+          ],
+          "producer_subproblem": "core_cache_api",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "decorator_factories",
+          "dependency_type": "api_contract",
+          "description": "Decorator typed/untyped behavior depends on hashkey and typedkey semantics from src/cachetools/keys.py.",
+          "evidence_paths": [
+            "src/cachetools/keys.py",
+            "src/cachetools/func.py",
+            "tests/test_keys.py",
+            "tests/test_func.py"
+          ],
+          "producer_subproblem": "key_construction",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "integration_validation",
+          "dependency_type": "test_contract",
+          "description": "Integration tests require cache_parameters, cache_info, cache_clear, maxsize edge cases, locking, and cache-specific behavior.",
+          "evidence_paths": [
+            "src/cachetools/func.py",
+            "tests/test_func.py"
+          ],
+          "producer_subproblem": "decorator_factories",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "iterative_single",
+      "information_profile": "complete-task",
+      "integration_policy": "Agent submits its final workspace.",
+      "message_delivery_policy": "No inter-agent messages.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-cachetools.iterative-single.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "task_id": "commit0:cachetools",
+      "test_budget_per_agent": 8,
+      "token_budget_per_agent": 60000,
+      "wall_clock_budget_seconds": 1800
+    },
+    {
+      "agent_count": 2,
+      "assignments": [
+        {
+          "agent_id": "key_agent",
+          "primary_test_targets": [
+            "tests/test_keys.py"
+          ],
+          "role": "key construction specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "key_construction",
+          "writable_paths": [
+            "src/cachetools/keys.py"
+          ]
+        },
+        {
+          "agent_id": "decorator_agent",
+          "primary_test_targets": [
+            "tests/test_func.py"
+          ],
+          "role": "decorator factory specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "decorator_factories",
+          "writable_paths": [
+            "src/cachetools/func.py"
+          ]
+        }
+      ],
+      "communication_condition": "completed_artifact_handoff",
+      "competence_gate_required": true,
+      "concurrent_execution": false,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "decorator_factories",
+          "dependency_type": "api_contract",
+          "description": "Decorator factories compose cache classes and cached() from src/cachetools/__init__.py.",
+          "evidence_paths": [
+            "src/cachetools/__init__.py",
+            "src/cachetools/func.py",
+            "tests/test_func.py"
+          ],
+          "producer_subproblem": "core_cache_api",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "decorator_factories",
+          "dependency_type": "api_contract",
+          "description": "Decorator typed/untyped behavior depends on hashkey and typedkey semantics from src/cachetools/keys.py.",
+          "evidence_paths": [
+            "src/cachetools/keys.py",
+            "src/cachetools/func.py",
+            "tests/test_keys.py",
+            "tests/test_func.py"
+          ],
+          "producer_subproblem": "key_construction",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "integration_validation",
+          "dependency_type": "test_contract",
+          "description": "Integration tests require cache_parameters, cache_info, cache_clear, maxsize edge cases, locking, and cache-specific behavior.",
+          "evidence_paths": [
+            "src/cachetools/func.py",
+            "tests/test_func.py"
+          ],
+          "producer_subproblem": "decorator_factories",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "serial_specialists",
+      "information_profile": "private-workspace",
+      "integration_policy": "Apply the key artifact before starting the decorator agent; then evaluate the combined workspace.",
+      "message_delivery_policy": "The decorator agent starts after receiving the completed key artifact and its targeted test result.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-cachetools.serial-specialists.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "task_id": "commit0:cachetools",
+      "test_budget_per_agent": 8,
+      "token_budget_per_agent": 60000,
+      "wall_clock_budget_seconds": 1800
+    },
+    {
+      "agent_count": 2,
+      "assignments": [
+        {
+          "agent_id": "key_agent",
+          "primary_test_targets": [
+            "tests/test_keys.py"
+          ],
+          "role": "key construction specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "key_construction",
+          "writable_paths": [
+            "src/cachetools/keys.py"
+          ]
+        },
+        {
+          "agent_id": "decorator_agent",
+          "primary_test_targets": [
+            "tests/test_func.py"
+          ],
+          "role": "decorator factory specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "decorator_factories",
+          "writable_paths": [
+            "src/cachetools/func.py"
+          ]
+        }
+      ],
+      "communication_condition": "none_in_flight",
+      "competence_gate_required": true,
+      "concurrent_execution": true,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "decorator_factories",
+          "dependency_type": "api_contract",
+          "description": "Decorator factories compose cache classes and cached() from src/cachetools/__init__.py.",
+          "evidence_paths": [
+            "src/cachetools/__init__.py",
+            "src/cachetools/func.py",
+            "tests/test_func.py"
+          ],
+          "producer_subproblem": "core_cache_api",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "decorator_factories",
+          "dependency_type": "api_contract",
+          "description": "Decorator typed/untyped behavior depends on hashkey and typedkey semantics from src/cachetools/keys.py.",
+          "evidence_paths": [
+            "src/cachetools/keys.py",
+            "src/cachetools/func.py",
+            "tests/test_keys.py",
+            "tests/test_func.py"
+          ],
+          "producer_subproblem": "key_construction",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "integration_validation",
+          "dependency_type": "test_contract",
+          "description": "Integration tests require cache_parameters, cache_info, cache_clear, maxsize edge cases, locking, and cache-specific behavior.",
+          "evidence_paths": [
+            "src/cachetools/func.py",
+            "tests/test_func.py"
+          ],
+          "producer_subproblem": "decorator_factories",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "async_private",
+      "information_profile": "private-workspace",
+      "integration_policy": "Run workers concurrently in private workspaces and integrate their final artifacts after both finish.",
+      "message_delivery_policy": "No in-flight worker messages or artifacts are delivered.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-cachetools.async-private.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "task_id": "commit0:cachetools",
+      "test_budget_per_agent": 8,
+      "token_budget_per_agent": 60000,
+      "wall_clock_budget_seconds": 1800
+    },
+    {
+      "agent_count": 2,
+      "assignments": [
+        {
+          "agent_id": "key_agent",
+          "primary_test_targets": [
+            "tests/test_keys.py"
+          ],
+          "role": "key construction specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "key_construction",
+          "writable_paths": [
+            "src/cachetools/keys.py"
+          ]
+        },
+        {
+          "agent_id": "decorator_agent",
+          "primary_test_targets": [
+            "tests/test_func.py"
+          ],
+          "role": "decorator factory specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "decorator_factories",
+          "writable_paths": [
+            "src/cachetools/func.py"
+          ]
+        }
+      ],
+      "communication_condition": "structured_message_and_artifact",
+      "competence_gate_required": true,
+      "concurrent_execution": true,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "decorator_factories",
+          "dependency_type": "api_contract",
+          "description": "Decorator factories compose cache classes and cached() from src/cachetools/__init__.py.",
+          "evidence_paths": [
+            "src/cachetools/__init__.py",
+            "src/cachetools/func.py",
+            "tests/test_func.py"
+          ],
+          "producer_subproblem": "core_cache_api",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "decorator_factories",
+          "dependency_type": "api_contract",
+          "description": "Decorator typed/untyped behavior depends on hashkey and typedkey semantics from src/cachetools/keys.py.",
+          "evidence_paths": [
+            "src/cachetools/keys.py",
+            "src/cachetools/func.py",
+            "tests/test_keys.py",
+            "tests/test_func.py"
+          ],
+          "producer_subproblem": "key_construction",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "integration_validation",
+          "dependency_type": "test_contract",
+          "description": "Integration tests require cache_parameters, cache_info, cache_clear, maxsize edge cases, locking, and cache-specific behavior.",
+          "evidence_paths": [
+            "src/cachetools/func.py",
+            "tests/test_func.py"
+          ],
+          "producer_subproblem": "decorator_factories",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "async_message",
+      "information_profile": "private-workspace",
+      "integration_policy": "Integrate the latest explicitly transferred artifacts and record whether delivered information changed later actions.",
+      "message_delivery_policy": "Workers may send API assumptions, status, targeted test results, and explicit patch/artifact transfers while active.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-cachetools.async-message.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "task_id": "commit0:cachetools",
+      "test_budget_per_agent": 8,
+      "token_budget_per_agent": 60000,
+      "wall_clock_budget_seconds": 1800
+    }
+  ],
+  "schema_version": "0.3",
+  "task_id": "commit0:cachetools"
+}

@@ -1,0 +1,139 @@
+{
+  "aggregate_metrics": {
+    "ADPR_denominator": "All dependency_points unless a paper section explicitly reports primary_async_dependency_ids only.",
+    "dependency_point_count": 2,
+    "minimum_success_condition_for_task_level_async_dependency_resolution": "Both primary_async_dependency_ids pass in the final integrated workspace.",
+    "primary_async_dependency_ids": [
+      "parsel.css_to_selector.pseudo_element_contract",
+      "parsel.xpath_utils_to_selector.regex_has_class_contract"
+    ],
+    "primary_paper_dependency_id": "parsel.css_to_selector.pseudo_element_contract"
+  },
+  "annotation_notes": [
+    "The CSS-to-selector dependency is the primary signal because Selector.css can be implemented against stale translator pseudo-element semantics even when patches merge cleanly.",
+    "The utility/XPath dependency captures stale assumptions around shared flattening, regex extraction, repr shortening, and has-class registration.",
+    "These labels identify public test-observable contracts and implicated files, not solution code."
+  ],
+  "dependency_points": [
+    {
+      "consumer_agent": "selector_agent",
+      "consumer_files": [
+        "parsel/selector.py"
+      ],
+      "consumer_subproblem": "selector_query_core",
+      "contract_summary": "CSS translator output for ::text, ::attr(), unknown pseudo-elements, and css2xpath must be consumed correctly by Selector.css().",
+      "dependency_id": "parsel.css_to_selector.pseudo_element_contract",
+      "dependency_type": "interface_dependency",
+      "downstream_probe_tests": [
+        "tests/test_selector_csstranslator.py::CSSSelectorTest::test_text_pseudo_element",
+        "tests/test_selector.py::SelectorTestCase::test_select_on_text_nodes"
+      ],
+      "integrated_probe_tests": [
+        "tests/test_selector_csstranslator.py::TranslatorTestMixin::test_text_pseudo_element",
+        "tests/test_selector_csstranslator.py::CSSSelectorTest::test_text_pseudo_element",
+        "tests/test_selector.py::SelectorTestCase::test_select_on_text_nodes"
+      ],
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL",
+        "SAD"
+      ],
+      "primary_paper_probe": true,
+      "producer_agent": "css_agent",
+      "producer_files": [
+        "parsel/csstranslator.py"
+      ],
+      "producer_subproblem": "css_translation_layer",
+      "resolution_criteria": "Resolved when translator pseudo-element probes and Selector.css consumer probes pass in the integrated workspace.",
+      "stale_failure_mode": "The selector agent may implement CSS query execution against stale pseudo-element output assumptions, causing late failures in selector CSS tests.",
+      "upstream_probe_tests": [
+        "tests/test_selector_csstranslator.py::TranslatorTestMixin::test_text_pseudo_element",
+        "tests/test_selector_csstranslator.py::TranslatorTestMixin::test_attr_function",
+        "tests/test_selector_csstranslator.py::UtilCss2XPathTest::test_css2xpath"
+      ]
+    },
+    {
+      "consumer_agent": "selector_agent",
+      "consumer_files": [
+        "parsel/selector.py",
+        "parsel/__init__.py"
+      ],
+      "consumer_subproblem": "selector_query_core",
+      "contract_summary": "Utility flatten/extract_regex/shorten behavior and XPath has-class registration must support selector regex extraction, repr, and XPath queries.",
+      "dependency_id": "parsel.xpath_utils_to_selector.regex_has_class_contract",
+      "dependency_type": "shared_api_contract",
+      "downstream_probe_tests": [
+        "tests/test_selector.py::ExsltTestCase::test_regexp",
+        "tests/test_selector_csstranslator.py::CSSSelectorTest::test_pseudoclass_has"
+      ],
+      "integrated_probe_tests": [
+        "tests/test_utils.py::test_extract_regex",
+        "tests/test_xpathfuncs.py::XPathFuncsTestCase::test_has_class_simple",
+        "tests/test_selector.py::ExsltTestCase::test_regexp",
+        "tests/test_selector_csstranslator.py::CSSSelectorTest::test_pseudoclass_has"
+      ],
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL",
+        "SAD"
+      ],
+      "producer_agent": "utility_xpath_agent",
+      "producer_files": [
+        "parsel/utils.py",
+        "parsel/xpathfuncs.py"
+      ],
+      "producer_subproblem": "utility_xpath_support",
+      "resolution_criteria": "Resolved when utility/XPath probes and selector regex/has-class consumer probes pass after integration.",
+      "stale_failure_mode": "The selector agent may implement query chaining or regex extraction around stale utility or XPath-function contracts, with failures surfacing only after integration.",
+      "upstream_probe_tests": [
+        "tests/test_utils.py::test_extract_regex",
+        "tests/test_utils.py::test_shorten",
+        "tests/test_xpathfuncs.py::XPathFuncsTestCase::test_has_class_simple"
+      ]
+    }
+  ],
+  "evaluation_checkpoint_policy": {
+    "checkpoint_record_fields": [
+      "run_id",
+      "scenario_id",
+      "checkpoint_id",
+      "logical_iteration",
+      "agent_id",
+      "visible_upstream_artifact_version",
+      "integrated_workspace_version",
+      "probe_test_results"
+    ],
+    "minimum_policy": "Run probe tests after each agent final artifact and after final integration.",
+    "recommended_policy": "Run probe tests after every committed patch, every explicit artifact transfer, and final integration."
+  },
+  "metric_annotation_id": "commit0-parsel.async-metrics.v0.3",
+  "metric_definitions": {
+    "ADPR": {
+      "definition": "Fraction of registered dependency_points whose required integrated_probe_tests pass in the final integrated workspace.",
+      "name": "Async Dependency Pass Rate",
+      "unit": "fraction"
+    },
+    "CAIL": {
+      "definition": "downstream_resolution_step minus upstream_resolution_step when both probe groups have been evaluated.",
+      "name": "Cross-Agent Integration Lag",
+      "unit": "agent iteration or evaluation checkpoint"
+    },
+    "DRS": {
+      "definition": "First recorded checkpoint at which all required integrated_probe_tests for a dependency point pass.",
+      "name": "Dependency Resolution Step",
+      "unit": "agent iteration or evaluation checkpoint"
+    },
+    "SAD": {
+      "definition": "Interval during which a downstream worker acts on a contract assumption inconsistent with the latest upstream artifact visible in the integrated history.",
+      "name": "Stale Assumption Duration",
+      "unit": "agent iteration or event interval"
+    }
+  },
+  "purpose": "Dependency-level labels for measuring whether asynchronous multi-agent coding resolves Parsel's utility/CSS-to-selector contracts promptly.",
+  "schema_version": "0.3-async-metrics",
+  "source_quality_record": "manifests/pilot/v0.3/quality/commit0_parsel.json",
+  "source_task_record": "manifests/pilot/v0.3/tasks/commit0_parsel.json",
+  "task_id": "commit0:parsel"
+}

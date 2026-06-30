@@ -1,0 +1,17 @@
+diff --git a/graphene/types/enum.py b/graphene/types/enum.py
+index 4d018e4..21fe9e0 100644
+--- a/graphene/types/enum.py
++++ b/graphene/types/enum.py
+@@ -4,6 +4,12 @@ from .base import BaseOptions, BaseType
+ from .unmountedtype import UnmountedType
+ EnumType = type(PyEnum)
+ 
++def eq_enum(self, other):
++    pass
++
++def hash_enum(self):
++    pass
++
+ class EnumOptions(BaseOptions):
+     enum = None
+     deprecation_reason = None

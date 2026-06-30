@@ -1,0 +1,391 @@
+{
+  "scenarios": [
+    {
+      "agent_count": 1,
+      "assignments": [
+        {
+          "agent_id": "integrator",
+          "primary_test_targets": [
+            "-q",
+            "tests/test_object_store.py",
+            "tests/test_pack.py",
+            "tests/test_refs.py",
+            "tests/test_config.py",
+            "tests/test_objectspec.py",
+            "tests/test_objects.py",
+            "tests/test_diff_tree.py",
+            "tests/test_walk.py"
+          ],
+          "role": "iterative full-task coding agent",
+          "schema_version": "0.3",
+          "subproblem_id": "full_task",
+          "writable_paths": [
+            "dulwich/config.py",
+            "dulwich/repo.py",
+            "dulwich/refs.py",
+            "dulwich/pack.py",
+            "dulwich/object_store.py",
+            "dulwich/objects.py",
+            "dulwich/objectspec.py",
+            "dulwich/diff_tree.py",
+            "dulwich/walk.py"
+          ]
+        }
+      ],
+      "communication_condition": "not_applicable",
+      "competence_gate_required": true,
+      "concurrent_execution": false,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "repo_refs_integration",
+          "dependency_type": "api_contract",
+          "description": "Repo.init() and DiskRefsContainer symbolic-ref behavior consume StackedConfig.default_backends(). If the config layer raises on an inaccessible global config path, refs tests fail before ref semantics can be validated.",
+          "evidence_paths": [
+            "dulwich/config.py",
+            "dulwich/repo.py",
+            "dulwich/refs.py",
+            "tests/test_config.py",
+            "tests/test_refs.py"
+          ],
+          "producer_subproblem": "config_defaults",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "object_store_layer",
+          "dependency_type": "integration",
+          "description": "Object-store add/read behavior depends on the pack layer's object iteration, checksums, and raw object lookup contract.",
+          "evidence_paths": [
+            "dulwich/pack.py",
+            "dulwich/object_store.py",
+            "dulwich/objects.py",
+            "tests/test_pack.py",
+            "tests/test_object_store.py"
+          ],
+          "producer_subproblem": "pack_format_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "iterative_single",
+      "information_profile": "complete-task",
+      "integration_policy": "Agent submits its final workspace.",
+      "message_delivery_policy": "No inter-agent messages.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-dulwich.iterative-single.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 28,
+      "task_id": "commit0:dulwich",
+      "test_budget_per_agent": 10,
+      "token_budget_per_agent": 70000,
+      "wall_clock_budget_seconds": 2400
+    },
+    {
+      "agent_count": 4,
+      "assignments": [
+        {
+          "agent_id": "config_agent",
+          "primary_test_targets": [
+            "tests/test_config.py"
+          ],
+          "role": "default config backend specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "config_defaults",
+          "writable_paths": [
+            "dulwich/config.py"
+          ]
+        },
+        {
+          "agent_id": "repo_refs_agent",
+          "primary_test_targets": [
+            "tests/test_refs.py"
+          ],
+          "role": "repository and refs integration specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "repo_refs_integration",
+          "writable_paths": [
+            "dulwich/repo.py",
+            "dulwich/refs.py"
+          ]
+        },
+        {
+          "agent_id": "pack_agent",
+          "primary_test_targets": [
+            "tests/test_pack.py",
+            "tests/test_objects.py"
+          ],
+          "role": "pack-format and Git object specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "pack_format_layer",
+          "writable_paths": [
+            "dulwich/pack.py",
+            "dulwich/objects.py"
+          ]
+        },
+        {
+          "agent_id": "object_store_agent",
+          "primary_test_targets": [
+            "tests/test_object_store.py"
+          ],
+          "role": "object-store integration specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "object_store_layer",
+          "writable_paths": [
+            "dulwich/object_store.py"
+          ]
+        }
+      ],
+      "communication_condition": "completed_artifact_handoff",
+      "competence_gate_required": true,
+      "concurrent_execution": false,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "repo_refs_integration",
+          "dependency_type": "api_contract",
+          "description": "Repo.init() and DiskRefsContainer symbolic-ref behavior consume StackedConfig.default_backends(). If the config layer raises on an inaccessible global config path, refs tests fail before ref semantics can be validated.",
+          "evidence_paths": [
+            "dulwich/config.py",
+            "dulwich/repo.py",
+            "dulwich/refs.py",
+            "tests/test_config.py",
+            "tests/test_refs.py"
+          ],
+          "producer_subproblem": "config_defaults",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "object_store_layer",
+          "dependency_type": "integration",
+          "description": "Object-store add/read behavior depends on the pack layer's object iteration, checksums, and raw object lookup contract.",
+          "evidence_paths": [
+            "dulwich/pack.py",
+            "dulwich/object_store.py",
+            "dulwich/objects.py",
+            "tests/test_pack.py",
+            "tests/test_object_store.py"
+          ],
+          "producer_subproblem": "pack_format_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "serial_specialists",
+      "information_profile": "private-workspace",
+      "integration_policy": "Apply config and pack artifacts before dependent repo/refs and object-store integration, then run the evaluator subset.",
+      "message_delivery_policy": "Specialists run with barrier synchronization. Each worker receives the completed earlier artifacts and targeted test results before starting dependent work.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-dulwich.serial-specialists.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 28,
+      "task_id": "commit0:dulwich",
+      "test_budget_per_agent": 10,
+      "token_budget_per_agent": 70000,
+      "wall_clock_budget_seconds": 2400
+    },
+    {
+      "agent_count": 4,
+      "assignments": [
+        {
+          "agent_id": "config_agent",
+          "primary_test_targets": [
+            "tests/test_config.py"
+          ],
+          "role": "default config backend specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "config_defaults",
+          "writable_paths": [
+            "dulwich/config.py"
+          ]
+        },
+        {
+          "agent_id": "repo_refs_agent",
+          "primary_test_targets": [
+            "tests/test_refs.py"
+          ],
+          "role": "repository and refs integration specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "repo_refs_integration",
+          "writable_paths": [
+            "dulwich/repo.py",
+            "dulwich/refs.py"
+          ]
+        },
+        {
+          "agent_id": "pack_agent",
+          "primary_test_targets": [
+            "tests/test_pack.py",
+            "tests/test_objects.py"
+          ],
+          "role": "pack-format and Git object specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "pack_format_layer",
+          "writable_paths": [
+            "dulwich/pack.py",
+            "dulwich/objects.py"
+          ]
+        },
+        {
+          "agent_id": "object_store_agent",
+          "primary_test_targets": [
+            "tests/test_object_store.py"
+          ],
+          "role": "object-store integration specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "object_store_layer",
+          "writable_paths": [
+            "dulwich/object_store.py"
+          ]
+        }
+      ],
+      "communication_condition": "none_in_flight",
+      "competence_gate_required": true,
+      "concurrent_execution": true,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "repo_refs_integration",
+          "dependency_type": "api_contract",
+          "description": "Repo.init() and DiskRefsContainer symbolic-ref behavior consume StackedConfig.default_backends(). If the config layer raises on an inaccessible global config path, refs tests fail before ref semantics can be validated.",
+          "evidence_paths": [
+            "dulwich/config.py",
+            "dulwich/repo.py",
+            "dulwich/refs.py",
+            "tests/test_config.py",
+            "tests/test_refs.py"
+          ],
+          "producer_subproblem": "config_defaults",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "object_store_layer",
+          "dependency_type": "integration",
+          "description": "Object-store add/read behavior depends on the pack layer's object iteration, checksums, and raw object lookup contract.",
+          "evidence_paths": [
+            "dulwich/pack.py",
+            "dulwich/object_store.py",
+            "dulwich/objects.py",
+            "tests/test_pack.py",
+            "tests/test_object_store.py"
+          ],
+          "producer_subproblem": "pack_format_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "async_private",
+      "information_profile": "private-workspace",
+      "integration_policy": "Run specialists concurrently in private workspaces and integrate final artifacts after all workers finish.",
+      "message_delivery_policy": "No in-flight worker messages or artifacts are delivered.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-dulwich.async-private.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 28,
+      "task_id": "commit0:dulwich",
+      "test_budget_per_agent": 10,
+      "token_budget_per_agent": 70000,
+      "wall_clock_budget_seconds": 2400
+    },
+    {
+      "agent_count": 4,
+      "assignments": [
+        {
+          "agent_id": "config_agent",
+          "primary_test_targets": [
+            "tests/test_config.py"
+          ],
+          "role": "default config backend specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "config_defaults",
+          "writable_paths": [
+            "dulwich/config.py"
+          ]
+        },
+        {
+          "agent_id": "repo_refs_agent",
+          "primary_test_targets": [
+            "tests/test_refs.py"
+          ],
+          "role": "repository and refs integration specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "repo_refs_integration",
+          "writable_paths": [
+            "dulwich/repo.py",
+            "dulwich/refs.py"
+          ]
+        },
+        {
+          "agent_id": "pack_agent",
+          "primary_test_targets": [
+            "tests/test_pack.py",
+            "tests/test_objects.py"
+          ],
+          "role": "pack-format and Git object specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "pack_format_layer",
+          "writable_paths": [
+            "dulwich/pack.py",
+            "dulwich/objects.py"
+          ]
+        },
+        {
+          "agent_id": "object_store_agent",
+          "primary_test_targets": [
+            "tests/test_object_store.py"
+          ],
+          "role": "object-store integration specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "object_store_layer",
+          "writable_paths": [
+            "dulwich/object_store.py"
+          ]
+        }
+      ],
+      "communication_condition": "structured_message_and_artifact",
+      "competence_gate_required": true,
+      "concurrent_execution": true,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "repo_refs_integration",
+          "dependency_type": "api_contract",
+          "description": "Repo.init() and DiskRefsContainer symbolic-ref behavior consume StackedConfig.default_backends(). If the config layer raises on an inaccessible global config path, refs tests fail before ref semantics can be validated.",
+          "evidence_paths": [
+            "dulwich/config.py",
+            "dulwich/repo.py",
+            "dulwich/refs.py",
+            "tests/test_config.py",
+            "tests/test_refs.py"
+          ],
+          "producer_subproblem": "config_defaults",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "object_store_layer",
+          "dependency_type": "integration",
+          "description": "Object-store add/read behavior depends on the pack layer's object iteration, checksums, and raw object lookup contract.",
+          "evidence_paths": [
+            "dulwich/pack.py",
+            "dulwich/object_store.py",
+            "dulwich/objects.py",
+            "tests/test_pack.py",
+            "tests/test_object_store.py"
+          ],
+          "producer_subproblem": "pack_format_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "async_message",
+      "information_profile": "private-workspace",
+      "integration_policy": "Integrate latest explicitly transferred artifacts and record stale config or pack/object-store assumptions.",
+      "message_delivery_policy": "Workers may transfer config exception semantics, symbolic ref assumptions, pack/object-store contracts, targeted test results, and explicit artifacts while active.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-dulwich.async-message.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 28,
+      "task_id": "commit0:dulwich",
+      "test_budget_per_agent": 10,
+      "token_budget_per_agent": 70000,
+      "wall_clock_budget_seconds": 2400
+    }
+  ],
+  "schema_version": "0.3",
+  "task_id": "commit0:dulwich"
+}

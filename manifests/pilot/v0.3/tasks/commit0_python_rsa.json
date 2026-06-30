@@ -1,0 +1,136 @@
+{
+  "annotation_provenance": [],
+  "candidate_evidence_file": "manifests/candidates/commit0_async_screening_v0.3.json",
+  "dependency_annotations": [
+    {
+      "consumer_subproblem": "key_generation_and_model",
+      "dependency_type": "api_contract",
+      "description": "Key generation and PrivateKey/PublicKey helpers consume common arithmetic, modular inverse, primality, random-prime, and integer-size contracts. Stale assumptions about inverse or byte-size behavior cause key exponent, coefficient, and blinding failures.",
+      "evidence_paths": [
+        "rsa/common.py",
+        "rsa/prime.py",
+        "rsa/randnum.py",
+        "rsa/transform.py",
+        "rsa/key.py",
+        "tests/test_common.py",
+        "tests/test_prime.py",
+        "tests/test_transform.py",
+        "tests/test_key.py"
+      ],
+      "producer_subproblem": "arithmetic_and_codec_core",
+      "schema_version": "0.3"
+    },
+    {
+      "consumer_subproblem": "serialization_contracts",
+      "dependency_type": "integration",
+      "description": "DER/PEM load-save behavior depends on the key model's field layout, CRT exponent/coefficient recalculation, equality semantics, and pyasn1 DER conversion contract.",
+      "evidence_paths": [
+        "rsa/key.py",
+        "rsa/asn1.py",
+        "rsa/pem.py",
+        "tests/test_load_save_keys.py",
+        "tests/test_pem.py"
+      ],
+      "producer_subproblem": "key_generation_and_model",
+      "schema_version": "0.3"
+    },
+    {
+      "consumer_subproblem": "pkcs1_crypto_api",
+      "dependency_type": "api_contract",
+      "description": "PKCS#1 encryption, decryption, signing, verification, and padding validation consume integer/byte codecs, byte-size calculation, key generation, and key serialization behavior.",
+      "evidence_paths": [
+        "rsa/common.py",
+        "rsa/core.py",
+        "rsa/transform.py",
+        "rsa/key.py",
+        "rsa/pkcs1.py",
+        "tests/test_pkcs1.py",
+        "tests/test_strings.py"
+      ],
+      "producer_subproblem": "arithmetic_and_codec_core",
+      "schema_version": "0.3"
+    }
+  ],
+  "evaluator_command": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "tests/test_common.py",
+    "tests/test_key.py",
+    "tests/test_load_save_keys.py",
+    "tests/test_pem.py",
+    "tests/test_pkcs1.py",
+    "tests/test_prime.py",
+    "tests/test_transform.py",
+    "tests/test_strings.py"
+  ],
+  "inclusion_decision": null,
+  "natural_subproblems": {
+    "arithmetic_and_codec_core": [
+      "rsa/common.py",
+      "rsa/prime.py",
+      "rsa/randnum.py",
+      "rsa/transform.py",
+      "rsa/core.py",
+      "tests/test_common.py",
+      "tests/test_prime.py",
+      "tests/test_transform.py"
+    ],
+    "key_generation_and_model": [
+      "rsa/key.py",
+      "tests/test_key.py"
+    ],
+    "pkcs1_crypto_api": [
+      "rsa/pkcs1.py",
+      "tests/test_pkcs1.py",
+      "tests/test_strings.py"
+    ],
+    "serialization_contracts": [
+      "rsa/asn1.py",
+      "rsa/pem.py",
+      "tests/test_load_save_keys.py",
+      "tests/test_pem.py"
+    ]
+  },
+  "notes": [
+    "Task source, tests, and stripped Commit0-style implementation are unchanged.",
+    "The local main/commit0 branch is complete; benchmark workspaces must be materialized from origin/commit0_combined.",
+    "The evaluator subset focuses on the core library dependency chain and excludes CLI, parallel, mypy, and pkcs1_v2 tests.",
+    "The proposed label is a draft curation decision and not a final independent annotation."
+  ],
+  "problem_statement": "Restore the core python-rsa behavior exercised by the public Commit0 tests\nwithout modifying the tests.\n\nThe arithmetic layer must implement integer sizing, modular inverses,\nprimality checks, and integer/byte codecs. The key layer must consume those\ncontracts to generate keys, calculate CRT exponents and blinding factors, and\nload/save DER and PEM keys. The PKCS#1 layer must build on the key and codec\ncontracts to implement encryption/decryption and signing/verification.\n\nBenchmark evaluation uses the public core-library tests for common arithmetic,\nkey generation, load/save, PEM, PKCS#1, primality, transforms, and string\nround-trips. Peripheral CLI, parallel execution, mypy, and secondary PKCS#1 v2\ntests are excluded from this v0.3 evaluator subset.",
+  "proposed_parallelizability_label": "partially_parallelizable",
+  "publicly_implicated_modules": [
+    "rsa/common.py",
+    "rsa/prime.py",
+    "rsa/randnum.py",
+    "rsa/transform.py",
+    "rsa/core.py",
+    "rsa/key.py",
+    "rsa/asn1.py",
+    "rsa/pem.py",
+    "rsa/pkcs1.py"
+  ],
+  "qualification_label": null,
+  "qualification_status": "pending_independent_annotation",
+  "quality_evidence_file": "manifests/pilot/v0.3/quality/commit0_python_rsa.json",
+  "repository": "commit0/python-rsa",
+  "schema_version": "0.3",
+  "source_materialization": "git archive of the stripped Commit0-style python-rsa ref origin/commit0_combined at 228b947d61f06612107205ab369a017ff63f9a8f",
+  "task_id": "commit0:python-rsa",
+  "task_source": "Commit0",
+  "test_targets": [
+    "tests/test_common.py",
+    "tests/test_key.py",
+    "tests/test_load_save_keys.py",
+    "tests/test_pem.py",
+    "tests/test_pkcs1.py",
+    "tests/test_prime.py",
+    "tests/test_transform.py",
+    "tests/test_strings.py"
+  ],
+  "upstream_version": "228b947d61f06612107205ab369a017ff63f9a8f"
+}

@@ -1,0 +1,43 @@
+{
+  "protocol_version": "qualification-v0.2",
+  "required_annotators_per_task": 2,
+  "require_distinct_annotators": true,
+  "require_independent_adjudicator": true,
+  "adjudicate_label_disagreement": true,
+  "adjudicate_inclusion_disagreement": true,
+  "adjudicate_exclusion_reason_disagreement": true,
+  "report_pre_adjudication_agreement": true,
+  "primary_evidence_fields": [
+    "publicly_implicated_modules",
+    "public_module_count",
+    "static_dependency_edges",
+    "dependency_separability",
+    "test_targets",
+    "test_target_independence",
+    "measured_test_and_build_duration",
+    "measurement_command",
+    "measurement_return_code",
+    "measurement_timed_out",
+    "measurement_environment",
+    "candidate_parallel_subproblems",
+    "cross_module_constraints",
+    "expected_overlap_surface",
+    "expected_shared_resource_contention",
+    "public_evidence_sources"
+  ],
+  "gold_fields_are_secondary_only": true,
+  "manifest_formats": [
+    "json",
+    "csv"
+  ],
+  "allowed_task_sources": [
+    "Commit0",
+    "SWE-bench",
+    "PaperBench Code-Dev"
+  ],
+  "required_release_task_classes": [
+    "parallelizable",
+    "partially_parallelizable",
+    "effectively_serial"
+  ]
+}

@@ -1,0 +1,61 @@
+diff --git a/src/marshmallow/utils.py b/src/marshmallow/utils.py
+index 1c20aa5..03aecee 100644
+--- a/src/marshmallow/utils.py
++++ b/src/marshmallow/utils.py
+@@ -66,6 +66,9 @@ def pprint(obj, *args, **kwargs) -> None:
+     """
+     pass
+ 
++def is_aware(datetime: dt.datetime) -> bool:
++    pass
++
+ def from_rfc(datestring: str) -> dt.datetime:
+     """Parse a RFC822-formatted datetime string and return a datetime object.
+ 
+@@ -106,6 +109,18 @@ def from_iso_date(value):
+     """Parse a string and return a datetime.date."""
+     pass
+ 
++def from_timestamp(value: typing.Any) -> dt.datetime:
++    pass
++
++def from_timestamp_ms(value: typing.Any) -> dt.datetime:
++    pass
++
++def timestamp(value: dt.datetime) -> float:
++    pass
++
++def timestamp_ms(value: dt.datetime) -> float:
++    pass
++
+ def isoformat(datetime: dt.datetime) -> str:
+     """Return the ISO8601-formatted representation of a datetime object.
+ 
+@@ -113,6 +128,15 @@ def isoformat(datetime: dt.datetime) -> str:
+     """
+     pass
+ 
++def to_iso_time(time: dt.time) -> str:
++    pass
++
++def to_iso_date(date: dt.date) -> str:
++    pass
++
++def ensure_text_type(val: str | bytes) -> str:
++    pass
++
+ def pluck(dictlist: list[dict[str, typing.Any]], key: str):
+     """Extracts a list of dictionary values from a list of dictionaries.
+     ::
+@@ -174,4 +198,9 @@ def timedelta_to_microseconds(value: dt.timedelta) -> int:
+ 
+     https://github.com/python/cpython/blob/bb3e0c240bc60fe08d332ff5955d54197f79751c/Lib/datetime.py#L665-L667  # noqa: B950
+     """
+-    pass
+\ No newline at end of file
++    pass
++
++def validate_unknown_parameter_value(obj: typing.Any) -> str:
++    if obj not in _UNKNOWN_VALUES:
++        raise ValueError(f"Object {obj!r} is not a valid value for the 'unknown' parameter")
++    return obj

@@ -1,0 +1,15 @@
+diff --git a/src/flask/helpers.py b/src/flask/helpers.py
+index 4019fac..914516f 100644
+--- a/src/flask/helpers.py
++++ b/src/flask/helpers.py
+@@ -398,6 +398,10 @@ def send_from_directory(directory: os.PathLike[str] | str, path: os.PathLike[str
+     """
+     pass
+ 
++@lru_cache(maxsize=None)
++def _split_blueprint_path(name: str) -> list[str]:
++    return [name]
++
+ def get_root_path(import_name: str) -> str:
+     """Find the root path of a package, or the path that contains a
+     module. If it cannot be found, returns the current working

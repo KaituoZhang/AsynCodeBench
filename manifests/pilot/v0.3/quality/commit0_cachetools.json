@@ -1,0 +1,195 @@
+{
+  "coordination_structure_tags": [
+    "interface_dependency"
+  ],
+  "environment_requirements": [
+    "Python 3.10.4",
+    "pytest==9.0.3",
+    "setuptools==82.0.1"
+  ],
+  "evaluation_snapshots": [
+    {
+      "collected": 215,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "-o",
+        "addopts=",
+        "tests"
+      ],
+      "dependency_versions": {
+        "pytest": "9.0.3",
+        "setuptools": "82.0.1"
+      },
+      "duration_seconds": 0.65,
+      "errors": 0,
+      "evidence_scope": "public_initial_state",
+      "failed": 62,
+      "notes": [
+        "Test collection completed successfully.",
+        "The 62 failures are attributable to unfinished keys.py and func.py implementations.",
+        "The 127 passing cache-class controls and other initial passes must not be counted as agent progress."
+      ],
+      "passed": 153,
+      "python_version": "3.10.4",
+      "return_code": 1,
+      "schema_version": "0.3",
+      "skipped": 0,
+      "snapshot_id": "commit0_initial",
+      "source_ref": "commit0:a0a7e2b73f9e146b8a8f2912948b17a918e5fe83"
+    },
+    {
+      "collected": 215,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "-o",
+        "addopts=",
+        "tests"
+      ],
+      "dependency_versions": {
+        "pytest": "9.0.3",
+        "setuptools": "82.0.1"
+      },
+      "duration_seconds": 0.32,
+      "errors": 0,
+      "evidence_scope": "evaluator_sanity_only",
+      "failed": 0,
+      "notes": [
+        "Used only to verify that the unchanged public tests and environment admit a fully passing implementation.",
+        "This snapshot must not define decomposition, labels, prompts, or agent-visible evidence."
+      ],
+      "passed": 215,
+      "python_version": "3.10.4",
+      "return_code": 0,
+      "schema_version": "0.3",
+      "skipped": 0,
+      "snapshot_id": "completed_evaluator_sanity",
+      "source_ref": "public-tag:v5.5.0"
+    }
+  ],
+  "known_limitations": [
+    "Decorator-factory tests require a working key artifact; there is no meaningful upstream test slice that isolates func.py from key_construction.",
+    "Async-private degradation may include unavailable upstream key behavior as well as stale assumptions; cross-contract failure alone does not prove freshness harm.",
+    "The task is small and fast, so asynchronous wall-clock overlap must come from model/tool execution rather than pytest duration."
+  ],
+  "public_statement_sources": [
+    "spec.pdf.bz2@commit0",
+    "src/cachetools/keys.py docstrings@commit0",
+    "src/cachetools/func.py docstrings@commit0",
+    "tests/*.py@commit0"
+  ],
+  "quality_status": "qualification_ready",
+  "remaining_gates": [
+    "two independent human annotations and adjudication if needed",
+    "recorded environment requirements and evaluator command",
+    "single-agent baseline result pending evaluation",
+    "isolated key-specialist result pending evaluation",
+    "decorator-specialist result after completed-key artifact handoff pending evaluation"
+  ],
+  "schema_version": "0.3",
+  "structure_rationale": "Decorator factories consume the key-construction API and cannot be validated independently of its final semantics.",
+  "task_id": "commit0:cachetools",
+  "test_groups": [
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_cache.py",
+        "tests/test_fifo.py",
+        "tests/test_lfu.py",
+        "tests/test_lru.py",
+        "tests/test_mru.py",
+        "tests/test_rr.py",
+        "tests/test_tlru.py",
+        "tests/test_ttl.py"
+      ],
+      "description": "Existing cache-class controls. All 127 tests pass at commit0 and must not be counted as implementation progress.",
+      "group_id": "core_cache_environment_control",
+      "owner_subproblem": null,
+      "prerequisites": [],
+      "purpose": "environment_control",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_keys.py"
+      ],
+      "description": "Direct hashkey, methodkey, typed-key, tuple, hash, and pickle behavior.",
+      "group_id": "key_direct_contract",
+      "owner_subproblem": "key_construction",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_cached.py",
+        "tests/test_cachedmethod.py"
+      ],
+      "description": "Key behavior exercised through the already implemented cached() and cachedmethod() wrappers.",
+      "group_id": "key_wrapper_integration",
+      "owner_subproblem": "key_construction",
+      "prerequisites": [
+        "existing core cache and cached-wrapper APIs remain unchanged"
+      ],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_func.py"
+      ],
+      "description": "Decorator-factory behavior, metadata, cache algorithms, typed key selection, locking, and edge cases.",
+      "group_id": "key_decorator_cross_contract",
+      "owner_subproblem": null,
+      "prerequisites": [
+        "key_construction artifact is integrated",
+        "existing core cache APIs remain unchanged"
+      ],
+      "purpose": "cross_subproblem",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "-o",
+        "addopts=",
+        "tests"
+      ],
+      "description": "All 215 upstream tests in one integrated workspace.",
+      "group_id": "full_evaluator",
+      "owner_subproblem": null,
+      "prerequisites": [],
+      "purpose": "full_evaluator",
+      "schema_version": "0.3"
+    }
+  ]
+}

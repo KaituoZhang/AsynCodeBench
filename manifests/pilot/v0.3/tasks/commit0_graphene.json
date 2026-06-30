@@ -1,0 +1,143 @@
+{
+  "annotation_provenance": [],
+  "candidate_evidence_file": "docs/audits/COMMIT0_CANDIDATE_REVIEW_networkx_graphene_tlslite_v0.3.md",
+  "dependency_annotations": [
+    {
+      "consumer_subproblem": "object_input_metadata_layer",
+      "dependency_type": "api_contract",
+      "description": "ObjectType and InputObjectType metadata consume UnmountedType mounting into Field, InputField, Argument, and ordered field structures.",
+      "evidence_paths": [
+        "graphene/types/unmountedtype.py",
+        "graphene/types/field.py",
+        "graphene/types/inputfield.py",
+        "graphene/types/argument.py",
+        "graphene/types/objecttype.py",
+        "graphene/types/inputobjecttype.py",
+        "graphene/types/tests/test_scalars_serialization.py",
+        "graphene/types/tests/test_objecttype.py",
+        "graphene/types/tests/test_inputobjecttype.py"
+      ],
+      "producer_subproblem": "type_mounting_layer",
+      "schema_version": "0.3"
+    },
+    {
+      "consumer_subproblem": "schema_typemap_layer",
+      "dependency_type": "api_contract",
+      "description": "Schema and TypeMap conversion consume object, input object, interface, union, enum, field, and argument metadata contracts.",
+      "evidence_paths": [
+        "graphene/types/objecttype.py",
+        "graphene/types/inputobjecttype.py",
+        "graphene/types/interface.py",
+        "graphene/types/union.py",
+        "graphene/types/enum.py",
+        "graphene/types/schema.py",
+        "graphene/types/tests/test_definition.py",
+        "graphene/types/tests/test_schema.py"
+      ],
+      "producer_subproblem": "object_input_metadata_layer",
+      "schema_version": "0.3"
+    },
+    {
+      "consumer_subproblem": "schema_typemap_layer",
+      "dependency_type": "api_contract",
+      "description": "Schema construction and GraphQL-core conversion consume scalar get_type, serialize, and coercion contracts.",
+      "evidence_paths": [
+        "graphene/types/scalars.py",
+        "graphene/types/schema.py",
+        "graphene/types/definitions.py",
+        "graphene/types/tests/test_scalars_serialization.py",
+        "graphene/types/tests/test_schema.py"
+      ],
+      "producer_subproblem": "type_mounting_layer",
+      "schema_version": "0.3"
+    }
+  ],
+  "evaluator_command": [
+    "python3.10",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "-k",
+    "not test_objecttype_container_benchmark",
+    "graphene/types/tests/test_definition.py",
+    "graphene/types/tests/test_objecttype.py",
+    "graphene/types/tests/test_inputobjecttype.py",
+    "graphene/types/tests/test_schema.py",
+    "graphene/types/tests/test_scalars_serialization.py"
+  ],
+  "inclusion_decision": null,
+  "natural_subproblems": {
+    "object_input_metadata_layer": [
+      "graphene/types/base.py",
+      "graphene/types/enum.py",
+      "graphene/types/inputobjecttype.py",
+      "graphene/types/interface.py",
+      "graphene/types/objecttype.py",
+      "graphene/types/union.py",
+      "graphene/types/utils.py",
+      "graphene/types/tests/test_objecttype.py",
+      "graphene/types/tests/test_inputobjecttype.py"
+    ],
+    "schema_typemap_layer": [
+      "graphene/types/definitions.py",
+      "graphene/types/resolver.py",
+      "graphene/types/schema.py",
+      "graphene/types/tests/test_definition.py",
+      "graphene/types/tests/test_schema.py"
+    ],
+    "type_mounting_layer": [
+      "graphene/types/argument.py",
+      "graphene/types/field.py",
+      "graphene/types/inputfield.py",
+      "graphene/types/scalars.py",
+      "graphene/types/structures.py",
+      "graphene/types/unmountedtype.py",
+      "graphene/types/tests/test_scalars_serialization.py"
+    ]
+  },
+  "notes": [
+    "Task source and tests are unchanged; only import/bootstrap overlays are applied.",
+    "The local master branch is complete. Benchmark workspaces must be materialized from origin/commit0_combined.",
+    "The evaluator follows the audit recommendation to scope Graphene to type/schema core behavior rather than full repository behavior.",
+    "The evaluator excludes test_objecttype_container_benchmark because it requires the benchmark fixture and is benchmark-heavy rather than type/schema correctness evidence.",
+    "The proposed label is a draft curation decision and not a final independent annotation."
+  ],
+  "problem_statement": "Restore the scoped Graphene type and schema behavior exercised by the public Commit0 tests without modifying the tests.\n\nThe mounting layer must implement unmounted type conversion, Field/InputField/Argument construction, scalar serialization/coercion, and list/non-null wrapper behavior. The object/input metadata layer must implement ObjectType, InputObjectType, Interface, Union, Enum, options, field extraction, inheritance, ordering, and container behavior. The schema/type-map layer must consume those contracts to implement GraphQL-core definition conversion, TypeMap population, schema construction, introspection, get_type, and resolver defaults.\n\nThe v0.3 evaluator intentionally scopes Graphene to the audit-recommended type/schema core and excludes the objecttype benchmark fixture. The initial benchmark source is the stripped Commit0-style ref origin/commit0_combined, plus checksum-recorded bootstrap overlays that only make public tests importable and collectable.",
+  "proposed_parallelizability_label": "partially_parallelizable",
+  "publicly_implicated_modules": [
+    "graphene/types/argument.py",
+    "graphene/types/base.py",
+    "graphene/types/definitions.py",
+    "graphene/types/enum.py",
+    "graphene/types/field.py",
+    "graphene/types/inputfield.py",
+    "graphene/types/inputobjecttype.py",
+    "graphene/types/interface.py",
+    "graphene/types/objecttype.py",
+    "graphene/types/resolver.py",
+    "graphene/types/scalars.py",
+    "graphene/types/schema.py",
+    "graphene/types/structures.py",
+    "graphene/types/union.py",
+    "graphene/types/unmountedtype.py",
+    "graphene/types/utils.py"
+  ],
+  "qualification_label": null,
+  "qualification_status": "pending_independent_annotation",
+  "quality_evidence_file": "manifests/pilot/v0.3/quality/commit0_graphene.json",
+  "repository": "commit0/graphene",
+  "schema_version": "0.3",
+  "source_materialization": "git archive of the stripped Commit0-style graphene ref origin/commit0_combined at ec2d3f476a7fa94a7a2ffc3c145422b0c3b7e71a, plus checksum-recorded import/bootstrap overlays in configs/tasks/commit0_curated_tasks.v0.3.json",
+  "task_id": "commit0:graphene",
+  "task_source": "Commit0",
+  "test_targets": [
+    "graphene/types/tests/test_definition.py",
+    "graphene/types/tests/test_objecttype.py",
+    "graphene/types/tests/test_inputobjecttype.py",
+    "graphene/types/tests/test_schema.py",
+    "graphene/types/tests/test_scalars_serialization.py"
+  ],
+  "upstream_version": "ec2d3f476a7fa94a7a2ffc3c145422b0c3b7e71a"
+}

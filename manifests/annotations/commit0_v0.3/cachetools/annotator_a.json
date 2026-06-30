@@ -1,0 +1,23 @@
+{
+  "allowed_labels": [
+    "parallelizable",
+    "partially_parallelizable",
+    "effectively_serial"
+  ],
+  "annotator_id": "annotator_3284",
+  "candidate_evidence_file": "manifests/candidates/commit0_public_candidates_v0.2.json",
+  "exclusion_reason": null,
+  "include": true,
+  "independence_instructions": [
+    "Use only public Commit0 evidence and the draft task record.",
+    "Review the linked TaskQualityRecord for evaluator validity, test-group boundaries, limitations, and pending evaluations.",
+    "Do not inspect reference branches, solution patches, or diffs.",
+    "Do not consult the other annotator before submitting.",
+    "Complete include, label, rationale, and exclusion reason if needed."
+  ],
+  "parallelizability_label": "partially_parallelizable",
+  "rationale": "Cachetools is suitable for AsyncCodeBench because it has separable but dependent implementation surfaces: cache key construction and decorator/cache behavior. The decorator layer depends on typed-key semantics, cache parameter exposure, and shared public API contracts. This creates a realistic asynchronous-collaboration risk where one agent may proceed with a stale or incompatible assumption about the other agent's API.",
+  "schema_version": "0.3",
+  "task_id": "commit0:cachetools",
+  "task_record_file": "manifests/pilot/v0.3/tasks/commit0_cachetools.json"
+}

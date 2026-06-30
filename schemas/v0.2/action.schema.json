@@ -1,0 +1,102 @@
+{
+  "$defs": {
+    "OperationType": {
+      "enum": [
+        "inspect",
+        "search",
+        "read",
+        "edit",
+        "apply_patch",
+        "run_targeted_test",
+        "run_full_test",
+        "build",
+        "launch_experiment",
+        "inspect_experiment",
+        "request_status",
+        "request_artifact",
+        "send_message",
+        "transfer_artifact",
+        "synchronize_workspace",
+        "verify_artifact",
+        "review",
+        "integrate",
+        "reject",
+        "defer",
+        "wait",
+        "cancel_job",
+        "submit",
+        "terminate"
+      ],
+      "title": "OperationType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "action_id": {
+      "minLength": 1,
+      "title": "Action Id",
+      "type": "string"
+    },
+    "agent_id": {
+      "minLength": 1,
+      "title": "Agent Id",
+      "type": "string"
+    },
+    "input_artifact_ids": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Input Artifact Ids",
+      "type": "array"
+    },
+    "operation": {
+      "$ref": "#/$defs/OperationType"
+    },
+    "parameters": {
+      "additionalProperties": true,
+      "title": "Parameters",
+      "type": "object"
+    },
+    "requested_at": {
+      "minimum": 0.0,
+      "title": "Requested At",
+      "type": "number"
+    },
+    "schema_version": {
+      "const": "asynccodebench-v0.2",
+      "default": "asynccodebench-v0.2",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_workspace_version": {
+      "minLength": 1,
+      "title": "Source Workspace Version",
+      "type": "string"
+    },
+    "target_agent_ids": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Target Agent Ids",
+      "type": "array"
+    },
+    "triggering_event_id": {
+      "minLength": 1,
+      "title": "Triggering Event Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "action_id",
+    "agent_id",
+    "operation",
+    "requested_at",
+    "source_workspace_version",
+    "triggering_event_id"
+  ],
+  "title": "ActionRequest",
+  "type": "object"
+}

@@ -1,0 +1,181 @@
+{
+  "aggregate_metrics": {
+    "ADPR_denominator": "All dependency_points unless a paper section explicitly reports primary_async_dependency_ids only.",
+    "dependency_point_count": 3,
+    "minimum_success_condition_for_task_level_async_dependency_resolution": "All primary_async_dependency_ids pass in the final integrated workspace.",
+    "primary_async_dependency_ids": [
+      "imapclient.lexer_to_parser.token_literal_contract",
+      "imapclient.parser_to_client.typed_response_contract",
+      "imapclient.utility_to_client.command_normalization_contract"
+    ],
+    "primary_paper_dependency_id": "imapclient.parser_to_client.typed_response_contract"
+  },
+  "annotation_notes": [
+    "The parser_to_client dependency is the primary signal because high-level IMAPClient commands are sensitive to stale typed parser return shapes.",
+    "The lexer_to_parser dependency captures stale assumptions around token boundaries and IMAP literal handling.",
+    "The utility_to_client dependency captures stale bytes/str, date, and IMAP UTF-7 normalization assumptions.",
+    "These labels identify public test-observable contracts, not solution code."
+  ],
+  "dependency_points": [
+    {
+      "consumer_agent": "parser_agent",
+      "consumer_files": [
+        "imapclient/response_parser.py",
+        "imapclient/response_types.py"
+      ],
+      "consumer_subproblem": "response_parser_layer",
+      "contract_summary": "Lexer tokenization, literal handling, and IMAP protocol assertion contracts must be stable before parser tuple and typed-object parsing can be correct.",
+      "dependency_id": "imapclient.lexer_to_parser.token_literal_contract",
+      "dependency_type": "shared_api_contract",
+      "downstream_probe_tests": [
+        "tests/test_response_parser.py::TestParseResponse::test_literal",
+        "tests/test_response_parser.py::TestParseResponse::test_tuple"
+      ],
+      "integrated_probe_tests": [
+        "tests/test_response_lexer.py::TestTokenSource::test_literal",
+        "tests/test_response_lexer.py::TestTokenSource::test_quoted_strings",
+        "tests/test_response_parser.py::TestParseResponse::test_literal",
+        "tests/test_response_parser.py::TestParseResponse::test_tuple"
+      ],
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL",
+        "SAD"
+      ],
+      "producer_agent": "utility_lexer_agent",
+      "producer_files": [
+        "imapclient/response_lexer.py",
+        "imapclient/util.py"
+      ],
+      "producer_subproblem": "utility_lexer_layer",
+      "resolution_criteria": "Resolved when lexer literal/string probes and parser literal/tuple probes pass in the integrated workspace.",
+      "stale_failure_mode": "The parser agent may implement parsing around stale token boundary, literal, or protocol assertion behavior.",
+      "upstream_probe_tests": [
+        "tests/test_response_lexer.py::TestTokenSource::test_literal",
+        "tests/test_response_lexer.py::TestTokenSource::test_quoted_strings"
+      ]
+    },
+    {
+      "consumer_agent": "client_agent",
+      "consumer_files": [
+        "imapclient/imapclient.py"
+      ],
+      "consumer_subproblem": "client_command_layer",
+      "contract_summary": "High-level IMAPClient search/fetch/status/store behavior must consume SearchIds, fetch dictionaries, UID keys, and typed response objects from the parser consistently.",
+      "dependency_id": "imapclient.parser_to_client.typed_response_contract",
+      "dependency_type": "interface_dependency",
+      "downstream_probe_tests": [
+        "tests/test_search.py::TestSearch::test_modseq",
+        "tests/test_imapclient.py::TestTimeNormalisation::test_pass_through"
+      ],
+      "integrated_probe_tests": [
+        "tests/test_response_parser.py::TestParseMessageList::test_modseq",
+        "tests/test_response_parser.py::TestParseFetchResponse::test_UID",
+        "tests/test_search.py::TestSearch::test_modseq",
+        "tests/test_imapclient.py::TestTimeNormalisation::test_pass_through"
+      ],
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL",
+        "SAD"
+      ],
+      "primary_paper_probe": true,
+      "producer_agent": "parser_agent",
+      "producer_files": [
+        "imapclient/response_parser.py",
+        "imapclient/response_types.py"
+      ],
+      "producer_subproblem": "response_parser_layer",
+      "resolution_criteria": "Resolved when parser typed response probes and client search/fetch consumer probes pass together after integration.",
+      "stale_failure_mode": "The client agent may implement search or fetch normalization around stale parser output shapes, SearchIds.modseq, or UID-vs-message-id semantics.",
+      "upstream_probe_tests": [
+        "tests/test_response_parser.py::TestParseMessageList::test_modseq",
+        "tests/test_response_parser.py::TestParseFetchResponse::test_UID"
+      ]
+    },
+    {
+      "consumer_agent": "client_agent",
+      "consumer_files": [
+        "imapclient/imapclient.py"
+      ],
+      "consumer_subproblem": "client_command_layer",
+      "contract_summary": "Client command construction consumes date formatting, IMAP UTF-7 folder encoding, fixed-offset datetime behavior, and bytes/text helper contracts.",
+      "dependency_id": "imapclient.utility_to_client.command_normalization_contract",
+      "dependency_type": "shared_state_contract",
+      "downstream_probe_tests": [
+        "tests/test_search.py::TestSearch::test_with_date",
+        "tests/test_imapclient.py::TestListFolders::test_utf7_decoding"
+      ],
+      "integrated_probe_tests": [
+        "tests/test_datetime_util.py::TestCriteriaDateFormatting::test_basic",
+        "tests/test_imap_utf7.py::IMAP4UTF7TestCase::test_encode",
+        "tests/test_search.py::TestSearch::test_with_date",
+        "tests/test_imapclient.py::TestListFolders::test_utf7_decoding"
+      ],
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL",
+        "SAD"
+      ],
+      "producer_agent": "utility_lexer_agent",
+      "producer_files": [
+        "imapclient/datetime_util.py",
+        "imapclient/fixed_offset.py",
+        "imapclient/imap_utf7.py",
+        "imapclient/util.py"
+      ],
+      "producer_subproblem": "utility_lexer_layer",
+      "resolution_criteria": "Resolved when utility/date/UTF-7 probes and client command/folder probes pass after integration.",
+      "stale_failure_mode": "The client agent may hard-code command argument or folder decoding assumptions that diverge from the utility layer.",
+      "upstream_probe_tests": [
+        "tests/test_datetime_util.py::TestCriteriaDateFormatting::test_basic",
+        "tests/test_imap_utf7.py::IMAP4UTF7TestCase::test_encode"
+      ]
+    }
+  ],
+  "evaluation_checkpoint_policy": {
+    "checkpoint_record_fields": [
+      "run_id",
+      "scenario_id",
+      "checkpoint_id",
+      "logical_iteration",
+      "agent_id",
+      "visible_upstream_artifact_version",
+      "integrated_workspace_version",
+      "probe_test_results"
+    ],
+    "minimum_policy": "Run probe tests after each agent final artifact and after final integration.",
+    "recommended_policy": "Run probe tests after every committed patch, every explicit artifact transfer, and final integration."
+  },
+  "metric_annotation_id": "commit0-imapclient.async-metrics.v0.3",
+  "metric_definitions": {
+    "ADPR": {
+      "definition": "Fraction of registered dependency_points whose required integrated_probe_tests pass in the final integrated workspace.",
+      "name": "Async Dependency Pass Rate",
+      "unit": "fraction"
+    },
+    "CAIL": {
+      "definition": "downstream_resolution_step minus upstream_resolution_step when both probe groups have been evaluated.",
+      "name": "Cross-Agent Integration Lag",
+      "unit": "agent iteration or evaluation checkpoint"
+    },
+    "DRS": {
+      "definition": "First recorded checkpoint at which all required integrated_probe_tests for a dependency point pass.",
+      "name": "Dependency Resolution Step",
+      "unit": "agent iteration or evaluation checkpoint"
+    },
+    "SAD": {
+      "definition": "Interval during which a downstream worker acts on a contract assumption inconsistent with the latest upstream artifact.",
+      "name": "Stale Assumption Duration",
+      "unit": "agent iteration or event interval"
+    }
+  },
+  "purpose": "Dependency-level labels for measuring whether asynchronous multi-agent coding resolves IMAPClient lexer, parser, typed response, utility normalization, and high-level client command contracts.",
+  "schema_version": "0.3-async-metrics",
+  "source_quality_record": "manifests/pilot/v0.3/quality/commit0_imapclient.json",
+  "source_task_record": "manifests/pilot/v0.3/tasks/commit0_imapclient.json",
+  "task_id": "commit0:imapclient"
+}

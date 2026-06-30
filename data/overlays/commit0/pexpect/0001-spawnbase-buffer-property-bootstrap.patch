@@ -1,0 +1,18 @@
+diff --git a/pexpect/spawnbase.py b/pexpect/spawnbase.py
+index 31c9b42..ab21918 100644
+--- a/pexpect/spawnbase.py
++++ b/pexpect/spawnbase.py
+@@ -86,6 +86,13 @@ class SpawnBase(object):
+         self.async_pw_transport = None
+         self._buffer = self.buffer_type()
+         self._before = self.buffer_type()
++
++    def _get_buffer(self):
++        pass
++
++    def _set_buffer(self, value):
++        pass
++
+     buffer = property(_get_buffer, _set_buffer)
+ 
+     def read_nonblocking(self, size=1, timeout=None):

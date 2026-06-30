@@ -1,0 +1,7 @@
+diff --git a/fsspec/_version.py b/fsspec/_version.py
+new file mode 100644
+index 0000000..d9cdf0e
+--- /dev/null
++++ b/fsspec/_version.py
+@@ -0,0 +1 @@
++__version__ = "0+commit0"
