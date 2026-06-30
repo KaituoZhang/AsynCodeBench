@@ -177,6 +177,7 @@ Important protocol documents:
 ```text
 SPECIFICATION_v0.3.md
 docs/COLLABORATOR_RUNBOOK.md
+docs/CODEX_ONBOARDING.md
 docs/protocols/COMMIT0_DATA_EXAMPLE_GUIDE_v0.3.md
 docs/protocols/COMMIT0_DATA_AND_METRIC_LABEL_GUIDE_v0.3.md
 docs/protocols/README.md
@@ -184,6 +185,8 @@ docs/protocols/README.md
 
 Use `docs/COLLABORATOR_RUNBOOK.md` for GitHub upload, fresh-clone setup,
 agent-runner configuration, model switching, and experiment commands.
+Use `docs/CODEX_ONBOARDING.md` to orient a new Codex session or collaborator
+agent before it edits files or runs experiments.
 
 ## Data Artifacts
 

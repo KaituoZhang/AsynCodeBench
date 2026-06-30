@@ -9,6 +9,10 @@ Repository target:
 https://github.com/KaituoZhang/Asynccodebench
 ```
 
+If a collaborator uses Codex or another coding agent, ask that agent to read
+`docs/CODEX_ONBOARDING.md` first. That file explains the project structure,
+which files to inspect first, and where LLM/API configuration lives.
+
 ## What Should Be Versioned
 
 Include these project assets:
