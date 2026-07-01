@@ -13,6 +13,10 @@ If a collaborator uses Codex or another coding agent, ask that agent to read
 `docs/CODEX_ONBOARDING.md` first. That file explains the project structure,
 which files to inspect first, and where LLM/API configuration lives.
 
+For evaluation metrics and post-run analysis, ask collaborators to read
+`docs/EVALUATION_METRICS.md`. That document defines the current first-round
+AsyncCodeBench metrics, the required run artifacts, and the analysis commands.
+
 ## What Should Be Versioned
 
 Include these project assets:

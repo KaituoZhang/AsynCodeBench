@@ -153,7 +153,7 @@ print(json.dumps(out))
         except json.JSONDecodeError:
             return {}
 
-    def build_instruction(self, assignment, pass_functions, completed_context=""):
+    def build_instruction(self, assignment, pass_functions, completed_context="", test_cmd="", test_dir=""):
         writable_paths = assignment.get("writable_paths", [])
         primary_tests = assignment.get("primary_test_targets", [])
 
@@ -198,6 +198,10 @@ print(json.dumps(out))
         if completed_context:
             parts.extend(["", "Completed upstream handoff context:", completed_context])
 
+        if test_cmd:
+            test_line = f"{test_cmd} {test_dir}".strip()
+            parts.extend(["", "Recommended validation command:", f"- {test_line}"])
+
         parts.extend([
             "",
             "Implementation constraints:",
@@ -209,6 +213,11 @@ print(json.dumps(out))
 
     def build_subagents(self, workspace, repo_dir, base_commit, completed_context=""):
         assignments = self.scenario.get("assignments", [])
+        prompt_args = self.task_module.get_prompt_format_args(self.workflow_config)
+        test_cmd = prompt_args.get("test_cmd", "python -m pytest")
+        test_dir = prompt_args.get("test_dir", "tests/")
+        if not test_cmd.startswith("PYTHONPATH="):
+            test_cmd = f"PYTHONPATH=src:. {test_cmd}"
         all_paths = []
         for assignment in assignments:
             all_paths.extend(assignment.get("writable_paths", []))
@@ -231,7 +240,13 @@ print(json.dumps(out))
                 task_id=assignment.get("subproblem_id") or f"{self.protocol}_{index}",
                 file_path=", ".join(writable_paths),
                 functions_to_implement=functions,
-                instruction=self.build_instruction(assignment, pass_map, completed_context),
+                instruction=self.build_instruction(
+                    assignment,
+                    pass_map,
+                    completed_context,
+                    test_cmd=test_cmd,
+                    test_dir=test_dir,
+                ),
                 estimated_complexity="medium",
                 branch_name=branch_name,
                 worktree_path=f"/workspace/{worktree_name}",
@@ -239,6 +254,8 @@ print(json.dumps(out))
                 status="pending",
                 current_round=1,
             )
+            subagent.test_cmd = test_cmd
+            subagent.test_dir = test_dir
             subagents.append(subagent)
         return subagents
 

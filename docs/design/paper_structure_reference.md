@@ -303,7 +303,7 @@ Purpose:
 
 What it tells us:
 
-- stale assumption rate;
+- stale assumption duration or proxy;
 - dependency resolution failure;
 - duplicated work;
 - merge or integration failure;
@@ -327,101 +327,254 @@ What it tells us:
 
 ### 5. Evaluation Metrics
 
-This section should be more formal than a plain list. Include formulas where possible.
+This section should be formal, but it should keep the dependency-level metrics
+front and center. The main paper should not replace the original v0.3 metrics
+with generic agent-log statistics. The core evaluation unit is the labeled
+cross-agent dependency, and the core question is:
 
-#### 5.1 Final Correctness
+> When did the run resolve the dependency that makes asynchronous coordination
+> hard, and what coordination cost was required to get there?
 
-Basic metric:
+The first-round AsyncCodeBench metrics are the main evaluation metrics:
+
+1. Traditional coding metrics: final tests, cost, tokens, and runtime.
+2. Dependency-level metrics: `ADPR`, `DRS`, strict/composed `DRS`, upstream
+   resolution, downstream resolution, `CAIL`, and `SAD`.
+3. Coordination-level diagnostics: failed subagent rate, merge conflicts,
+   scope violations, and manager recovery required.
+
+Robotouille-style ideas such as budgeted success, progress-to-go, and repeated
+failure can be discussed as optional extensions, but they should not replace
+the v0.3 dependency metrics in the main evaluation.
+
+#### 5.1 Traditional Coding Metrics
+
+Final correctness:
+
+```text
+Final Pass = (# final evaluator tests passed) / (# final evaluator tests run)
+```
+
+For repeated runs:
 
 ```text
 FSR = (# successful runs) / (# total runs)
 ```
 
-This is necessary but insufficient.
+Efficiency:
 
-#### 5.2 Dependency Resolution Score
+- `Cost`: API cost in dollars;
+- `Tokens`: total input plus output tokens;
+- `Runtime`: agent runtime and end-to-end wall-clock time.
 
-For task `i` with dependency probes `D_i`:
+These metrics are necessary anchors because they let readers compare
+AsyncCodeBench runs to traditional coding-agent benchmarks. Their limitation is
+that they do not explain asynchronous dependency behavior. For example,
+single-agent and multi-agent runs may both pass all final tests while resolving
+cross-agent dependencies at very different times and costs.
 
-```text
-DRS_i = (1 / |D_i|) * sum_{d in D_i} pass(d)
-```
+#### 5.2 Async Dependency Pass Rate
 
-Meaning:
-
-- measures whether dependency contracts are resolved;
-- can reveal partial dependency success even when final tests fail;
-- can reveal brittle final success when dependency probes fail.
-
-#### 5.3 Stale Assumption Rate
-
-For consumer-side attempts `A_c`:
+For task `i` with labeled dependency points `D_i`:
 
 ```text
-SAR_i = (# consumer attempts based on outdated producer contract) / |A_c|
+ADPR_i = (# resolved dependency points in D_i) / |D_i|
 ```
 
-Meaning:
+A dependency point is resolved when its required integrated probe tests pass in
+the final integrated workspace. In task-level tables, `ADPR` may be reported
+over all dependency points or over `primary_async_dependency_ids`; the
+denominator must be stated.
 
-- directly captures async delayed-visibility failure;
-- especially important for async-private execution.
+Why this matters:
 
-#### 5.4 Failed Subagent Attempt Rate
+- uses the dependency labels directly;
+- shows whether public-test-observable cross-agent contracts are ultimately
+  satisfied;
+- can distinguish partial dependency success from complete task failure;
+- can expose brittle final success if final tests pass but dependency probes do
+  not.
+
+#### 5.3 Dependency Resolution Step
+
+For dependency point `d`:
 
 ```text
-FSAR_i = (# failed subagent attempts) / (# total subagent attempts)
+DRS_d = first checkpoint or logical iteration where integrated_probe_tests(d) pass
 ```
 
-Meaning:
+`DRS` is one of the central AsyncCodeBench metrics. It answers when a critical
+cross-agent dependency was first observed to be resolved.
 
-- measures wasted work under decomposition;
-- useful for comparing serial, async-private, and manager-mediated protocols.
-
-#### 5.5 Integration Failure Rate
+Report two variants when possible:
 
 ```text
-IFR_i = (# runs with merge, import, or integration failure) / (# total runs)
+strict DRS_d =
+  first integrated checkpoint where upstream and downstream probes for d pass
+  in the same integrated workspace
 ```
-
-Meaning:
-
-- captures failures after text patches are combined;
-- includes merge conflicts, import breakage, incompatible contracts, and late evaluator failures.
-
-#### 5.6 Scope Violation Rate
 
 ```text
-SVR_i = (# agents modifying out-of-scope files) / (# total agents)
+composed DRS_d =
+  max(upstream_resolution_step_d, downstream_resolution_step_d)
 ```
 
-Meaning:
+`strict DRS` is more conservative and should be preferred in main tables.
+`composed DRS` is useful when upstream and downstream probes are observed at
+different checkpoints.
 
-- measures whether agents respect assigned ownership boundaries;
-- important for validating task decomposition and protocol compliance.
-
-#### 5.7 Manager Recovery Rate
-
-For failures observed before manager repair:
+#### 5.4 Upstream And Downstream Resolution
 
 ```text
-MRR_i = (# recovered dependency or integration failures) / (# detected dependency or integration failures)
+upstream_resolution_step_d =
+  first checkpoint where upstream_probe_tests(d) pass
+
+downstream_resolution_step_d =
+  first checkpoint where downstream_probe_tests(d) pass
 ```
 
-Meaning:
+These metrics use the producer/consumer labels in the metrics manifest. They
+answer two separate questions:
 
-- isolates the benefit of manager-mediated async coordination;
-- should be reported only for protocols where manager repair is available.
+- when the producer-side contract became correct;
+- when the consumer-side code correctly adapted to that contract.
 
-#### 5.8 Cost And Runtime
+They are especially useful for case studies because they show whether a run was
+blocked by the upstream implementation, the downstream adaptation, or the final
+integration between them.
 
-Recommended metrics:
+#### 5.5 Cross-Agent Integration Lag
 
-- wall-clock time;
-- token count;
-- API cost;
-- number of agent turns;
-- number of subagent attempts;
-- number of merge/review cycles.
+```text
+CAIL_d = downstream_resolution_step_d - upstream_resolution_step_d
+```
+
+`CAIL` measures how long downstream behavior lagged behind the producer-side
+contract. A positive value indicates delayed downstream adaptation; a value
+near zero can mean clean synchronization, or simply that the runner only
+observed both sides at a final checkpoint. The paper should state the
+checkpoint policy used for each experiment.
+
+#### 5.6 Stale Assumption Duration
+
+```text
+SAD_d =
+  duration or iteration interval where the consumer continues acting on a
+  producer-contract assumption that has become stale
+```
+
+`SAD` is the primary stale-information metric in the v0.3 guide. It is better
+aligned with the first-round cachetools analysis than a rate-only metric,
+because it captures how long a downstream worker continued under an outdated
+or unavailable producer contract.
+
+Evidence can include:
+
+- consumer edits to `consumer_files` before receiving the relevant producer
+  artifact;
+- consumer work after a producer update that is not visible to it;
+- downstream probe failures after upstream probes already pass;
+- duplicated implementation of a producer-side contract inside a consumer file.
+
+Strict automatic `SAD` requires dependency-version visibility logs. Without
+those logs, runs should report `SAD-proxy` and send candidate incidents to
+human audit. A rate version can be added later:
+
+```text
+SAR_d = (# stale dependency-sensitive consumer attempts for d)
+        / (# dependency-sensitive consumer attempts for d)
+```
+
+`SAR` is an extension of `SAD`, not a replacement.
+
+#### 5.7 Coordination-Level Diagnostics
+
+These metrics explain how a protocol reached its final result.
+
+Failed subagent rate:
+
+```text
+Failed Subagent Rate =
+  (# subagent attempts without a usable committed or merged artifact)
+  / (# total subagent attempts)
+```
+
+Merge conflict count:
+
+```text
+Merge Conflict Count =
+  # textual merge conflicts observed during integration
+```
+
+Scope violation count:
+
+```text
+Scope Violation Count =
+  # agents modifying files outside their assigned writable paths
+```
+
+Manager recovery required:
+
+```text
+Manager Recovery Required =
+  true if final success depends on manager review, merge repair, reassignment,
+  or final recovery after failed subagent artifacts
+```
+
+These diagnostics are not generic bookkeeping. They are important because they
+identify asynchronous collaboration burdens that final pass rate hides:
+failed workers, conflicting artifacts, boundary drift, and recovery dependence.
+
+#### 5.8 Evidence Support In Current Labels
+
+Current AsyncCodeBench v0.3 labels already support several core metrics, but
+some async-specific measurements require improved execution traces.
+
+| Metric | Current label support | What is already present | Extra trace needed |
+| --- | --- | --- | --- |
+| Final Pass / FSR | Strong | final evaluator and report files | none |
+| Cost / tokens / runtime | Strong | cost/runtime logs | none |
+| `ADPR` | Strong | `dependency_points`, integrated probes, resolution criteria | probe execution at final workspace |
+| strict `DRS` | Strong if integrated checkpoints exist | integrated probes and checkpoint policy | probe results after each patch/artifact/checkpoint |
+| composed `DRS` | Strong if upstream/downstream checkpoints exist | upstream/downstream probes | aligned logical turn IDs |
+| upstream/downstream resolution | Strong if checkpoints exist | upstream and downstream probe groups | aligned checkpoint schedule |
+| `CAIL` | Strong if upstream/downstream checkpoints exist | upstream and downstream probe groups | aligned logical turn IDs |
+| `SAD` | Conceptual support | `stale_failure_mode`, producer/consumer files, message policies | contract versions, visible dependency versions, consumer attempt labels |
+| Failed subagent rate | Strong | subagent result logs | none |
+| Merge conflict count | Strong | manager review and merge logs | standardized conflict event type helps |
+| Scope violation count | Strong | assignments and modified-file logs | none |
+| Manager recovery required | Partial | manager review/final merge logs | explicit detected-failure and recovery links |
+
+This table is important for the paper and the release. It shows that the
+benchmark labels are not cosmetic: they directly support `ADPR`, `DRS`,
+upstream/downstream resolution, and `CAIL`, while motivating the next
+trace-instrumentation step needed for strict `SAD`.
+
+Current v0.3 label inventory:
+
+- 20 Commit0 metric manifests exist, including candidates that are currently
+  excluded or revision-only.
+- These manifests contain 58 dependency points.
+- Every dependency point has producer/consumer subproblems, producer/consumer
+  files, a contract summary, a stale-failure-mode description, upstream probes,
+  downstream probes, integrated probes, and resolution criteria.
+- 58/58 dependency points enable `ADPR`, `DRS`, and `CAIL`.
+- 51/58 dependency points enable stale-assumption tracking (`SAD` in the
+  manifest, reported as strict `SAD` when visibility logs exist or `SAD-proxy`
+  when they do not).
+- Paper experiments should filter to the curated qualification-ready set rather
+  than blindly counting all metric manifests.
+
+#### 5.9 Optional Extensions
+
+These can be used later, but should not replace the first-round metrics:
+
+- Budgeted Final Pass: final success under a fixed cost, call, or integration
+  budget.
+- Normalized Dependency Gap: `1 - ADPR`, useful for failed runs.
+- Stale Assumption Rate: rate version of `SAD`.
+- Repeated Failure Rate: repeated same-class probe, test, or integration
+  failures during recovery.
 
 ### 6. Experiments
 
@@ -438,11 +591,13 @@ Main comparison:
 
 Main table:
 
-- final success rate;
-- dependency resolution score;
-- stale assumption rate;
-- integration failure rate;
-- cost.
+- final tests / final pass;
+- cost, tokens, and runtime;
+- async dependency pass rate (`ADPR`);
+- strict and composed dependency resolution step (`DRS`);
+- upstream/downstream resolution and `CAIL`;
+- stale assumption duration (`SAD`) or audited `SAD-proxy`;
+- failed subagent rate, merge conflicts, scope violations, and manager recovery required.
 
 #### 6.2 Does Async Visibility Loss Hurt?
 
@@ -453,8 +608,8 @@ Compare:
 Expected analysis:
 
 - if serial succeeds but async-private fails, the failure is likely coordination-related;
-- report success drop and DRS drop;
-- use task-level heatmap.
+- report `ADPR`, strict/composed `DRS`, upstream/downstream resolution, `CAIL`, and `SAD` changes;
+- use a task-level heatmap keyed by dependency points, not only by final success.
 
 #### 6.3 Can Manager-Mediated Coordination Recover?
 
@@ -466,6 +621,7 @@ Expected analysis:
 
 - manager should reduce stale assumptions and integration failures;
 - manager may increase cost and runtime;
+- failed subagent rate, merge conflicts, scope violations, and manager recovery required should be reported as manager-specific diagnostics;
 - failures that remain are valuable case studies.
 
 #### 6.4 Final Success vs Process Diagnostics
@@ -476,9 +632,9 @@ Purpose:
 
 Examples:
 
-- final pass but low DRS;
-- final fail but high DRS;
-- same final result but different stale assumption and failed attempt rates;
+- final pass but late strict `DRS` or nonzero `SAD`;
+- final fail but high `ADPR`, showing partial dependency completion;
+- same final result but different stale assumptions, merge conflicts, failed subagents, or scope violations;
 - manager succeeds after detecting and repairing async failures.
 
 #### 6.5 Cost And Efficiency
@@ -492,6 +648,10 @@ Report:
 - cost per successful run.
 
 This mirrors MLAgentBench's efficiency analysis while adapting it to async coding.
+
+Efficiency should be presented as a tradeoff against dependency quality, for
+example cost versus `ADPR` or cost versus strict `DRS`, rather than as a standalone
+leaderboard.
 
 ### 7. Case Studies
 
@@ -635,8 +795,11 @@ Grouped bars:
 
 Metrics:
 
-- final success rate;
-- dependency resolution score.
+- final pass / final tests;
+- async dependency pass rate;
+- strict and composed dependency resolution step;
+- upstream/downstream resolution and CAIL;
+- stale assumption duration when available.
 
 ### Figure 6: Async Failure Heatmap
 
@@ -646,11 +809,13 @@ Rows:
 
 Columns:
 
-- stale assumption rate;
-- failed subagent attempt rate;
-- integration failure rate;
-- scope violation rate;
-- manager recovery rate.
+- async dependency pass rate;
+- strict dependency resolution step;
+- cross-agent integration lag;
+- stale assumption duration or proxy;
+- failed subagent rate;
+- merge conflict count;
+- scope violation count.
 
 Purpose:
 
@@ -666,8 +831,8 @@ Suggested sequence:
 
 ```text
 T0: agents start from same base
-T1: producer changes dependency contract
-T2: consumer writes code assuming old contract
+T1: producer exposes or changes dependency contract
+T2: consumer writes dependency-sensitive code with stale or missing visibility
 T3: patches merge cleanly
 T4: dependency probe fails
 T5: manager detects and repairs, or final evaluation fails
@@ -682,7 +847,7 @@ Purpose:
 Plot:
 
 - x-axis: cost or tokens;
-- y-axis: final success or dependency resolution;
+- y-axis: final pass, async dependency pass rate, or strict dependency resolution step;
 - points grouped by protocol.
 
 ## Recommended Tables
@@ -727,19 +892,29 @@ Columns:
 - metric;
 - formula;
 - required evidence;
-- interpretation.
+- interpretation;
+- current v0.3 support level.
 
 ### Table 4: Main Results
 
 Columns:
 
 - protocol;
-- final success rate;
-- dependency resolution score;
-- stale assumption rate;
-- integration failure rate;
+- final pass / final tests;
 - cost;
-- runtime.
+- tokens;
+- runtime;
+- async dependency pass rate;
+- strict dependency resolution step;
+- composed dependency resolution step;
+- upstream resolution;
+- downstream resolution;
+- cross-agent integration lag;
+- stale assumption duration or proxy;
+- failed subagent rate;
+- merge conflict count;
+- scope violation count;
+- manager recovery required.
 
 ### Table 5: Human Annotation And Validation
 
@@ -782,4 +957,3 @@ Use stronger framing:
 ## One-Sentence Paper Thesis
 
 > AsyncCodeBench is a dependency-aware transformation framework and benchmark for evaluating whether asynchronous software-agent teams can resolve cross-agent implementation contracts under delayed visibility, private workspaces, and late integration.
-

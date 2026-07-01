@@ -10,10 +10,11 @@ Read in this order:
 1. `README`
 2. `SPECIFICATION_v0.3.md`
 3. `docs/COLLABORATOR_RUNBOOK.md`
-4. `docs/protocols/COMMIT0_DATA_AND_METRIC_LABEL_GUIDE_v0.3.md`
-5. `docs/protocols/README.md`
-6. `skills/commit0-to-asynccodebench/SKILL.md`
-7. `reproductions/async-swe-agents/protocols/README.md`
+4. `docs/EVALUATION_METRICS.md`
+5. `docs/protocols/COMMIT0_DATA_AND_METRIC_LABEL_GUIDE_v0.3.md`
+6. `docs/protocols/README.md`
+7. `skills/commit0-to-asynccodebench/SKILL.md`
+8. `reproductions/async-swe-agents/protocols/README.md`
 
 If the task is about paper writing or methodology, also read:
 
@@ -305,4 +306,3 @@ If asked to explain the paper story, start from:
 ```text
 docs/design/paper_structure_reference.md
 ```
-
