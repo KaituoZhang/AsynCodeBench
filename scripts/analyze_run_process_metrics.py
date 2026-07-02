@@ -237,7 +237,11 @@ def summarize_primary_outcome(run_dir: Path) -> dict[str, Any]:
     total = summary.get("total")
     failed = summary.get("failed", 0)
     errors = summary.get("error", summary.get("errors", 0))
-    final_success = bool(total is not None and passed == total and not failed and not errors)
+    exitcode = report.get("exitcode")
+    final_success = bool(
+        exitcode == 0
+        or (total is not None and passed == total and not failed and not errors)
+    )
     return {
         "upstream_evaluator": "commit0_pytest",
         "passed": passed,
@@ -245,7 +249,7 @@ def summarize_primary_outcome(run_dir: Path) -> dict[str, Any]:
         "errors": errors,
         "total": total,
         "collected": summary.get("collected"),
-        "exitcode": report.get("exitcode"),
+        "exitcode": exitcode,
         "final_success": final_success,
     }
 

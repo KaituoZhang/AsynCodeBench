@@ -10,8 +10,13 @@ from typing import Any
 
 
 _PASSED_RE = re.compile(r"(?P<count>\d+)\s+passed\b")
+_FAILED_OR_ERROR_RE = re.compile(r"\b(?:failed|error|errors|FAILED|ERROR)\b")
 _FILE_PROGRESS_RE = re.compile(
     r"(?P<path>tests/[^\s]+\.py)\s+(?P<marks>[.FEFsxX]+)"
+)
+_VERBOSE_TEST_RESULT_RE = re.compile(
+    r"(?P<selector>tests/[^\s]+\.py::[^\s]+)\s+"
+    r"(?P<status>PASSED|FAILED|ERROR|SKIPPED|XFAIL|XPASS)\b"
 )
 _EDITED_FILE_RE = re.compile(
     r"The file /workspace/[^/]+/(?P<path>[^ ]+) has been edited\."
@@ -107,14 +112,23 @@ def _infer_covered_selectors(
     exit_code: int | None,
     selector_index: dict[str, set[str]],
 ) -> tuple[frozenset[str], str, str, str]:
+    verbose_covered = _verbose_passed_selectors(output, selector_index)
     if exit_code != 0:
-        covered = _passing_file_selectors(output, selector_index)
-        evidence = "nonzero pytest run with passing per-file progress lines"
+        covered = verbose_covered or _passing_file_selectors(output, selector_index)
+        evidence = "nonzero pytest run with passing dependency probe lines"
         return frozenset(covered), "partial_pytest_progress", evidence, "medium"
 
     covered: set[str] = set()
     passed_match = _PASSED_RE.search(output)
     passed_count = int(passed_match.group("count")) if passed_match else None
+
+    if verbose_covered:
+        return (
+            frozenset(verbose_covered),
+            "pytest_verbose_progress",
+            "terminal output contains per-test PASSED lines for dependency probes",
+            "high",
+        )
 
     if passed_count == 215 or "215 passed" in output:
         for selectors in selector_index.values():
@@ -123,6 +137,16 @@ def _infer_covered_selectors(
             frozenset(covered),
             "full_evaluator",
             "terminal output reports full Commit0 cachetools suite passed",
+            "high",
+        )
+
+    if passed_count is not None and not _FAILED_OR_ERROR_RE.search(output):
+        for selectors in selector_index.values():
+            covered.update(selectors)
+        return (
+            frozenset(covered),
+            "full_evaluator",
+            "terminal output reports an all-passing pytest run",
             "high",
         )
 
@@ -146,6 +170,28 @@ def _infer_covered_selectors(
         )
 
     return frozenset(), "unknown", "no dependency probe coverage inferred", "none"
+
+
+def _verbose_passed_selectors(
+    output: str,
+    selector_index: dict[str, set[str]],
+) -> set[str]:
+    all_selectors = set().union(*selector_index.values()) if selector_index else set()
+    observed: dict[str, list[str]] = {}
+    for match in _VERBOSE_TEST_RESULT_RE.finditer(output):
+        raw_selector = match.group("selector")
+        status = match.group("status")
+        base_selector = re.sub(r"\[[^\]]+\]$", "", raw_selector)
+        if raw_selector in all_selectors:
+            observed.setdefault(raw_selector, []).append(status)
+        if base_selector in all_selectors:
+            observed.setdefault(base_selector, []).append(status)
+
+    covered = set()
+    for selector, statuses in observed.items():
+        if statuses and all(status == "PASSED" for status in statuses):
+            covered.add(selector)
+    return covered
 
 
 def _passing_file_selectors(
