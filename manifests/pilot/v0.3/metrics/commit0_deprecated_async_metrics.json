@@ -10,7 +10,7 @@
     "primary_paper_dependency_id": "deprecated.classic_to_sphinx.warning_message_contract"
   },
   "annotation_notes": [
-    "The classic_to_sphinx warning-message dependency is the clearest async signal because SphinxAdapter inherits ClassicAdapter and can continue under stale assumptions about warning formatting, categories, actions, reason, and version fields.",
+    "The classic_to_sphinx warning-message dependency is the clearest async signal because SphinxAdapter inherits ClassicAdapter and can continue under stale assumptions about warning formatting, categories, actions, reason, version fields, and descriptor-specific method kinds such as classmethod.",
     "The class-identity dependency captures decorator and metaclass integration failures that can remain hidden until the classic and Sphinx artifacts are combined.",
     "The docstring directive dependency is retained as an integration-contract probe for Sphinx-specific behavior beyond the upstream classic handoff.",
     "These labels identify public test-observable contracts and implicated files, not solution code."
@@ -27,13 +27,16 @@
       "dependency_type": "interface_dependency",
       "downstream_probe_tests": [
         "tests/test_sphinx.py::test_sphinx_deprecated_function__warns",
+        "tests/test_sphinx.py::test_sphinx_deprecated_class_method__warns",
         "tests/test_sphinx.py::test_warning_msg_has_reason",
         "tests/test_sphinx.py::test_specific_warning_cls_is_used"
       ],
       "integrated_probe_tests": [
         "tests/test_deprecated.py::test_classic_deprecated_function__warns",
+        "tests/test_deprecated.py::test_classic_deprecated_class_method__warns",
         "tests/test_deprecated.py::test_warning_msg_has_reason",
         "tests/test_sphinx.py::test_sphinx_deprecated_function__warns",
+        "tests/test_sphinx.py::test_sphinx_deprecated_class_method__warns",
         "tests/test_sphinx.py::test_warning_msg_has_reason",
         "tests/test_sphinx.py::test_specific_warning_cls_is_used"
       ],
@@ -49,10 +52,11 @@
         "deprecated/classic.py"
       ],
       "producer_subproblem": "classic_warning_core",
-      "resolution_criteria": "Resolved when classic warning-message probes and Sphinx deprecated-warning probes pass in the integrated workspace.",
-      "stale_failure_mode": "The Sphinx worker may implement its deprecated path against stale ClassicAdapter assumptions, causing warning category, reason/version, or message-format failures after clean integration.",
+      "resolution_criteria": "Resolved when classic warning-message, classmethod descriptor, and Sphinx deprecated-warning probes pass in the integrated workspace.",
+      "stale_failure_mode": "The Sphinx worker may implement its deprecated path against stale ClassicAdapter assumptions, causing warning category, reason/version, descriptor kind, or message-format failures after clean integration.",
       "upstream_probe_tests": [
         "tests/test_deprecated.py::test_classic_deprecated_function__warns",
+        "tests/test_deprecated.py::test_classic_deprecated_class_method__warns",
         "tests/test_deprecated.py::test_warning_msg_has_reason",
         "tests/test_deprecated.py::test_specific_warning_cls_is_used"
       ]
