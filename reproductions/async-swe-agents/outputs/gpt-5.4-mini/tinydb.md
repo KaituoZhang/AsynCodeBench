@@ -4,7 +4,7 @@ Task: `commit0:tinydb`
 
 Model: `openai/gpt-5.4-mini`
 
-Runner adapter: `native`
+Runner adapter: `native-strict-checkpoints`
 
 This report is an automatically generated AsyncCodeBench evaluation record.
 At least one protocol reaches final success.
@@ -15,28 +15,28 @@ ADPR convention: `final_integrated_ADPR` is the canonical run-level dependency s
 
 | Mode | Final tests | Final success | Final-integrated ADPR | Mean per-agent ADPR | Async overlap | Runtime | Tokens | Cost | Artifact failures | Non-merged attempts | Merge failures | Scope violations | Duplicated contracts | Hygiene violations |
 | --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| single | 200/201 | True | 1 | 0.5 | 0s | 753s | 5095968 | $0.858 | 0 | unavailable | 0 | 0 | 0 | 0 |
-| serial_specialists | 195/201 | False | 1 | 0.3333 | 0s | 1087s | 6905576 | $1.192 | 1 | 0 | 0 | 0 | 6 | 0 |
-| async_private | 60/201 | False | 0 | 0 | 352.8s | 550.5s | 7241295 | $1.223 | 0 | 0 | 0 | 0 | 5 | 0 |
-| CAID_multi | 57/201 | False | 0 | 0 | 167.5s | 645s | 5615562 | $1.046 | 0 | 0 | 0 | 1 | 0 | 0 |
+| single | 200/201 | True | 1 | unavailable | 0s | 573.8s | 2997328 | $0.6742 | 0 | unavailable | 0 | 0 | 0 | 0 |
+| serial_specialists | 192/201 | False | 1 | unavailable | 0s | 978.2s | 3637137 | $0.9227 | 2 | 0 | 0 | 0 | 16 | 0 |
+| async_private | 115/201 | False | 0 | unavailable | 390.3s | 456.3s | 4295524 | $0.9607 | 2 | 0 | 0 | 0 | 6 | 0 |
+| CAID_multi | 44/201 | False | 0 | unavailable | 140.7s | 681.9s | 3973078 | $0.97 | 4 | 0 | 0 | 0 | 0 | 0 |
 
 ## Per-Agent Dependency Views
 
 | Mode | Final-integrated ADPR source | Mean per-agent ADPR | Per-agent-view ADPR |
 | --- | --- | ---: | --- |
-| single | async_dependency_resolution_final_integrated.json | 0.5 | async_dependency_resolution_final_integrated.json=3/3=1.0; async_dependency_resolution_single_agent.json=0/3=0.0 |
-| serial_specialists | async_dependency_resolution_final_integrated.json | 0.3333 | async_dependency_resolution_final_integrated.json=3/3=1.0; async_dependency_resolution_query_agent.json=0/3=0.0; async_dependency_resolution_state_agent.json=0/3=0.0 |
-| async_private | async_dependency_resolution_final_integrated.json | 0 | async_dependency_resolution_final_integrated.json=0/3=0.0; async_dependency_resolution_query_agent.json=0/3=0.0; async_dependency_resolution_state_agent.json=0/3=0.0 |
-| CAID_multi | async_dependency_resolution_final_integrated.json | 0 | async_dependency_resolution_engineer_1.json=0/3=0.0; async_dependency_resolution_engineer_2.json=0/3=0.0; async_dependency_resolution_final_integrated.json=0/3=0.0; async_dependency_resolution_manager.json=0/3=0.0 |
+| single | strict_dependency_metrics.final_integrated_ADPR | unavailable |  |
+| serial_specialists | strict_dependency_metrics.final_integrated_ADPR | unavailable |  |
+| async_private | strict_dependency_metrics.final_integrated_ADPR | unavailable |  |
+| CAID_multi | strict_dependency_metrics.final_integrated_ADPR | unavailable |  |
 
 ## DRS / CAIL / SAD Summary
 
 | Mode | DRS observed | DRS min | DRS max | CAIL observed | CAIL unresolved | Nonzero CAIL | CAIL max | SAD-proxy | Missing-comm proxy |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| single | 0 | unavailable | unavailable | 0 | 6 | 0 | unavailable | 0 | 0 |
-| serial_specialists | 0 | unavailable | unavailable | 0 | 9 | 0 | unavailable | 0 | 0 |
-| async_private | 0 | unavailable | unavailable | 0 | 9 | 0 | unavailable | 0 | 0 |
-| CAID_multi | 0 | unavailable | unavailable | 0 | 12 | 0 | unavailable | 0 | 0 |
+| single | 3 | 1 | 1 | 3 | 0 | 0 | 0 | 0 | 0 |
+| serial_specialists | 3 | 4 | 4 | 3 | 0 | 0 | 0 | 0 | 0 |
+| async_private | 0 | unavailable | unavailable | 0 | 3 | 0 | unavailable | 0 | 0 |
+| CAID_multi | 0 | unavailable | unavailable | 0 | 3 | 0 | unavailable | 0 | 0 |
 
 ## Interpretation Notes
 
