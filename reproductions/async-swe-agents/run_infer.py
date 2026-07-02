@@ -441,14 +441,20 @@ async def run_workflow_inner(task, workflow_config, task_module, multi_agent=Tru
                 print("\n" + "-" * 60)
                 print("Step 9: Manager Final Review")
                 print("-" * 60)
-                manager.final_review_all(subagent_results, max_iterations=30)
+                manager.final_review_all(
+                    subagent_results,
+                    max_iterations=workflow_config.manager_max_iterations,
+                )
 
             else:
                 # Commit0: final review
                 print("\n" + "-" * 60)
                 print("Step 8.5: Manager Final Review")
                 print("-" * 60)
-                manager.final_review_all(subagent_results, max_iterations=30)
+                manager.final_review_all(
+                    subagent_results,
+                    max_iterations=workflow_config.manager_max_iterations,
+                )
 
             # Save runtime (before evaluation)
             runtime_end = datetime.now()
