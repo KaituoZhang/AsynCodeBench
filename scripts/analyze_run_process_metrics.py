@@ -240,10 +240,10 @@ def summarize_primary_outcome(run_dir: Path) -> dict[str, Any]:
     failed = summary.get("failed", 0)
     errors = summary.get("error", summary.get("errors", 0))
     exitcode = report.get("exitcode")
-    final_success = bool(
-        exitcode == 0
-        or (total is not None and passed == total and not failed and not errors)
-    )
+    if exitcode is not None:
+        final_success = bool(exitcode == 0)
+    else:
+        final_success = bool(total is not None and passed == total and not failed and not errors)
     return {
         "upstream_evaluator": "commit0_pytest",
         "passed": passed,
