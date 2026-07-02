@@ -149,8 +149,8 @@ def write_dependency_probe_checkpoint(
         return None
 
     safe_id = re.sub(r"[^A-Za-z0-9_.-]+", "_", checkpoint_id)
-    report_path = f"{workspace_path}/.asynccodebench_probe_{safe_id}.json"
-    output_path = f"{workspace_path}/.asynccodebench_probe_{safe_id}.txt"
+    report_path = f"/tmp/asynccodebench_probe_{safe_id}.json"
+    output_path = f"/tmp/asynccodebench_probe_{safe_id}.txt"
     selector_args = " ".join(shlex.quote(selector) for selector in selectors)
     quoted_workspace = shlex.quote(workspace_path)
     command = (
@@ -169,6 +169,10 @@ def write_dependency_probe_checkpoint(
     output_result = workspace.execute_command(
         f"cat {shlex.quote(output_path)} 2>/dev/null || true",
         timeout=60,
+    )
+    workspace.execute_command(
+        f"rm -f {shlex.quote(report_path)} {shlex.quote(output_path)}",
+        timeout=30,
     )
 
     try:

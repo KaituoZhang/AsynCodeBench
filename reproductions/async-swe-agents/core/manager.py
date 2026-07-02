@@ -324,6 +324,30 @@ class Manager:
         )
 
         if not delegation_json:
+            assign_json = extract_json_from_events(
+                self.conversation.state.events, key_to_find="assign_task"
+            )
+            assign_task = (assign_json or {}).get("assign_task", {})
+            assignments = assign_task.get("assignments", [])
+            if assignments:
+                delegation_json = {
+                    "delegation_plan": {
+                        "first_round": {
+                            "num_agents": len(assignments),
+                            "reasoning": assign_task.get(
+                                "reasoning",
+                                "Converted from assign_task output.",
+                            ),
+                            "tasks": assignments,
+                        },
+                        "remaining_tasks": [],
+                    }
+                }
+
+        if not delegation_json:
+            delegation_json = self.build_commit0_scenario_fallback_delegation()
+
+        if not delegation_json:
             self.log("WARNING: No delegation JSON found, using fallback...")
             delegation_json = fallback_delegation(
                 self.analysis_result,
@@ -356,6 +380,100 @@ class Manager:
                 "duration": duration,
             },
         )
+
+    def build_commit0_scenario_fallback_delegation(self):
+        repo_name = getattr(getattr(self.task, "config", None), "repo_name", "")
+        if not repo_name:
+            return None
+
+        scenario_dir = Path(__file__).resolve().parents[3] / "manifests" / "pilot" / "v0.3" / "scenarios"
+        scenario_path = scenario_dir / f"commit0_{repo_name.replace('-', '_')}.json"
+        if not scenario_path.exists():
+            return None
+
+        try:
+            data = json.loads(scenario_path.read_text())
+        except (OSError, json.JSONDecodeError):
+            return None
+
+        scenario = None
+        for candidate in data.get("scenarios", []):
+            if candidate.get("execution_mode") == "async_private":
+                scenario = candidate
+                break
+        if scenario is None:
+            for candidate in data.get("scenarios", []):
+                if candidate.get("agent_count", 0) > 1:
+                    scenario = candidate
+                    break
+        if scenario is None:
+            return None
+
+        tasks = []
+        for idx, assignment in enumerate(scenario.get("assignments", []), start=1):
+            writable_paths = assignment.get("writable_paths", [])
+            primary_tests = assignment.get("primary_test_targets", [])
+            role = assignment.get("role") or assignment.get("subproblem_id") or "specialist"
+            dependency_lines = []
+            for dep in scenario.get("dependency_annotations", []):
+                subproblem_id = assignment.get("subproblem_id")
+                if subproblem_id in {
+                    dep.get("producer_subproblem"),
+                    dep.get("consumer_subproblem"),
+                }:
+                    dependency_lines.append(
+                        f"- {dep.get('producer_subproblem')} -> "
+                        f"{dep.get('consumer_subproblem')}: {dep.get('description', '')}"
+                    )
+            instruction_parts = [
+                f"Role: {role}.",
+                f"Subproblem ID: {assignment.get('subproblem_id', '')}.",
+                "",
+                "Only modify your assigned writable paths.",
+                "",
+                "Assigned writable paths:",
+                *[f"- {p}" for p in writable_paths],
+            ]
+            if primary_tests:
+                instruction_parts.extend([
+                    "",
+                    "Primary test targets:",
+                    *[f"- {t}" for t in primary_tests],
+                ])
+            if dependency_lines:
+                instruction_parts.extend([
+                    "",
+                    "Relevant AsyncCodeBench dependency annotations:",
+                    *dependency_lines,
+                ])
+
+            tasks.append({
+                "engineer_id": assignment.get("agent_id") or f"engineer_{idx}",
+                "task_id": assignment.get("subproblem_id") or f"scenario_task_{idx}",
+                "file_path": ", ".join(writable_paths),
+                "functions_to_implement": ["assigned writable paths"],
+                "instruction": "\n".join(instruction_parts),
+                "context": "",
+                "estimated_complexity": "medium",
+            })
+
+        if not tasks:
+            return None
+
+        self.log(f"Using scenario manifest fallback delegation from {scenario_path}")
+        return {
+            "delegation_plan": {
+                "first_round": {
+                    "num_agents": min(len(tasks), self.config.max_subagents),
+                    "reasoning": (
+                        "Fallback: generated from AsyncCodeBench scenario manifest "
+                        "because manager delegation JSON was not parseable."
+                    ),
+                    "tasks": tasks[: self.config.max_subagents],
+                },
+                "remaining_tasks": [],
+            }
+        }
 
     def onboard_subagents(self):
         if not self.delegation_plan:
@@ -548,6 +666,8 @@ class Manager:
                 parts = line.split(maxsplit=1)
                 if len(parts) >= 2:
                     file_path = parts[1].strip()
+                    if file_path.startswith(".asynccodebench_probe_"):
+                        continue
                     modified_files.append(file_path)
 
         return modified_files
@@ -568,6 +688,11 @@ class Manager:
             f'git config user.email "openhands@all-hands.dev"'
         )
         self.workspace.execute_command(git_config_cmd, timeout=30)
+
+        self.workspace.execute_command(
+            f"cd {worktree_path} && rm -f .asynccodebench_probe_*",
+            timeout=30,
+        )
 
         add_cmd = f"cd {worktree_path} && git add ."
         add_result = self.workspace.execute_command(add_cmd, timeout=60)

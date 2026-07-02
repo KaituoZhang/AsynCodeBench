@@ -189,7 +189,7 @@ class Commit0Task(TaskModule):
             f"{test_dir} > test_output.txt 2>&1"
         )
         print(f"[Commit0] Running: {test_cmd} {test_dir}")
-        workspace.execute_command(full_cmd, timeout=6000)
+        pytest_result = workspace.execute_command(full_cmd, timeout=6000)
 
         # Read results
         output_result = workspace.execute_command(
@@ -215,7 +215,7 @@ class Commit0Task(TaskModule):
         print(f"[Commit0] Pytest results: {passed} passed, {failed} failed, {error} error")
 
         return {
-            "exit_code": str(output_result.exit_code),
+            "exit_code": str(pytest_result.exit_code),
             "test_output": test_output,
             "report_json": report_json,
             "passed": passed,

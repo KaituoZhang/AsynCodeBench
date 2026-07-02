@@ -522,13 +522,31 @@ def sanitize_json_string(s):
     return s
 
 
-def parse_json_from_response(response):
+def parse_json_from_response(response, key_to_find=None):
+    if response is None:
+        return None
+    if not isinstance(response, str):
+        response = json.dumps(response)
+
     json_match = re.search(r'```(?:json)?\s*(\{[\s\S]*\})\s*```', response)
     if json_match:
         try:
-            return json.loads(sanitize_json_string(json_match.group(1)), strict=False)
+            parsed = json.loads(sanitize_json_string(json_match.group(1)), strict=False)
+            if key_to_find is None or (isinstance(parsed, dict) and key_to_find in parsed):
+                return parsed
         except json.JSONDecodeError:
             pass
+
+    decoder = json.JSONDecoder(strict=False)
+    for match in re.finditer(r'\{', response):
+        try:
+            parsed, _ = decoder.raw_decode(sanitize_json_string(response[match.start():]))
+            if isinstance(parsed, dict) and (
+                key_to_find is None or key_to_find in parsed
+            ):
+                return parsed
+        except json.JSONDecodeError:
+            continue
 
     try:
         start = response.find('{')
@@ -554,7 +572,11 @@ def parse_json_from_response(response):
                     depth -= 1
                     if depth == 0:
                         json_str = response[start:i + 1]
-                        return json.loads(sanitize_json_string(json_str), strict=False)
+                        parsed = json.loads(sanitize_json_string(json_str), strict=False)
+                        if key_to_find is None or (
+                            isinstance(parsed, dict) and key_to_find in parsed
+                        ):
+                            return parsed
     except json.JSONDecodeError:
         pass
 
@@ -562,7 +584,9 @@ def parse_json_from_response(response):
         start = response.find('{')
         end = response.rfind('}')
         if start != -1 and end != -1 and end > start:
-            return json.loads(sanitize_json_string(response[start:end + 1]), strict=False)
+            parsed = json.loads(sanitize_json_string(response[start:end + 1]), strict=False)
+            if key_to_find is None or (isinstance(parsed, dict) and key_to_find in parsed):
+                return parsed
     except json.JSONDecodeError:
         pass
 
@@ -570,29 +594,50 @@ def parse_json_from_response(response):
 
 
 def extract_json_from_events(events, key_to_find=None):
+    def _collect_texts(value):
+        texts = []
+        if value is None:
+            return texts
+        if isinstance(value, str):
+            return [value]
+        if isinstance(value, dict):
+            for candidate_key in ("text", "content", "message", "reasoning_content"):
+                if candidate_key in value:
+                    texts.extend(_collect_texts(value[candidate_key]))
+            return texts
+        if isinstance(value, (list, tuple)):
+            for item in value:
+                texts.extend(_collect_texts(item))
+            return texts
+        if hasattr(value, "text") and value.text:
+            texts.append(value.text)
+        elif hasattr(value, "content") and value.content:
+            texts.extend(_collect_texts(value.content))
+        return texts
+
     try:
         for event in reversed(list(events)):
             texts = []
 
+            if isinstance(event, dict):
+                for field in ("llm_message", "thought", "reasoning_content", "content"):
+                    texts.extend(_collect_texts(event.get(field)))
+
             if hasattr(event, 'llm_message') and event.llm_message:
                 if hasattr(event.llm_message, 'content'):
-                    for item in event.llm_message.content:
-                        if hasattr(item, 'text') and item.text:
-                            texts.append(item.text)
+                    texts.extend(_collect_texts(event.llm_message.content))
+                else:
+                    texts.extend(_collect_texts(event.llm_message))
 
             if hasattr(event, 'thought') and event.thought:
-                for item in event.thought:
-                    if isinstance(item, str):
-                        texts.append(item)
-                    elif hasattr(item, 'text') and item.text:
-                        texts.append(item.text)
+                texts.extend(_collect_texts(event.thought))
 
             if hasattr(event, 'reasoning_content') and event.reasoning_content:
                 texts.append(event.reasoning_content)
 
             for text in texts:
                 if '{' in text and '}' in text:
-                    parsed = parse_json_from_response(text)
+                    parsed = parse_json_from_response(text, key_to_find=key_to_find)
                     if parsed and (key_to_find is None or key_to_find in parsed):
                         return parsed
     except Exception as e:
