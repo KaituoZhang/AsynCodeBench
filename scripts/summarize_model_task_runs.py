@@ -262,6 +262,55 @@ def strict_cail_summary(run_dir: Path) -> dict[str, Any] | None:
     }
 
 
+def strict_dependency_diagnostics(run_dir: Path) -> dict[str, Any]:
+    strict = load_json(run_dir / "strict_dependency_metrics.json", None)
+    if not strict:
+        return {
+            "strict_dependency_count": None,
+            "strict_upstream_resolved_count": None,
+            "strict_downstream_resolved_count": None,
+            "strict_integrated_resolved_count": None,
+            "strict_unresolved_dependency_ids": "",
+            "strict_upstream_only_dependency_ids": "",
+            "strict_dependency_trace": "",
+        }
+    rows = strict.get("dependency_metrics", []) or []
+    unresolved = []
+    upstream_only = []
+    trace = []
+    upstream_count = 0
+    downstream_count = 0
+    integrated_count = 0
+    for row in rows:
+        dependency_id = row.get("dependency_id")
+        upstream_step = row.get("upstream_resolution_step")
+        downstream_step = row.get("downstream_resolution_step")
+        drs = row.get("strict_DRS")
+        cail = row.get("strict_CAIL")
+        if isinstance(upstream_step, int):
+            upstream_count += 1
+        if isinstance(downstream_step, int):
+            downstream_count += 1
+        if row.get("final_integrated_pass"):
+            integrated_count += 1
+        else:
+            unresolved.append(dependency_id)
+        if isinstance(upstream_step, int) and not isinstance(downstream_step, int):
+            upstream_only.append(dependency_id)
+        trace.append(
+            f"{dependency_id}:up={fmt(upstream_step)},down={fmt(downstream_step)},DRS={fmt(drs)},CAIL={fmt(cail)}"
+        )
+    return {
+        "strict_dependency_count": len(rows),
+        "strict_upstream_resolved_count": upstream_count,
+        "strict_downstream_resolved_count": downstream_count,
+        "strict_integrated_resolved_count": integrated_count,
+        "strict_unresolved_dependency_ids": "; ".join(str(item) for item in unresolved if item),
+        "strict_upstream_only_dependency_ids": "; ".join(str(item) for item in upstream_only if item),
+        "strict_dependency_trace": "<br>".join(trace),
+    }
+
+
 def modified_files_from_patch(run_dir: Path) -> list[str]:
     patch = read_text(run_dir / "patch.diff")
     files = []
@@ -292,6 +341,7 @@ def run_row(mode: str, run_dir: Path) -> dict[str, Any]:
     final_adpr, final_adpr_source = final_integrated_adpr(run_dir, summary)
     mean_adpr, per_agent_adpr = mean_per_agent_adpr(reports)
     cail = strict_cail_summary(run_dir) or cail_summary(reports)
+    strict_diag = strict_dependency_diagnostics(run_dir)
 
     patch = process.get("patch_file_generation_success", {})
     conflict = process.get("textual_patch_conflict", {})
@@ -351,6 +401,7 @@ def run_row(mode: str, run_dir: Path) -> dict[str, Any]:
         "sad_proxy_candidate_count": stale.get("automatic_proxy_count", cail["sad_proxy_candidate_count"]),
         "missing_communication_proxy_count": missing.get("automatic_proxy_count"),
         **cail,
+        **strict_diag,
     }
 
 
@@ -423,6 +474,13 @@ def write_csv(rows: list[dict[str, Any]], path: Path) -> None:
         "drs_observed_count",
         "drs_min",
         "drs_max",
+        "strict_dependency_count",
+        "strict_upstream_resolved_count",
+        "strict_downstream_resolved_count",
+        "strict_integrated_resolved_count",
+        "strict_unresolved_dependency_ids",
+        "strict_upstream_only_dependency_ids",
+        "strict_dependency_trace",
         "sad_proxy_candidate_count",
         "missing_communication_proxy_count",
         "per_report_cail_summary",
@@ -562,6 +620,42 @@ def write_markdown(args: argparse.Namespace, rows: list[dict[str, Any]], path: P
                 sad=fmt(row.get("sad_proxy_candidate_count")),
                 missing=fmt(row.get("missing_communication_proxy_count")),
             )
+        )
+    lines.extend(
+        [
+            "",
+            "## Strict Dependency Diagnostics",
+            "",
+            "This table is based on `dependency_probe_checkpoints.jsonl` and shows whether each protocol resolves producer-side, consumer-side, and integrated dependency probes.",
+            "",
+            "| Mode | Dependencies | Upstream resolved | Downstream resolved | Integrated resolved | Unresolved dependencies | Upstream-only dependencies |",
+            "| --- | ---: | ---: | ---: | ---: | --- | --- |",
+        ]
+    )
+    for row in rows:
+        lines.append(
+            "| {mode} | {total} | {upstream} | {downstream} | {integrated} | {unresolved} | {upstream_only} |".format(
+                mode=row["mode"],
+                total=fmt(row.get("strict_dependency_count")),
+                upstream=fmt(row.get("strict_upstream_resolved_count")),
+                downstream=fmt(row.get("strict_downstream_resolved_count")),
+                integrated=fmt(row.get("strict_integrated_resolved_count")),
+                unresolved=row.get("strict_unresolved_dependency_ids") or "",
+                upstream_only=row.get("strict_upstream_only_dependency_ids") or "",
+            )
+        )
+    lines.extend(
+        [
+            "",
+            "## Strict Per-Dependency Trace",
+            "",
+            "| Mode | Trace |",
+            "| --- | --- |",
+        ]
+    )
+    for row in rows:
+        lines.append(
+            f"| {row['mode']} | {row.get('strict_dependency_trace') or ''} |"
         )
     lines.extend(["", "## Interpretation Notes", ""])
     if any_success:

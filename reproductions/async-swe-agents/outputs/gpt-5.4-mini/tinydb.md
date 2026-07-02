@@ -38,6 +38,26 @@ ADPR convention: `final_integrated_ADPR` is the canonical run-level dependency s
 | async_private | 0 | unavailable | unavailable | 0 | 3 | 0 | unavailable | 0 | 0 |
 | CAID_multi | 0 | unavailable | unavailable | 0 | 3 | 0 | unavailable | 0 | 0 |
 
+## Strict Dependency Diagnostics
+
+This table is based on `dependency_probe_checkpoints.jsonl` and shows whether each protocol resolves producer-side, consumer-side, and integrated dependency probes.
+
+| Mode | Dependencies | Upstream resolved | Downstream resolved | Integrated resolved | Unresolved dependencies | Upstream-only dependencies |
+| --- | ---: | ---: | ---: | ---: | --- | --- |
+| single | 3 | 3 | 3 | 3 |  |  |
+| serial_specialists | 3 | 3 | 3 | 3 |  |  |
+| async_private | 3 | 1 | 0 | 0 | tinydb.query_to_table.search_cache_contract; tinydb.operations_to_table.update_transform_contract; tinydb.state_stack.shared_mapping_contract | tinydb.query_to_table.search_cache_contract |
+| CAID_multi | 3 | 1 | 0 | 0 | tinydb.query_to_table.search_cache_contract; tinydb.operations_to_table.update_transform_contract; tinydb.state_stack.shared_mapping_contract | tinydb.query_to_table.search_cache_contract |
+
+## Strict Per-Dependency Trace
+
+| Mode | Trace |
+| --- | --- |
+| single | tinydb.query_to_table.search_cache_contract:up=1,down=1,DRS=1,CAIL=0<br>tinydb.operations_to_table.update_transform_contract:up=1,down=1,DRS=1,CAIL=0<br>tinydb.state_stack.shared_mapping_contract:up=1,down=1,DRS=1,CAIL=0 |
+| serial_specialists | tinydb.query_to_table.search_cache_contract:up=3,down=3,DRS=4,CAIL=0<br>tinydb.operations_to_table.update_transform_contract:up=3,down=3,DRS=4,CAIL=0<br>tinydb.state_stack.shared_mapping_contract:up=3,down=3,DRS=4,CAIL=0 |
+| async_private | tinydb.query_to_table.search_cache_contract:up=1,down=unavailable,DRS=unavailable,CAIL=unavailable<br>tinydb.operations_to_table.update_transform_contract:up=unavailable,down=unavailable,DRS=unavailable,CAIL=unavailable<br>tinydb.state_stack.shared_mapping_contract:up=unavailable,down=unavailable,DRS=unavailable,CAIL=unavailable |
+| CAID_multi | tinydb.query_to_table.search_cache_contract:up=8,down=unavailable,DRS=unavailable,CAIL=unavailable<br>tinydb.operations_to_table.update_transform_contract:up=unavailable,down=unavailable,DRS=unavailable,CAIL=unavailable<br>tinydb.state_stack.shared_mapping_contract:up=unavailable,down=unavailable,DRS=unavailable,CAIL=unavailable |
+
 ## Interpretation Notes
 
 This run is suitable for success-case analysis: final pass is achieved, and dependency/coordination metrics explain the process differences between protocols.
