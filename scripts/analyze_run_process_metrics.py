@@ -17,6 +17,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from analyze_strict_dependency_checkpoints import compute_strict_metrics
+
 
 PYTEST_RE = re.compile(r"(pytest|test session starts|\d+\s+passed|\d+\s+failed)")
 PASSED_RE = re.compile(r"(?P<passed>\d+)\s+passed\b")
@@ -1013,6 +1015,14 @@ def build_report(run_dir: Path, metrics_path: Path, baseline_run_dir: Path | Non
     agent_events = load_agent_events(run_dir)
     dependency_reports = load_dependency_reports(run_dir)
     dependency_summary = summarize_dependency_metrics(dependency_reports, metrics_manifest)
+    strict_path = run_dir / "strict_dependency_metrics.json"
+    checkpoints_path = run_dir / "dependency_probe_checkpoints.jsonl"
+    if checkpoints_path.exists() and not strict_path.exists():
+        write_json(
+            compute_strict_metrics(metrics_manifest, load_jsonl(checkpoints_path)),
+            strict_path,
+        )
+    strict_dependency_metrics = load_json(strict_path, None)
     primary = summarize_primary_outcome(run_dir)
     cost = summarize_cost_metrics(run_dir, agent_events, outputs)
     process = summarize_process_metrics(
@@ -1054,6 +1064,7 @@ def build_report(run_dir: Path, metrics_path: Path, baseline_run_dir: Path | Non
         "cost_metrics": cost,
         "formal_metrics": formal_metrics,
         "dependency_metrics": dependency_summary,
+        "strict_dependency_metrics": strict_dependency_metrics,
         "process_metrics": process,
         "serial_to_async_performance_delta_under_fixed_decomposition": serial_delta,
         "limitations": [
@@ -1070,6 +1081,7 @@ def print_summary(report: dict[str, Any]) -> None:
     process = report["process_metrics"]
     dependency = report["dependency_metrics"]
     formal = report["formal_metrics"]
+    strict = report.get("strict_dependency_metrics")
     print(f"task_id: {report.get('task_id')}")
     print(f"run_dir: {report['run_dir']}")
     print(
@@ -1085,6 +1097,13 @@ def print_summary(report: dict[str, Any]) -> None:
     )
     adpr = dependency["ADPR"]
     print(f"ADPR reports: {adpr['per_report']}")
+    if strict:
+        print(
+            "strict: "
+            f"final_ADPR={strict.get('final_integrated_ADPR', {}).get('value')} "
+            f"DRS={strict.get('strict_DRS')} "
+            f"CAIL={strict.get('strict_CAIL')}"
+        )
     print(
         "process: "
         f"attempts={process['patch_file_generation_success']['agent_attempt_count']} "

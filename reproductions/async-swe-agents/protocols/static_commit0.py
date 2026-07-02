@@ -11,6 +11,7 @@ from openhands.workspace import DockerDevWorkspace, DockerWorkspace
 import core.patches
 from config import SubAgent
 from core.manager import Manager
+from core.dependency_probes import write_dependency_probe_checkpoint
 from core.subagent import SubAgentRunner, run_subagents_parallel
 from core.utils import (
     OutputLogger,
@@ -58,6 +59,7 @@ class StaticCommit0ProtocolRunner:
         self.scenario = None
         self.output_logger = OutputLogger(workflow_config.output_dir)
         self.prompts = load_prompts(task_name)
+        self.probe_logical_step = 0
 
     def default_scenario_path(self):
         repo_root = Path(__file__).resolve().parents[3]
@@ -353,6 +355,46 @@ print(json.dumps(out))
             result.error = result.error or review["merge_message"]
         return review
 
+    def next_probe_step(self):
+        self.probe_logical_step += 1
+        return self.probe_logical_step
+
+    def read_head(self, workspace, path):
+        result = workspace.execute_command(
+            f"cd {path} && git rev-parse --short HEAD",
+            timeout=30,
+        )
+        return result.stdout.strip() if result.exit_code == 0 else None
+
+    def write_probe_checkpoint(
+        self,
+        workspace,
+        workspace_path,
+        checkpoint_id,
+        checkpoint_type,
+        agent_id=None,
+        task_id=None,
+        workspace_kind="agent_workspace",
+        artifact_version=None,
+        visible_upstream_artifact_version=None,
+        integrated_workspace_version=None,
+    ):
+        return write_dependency_probe_checkpoint(
+            workspace=workspace,
+            output_dir=self.workflow_config.output_dir,
+            repo_name=self.repo_name,
+            workspace_path=workspace_path,
+            checkpoint_id=checkpoint_id,
+            checkpoint_type=checkpoint_type,
+            logical_step=self.next_probe_step(),
+            agent_id=agent_id,
+            task_id=task_id,
+            workspace_kind=workspace_kind,
+            artifact_version=artifact_version,
+            visible_upstream_artifact_version=visible_upstream_artifact_version,
+            integrated_workspace_version=integrated_workspace_version,
+        )
+
     def save_final_artifacts(self, workspace, repo_dir, base_commit, results, runtime_seconds):
         save_all_costs(
             self.workflow_config.output_dir,
@@ -406,6 +448,15 @@ print(json.dumps(out))
 
         print(f"[Pytest] Saved report to {report_file}")
 
+        self.write_probe_checkpoint(
+            workspace,
+            repo_dir,
+            checkpoint_id="final_integrated",
+            checkpoint_type="final_integrated",
+            workspace_kind="integrated_workspace",
+            integrated_workspace_version=self.read_head(workspace, repo_dir),
+        )
+
         tarball_name = f"{self.repo_name}_repo.tar.gz"
         tar_cmd = f"cd /workspace && tar -czf {tarball_name} {self.repo_name}_repo"
         tar_result = workspace.execute_command(tar_cmd, timeout=300)
@@ -440,7 +491,29 @@ print(json.dumps(out))
 
         print("[StaticProtocol] All async-private workers finished; integrating artifacts now.")
         for result in results:
+            if result.worktree_path:
+                self.write_probe_checkpoint(
+                    workspace,
+                    result.worktree_path,
+                    checkpoint_id=f"agent_artifact:{result.engineer_id}:round{result.round_num}",
+                    checkpoint_type="agent_artifact",
+                    agent_id=result.engineer_id,
+                    task_id=result.task_id,
+                    workspace_kind="agent_workspace",
+                    artifact_version=result.commit_hash or self.read_head(workspace, result.worktree_path),
+                )
             self.merge_result(manager, result)
+            self.write_probe_checkpoint(
+                workspace,
+                repo_dir,
+                checkpoint_id=f"integration_after_merge:{result.engineer_id}:round{result.round_num}",
+                checkpoint_type="integration_after_merge",
+                agent_id=result.engineer_id,
+                task_id=result.task_id,
+                workspace_kind="integrated_workspace",
+                artifact_version=result.commit_hash,
+                integrated_workspace_version=self.read_head(workspace, repo_dir),
+            )
 
         for runner in runners:
             runner.cleanup()
@@ -471,7 +544,31 @@ print(json.dumps(out))
             self.output_logger.log_agent_response(
                 **self.task_module.get_log_agent_response_kwargs(result)
             )
+            if result.worktree_path:
+                self.write_probe_checkpoint(
+                    workspace,
+                    result.worktree_path,
+                    checkpoint_id=f"agent_artifact:{result.engineer_id}:round{result.round_num}",
+                    checkpoint_type="agent_artifact",
+                    agent_id=result.engineer_id,
+                    task_id=result.task_id,
+                    workspace_kind="agent_workspace",
+                    artifact_version=result.commit_hash or self.read_head(workspace, result.worktree_path),
+                    visible_upstream_artifact_version=current_base,
+                )
             self.merge_result(manager, result)
+            self.write_probe_checkpoint(
+                workspace,
+                repo_dir,
+                checkpoint_id=f"integration_after_merge:{result.engineer_id}:round{result.round_num}",
+                checkpoint_type="integration_after_merge",
+                agent_id=result.engineer_id,
+                task_id=result.task_id,
+                workspace_kind="integrated_workspace",
+                artifact_version=result.commit_hash,
+                visible_upstream_artifact_version=current_base,
+                integrated_workspace_version=self.read_head(workspace, repo_dir),
+            )
             results.append(result)
             runner.cleanup()
 

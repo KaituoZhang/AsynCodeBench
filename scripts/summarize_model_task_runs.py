@@ -33,6 +33,8 @@ INDEXED_PATTERNS = [
     "*_test_output.txt",
     "*_pytest_exit_code.txt",
     "process_metrics_summary.json",
+    "dependency_probe_checkpoints.jsonl",
+    "strict_dependency_metrics.json",
     "async_dependency_resolution*.json",
     "agent_events/*.jsonl",
 ]
@@ -130,6 +132,12 @@ def collect_dependency_reports(run_dir: Path, process_summary: dict[str, Any]) -
 
 
 def final_integrated_adpr(run_dir: Path, process_summary: dict[str, Any]) -> tuple[float | None, str]:
+    strict = load_json(run_dir / "strict_dependency_metrics.json", {})
+    strict_adpr = strict.get("final_integrated_ADPR", {}) if isinstance(strict, dict) else {}
+    strict_value = strict_adpr.get("value")
+    if isinstance(strict_value, (int, float)):
+        return strict_value, "strict_dependency_metrics.final_integrated_ADPR"
+
     final_report = run_dir / "async_dependency_resolution_final_integrated.json"
     if final_report.exists():
         value = summary_adpr_value(load_json(final_report, {}))
@@ -217,6 +225,43 @@ def cail_summary(reports: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def strict_cail_summary(run_dir: Path) -> dict[str, Any] | None:
+    strict = load_json(run_dir / "strict_dependency_metrics.json", None)
+    if not strict:
+        return None
+    cail = strict.get("strict_CAIL", {})
+    drs = strict.get("strict_DRS", {})
+    rows = strict.get("dependency_metrics", []) or []
+    observed_cail = [
+        row.get("strict_CAIL")
+        for row in rows
+        if isinstance(row.get("strict_CAIL"), int)
+    ]
+    observed_drs = [
+        row.get("strict_DRS")
+        for row in rows
+        if isinstance(row.get("strict_DRS"), int)
+    ]
+    total = len(rows)
+    return {
+        "cail_observed_count": cail.get("observed_count", len(observed_cail)),
+        "cail_unresolved_count": cail.get("unobserved_count", total - len(observed_cail)),
+        "cail_total_dependency_views": total,
+        "cail_nonzero_count": sum(1 for value in observed_cail if value != 0),
+        "cail_max": cail.get("max"),
+        "cail_mean": cail.get("mean"),
+        "drs_observed_count": drs.get("observed_count", len(observed_drs)),
+        "drs_min": drs.get("min"),
+        "drs_max": drs.get("max"),
+        "sad_proxy_candidate_count": 0,
+        "per_report_cail_summary": "strict_dependency_metrics.json: "
+        + "; ".join(
+            f"{row.get('dependency_id')} DRS={row.get('strict_DRS')} CAIL={row.get('strict_CAIL')}"
+            for row in rows
+        ),
+    }
+
+
 def modified_files_from_patch(run_dir: Path) -> list[str]:
     patch = read_text(run_dir / "patch.diff")
     files = []
@@ -246,7 +291,7 @@ def run_row(mode: str, run_dir: Path) -> dict[str, Any]:
     reports = collect_dependency_reports(run_dir, summary)
     final_adpr, final_adpr_source = final_integrated_adpr(run_dir, summary)
     mean_adpr, per_agent_adpr = mean_per_agent_adpr(reports)
-    cail = cail_summary(reports)
+    cail = strict_cail_summary(run_dir) or cail_summary(reports)
 
     patch = process.get("patch_file_generation_success", {})
     conflict = process.get("textual_patch_conflict", {})

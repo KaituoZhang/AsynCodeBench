@@ -5,6 +5,7 @@ from openhands.sdk import Agent, Conversation
 from openhands.tools.preset.default import get_default_tools
 
 from config import SubAgent, SubAgentResult
+from core.dependency_probes import write_dependency_probe_checkpoint
 from core.utils import (
     PanelVisualizer,
     build_subagent_prompt,
@@ -399,6 +400,38 @@ async def run_subagents_parallel(runners, manager=None, task_module=None, output
     results = []
     idle_runners = []
     exploration_task = None
+    probe_logical_step = 0
+
+    def next_probe_step():
+        nonlocal probe_logical_step
+        probe_logical_step += 1
+        return probe_logical_step
+
+    def is_commit0_probe_enabled():
+        return (
+            task_module is not None
+            and hasattr(task_module, "config")
+            and hasattr(task_module.config, "repo_name")
+            and runners
+            and getattr(runners[0], "output_dir", None)
+        )
+
+    def read_head(workspace, path):
+        result = workspace.execute_command(
+            f"cd {path} && git rev-parse --short HEAD",
+            timeout=30,
+        )
+        return result.stdout.strip() if result.exit_code == 0 else None
+
+    def write_probe(workspace, output_dir, repo_name, workspace_path, **kwargs):
+        return write_dependency_probe_checkpoint(
+            workspace=workspace,
+            output_dir=output_dir,
+            repo_name=repo_name,
+            workspace_path=workspace_path,
+            logical_step=next_probe_step(),
+            **kwargs,
+        )
 
     # Background exploration helpers (commit0-specific)
     def get_remaining_tasks():
@@ -616,11 +649,40 @@ async def run_subagents_parallel(runners, manager=None, task_module=None, output
                     log_kwargs = task_module.get_log_agent_response_kwargs(result)
                     output_logger.log_agent_response(**log_kwargs)
 
+                if is_commit0_probe_enabled() and result.worktree_path:
+                    write_probe(
+                        workspace=runner.workspace,
+                        output_dir=runner.output_dir,
+                        repo_name=task_module.config.repo_name,
+                        workspace_path=result.worktree_path,
+                        checkpoint_id=f"agent_artifact:{result.engineer_id}:round{result.round_num}",
+                        checkpoint_type="agent_artifact",
+                        agent_id=result.engineer_id,
+                        task_id=result.task_id,
+                        workspace_kind="agent_workspace",
+                        artifact_version=result.commit_hash or read_head(runner.workspace, result.worktree_path),
+                    )
+
                 if manager:
                     collect_result = manager.collect_and_merge(result, output_logger)
                     result.merged = collect_result.get("merged", False)
                     result.merge_method = collect_result.get("merge_method", "")
                     conflict_files = collect_result.get("conflict_files", [])
+
+                    if is_commit0_probe_enabled():
+                        write_probe(
+                            workspace=manager.workspace,
+                            output_dir=runner.output_dir,
+                            repo_name=task_module.config.repo_name,
+                            workspace_path=manager.repo_dir,
+                            checkpoint_id=f"integration_after_merge:{result.engineer_id}:round{result.round_num}",
+                            checkpoint_type="integration_after_merge",
+                            agent_id=result.engineer_id,
+                            task_id=result.task_id,
+                            workspace_kind="integrated_workspace",
+                            artifact_version=result.commit_hash,
+                            integrated_workspace_version=read_head(manager.workspace, manager.repo_dir),
+                        )
 
                     # Merge conflict: engineer must resolve it in their worktree
                     if result.merge_method == "conflict" and conflict_files:

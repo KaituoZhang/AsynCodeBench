@@ -114,6 +114,41 @@ contract. A zero value can mean clean synchronization, or it can mean the
 runner only observed both sides at the same final checkpoint. Always report
 the checkpoint policy.
 
+#### Strict Checkpoint Policy
+
+For new runs, AsyncCodeBench runners now write:
+
+```text
+dependency_probe_checkpoints.jsonl
+```
+
+This file is produced by the test side, not by the task annotations. The runner
+executes the labeled probe tests at these points:
+
+- after each subagent artifact is produced;
+- after each artifact is merged into the integrated workspace;
+- after the final integrated evaluator run.
+
+Each checkpoint stores `logical_step`, `checkpoint_type`, `agent_id`,
+`workspace_kind`, artifact versions, raw probe selector outcomes, and
+per-dependency upstream/downstream/integrated pass states.
+
+Strict metrics are then computed from those checkpoints:
+
+```text
+strict_DRS_d =
+  first integrated-workspace checkpoint where integrated_probe_tests(d) pass
+
+strict_CAIL_d =
+  first downstream_probe_tests(d) pass step
+  - first upstream_probe_tests(d) pass step
+```
+
+If either side is never observed, strict CAIL is unresolved rather than filled
+with zero. Older runs without `dependency_probe_checkpoints.jsonl` can still
+report final ADPR and proxy diagnostics, but they cannot support strict DRS or
+strict CAIL retroactively.
+
 #### SAD: Stale Assumption Duration
 
 ```text
@@ -204,6 +239,23 @@ The output contains:
 
 ### Step 2: Aggregate Run-Level Process Metrics
 
+For new runs with `dependency_probe_checkpoints.jsonl`,
+`analyze_run_process_metrics.py` automatically creates and reads:
+
+```text
+strict_dependency_metrics.json
+```
+
+You can also compute it explicitly:
+
+```bash
+python scripts/analyze_strict_dependency_checkpoints.py \
+  --metrics manifests/pilot/v0.3/metrics/commit0_tinydb_async_metrics.json \
+  --checkpoints reproductions/async-swe-agents/outputs/repro_commit0/tinydb/<run>/dependency_probe_checkpoints.jsonl \
+  --output reproductions/async-swe-agents/outputs/repro_commit0/tinydb/<run>/strict_dependency_metrics.json \
+  --print-summary
+```
+
 Use:
 
 ```text
@@ -271,4 +323,3 @@ to reach a passing final repository.
   true earliest semantic fix.
 - Coordination diagnostics depend on runner event quality. Keep `outputs.jsonl`,
   `agent_events/`, `protocol.json`, and `delegations.json` with every run.
-

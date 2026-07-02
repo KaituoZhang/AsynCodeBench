@@ -11,6 +11,10 @@ from openhands.workspace import DockerDevWorkspace, DockerWorkspace
 
 import core.patches  
 from config import WorkflowConfig
+from core.dependency_probes import (
+    next_checkpoint_step,
+    write_dependency_probe_checkpoint,
+)
 from core.manager import Manager
 from core.subagent import SubAgentRunner, run_subagents_parallel
 from core.utils import (
@@ -33,6 +37,33 @@ from tasks.commit0 import Commit0Task
 
 litellm.set_verbose = False
 litellm.drop_params = True
+
+
+def read_workspace_head(workspace, path):
+    result = workspace.execute_command(
+        f"cd {path} && git rev-parse --short HEAD",
+        timeout=30,
+    )
+    return result.stdout.strip() if result.exit_code == 0 else None
+
+
+def write_commit0_final_probe_checkpoint(workspace, workflow_config, task_module, checkpoint_id):
+    if not isinstance(task_module, Commit0Task):
+        return None
+    return write_dependency_probe_checkpoint(
+        workspace=workspace,
+        output_dir=workflow_config.output_dir,
+        repo_name=task_module.config.repo_name,
+        workspace_path=task_module.get_work_dir(),
+        checkpoint_id=checkpoint_id,
+        checkpoint_type="final_integrated",
+        logical_step=next_checkpoint_step(workflow_config.output_dir),
+        workspace_kind="integrated_workspace",
+        integrated_workspace_version=read_workspace_head(
+            workspace,
+            task_module.get_work_dir(),
+        ),
+    )
 
 
 async def run_workflow_inner(task, workflow_config, task_module, multi_agent=True, **kwargs):
@@ -171,6 +202,13 @@ async def run_workflow_inner(task, workflow_config, task_module, multi_agent=Tru
                     print(f"- {report_file}")
                     print(f"- {exit_code_file}")
                     print(f"- {test_output_file}")
+
+                    write_commit0_final_probe_checkpoint(
+                        workspace,
+                        workflow_config,
+                        task_module,
+                        checkpoint_id="final_integrated",
+                    )
 
                     # Save final repo state as tarball
                     print("\n[Tarball] Saving final repo state...")
@@ -515,6 +553,13 @@ async def run_workflow_inner(task, workflow_config, task_module, multi_agent=Tru
                 print(f"- {report_file}")
                 print(f"- {exit_code_file}")
                 print(f"- {test_output_file}")
+
+                write_commit0_final_probe_checkpoint(
+                    workspace,
+                    workflow_config,
+                    task_module,
+                    checkpoint_id="final_integrated",
+                )
 
                 # Save final repo state as tarball
                 print("\n[Tarball] Saving final repo state...")
