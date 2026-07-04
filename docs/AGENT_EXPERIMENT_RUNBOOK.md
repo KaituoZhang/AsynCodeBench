@@ -232,6 +232,26 @@ The most important files are:
 - `delegations.json`: who was assigned what.
 - `patch.diff`: final patch applied by the protocol.
 
+## Uploaded Example
+
+The repository includes a checked-in summarized example for `cachetools` with
+`gpt-5.4-mini`. Use it as the format reference for collaborator-side reports:
+
+```text
+reproductions/async-swe-agents/outputs/gpt-5.4-mini/cachetools.md
+reproductions/async-swe-agents/outputs/gpt-5.4-mini/cachetools_gpt-5.4-mini_metrics_table.csv
+reproductions/async-swe-agents/outputs/gpt-5.4-mini/cachetools_gpt-5.4-mini_artifact_index.json
+```
+
+The Markdown report shows the paper-facing summary table plus ADPR, DRS, CAIL,
+SAD, cost, runtime, and artifact diagnostics. The CSV is the machine-readable
+table used for later aggregation. The artifact index records the raw run
+directories used to generate the report.
+
+Raw run directories such as `outputs/repro_commit0/<task>/<run_id>/` are not
+generally committed by default because they can be large and may contain verbose
+model traces. They should be kept locally or in shared storage for auditability.
+
 ## Immediate Sanity Checks
 
 Replace `RUN_DIR` and `TASK`:
