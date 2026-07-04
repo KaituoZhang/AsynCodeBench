@@ -599,7 +599,7 @@ class Commit0Task(TaskModule):
         targets = []
         for assignment in scenario.get("assignments", []):
             targets.extend(assignment.get("primary_test_targets", []) or [])
-        targets = self._dedupe_preserve_order(targets)
+        targets = self._dedupe_preserve_order(self._coerce_test_targets(targets))
         if not targets:
             return None
 
