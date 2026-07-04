@@ -639,10 +639,25 @@ class Commit0Task(TaskModule):
     @staticmethod
     def _coerce_test_targets(raw_targets):
         if isinstance(raw_targets, str):
-            return [raw_targets]
-        if isinstance(raw_targets, (list, tuple)):
-            return [str(target) for target in raw_targets if str(target).strip()]
-        return ["tests/"]
+            candidates = [raw_targets]
+        elif isinstance(raw_targets, (list, tuple)):
+            candidates = raw_targets
+        else:
+            return ["tests/"]
+
+        targets = []
+        for target in candidates:
+            target = str(target).strip()
+            if not target:
+                continue
+            # Several AsyncCodeBench manifests record the original pytest command
+            # as ["python", "-m", "pytest", "-q", "-o", "addopts=", ...].
+            # The runner already supplies its own pytest flags, so this token is
+            # an option value, not a filesystem test target.
+            if target == "addopts=":
+                continue
+            targets.append(target)
+        return targets or ["tests/"]
 
     @staticmethod
     def _dedupe_preserve_order(items):
