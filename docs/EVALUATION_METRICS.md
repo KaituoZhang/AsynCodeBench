@@ -149,6 +149,125 @@ with zero. Older runs without `dependency_probe_checkpoints.jsonl` can still
 report final ADPR and proxy diagnostics, but they cannot support strict DRS or
 strict CAIL retroactively.
 
+#### Handling Unresolved Dependencies In Aggregates
+
+`unresolved` is a valid failure outcome, not missing data. Do not drop
+unresolved dependencies when computing aggregate statistics. Otherwise, systems
+that solve only one easy dependency and fail the rest can look artificially
+strong when DRS or CAIL is averaged only over resolved cases.
+
+AsyncCodeBench reports both raw/status metrics and penalized aggregate metrics.
+
+Let:
+
+```text
+T = number of dependency-probe checkpoints observed in the run
+```
+
+For strict DRS, keep the raw value for interpretability:
+
+```text
+DRS_raw(d) =
+  first integrated-resolution step for dependency d, if observed
+  unresolved, otherwise
+```
+
+For aggregate statistics, use a penalized value:
+
+```text
+DRS_penalized(d) =
+  DRS_raw(d), if dependency d is integrated-resolved
+  T + 1, otherwise
+```
+
+This makes every unresolved dependency worse than any resolved dependency while
+preserving the interpretation that smaller DRS is better.
+
+When comparing across tasks with different checkpoint counts, optionally report
+a normalized dependency-resolution efficiency:
+
+```text
+DRE(d) =
+  1 - (DRS_penalized(d) - 1) / T, if dependency d is resolved
+  0, otherwise
+```
+
+Thus:
+
+```text
+resolved at step 1      -> DRE = 1
+resolved at final step T -> DRE = 1 / T
+unresolved              -> DRE = 0
+```
+
+For strict CAIL, keep the raw value when both upstream and downstream steps are
+observed:
+
+```text
+CAIL_raw(d) = downstream_resolution_step_d - upstream_resolution_step_d
+```
+
+For aggregate lag statistics, use a penalized value:
+
+```text
+CAIL_penalized(d) =
+  max(0, downstream_resolution_step_d - upstream_resolution_step_d),
+    if both upstream and downstream steps are observed
+
+  T + 1 - upstream_resolution_step_d,
+    if upstream is observed but downstream is unresolved
+
+  T + 1,
+    if upstream is unresolved
+```
+
+The first case measures observed consumer lag. The second case penalizes a
+consumer that never catches up after the producer contract becomes available.
+The third case handles cases where the producer side itself never becomes
+available.
+
+Main aggregate tables should therefore report:
+
+```text
+ADPR
+unresolved dependency count
+mean DRS_penalized
+mean CAIL_penalized
+```
+
+Case-study tables should additionally report the raw/status view:
+
+```text
+dependency outcome
+upstream step
+downstream step
+DRS_raw
+CAIL_raw
+```
+
+For example, suppose a run has `T = 13` checkpoints and two dependencies.
+If CAID resolves producer-side probes at steps 3 and 11 but never resolves the
+consumer-side integrated behavior, then:
+
+```text
+ADPR = 0 / 2 = 0
+DRS_penalized = [14, 14]
+mean DRS_penalized = 14
+CAIL_penalized = [14 - 3, 14 - 11] = [11, 3]
+mean CAIL_penalized = 7
+unresolved dependency count = 2
+```
+
+This is preferable to reporting DRS/CAIL as `N/A`: the raw status remains
+`unresolved`, while the aggregate table still penalizes the failed dependency
+resolution.
+
+`not_collected` should be handled carefully. If probes cannot collect because
+the model introduced a syntax error, import error, or broken package state,
+count the dependency as unresolved and also report the artifact or integration
+failure. If probes cannot collect because of runner instrumentation or missing
+environment setup, fix the run before using it in aggregate statistics.
+
 #### SAD: Stale Assumption Duration
 
 ```text
