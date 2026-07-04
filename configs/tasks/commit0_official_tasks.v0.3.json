@@ -1,0 +1,43 @@
+{
+  "schema_version": "commit0-official-tasks-v0.3",
+  "source_candidate_policy": {
+    "original_user_candidate_count": 20,
+    "selection_rule": "Use only tasks from the user-provided Commit0 candidate list, excluding fabric and python-progressbar for the current v0.3 release. Chardet is retained only as a non-official scratch/stress artifact under archive/non_official/commit0_v0.3 and is not part of official v0.3 results.",
+    "excluded_candidates": [
+      {
+        "repository": "fabric",
+        "reason": "Excluded after feasibility review; no official v0.3 task artifacts are released for this repository."
+      },
+      {
+        "repository": "python-progressbar",
+        "reason": "Excluded from the official v0.3 release set after suitability review. Historical artifacts are retained under archive/non_official/commit0_v0.3 for audit."
+      }
+    ],
+    "non_official_retained_artifacts": [
+      {
+        "repository": "chardet",
+        "reason": "Not in the original user-provided candidate list. Retained under archive/non_official/commit0_v0.3 only for audit/history and stress-case diagnostics."
+      }
+    ]
+  },
+  "official_tasks": [
+    "cachetools",
+    "deprecated",
+    "portalocker",
+    "tinydb",
+    "wcwidth",
+    "requests",
+    "simpy",
+    "dulwich",
+    "parsel",
+    "filesystem_spec",
+    "marshmallow",
+    "graphene",
+    "imapclient",
+    "pexpect",
+    "flask",
+    "fastapi",
+    "python-rsa",
+    "cookiecutter"
+  ]
+}

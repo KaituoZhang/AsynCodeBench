@@ -99,7 +99,7 @@ def test_filesystem_spec_primary_dependency_has_upstream_and_downstream_probes()
         "fsspec/tests/test_registry.py::test_registry_readonly"
         in dependency["upstream_probe_tests"]
     )
-    assert "fsspec/tests/test_core.py::test_url_to_fs" in dependency[
+    assert "fsspec/tests/test_core.py::test_automkdir_local" in dependency[
         "downstream_probe_tests"
     ]
     assert {"ADPR", "DRS", "CAIL", "SAD"}.issubset(

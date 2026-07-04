@@ -1,8 +1,13 @@
 """
 python -m tasks.commit0
 """
+import base64
+import hashlib
 import json
+import os
+import shlex
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Optional
 
 from .base import TaskModule
@@ -11,15 +16,17 @@ from .base import TaskModule
 @dataclass
 class Commit0Config:
     repo_name: str = "minitorch"
-    base_branch: str = "commit0_combined"
+    base_branch: str = ""
     docker_image_prefix: str = "docker.io/wentingzhao/"
     dataset_path: str = "data/commit0/commit0_combined"
+    curated_config_path: str = ""
 
 
 class Commit0Task(TaskModule):
     def __init__(self, config):
         self.config = config
         self.task_data = None
+        self.curated_task = self._load_curated_task_record()
 
     def get_docker_image(self):
         prefix = self.config.docker_image_prefix.rstrip("/")
@@ -35,6 +42,15 @@ class Commit0Task(TaskModule):
         }
 
     def load_task_data(self):
+        curated_data = self._curated_task_data()
+        if curated_data is not None:
+            self.task_data = curated_data
+            print(
+                "[AsyncCodeBench] Loaded curated v0.3 task record for "
+                f"{self.config.repo_name}"
+            )
+            return self.task_data
+
         from datasets import load_from_disk
 
         dataset = load_from_disk(self.config.dataset_path)
@@ -81,32 +97,65 @@ class Commit0Task(TaskModule):
         self.task_data = repo_data.iloc[0].to_dict()
         return self.task_data
 
+    def _curated_task_data(self):
+        if not self.curated_task or self._curated_task_source_disabled():
+            return None
+
+        repository = str(self.curated_task.get("repository", "")).strip()
+        if not repository:
+            return None
+
+        test_targets = self._manifest_evaluator_targets() or ["tests/"]
+        return {
+            "repo": self._curated_repo_url(repository),
+            "repo_name": repository,
+            "task_id": self.curated_task.get("task_id", f"commit0:{repository}"),
+            "source": "asynccodebench_curated_v0.3",
+            "base_ref": self.curated_task.get("base_ref"),
+            "base_sha": self.curated_task.get("base_sha"),
+            "overlays": self.curated_task.get("overlays", []),
+            "test": {
+                "test_cmd": "python -m pytest",
+                "test_dir": test_targets,
+            },
+        }
+
+    @staticmethod
+    def _curated_repo_url(repository):
+        if "/" in repository:
+            return repository
+        return f"commit-0/{repository}"
+
+    @staticmethod
+    def _curated_task_source_disabled():
+        raw_value = os.getenv("ASYNCCODEBENCH_DISABLE_CURATED_TASK_SOURCE", "")
+        return raw_value.strip().lower() in {"1", "true", "yes", "on"}
+
     def setup_workspace(self, workspace):
         if self.task_data is None:
             raise RuntimeError("Call load_task_data() before setup_workspace()")
 
         work_dir = self.get_work_dir()
         repo = self.task_data["repo"]
+        repo_url = f"https://github.com/{repo}.git"
 
         # Step 1: Clone Repository
         print("\n" + "-" * 60)
         print("Step 1: Clone Repository")
         print("-" * 60)
-        print(f"[Commit0] Cloning {repo}...")
-        clone_cmd = (
-            f"cd /workspace && "
-            f"git clone --depth 1 -b {self.config.base_branch} "
-            f"https://github.com/{repo}.git {self.config.repo_name}_repo"
-        )
-        result = workspace.execute_command(clone_cmd, timeout=600)
-        if result.exit_code != 0:
-            raise RuntimeError(f"Failed to clone repo: {result.stderr}")
+        base_ref = self._effective_base_ref()
+        clone_branch = self._clone_branch_name(base_ref)
+        print(f"[Commit0] Cloning {repo} at {base_ref}...")
+        self._clone_repository(workspace, repo_url, clone_branch, work_dir)
 
         # Create a working branch (matches official OpenHands benchmark)
         branch_cmd = f"cd {work_dir} && git checkout -b openhands"
         result = workspace.execute_command(branch_cmd, timeout=600)
         if result.exit_code != 0:
             raise RuntimeError(f"Failed to create branch: {result.stderr}")
+
+        self._verify_curated_base(workspace, work_dir)
+        self._apply_curated_overlays(workspace, work_dir)
 
         # Step 2: Setup Repository
         print("\n" + "-" * 60)
@@ -150,7 +199,250 @@ class Commit0Task(TaskModule):
             f"cd {work_dir} && python -m pip install pytest-json-report pytest-cov 2>&1 | tail -5",
             timeout=300,
         )
+        self._install_curated_python_dependencies(workspace, work_dir)
         print("[Commit0] Workspace setup complete")
+
+    def _clone_repository(self, workspace, repo_url, clone_branch, work_dir):
+        target_dir = f"{self.config.repo_name}_repo"
+        clone_cmd = (
+            f"cd /workspace && "
+            f"git clone --depth 1 -b {shlex.quote(clone_branch)} "
+            f"{shlex.quote(repo_url)} {shlex.quote(target_dir)}"
+        )
+        result = workspace.execute_command(clone_cmd, timeout=600)
+        if result.exit_code == 0:
+            return
+
+        expected_sha = (
+            str((self.curated_task or {}).get("base_sha", "")).strip()
+            if self.curated_task
+            else ""
+        )
+        if not expected_sha:
+            raise RuntimeError(f"Failed to clone repo: {result.stderr}")
+
+        print(
+            "[Commit0] Branch clone failed; falling back to default branch "
+            f"and curated SHA {expected_sha}"
+        )
+        workspace.execute_command(f"rm -rf /workspace/{shlex.quote(target_dir)}", timeout=60)
+        fallback = workspace.execute_command(
+            f"cd /workspace && git clone --depth 1 "
+            f"{shlex.quote(repo_url)} {shlex.quote(target_dir)}",
+            timeout=600,
+        )
+        if fallback.exit_code != 0:
+            raise RuntimeError(
+                "Failed to clone repo by branch and by default branch:\n"
+                f"branch clone stderr:\n{result.stderr}\n"
+                f"default clone stderr:\n{fallback.stderr}"
+            )
+
+        head = workspace.execute_command(
+            f"cd {work_dir} && git rev-parse HEAD",
+            timeout=60,
+        )
+        if head.exit_code == 0 and head.stdout.strip() == expected_sha:
+            print("[Commit0] Default branch matches curated base SHA")
+            return
+
+        checkout = workspace.execute_command(
+            f"cd {work_dir} && "
+            f"git fetch --depth 1 origin {shlex.quote(expected_sha)} && "
+            f"git checkout --detach {shlex.quote(expected_sha)}",
+            timeout=600,
+        )
+        if checkout.exit_code != 0:
+            raise RuntimeError(
+                "Failed to materialize curated base SHA after branch fallback:\n"
+                f"expected SHA: {expected_sha}\n"
+                f"default HEAD: {head.stdout.strip() if head.exit_code == 0 else head.stderr.strip()}\n"
+                f"fetch/checkout stderr:\n{checkout.stderr}"
+            )
+        print("[Commit0] Checked out curated base SHA after fallback clone")
+
+    def _load_curated_task_record(self):
+        if self._curated_config_disabled():
+            return None
+
+        config_path = self._curated_config_path()
+        if not config_path.exists():
+            return None
+
+        try:
+            payload = json.loads(config_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            print(f"[Commit0] Warning: could not read curated task config: {exc}")
+            return None
+
+        repo_name = self.config.repo_name
+        normalized_repo = repo_name.replace("-", "_")
+        for record in payload.get("tasks", []):
+            repository = str(record.get("repository", ""))
+            task_id = str(record.get("task_id", ""))
+            if repository == repo_name or repository == normalized_repo:
+                return record
+            if task_id in {f"commit0:{repo_name}", f"commit0:{normalized_repo}"}:
+                return record
+        return None
+
+    def _curated_config_path(self):
+        raw_path = (
+            self.config.curated_config_path
+            or os.getenv("ASYNCCODEBENCH_CURATED_TASKS_CONFIG", "")
+        )
+        if raw_path:
+            path = Path(raw_path)
+            return path if path.is_absolute() else self._repo_root() / path
+        return (
+            self._repo_root()
+            / "configs"
+            / "tasks"
+            / "commit0_curated_tasks.v0.3.json"
+        )
+
+    def _effective_base_ref(self):
+        if self.config.base_branch:
+            return self.config.base_branch
+        if self.curated_task:
+            return str(self.curated_task.get("base_ref", "") or "commit0_combined")
+        return "commit0_combined"
+
+    @staticmethod
+    def _clone_branch_name(base_ref):
+        return str(base_ref).removeprefix("origin/")
+
+    def _verify_curated_base(self, workspace, work_dir):
+        if not self.curated_task:
+            return
+
+        expected_sha = str(self.curated_task.get("base_sha", "")).strip()
+        if not expected_sha:
+            return
+
+        result = workspace.execute_command(
+            f"cd {work_dir} && git rev-parse HEAD",
+            timeout=60,
+        )
+        actual_sha = result.stdout.strip() if result.exit_code == 0 else ""
+        if actual_sha != expected_sha:
+            raise RuntimeError(
+                "AsyncCodeBench curated base SHA mismatch for "
+                f"{self.config.repo_name}: expected {expected_sha}, found "
+                f"{actual_sha or result.stderr.strip()}"
+            )
+        print(f"[Commit0] Verified curated base SHA: {actual_sha}")
+
+    def _apply_curated_overlays(self, workspace, work_dir):
+        if not self.curated_task:
+            return
+
+        overlays = self.curated_task.get("overlays", []) or []
+        if not overlays:
+            print("[Commit0] No AsyncCodeBench bootstrap overlays configured")
+            return
+
+        print(f"[Commit0] Applying {len(overlays)} AsyncCodeBench bootstrap overlays")
+        for index, overlay in enumerate(overlays, start=1):
+            overlay_path = self._resolve_overlay_path(str(overlay["path"]))
+            self._verify_overlay_checksum(overlay_path, str(overlay["sha256"]))
+            remote_path = f"/tmp/asynccodebench_overlay_{index:03d}.patch"
+            self._write_overlay_to_workspace(workspace, overlay_path, remote_path)
+
+            check = workspace.execute_command(
+                f"cd {work_dir} && git apply --check {remote_path}",
+                timeout=120,
+            )
+            if check.exit_code != 0:
+                raise RuntimeError(
+                    f"AsyncCodeBench overlay failed --check: {overlay_path}\n"
+                    f"{check.stderr}"
+                )
+
+            apply = workspace.execute_command(
+                f"cd {work_dir} && git apply {remote_path}",
+                timeout=120,
+            )
+            if apply.exit_code != 0:
+                raise RuntimeError(
+                    f"AsyncCodeBench overlay failed to apply: {overlay_path}\n"
+                    f"{apply.stderr}"
+                )
+            print(f"[Commit0] Applied overlay: {overlay_path}")
+
+        workspace.execute_command(
+            f"cd {work_dir} && "
+            'git config user.email "asynccodebench@example.com" && '
+            'git config user.name "AsyncCodeBench Bootstrap" && '
+            "git add -f . && "
+            'git commit -m "Apply AsyncCodeBench bootstrap overlays"',
+            timeout=120,
+        )
+
+    def _resolve_overlay_path(self, raw_path):
+        path = Path(raw_path)
+        return path if path.is_absolute() else self._repo_root() / path
+
+    @staticmethod
+    def _verify_overlay_checksum(path, expected_sha256):
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        if digest != expected_sha256:
+            raise RuntimeError(
+                f"AsyncCodeBench overlay checksum mismatch for {path}: "
+                f"expected {expected_sha256}, found {digest}"
+            )
+
+    @staticmethod
+    def _write_overlay_to_workspace(workspace, overlay_path, remote_path):
+        encoded = base64.b64encode(overlay_path.read_bytes()).decode("ascii")
+        script = (
+            "import base64, pathlib\n"
+            f"pathlib.Path({remote_path!r}).write_bytes("
+            f"base64.b64decode({encoded!r}))\n"
+        )
+        result = workspace.execute_command(
+            "python - <<'PY'\n" + script + "PY",
+            timeout=120,
+        )
+        if result.exit_code != 0:
+            raise RuntimeError(
+                f"Failed to copy overlay into workspace: {overlay_path}\n"
+                f"{result.stderr}"
+            )
+
+    @staticmethod
+    def _curated_config_disabled():
+        raw_value = os.getenv("ASYNCCODEBENCH_DISABLE_CURATED_TASK_CONFIG", "")
+        return raw_value.strip().lower() in {"1", "true", "yes", "on"}
+
+    def _install_curated_python_dependencies(self, workspace, work_dir):
+        if not self.curated_task:
+            return
+
+        raw_dependencies = self.curated_task.get("python_dependencies", []) or []
+        dependencies = []
+        for dependency in raw_dependencies:
+            dependency = str(dependency).strip()
+            if dependency:
+                dependencies.append(dependency)
+
+        if not dependencies:
+            return
+
+        dependency_args = " ".join(shlex.quote(dep) for dep in dependencies)
+        print(
+            "[Commit0] Installing AsyncCodeBench curated Python dependencies: "
+            f"{dependency_args}"
+        )
+        result = workspace.execute_command(
+            f"cd {work_dir} && python -m pip install {dependency_args} 2>&1 | tail -20",
+            timeout=300,
+        )
+        if result.exit_code != 0:
+            raise RuntimeError(
+                "Failed to install AsyncCodeBench curated Python dependencies "
+                f"for {self.config.repo_name}: {result.stderr or result.stdout}"
+            )
 
     def evaluate(self, workspace):
         if self.task_data is None:
@@ -169,27 +461,23 @@ class Commit0Task(TaskModule):
             timeout=600,
         )
 
-        # Determine test command from task data
-        test_info = self.task_data.get("test", {})
-        test_cmd = test_info.get(
-            "test_cmd", self.task_data.get("test_cmd", "pytest")
-        )
-        test_dir = test_info.get(
-            "test_dir", self.task_data.get("test_dir", "tests/")
-        )
-        if test_cmd.strip().startswith("pytest"):
-            test_cmd = "python -m " + test_cmd.strip()
+        test_cmd, test_targets, evaluator_source = self._resolve_evaluator()
+        test_target_args = " ".join(shlex.quote(str(target)) for target in test_targets)
 
+        eval_timeout = self._final_pytest_timeout_seconds()
         full_cmd = (
             f"cd {work_dir} && "
             f"export PYTHONPATH={work_dir}/src:{work_dir}:$PYTHONPATH && "
-            f"{test_cmd} "
+            f"timeout {eval_timeout}s {test_cmd} "
             f"--json-report --json-report-file=report.json "
             f"--continue-on-collection-errors "
-            f"{test_dir} > test_output.txt 2>&1"
+            f"{test_target_args} > test_output.txt 2>&1"
         )
-        print(f"[Commit0] Running: {test_cmd} {test_dir}")
-        pytest_result = workspace.execute_command(full_cmd, timeout=6000)
+        print(
+            f"[Commit0] Running: {test_cmd} {test_target_args} "
+            f"(source={evaluator_source}, timeout={eval_timeout}s)"
+        )
+        pytest_result = workspace.execute_command(full_cmd, timeout=eval_timeout + 60)
 
         # Read results
         output_result = workspace.execute_command(
@@ -202,6 +490,15 @@ class Commit0Task(TaskModule):
         )
         report_json = report_result.stdout if report_result.exit_code == 0 else "{}"
 
+        timed_out = str(pytest_result.exit_code) == "124"
+        if timed_out:
+            timeout_message = (
+                f"\n[AsyncCodeBench] Final pytest timed out after "
+                f"{eval_timeout} seconds.\n"
+            )
+            if timeout_message not in test_output:
+                test_output += timeout_message
+
         passed = failed = error = 0
         try:
             report_data = json.loads(report_json)
@@ -209,8 +506,44 @@ class Commit0Task(TaskModule):
             passed = summary.get("passed", 0)
             failed = summary.get("failed", 0)
             error = summary.get("error", 0)
+            self._annotate_report_evaluator(
+                report_data,
+                test_cmd=test_cmd,
+                test_targets=test_targets,
+                evaluator_source=evaluator_source,
+                timeout_seconds=eval_timeout,
+                timed_out=timed_out,
+            )
+            report_json = json.dumps(report_data, indent=2)
         except (json.JSONDecodeError, Exception) as e:
             print(f"[Commit0] Warning: could not parse report.json: {e}")
+            report_data = {}
+
+        if timed_out and not report_data.get("summary"):
+            error = 1
+            report_data = {
+                "created": 0,
+                "duration": eval_timeout,
+                "exitcode": 124,
+                "root": work_dir,
+                "summary": {
+                    "passed": 0,
+                    "failed": 0,
+                    "error": 1,
+                    "total": 1,
+                },
+                "collectors": [],
+                "tests": [],
+                "warnings": [],
+                "asynccodebench": {
+                    "final_pytest_timeout_seconds": eval_timeout,
+                    "final_evaluator_source": evaluator_source,
+                    "final_test_cmd": test_cmd,
+                    "final_test_targets": test_targets,
+                    "timed_out": True,
+                },
+            }
+            report_json = json.dumps(report_data, indent=2)
 
         print(f"[Commit0] Pytest results: {passed} passed, {failed} failed, {error} error")
 
@@ -221,22 +554,155 @@ class Commit0Task(TaskModule):
             "passed": passed,
             "failed": failed,
             "error": error,
+            "evaluator_source": evaluator_source,
+            "test_cmd": test_cmd,
+            "test_targets": test_targets,
         }
+
+    def _resolve_evaluator(self):
+        test_cmd, dataset_targets = self._dataset_evaluator()
+        manifest_targets = self._manifest_evaluator_targets()
+        if manifest_targets:
+            return test_cmd, manifest_targets, "asynccodebench_manifest"
+        return test_cmd, dataset_targets, "commit0_dataset"
+
+    def _dataset_evaluator(self):
+        test_info = self.task_data.get("test", {}) if self.task_data else {}
+        test_cmd = test_info.get(
+            "test_cmd", self.task_data.get("test_cmd", "pytest")
+        )
+        test_dir = test_info.get(
+            "test_dir", self.task_data.get("test_dir", "tests/")
+        )
+        if test_cmd.strip().startswith("pytest"):
+            test_cmd = "python -m " + test_cmd.strip()
+        return test_cmd, self._coerce_test_targets(test_dir)
+
+    def _manifest_evaluator_targets(self):
+        if self._manifest_evaluator_disabled():
+            return None
+
+        scenario_path = self._scenario_manifest_path()
+        if not scenario_path.exists():
+            return None
+
+        try:
+            payload = json.loads(scenario_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            print(f"[Commit0] Warning: could not read {scenario_path}: {exc}")
+            return None
+
+        scenario = self._select_evaluator_scenario(payload.get("scenarios", []))
+        if not scenario:
+            return None
+
+        targets = []
+        for assignment in scenario.get("assignments", []):
+            targets.extend(assignment.get("primary_test_targets", []) or [])
+        targets = self._dedupe_preserve_order(targets)
+        if not targets:
+            return None
+
+        print(
+            "[Commit0] Using AsyncCodeBench scenario evaluator targets from "
+            f"{scenario_path}"
+        )
+        return targets
+
+    def _scenario_manifest_path(self):
+        normalized = self.config.repo_name.replace("-", "_")
+        return (
+            self._repo_root()
+            / "manifests"
+            / "pilot"
+            / "v0.3"
+            / "scenarios"
+            / f"commit0_{normalized}.json"
+        )
+
+    @staticmethod
+    def _repo_root():
+        return Path(__file__).resolve().parents[3]
+
+    @staticmethod
+    def _select_evaluator_scenario(scenarios):
+        for scenario in scenarios:
+            if scenario.get("execution_mode") == "iterative_single":
+                return scenario
+        return scenarios[0] if scenarios else None
+
+    @staticmethod
+    def _manifest_evaluator_disabled():
+        raw_value = os.getenv("ASYNCCODEBENCH_DISABLE_MANIFEST_EVALUATOR", "")
+        return raw_value.strip().lower() in {"1", "true", "yes", "on"}
+
+    @staticmethod
+    def _coerce_test_targets(raw_targets):
+        if isinstance(raw_targets, str):
+            return [raw_targets]
+        if isinstance(raw_targets, (list, tuple)):
+            return [str(target) for target in raw_targets if str(target).strip()]
+        return ["tests/"]
+
+    @staticmethod
+    def _dedupe_preserve_order(items):
+        seen = set()
+        deduped = []
+        for item in items:
+            item = str(item).strip()
+            if not item or item in seen:
+                continue
+            seen.add(item)
+            deduped.append(item)
+        return deduped
+
+    @staticmethod
+    def _annotate_report_evaluator(
+        report_data,
+        *,
+        test_cmd,
+        test_targets,
+        evaluator_source,
+        timeout_seconds,
+        timed_out,
+    ):
+        report_data.setdefault("asynccodebench", {}).update(
+            {
+                "final_evaluator_source": evaluator_source,
+                "final_test_cmd": test_cmd,
+                "final_test_targets": test_targets,
+                "final_pytest_timeout_seconds": timeout_seconds,
+                "timed_out": timed_out,
+            }
+        )
+
+    @staticmethod
+    def _final_pytest_timeout_seconds():
+        raw_value = os.getenv("ASYNCCODEBENCH_FINAL_PYTEST_TIMEOUT_SECONDS", "900")
+        try:
+            timeout = int(raw_value)
+        except ValueError:
+            print(
+                "[Commit0] Warning: invalid "
+                f"ASYNCCODEBENCH_FINAL_PYTEST_TIMEOUT_SECONDS={raw_value!r}; "
+                "using 900"
+            )
+            timeout = 900
+        return max(timeout, 60)
 
     def get_prompt_format_args(self, config):
         work_dir = self.get_work_dir()
         workspace_dir_name = work_dir.split("/")[-1]
-        test_info = self.task_data.get("test", {}) if self.task_data else {}
-        test_cmd = test_info.get("test_cmd", self.task_data.get("test_cmd", "pytest") if self.task_data else "pytest")
-        test_dir = test_info.get("test_dir", self.task_data.get("test_dir", "tests/") if self.task_data else "tests/")
-        if test_cmd.strip().startswith("pytest"):
-            test_cmd = "python -m " + test_cmd.strip()
+        if self.task_data:
+            test_cmd, test_targets, _ = self._resolve_evaluator()
+        else:
+            test_cmd, test_targets = "python -m pytest", ["tests/"]
         return {
             "max_agents": config.max_subagents,
             "max_rounds": config.max_rounds_chat,
             "workspace_dir_name": workspace_dir_name,
             "test_cmd": test_cmd,
-            "test_dir": test_dir,
+            "test_dir": " ".join(str(target) for target in test_targets),
         }
 
     # ---- Manager integration methods ----

@@ -45,15 +45,32 @@ def _source_at_ref(rel_path: Path) -> str:
 def _test_node_names(rel_path: Path) -> set[str]:
     tree = ast.parse(_source_at_ref(rel_path))
     names: set[str] = set()
+    class_methods: dict[str, set[str]] = {}
+    class_bases: dict[str, list[str]] = {}
     for node in tree.body:
         if isinstance(node, ast.FunctionDef) and node.name.startswith("test"):
             names.add(node.name)
         elif isinstance(node, ast.ClassDef):
+            local_methods = {
+                child.name
+                for child in node.body
+                if isinstance(child, ast.FunctionDef) and child.name.startswith("test")
+            }
+            class_methods[node.name] = local_methods
+            class_bases[node.name] = [
+                base.id for base in node.bases if isinstance(base, ast.Name)
+            ]
             for child in node.body:
                 if isinstance(child, ast.FunctionDef) and child.name.startswith(
                     "test"
                 ):
                     names.add(f"{node.name}::{child.name}")
+    for class_name, bases in class_bases.items():
+        inherited = set()
+        for base_name in bases:
+            inherited.update(class_methods.get(base_name, set()))
+        for method_name in inherited - class_methods.get(class_name, set()):
+            names.add(f"{class_name}::{method_name}")
     return names
 
 
@@ -101,7 +118,7 @@ def test_parsel_primary_async_dependency_has_upstream_and_downstream_probes() ->
     )
 
     assert (
-        "tests/test_selector_csstranslator.py::TranslatorTestMixin::test_text_pseudo_element"
+        "tests/test_selector_csstranslator.py::HTMLTranslatorTest::test_text_pseudo_element"
         in dependency["upstream_probe_tests"]
     )
     assert (

@@ -74,6 +74,14 @@ def _selector_passed(selector, by_nodeid):
     }
 
 
+def _selector_timed_out(selector):
+    return {
+        "status": "timed_out",
+        "passed": False,
+        "matched_nodeids": [],
+    }
+
+
 def _dependency_group_statuses(metrics, probe_results):
     dependency_results = []
     for dependency in metrics.get("dependency_points", []):
@@ -113,6 +121,97 @@ def next_checkpoint_step(output_dir):
         return sum(1 for line in f if line.strip()) + 1
 
 
+def probe_timeout_seconds(timeout):
+    raw_value = os.getenv("ASYNCCODEBENCH_PROBE_TIMEOUT_SECONDS")
+    if raw_value is None:
+        return timeout
+    try:
+        parsed = int(raw_value)
+    except ValueError:
+        print(
+            "[AsyncCodeBench] Warning: invalid "
+            f"ASYNCCODEBENCH_PROBE_TIMEOUT_SECONDS={raw_value!r}; "
+            f"using {timeout}"
+        )
+        return timeout
+    return max(parsed, 30)
+
+
+def _checkpoint_exit_code(probe_results):
+    if any(result.get("status") == "timed_out" for result in probe_results.values()):
+        return 124
+    if all(result.get("passed") for result in probe_results.values()):
+        return 0
+    return 1
+
+
+def _checkpoint_summary(probe_results):
+    statuses = [result.get("status") for result in probe_results.values()]
+    return {
+        "total": len(statuses),
+        "passed": statuses.count("passed"),
+        "failed": statuses.count("failed"),
+        "not_collected": statuses.count("not_collected"),
+        "timed_out": statuses.count("timed_out"),
+    }
+
+
+def _run_one_selector_probe(
+    workspace,
+    *,
+    selector,
+    workspace_path,
+    report_path,
+    output_path,
+    timeout,
+):
+    quoted_workspace = shlex.quote(workspace_path)
+    quoted_selector = shlex.quote(selector)
+    quoted_report = shlex.quote(report_path)
+    quoted_output = shlex.quote(output_path)
+    command = (
+        f"cd {quoted_workspace} && "
+        f"export PYTHONPATH={quoted_workspace}/src:{quoted_workspace}:$PYTHONPATH && "
+        f"timeout {timeout}s python -m pytest "
+        f"--json-report --json-report-file={quoted_report} "
+        f"--continue-on-collection-errors {quoted_selector} "
+        f"> {quoted_output} 2>&1"
+    )
+    run_result = workspace.execute_command(command, timeout=timeout + 30)
+    report_result = workspace.execute_command(
+        f"cat {quoted_report} 2>/dev/null || echo '{{}}'",
+        timeout=30,
+    )
+    output_result = workspace.execute_command(
+        f"cat {quoted_output} 2>/dev/null || true",
+        timeout=30,
+    )
+    workspace.execute_command(
+        f"rm -f {quoted_report} {quoted_output}",
+        timeout=30,
+    )
+
+    try:
+        report = json.loads(report_result.stdout or "{}")
+    except json.JSONDecodeError:
+        report = {}
+
+    by_nodeid = _selector_statuses(report)
+    timed_out = str(run_result.exit_code) in {"124", "-1"}
+    if timed_out and not by_nodeid:
+        probe_result = _selector_timed_out(selector)
+    else:
+        probe_result = _selector_passed(selector, by_nodeid)
+
+    return {
+        "exit_code": run_result.exit_code,
+        "report": report,
+        "output": output_result.stdout or "",
+        "result": probe_result,
+        "timed_out": timed_out,
+    }
+
+
 def write_dependency_probe_checkpoint(
     *,
     workspace,
@@ -129,7 +228,7 @@ def write_dependency_probe_checkpoint(
     visible_upstream_artifact_version=None,
     integrated_workspace_version=None,
     metrics_path=None,
-    timeout=1200,
+    timeout=60,
 ):
     if os.getenv("ASYNCCODEBENCH_DISABLE_PROBE_CHECKPOINTS") == "1":
         return None
@@ -149,42 +248,37 @@ def write_dependency_probe_checkpoint(
         return None
 
     safe_id = re.sub(r"[^A-Za-z0-9_.-]+", "_", checkpoint_id)
-    report_path = f"/tmp/asynccodebench_probe_{safe_id}.json"
-    output_path = f"/tmp/asynccodebench_probe_{safe_id}.txt"
-    selector_args = " ".join(shlex.quote(selector) for selector in selectors)
-    quoted_workspace = shlex.quote(workspace_path)
-    command = (
-        f"cd {quoted_workspace} && "
-        f"export PYTHONPATH={quoted_workspace}/src:{quoted_workspace}:$PYTHONPATH && "
-        f"python -m pytest --json-report --json-report-file={shlex.quote(report_path)} "
-        f"--continue-on-collection-errors {selector_args} "
-        f"> {shlex.quote(output_path)} 2>&1"
-    )
-    run_result = workspace.execute_command(command, timeout=timeout)
+    probe_timeout = probe_timeout_seconds(timeout)
 
-    report_result = workspace.execute_command(
-        f"cat {shlex.quote(report_path)} 2>/dev/null || echo '{{}}'",
-        timeout=60,
-    )
-    output_result = workspace.execute_command(
-        f"cat {shlex.quote(output_path)} 2>/dev/null || true",
-        timeout=60,
-    )
-    workspace.execute_command(
-        f"rm -f {shlex.quote(report_path)} {shlex.quote(output_path)}",
-        timeout=30,
-    )
+    probe_results = {}
+    selector_exit_codes = {}
+    selector_timed_out = {}
+    output_chunks = []
+    for index, selector in enumerate(selectors):
+        selector_safe_id = re.sub(r"[^A-Za-z0-9_.-]+", "_", f"{safe_id}_{index}")
+        selector_report_path = f"/tmp/asynccodebench_probe_{selector_safe_id}.json"
+        selector_output_path = f"/tmp/asynccodebench_probe_{selector_safe_id}.txt"
+        selector_run = _run_one_selector_probe(
+            workspace,
+            selector=selector,
+            workspace_path=workspace_path,
+            report_path=selector_report_path,
+            output_path=selector_output_path,
+            timeout=probe_timeout,
+        )
+        probe_results[selector] = selector_run["result"]
+        selector_exit_codes[selector] = selector_run["exit_code"]
+        selector_timed_out[selector] = selector_run["timed_out"]
+        output_chunks.append(
+            f"\n--- selector: {selector} "
+            f"(exit={selector_run['exit_code']}, "
+            f"status={selector_run['result'].get('status')}) ---\n"
+            f"{selector_run['output']}"
+        )
 
-    try:
-        report = json.loads(report_result.stdout or "{}")
-    except json.JSONDecodeError:
-        report = {}
-
-    by_nodeid = _selector_statuses(report)
-    probe_results = {
-        selector: _selector_passed(selector, by_nodeid)
-        for selector in selectors
-    }
+    timed_out = any(selector_timed_out.values())
+    checkpoint_exit_code = _checkpoint_exit_code(probe_results)
+    checkpoint_summary = _checkpoint_summary(probe_results)
     dependency_results = _dependency_group_statuses(metrics, probe_results)
 
     checkpoint = {
@@ -203,11 +297,16 @@ def write_dependency_probe_checkpoint(
         "artifact_version": artifact_version,
         "visible_upstream_artifact_version": visible_upstream_artifact_version,
         "integrated_workspace_version": integrated_workspace_version,
-        "pytest_exit_code": run_result.exit_code,
-        "pytest_summary": report.get("summary", {}),
+        "pytest_exit_code": checkpoint_exit_code,
+        "pytest_summary": checkpoint_summary,
+        "probe_execution_mode": "per_selector",
+        "probe_timeout_seconds": probe_timeout,
+        "timed_out": timed_out,
+        "selector_exit_codes": selector_exit_codes,
+        "selector_timed_out": selector_timed_out,
         "probe_test_results": probe_results,
         "dependency_results": dependency_results,
-        "test_output_excerpt": (output_result.stdout or "")[-4000:],
+        "test_output_excerpt": "".join(output_chunks)[-4000:],
     }
 
     with checkpoints_path.open("a", encoding="utf-8") as f:

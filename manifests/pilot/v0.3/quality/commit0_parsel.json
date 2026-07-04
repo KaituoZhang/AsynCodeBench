@@ -180,7 +180,8 @@
         "-q",
         "-o",
         "addopts=",
-        "tests/test_selector_csstranslator.py::TranslatorTestMixin::test_text_pseudo_element",
+        "tests/test_selector_csstranslator.py::HTMLTranslatorTest::test_text_pseudo_element",
+        "tests/test_selector_csstranslator.py::GenericTranslatorTest::test_text_pseudo_element",
         "tests/test_selector_csstranslator.py::CSSSelectorTest::test_pseudoclass_has",
         "tests/test_selector.py::SelectorTestCase::test_select_on_text_nodes"
       ],

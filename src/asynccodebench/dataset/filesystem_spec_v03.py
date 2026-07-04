@@ -399,7 +399,7 @@ def build_quality_record() -> TaskQualityRecord:
                     "-o",
                     "addopts=",
                     "fsspec/tests/test_registry.py::test_registry_readonly",
-                    "fsspec/tests/test_core.py::test_url_to_fs",
+                    "fsspec/tests/test_core.py::test_automkdir_local",
                     "fsspec/tests/test_core.py::test_list",
                 ),
                 description="Core URL/open behavior after protocol registry lookup is integrated.",
@@ -613,12 +613,12 @@ def build_metric_labels() -> dict[str, Any]:
                     "fsspec/tests/test_registry.py::test_register_str",
                 ],
                 "downstream_probe_tests": [
-                    "fsspec/tests/test_core.py::test_url_to_fs",
+                    "fsspec/tests/test_core.py::test_automkdir_local",
                     "fsspec/tests/test_core.py::test_list",
                 ],
                 "integrated_probe_tests": [
                     "fsspec/tests/test_registry.py::test_registry_readonly",
-                    "fsspec/tests/test_core.py::test_url_to_fs",
+                    "fsspec/tests/test_core.py::test_automkdir_local",
                     "fsspec/tests/test_core.py::test_list",
                 ],
                 "resolution_criteria": (

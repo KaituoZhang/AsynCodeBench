@@ -67,7 +67,11 @@
       "task_id": "commit0:filesystem_spec",
       "repository": "filesystem_spec",
       "base_ref": "origin/commit0_combined",
-      "base_sha": "0d34761eb6ca0af8a6f33eb83dd9630a4a370da0",
+      "base_sha": "0d34761c18d98009d76a1c19246606026c0e44a0",
+      "python_dependencies": [
+        "requests==2.32.3",
+        "zstandard==0.25.0"
+      ],
       "overlays": [
         {
           "path": "data/overlays/commit0/filesystem_spec/0001-version-bootstrap.patch",
@@ -300,24 +304,10 @@
       ]
     },
     {
-      "task_id": "commit0:python-progressbar",
-      "repository": "python-progressbar",
-      "base_ref": "origin/commit0_combined",
-      "base_sha": "afd18fd921caccca5f0c01576434869ddd7c0043",
-      "overlays": []
-    },
-    {
       "task_id": "commit0:cookiecutter",
       "repository": "cookiecutter",
       "base_ref": "origin/commit0_combined",
       "base_sha": "c7a8c70a666270053d848f5664413af1af7a987f",
-      "overlays": []
-    },
-    {
-      "task_id": "commit0:chardet",
-      "repository": "chardet",
-      "base_ref": "origin/commit0_combined",
-      "base_sha": "5539fa54d17ec61bacb4d3bb29ec6fba9dfcb882",
       "overlays": []
     },
     {

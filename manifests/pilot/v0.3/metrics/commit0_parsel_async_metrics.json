@@ -29,7 +29,8 @@
         "tests/test_selector.py::SelectorTestCase::test_select_on_text_nodes"
       ],
       "integrated_probe_tests": [
-        "tests/test_selector_csstranslator.py::TranslatorTestMixin::test_text_pseudo_element",
+        "tests/test_selector_csstranslator.py::HTMLTranslatorTest::test_text_pseudo_element",
+        "tests/test_selector_csstranslator.py::GenericTranslatorTest::test_text_pseudo_element",
         "tests/test_selector_csstranslator.py::CSSSelectorTest::test_text_pseudo_element",
         "tests/test_selector.py::SelectorTestCase::test_select_on_text_nodes"
       ],
@@ -48,8 +49,10 @@
       "resolution_criteria": "Resolved when translator pseudo-element probes and Selector.css consumer probes pass in the integrated workspace.",
       "stale_failure_mode": "The selector agent may implement CSS query execution against stale pseudo-element output assumptions, causing late failures in selector CSS tests.",
       "upstream_probe_tests": [
-        "tests/test_selector_csstranslator.py::TranslatorTestMixin::test_text_pseudo_element",
-        "tests/test_selector_csstranslator.py::TranslatorTestMixin::test_attr_function",
+        "tests/test_selector_csstranslator.py::HTMLTranslatorTest::test_text_pseudo_element",
+        "tests/test_selector_csstranslator.py::GenericTranslatorTest::test_text_pseudo_element",
+        "tests/test_selector_csstranslator.py::HTMLTranslatorTest::test_attr_function",
+        "tests/test_selector_csstranslator.py::GenericTranslatorTest::test_attr_function",
         "tests/test_selector_csstranslator.py::UtilCss2XPathTest::test_css2xpath"
       ]
     },

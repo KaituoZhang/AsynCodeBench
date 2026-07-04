@@ -92,22 +92,20 @@ can occur even when patches merge textually.
 
 As of the current repository state:
 
-- Commit0 task manifests: `20`
-- Commit0 scenario manifests: `20`
-- Commit0 quality manifests: `20`
-- Commit0 async metrics manifests: `20`
-- Commit0 annotation directories: `20`
-- Quality status: `18` qualification-ready candidates and `2` needs-revision
-  candidates.
+- Official Commit0 v0.3 tasks: `18`
+- Excluded candidates: `fabric`, `python-progressbar`
+- Non-official scratch/stress candidate retained for audit: `chardet`
+- Archived non-official artifacts:
+  `archive/non_official/commit0_v0.3/`
 
 Current Commit0 v0.3 qualification-ready task records:
 
 ```text
 commit0:cachetools
-commit0:chardet
 commit0:cookiecutter
 commit0:deprecated
 commit0:dulwich
+commit0:fastapi
 commit0:filesystem_spec
 commit0:flask
 commit0:graphene
@@ -123,16 +121,19 @@ commit0:tinydb
 commit0:wcwidth
 ```
 
-The current needs-revision candidates are:
+The current excluded or non-official candidates are:
 
 ```text
-commit0:fastapi
+commit0:fabric
 commit0:python-progressbar
+commit0:chardet
 ```
 
-All 20 candidates currently have async metrics manifests. The 18
-qualification-ready candidates are the current experimental set unless and
-until the human annotation and release rules mark them otherwise.
+The official 18-task list is the current experimental set unless and until the
+human annotation and release rules mark a task otherwise. Historical artifacts
+for excluded/non-official candidates are kept under
+`archive/non_official/commit0_v0.3/` so prior construction and pilot runs are
+auditable, but they are not part of official v0.3 results.
 
 Some tasks, such as `graphene` and `imapclient`, require larger bootstrap
 surfaces than simpler tasks. Their quality records and annotation instructions
@@ -147,6 +148,7 @@ AsyncCodeBench/
 ├── configs/
 │   └── tasks/
 │       ├── commit0_repositories.v0.3.json
+│       ├── commit0_official_tasks.v0.3.json
 │       └── commit0_curated_tasks.v0.3.json
 ├── data/
 │   ├── repos/commit0/          # local materialized public repos

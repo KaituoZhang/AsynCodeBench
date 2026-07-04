@@ -430,7 +430,8 @@ def build_quality_record() -> TaskQualityRecord:
                     "-q",
                     "-o",
                     "addopts=",
-                    "tests/test_selector_csstranslator.py::TranslatorTestMixin::test_text_pseudo_element",
+                    "tests/test_selector_csstranslator.py::HTMLTranslatorTest::test_text_pseudo_element",
+                    "tests/test_selector_csstranslator.py::GenericTranslatorTest::test_text_pseudo_element",
                     "tests/test_selector_csstranslator.py::CSSSelectorTest::test_pseudoclass_has",
                     "tests/test_selector.py::SelectorTestCase::test_select_on_text_nodes",
                 ),
@@ -642,8 +643,10 @@ def build_metric_labels() -> dict[str, Any]:
                     "late failures in selector CSS tests."
                 ),
                 "upstream_probe_tests": [
-                    "tests/test_selector_csstranslator.py::TranslatorTestMixin::test_text_pseudo_element",
-                    "tests/test_selector_csstranslator.py::TranslatorTestMixin::test_attr_function",
+                    "tests/test_selector_csstranslator.py::HTMLTranslatorTest::test_text_pseudo_element",
+                    "tests/test_selector_csstranslator.py::GenericTranslatorTest::test_text_pseudo_element",
+                    "tests/test_selector_csstranslator.py::HTMLTranslatorTest::test_attr_function",
+                    "tests/test_selector_csstranslator.py::GenericTranslatorTest::test_attr_function",
                     "tests/test_selector_csstranslator.py::UtilCss2XPathTest::test_css2xpath",
                 ],
                 "downstream_probe_tests": [
@@ -651,7 +654,8 @@ def build_metric_labels() -> dict[str, Any]:
                     "tests/test_selector.py::SelectorTestCase::test_select_on_text_nodes",
                 ],
                 "integrated_probe_tests": [
-                    "tests/test_selector_csstranslator.py::TranslatorTestMixin::test_text_pseudo_element",
+                    "tests/test_selector_csstranslator.py::HTMLTranslatorTest::test_text_pseudo_element",
+                    "tests/test_selector_csstranslator.py::GenericTranslatorTest::test_text_pseudo_element",
                     "tests/test_selector_csstranslator.py::CSSSelectorTest::test_text_pseudo_element",
                     "tests/test_selector.py::SelectorTestCase::test_select_on_text_nodes",
                 ],

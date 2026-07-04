@@ -13,6 +13,11 @@ If a collaborator uses Codex or another coding agent, ask that agent to read
 `docs/CODEX_ONBOARDING.md` first. That file explains the project structure,
 which files to inspect first, and where LLM/API configuration lives.
 
+For copy-paste commands to run the four agent protocols, use
+`docs/AGENT_EXPERIMENT_RUNBOOK.md`. That document explains how to verify that
+the runner is using AsyncCodeBench curated inputs rather than raw Commit0
+fallbacks.
+
 For evaluation metrics and post-run analysis, ask collaborators to read
 `docs/EVALUATION_METRICS.md`. That document defines the current first-round
 AsyncCodeBench metrics, the required run artifacts, and the analysis commands.
@@ -67,7 +72,8 @@ For a simple single-repository release, back up and remove the nested git
 metadata before the first top-level commit:
 
 ```bash
-cd /home/kzhang42/AsyncCodeBench
+export REPO_ROOT="${REPO_ROOT:-$HOME/AsyncCodeBench}"
+cd "$REPO_ROOT"
 tar -C reproductions/async-swe-agents -czf ~/async-swe-agents-local-git-backup.tgz .git
 rm -rf reproductions/async-swe-agents/.git
 ```
@@ -81,7 +87,8 @@ For this project, the simple one-repo release is easier for collaborators.
 From the server:
 
 ```bash
-cd /home/kzhang42/AsyncCodeBench
+export REPO_ROOT="${REPO_ROOT:-$HOME/AsyncCodeBench}"
+cd "$REPO_ROOT"
 
 # Only if this directory is not already a git repo.
 git init
@@ -292,10 +299,10 @@ Recommended current experimental task set:
 
 ```text
 cachetools
-chardet
 cookiecutter
 deprecated
 dulwich
+fastapi
 filesystem_spec
 flask
 graphene
@@ -314,10 +321,14 @@ wcwidth
 Excluded or needs-revision candidates:
 
 ```text
-fastapi
+chardet
 python-progressbar
 fabric
 ```
+
+Historical artifacts for `chardet` and `python-progressbar` are archived under
+`archive/non_official/commit0_v0.3/` for audit only. Do not include archived
+tasks in official v0.3 runs or aggregate reports.
 
 Run all four protocols for the recommended task set:
 
@@ -325,7 +336,7 @@ Run all four protocols for the recommended task set:
 cd reproductions/async-swe-agents
 
 for repo in \
-  cachetools chardet cookiecutter deprecated dulwich filesystem_spec flask \
+  cachetools cookiecutter deprecated dulwich fastapi filesystem_spec flask \
   graphene imapclient marshmallow parsel pexpect portalocker python-rsa \
   requests simpy tinydb wcwidth
 do

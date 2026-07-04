@@ -79,6 +79,10 @@ def main(
         task_name=task,
     )
     if dry_run:
+        if hasattr(task_module, "_effective_base_ref"):
+            print(f"[DryRun] base_ref={task_module._effective_base_ref()}")
+        curated_task = getattr(task_module, "curated_task", None) or {}
+        print(f"[DryRun] overlays={len(curated_task.get('overlays', []) or [])}")
         scenario = runner.load_scenario()
         print(f"[DryRun] scenario_id={scenario.get('scenario_id')}")
         print(f"[DryRun] concurrent_execution={scenario.get('concurrent_execution')}")

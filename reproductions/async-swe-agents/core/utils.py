@@ -1165,6 +1165,7 @@ def build_task_module(task, **kwargs):
             "base_branch": "base_branch",
             "docker_image_prefix": "docker_image_prefix",
             "dataset_path": "dataset_path",
+            "curated_config_path": "curated_config_path",
         })
         return Commit0Task(Commit0Config(**init))
     elif task == "paperbench":

@@ -25,12 +25,12 @@
       "dependency_id": "filesystem_spec.registry_to_core.protocol_resolution_contract",
       "dependency_type": "interface_dependency",
       "downstream_probe_tests": [
-        "fsspec/tests/test_core.py::test_url_to_fs",
+        "fsspec/tests/test_core.py::test_automkdir_local",
         "fsspec/tests/test_core.py::test_list"
       ],
       "integrated_probe_tests": [
         "fsspec/tests/test_registry.py::test_registry_readonly",
-        "fsspec/tests/test_core.py::test_url_to_fs",
+        "fsspec/tests/test_core.py::test_automkdir_local",
         "fsspec/tests/test_core.py::test_list"
       ],
       "metrics_enabled": [

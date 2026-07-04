@@ -10,11 +10,12 @@ Read in this order:
 1. `README`
 2. `SPECIFICATION_v0.3.md`
 3. `docs/COLLABORATOR_RUNBOOK.md`
-4. `docs/EVALUATION_METRICS.md`
-5. `docs/protocols/COMMIT0_DATA_AND_METRIC_LABEL_GUIDE_v0.3.md`
-6. `docs/protocols/README.md`
-7. `skills/commit0-to-asynccodebench/SKILL.md`
-8. `reproductions/async-swe-agents/protocols/README.md`
+4. `docs/AGENT_EXPERIMENT_RUNBOOK.md`
+5. `docs/EVALUATION_METRICS.md`
+6. `docs/protocols/COMMIT0_DATA_AND_METRIC_LABEL_GUIDE_v0.3.md`
+7. `docs/protocols/README.md`
+8. `skills/commit0-to-asynccodebench/SKILL.md`
+9. `reproductions/async-swe-agents/protocols/README.md`
 
 If the task is about paper writing or methodology, also read:
 
@@ -46,20 +47,22 @@ visibility, stale assumptions, and late integration.
 
 ## Current Data Status
 
-The current v0.3 artifact set contains:
+The current v0.3 release set contains:
 
-- 20 Commit0-derived candidate task artifacts;
-- 18 qualification-ready tasks;
-- 2 needs-revision candidates: `fastapi` and `python-progressbar`.
+- 18 official Commit0-derived tasks;
+- retained non-official artifacts under
+  `archive/non_official/commit0_v0.3/` for audit/history;
+- excluded candidates: `fabric` and `python-progressbar`;
+- non-official scratch/stress candidate retained for audit: `chardet`.
 
 The current qualification-ready experimental set is:
 
 ```text
 cachetools
-chardet
 cookiecutter
 deprecated
 dulwich
+fastapi
 filesystem_spec
 flask
 graphene
@@ -75,7 +78,7 @@ tinydb
 wcwidth
 ```
 
-Do not treat `fastapi`, `python-progressbar`, or `fabric` as current release
+Do not treat `chardet`, `python-progressbar`, or `fabric` as current release
 tasks without explicit human approval.
 
 ## Key Directories

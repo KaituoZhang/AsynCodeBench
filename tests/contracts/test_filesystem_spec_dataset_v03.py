@@ -55,7 +55,7 @@ def test_filesystem_spec_curated_config_uses_stripped_ref_and_overlays() -> None
     )
 
     assert task["base_ref"] == "origin/commit0_combined"
-    assert task["base_sha"] == "0d34761eb6ca0af8a6f33eb83dd9630a4a370da0"
+    assert task["base_sha"] == "0d34761c18d98009d76a1c19246606026c0e44a0"
     assert [overlay["path"] for overlay in task["overlays"]] == [
         "data/overlays/commit0/filesystem_spec/0001-version-bootstrap.patch",
         "data/overlays/commit0/filesystem_spec/0002-utils-import-bootstrap.patch",

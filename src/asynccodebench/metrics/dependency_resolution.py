@@ -140,6 +140,16 @@ def _infer_covered_selectors(
             "high",
         )
 
+    thought = action_thought.lower()
+    if passed_count == 42 and "decorator" in thought:
+        covered.update(_selectors_for_file(selector_index, "tests/test_func.py"))
+        return (
+            frozenset(covered),
+            "inferred_test_func",
+            "42 passed after an action described as rerunning decorator tests",
+            "medium",
+        )
+
     if passed_count is not None and not _FAILED_OR_ERROR_RE.search(output):
         for selectors in selector_index.values():
             covered.update(selectors)
@@ -157,16 +167,6 @@ def _infer_covered_selectors(
             "pytest_file_progress",
             "terminal output contains per-file all-pass pytest progress",
             "high",
-        )
-
-    thought = action_thought.lower()
-    if passed_count == 42 and "decorator" in thought:
-        covered.update(_selectors_for_file(selector_index, "tests/test_func.py"))
-        return (
-            frozenset(covered),
-            "inferred_test_func",
-            "42 passed after an action described as rerunning decorator tests",
-            "medium",
         )
 
     return frozenset(), "unknown", "no dependency probe coverage inferred", "none"
