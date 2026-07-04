@@ -100,6 +100,10 @@
       "repository": "marshmallow",
       "base_ref": "origin/commit0_combined",
       "base_sha": "bd290d2b49f5030a2369aedc5538cffa4815982d",
+      "python_dependencies": [
+        "packaging==24.1",
+        "simplejson==4.1.1"
+      ],
       "overlays": [
         {
           "path": "data/overlays/commit0/marshmallow/0001-utils-import-bootstrap.patch",
