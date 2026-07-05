@@ -104,6 +104,7 @@
     "The local main/commit0 branch is complete. Benchmark workspaces must be materialized from origin/commit0_combined.",
     "Raw origin/commit0_combined collection fails before bootstrap overlays because several stripped class-level callbacks, decorators, and one f-string quote are missing.",
     "Bootstrap overlays are intentionally numerous for Flask; they only make public tests importable and collectable and do not implement scoped Flask runtime behavior.",
+    "The conftest monkeypatch sentinel overlay is evaluator compatibility only: it removes dependence on the unstable package-level _pytest.monkeypatch.notset export while preserving pytest MonkeyPatch's real missing-value sentinel across pytest minor versions.",
     "CLI, async extra, dev-server behavior, and full blueprint edge cases are excluded from this scoped task.",
     "Single-agent and multi-agent model results are evaluation outputs to report, not dataset qualification gates."
   ],

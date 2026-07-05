@@ -51,7 +51,7 @@ def test_flask_curated_config_uses_stripped_ref_and_bootstrap_overlays() -> None
 
     assert task["base_ref"] == "origin/commit0_combined"
     assert task["base_sha"] == "af126af63a288df1d4edfe07e82a3b241aa4567a"
-    assert len(task["overlays"]) == 10
+    assert len(task["overlays"]) == 11
     for overlay in task["overlays"]:
         assert hashlib.sha256(Path(overlay["path"]).read_bytes()).hexdigest() == overlay["sha256"]
         assert "Bootstrap-only" in overlay["rationale"]

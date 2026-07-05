@@ -291,6 +291,11 @@
           "path": "data/overlays/commit0/flask/0010-testing-base-url-fstring-bootstrap.patch",
           "sha256": "58100b0bab357068d0dd40add37cde9d690f9eb3902a143a2bd2e757d111b1b7",
           "rationale": "Bootstrap-only patch that removes import, class construction, or syntax blockers so public Flask tests can collect; it does not implement scoped Flask runtime behavior."
+        },
+        {
+          "path": "data/overlays/commit0/flask/0011-conftest-monkeypatch-sentinel-bootstrap.patch",
+          "sha256": "5678881b4022e089eb26d961b0674e6058f8874c384cc7a8f2875601ed08678c",
+          "rationale": "Bootstrap-only evaluator compatibility patch that removes dependence on the unstable package-level _pytest.monkeypatch.notset export in tests/conftest.py so public Flask tests remain stable across pytest minor versions. It preserves pytest MonkeyPatch's real missing-value sentinel and does not modify Flask implementation files or supply scoped Flask runtime behavior."
         }
       ]
     },
