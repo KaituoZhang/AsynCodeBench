@@ -8,6 +8,7 @@
     "Python 3.10.12",
     "pytest==9.0.3",
     "packaging==24.1",
+    "pytz==2026.2",
     "simplejson==4.1.1",
     "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
     "Run from the repository root with PYTHONPATH=src.",
@@ -37,6 +38,7 @@
       ],
       "dependency_versions": {
         "packaging": "24.1",
+        "pytz": "2026.2",
         "pytest": "9.0.3",
         "simplejson": "4.1.1"
       },
@@ -79,6 +81,7 @@
       ],
       "dependency_versions": {
         "packaging": "24.1",
+        "pytz": "2026.2",
         "pytest": "9.0.3",
         "simplejson": "4.1.1"
       },

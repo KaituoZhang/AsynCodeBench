@@ -1,5 +1,12 @@
 # Centralized Asynchronous Isolated Delegation (CAID)
 
+> AsyncCodeBench note: this directory is vendored as the agent runner for
+> AsyncCodeBench experiments. For official AsyncCodeBench model runs, start
+> from `../../docs/MODEL_EXPERIMENT_RUNBOOK.md` instead of the generic CAID
+> commands below. The official runs use curated AsyncCodeBench task manifests,
+> four protocol modes, strict dependency checkpoints, and post-run metric
+> aggregation.
+
 This repo contains the code for CAID, a multi-agent workflow where a central manager agent delegates tasks to multiple engineer agents to execute asynchronously in isolated git worktrees.
 
 <p align="center">

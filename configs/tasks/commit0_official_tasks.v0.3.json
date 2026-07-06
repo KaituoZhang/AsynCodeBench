@@ -2,11 +2,15 @@
   "schema_version": "commit0-official-tasks-v0.3",
   "source_candidate_policy": {
     "original_user_candidate_count": 20,
-    "selection_rule": "Use only tasks from the user-provided Commit0 candidate list, excluding fabric and python-progressbar for the current v0.3 release. Chardet is retained only as a non-official scratch/stress artifact under archive/non_official/commit0_v0.3 and is not part of official v0.3 results.",
+    "selection_rule": "Use only tasks from the user-provided Commit0 candidate list, excluding fabric, fastapi, and python-progressbar for the current v0.3 release. Chardet is retained only as a non-official scratch/stress artifact under archive/non_official/commit0_v0.3 and is not part of official v0.3 results.",
     "excluded_candidates": [
       {
         "repository": "fabric",
         "reason": "Excluded after feasibility review; no official v0.3 task artifacts are released for this repository."
+      },
+      {
+        "repository": "fastapi",
+        "reason": "Excluded from the official v0.3 release set because the current task remains needs_revision: the scoped evaluator and bootstrap overlay require pinned-environment validation and human review before formal benchmark use."
       },
       {
         "repository": "python-progressbar",
@@ -36,7 +40,6 @@
     "imapclient",
     "pexpect",
     "flask",
-    "fastapi",
     "python-rsa",
     "cookiecutter"
   ]

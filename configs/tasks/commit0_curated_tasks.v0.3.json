@@ -102,6 +102,7 @@
       "base_sha": "bd290d2b49f5030a2369aedc5538cffa4815982d",
       "python_dependencies": [
         "packaging==24.1",
+        "pytz==2026.2",
         "simplejson==4.1.1"
       ],
       "overlays": [
@@ -317,7 +318,13 @@
       "repository": "cookiecutter",
       "base_ref": "origin/commit0_combined",
       "base_sha": "c7a8c70a666270053d848f5664413af1af7a987f",
-      "overlays": []
+      "overlays": [],
+      "python_dependencies": [
+        "pytest-mock==3.15.1",
+        "binaryornot==0.6.0",
+        "python-slugify==8.0.4",
+        "arrow==1.4.0"
+      ]
     },
     {
       "task_id": "commit0:cachetools",
@@ -345,6 +352,9 @@
       "repository": "python-rsa",
       "base_ref": "origin/commit0_combined",
       "base_sha": "228b947d61f06612107205ab369a017ff63f9a8f",
+      "python_dependencies": [
+        "pyasn1==0.6.3"
+      ],
       "overlays": []
     },
     {

@@ -105,7 +105,12 @@ class Commit0Task(TaskModule):
         if not repository:
             return None
 
-        test_targets = self._manifest_evaluator_targets() or ["tests/"]
+        manifest_command = self._manifest_evaluator_command()
+        if manifest_command:
+            test_cmd, test_targets = manifest_command
+        else:
+            test_cmd = "python -m pytest"
+            test_targets = self._manifest_evaluator_targets() or ["tests/"]
         return {
             "repo": self._curated_repo_url(repository),
             "repo_name": repository,
@@ -115,7 +120,7 @@ class Commit0Task(TaskModule):
             "base_sha": self.curated_task.get("base_sha"),
             "overlays": self.curated_task.get("overlays", []),
             "test": {
-                "test_cmd": "python -m pytest",
+                "test_cmd": test_cmd,
                 "test_dir": test_targets,
             },
         }
@@ -444,6 +449,20 @@ class Commit0Task(TaskModule):
                 f"for {self.config.repo_name}: {result.stderr or result.stdout}"
             )
 
+    def _clean_transient_test_artifacts(self, workspace, work_dir):
+        if self.config.repo_name != "cookiecutter":
+            return
+
+        # Some cookiecutter tests create tests/test-hooks in the repository root.
+        # It is a test fixture directory, not a model patch, and can poison later
+        # hook tests if it survives subagent probe runs or merges.
+        workspace.execute_command(
+            f"cd {work_dir} && "
+            "git rm -r -f --ignore-unmatch tests/test-hooks >/dev/null 2>&1 || true && "
+            "rm -rf tests/test-hooks",
+            timeout=60,
+        )
+
     def evaluate(self, workspace):
         if self.task_data is None:
             raise RuntimeError("Call load_task_data() before evaluate()")
@@ -452,6 +471,7 @@ class Commit0Task(TaskModule):
 
         # Commit any remaining changes
         print("[Commit0] Committing any remaining changes...")
+        self._clean_transient_test_artifacts(workspace, work_dir)
         workspace.execute_command(f"cd {work_dir} && git add .", timeout=600)
         workspace.execute_command(
             f"cd {work_dir} && "
@@ -465,6 +485,7 @@ class Commit0Task(TaskModule):
         test_target_args = " ".join(shlex.quote(str(target)) for target in test_targets)
 
         eval_timeout = self._final_pytest_timeout_seconds()
+        self._clean_transient_test_artifacts(workspace, work_dir)
         full_cmd = (
             f"cd {work_dir} && "
             f"export PYTHONPATH={work_dir}/src:{work_dir}:$PYTHONPATH && "
@@ -561,6 +582,11 @@ class Commit0Task(TaskModule):
 
     def _resolve_evaluator(self):
         test_cmd, dataset_targets = self._dataset_evaluator()
+        manifest_command = self._manifest_evaluator_command()
+        if manifest_command:
+            manifest_test_cmd, manifest_targets = manifest_command
+            return manifest_test_cmd, manifest_targets, "asynccodebench_manifest"
+
         manifest_targets = self._manifest_evaluator_targets()
         if manifest_targets:
             return test_cmd, manifest_targets, "asynccodebench_manifest"
@@ -620,6 +646,45 @@ class Commit0Task(TaskModule):
             / f"commit0_{normalized}.json"
         )
 
+    def _task_manifest_path(self):
+        normalized = self.config.repo_name.replace("-", "_")
+        return (
+            self._repo_root()
+            / "manifests"
+            / "pilot"
+            / "v0.3"
+            / "tasks"
+            / f"commit0_{normalized}.json"
+        )
+
+    def _manifest_evaluator_command(self):
+        if self._manifest_evaluator_disabled():
+            return None
+
+        task_path = self._task_manifest_path()
+        if not task_path.exists():
+            return None
+
+        try:
+            payload = json.loads(task_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            print(f"[Commit0] Warning: could not read {task_path}: {exc}")
+            return None
+
+        command = payload.get("evaluator_command")
+        if not command:
+            return None
+
+        test_cmd, targets = self._split_pytest_command(command)
+        if not targets:
+            return None
+
+        print(
+            "[Commit0] Using AsyncCodeBench task evaluator command from "
+            f"{task_path}"
+        )
+        return test_cmd, targets
+
     @staticmethod
     def _repo_root():
         return Path(__file__).resolve().parents[3]
@@ -635,6 +700,43 @@ class Commit0Task(TaskModule):
     def _manifest_evaluator_disabled():
         raw_value = os.getenv("ASYNCCODEBENCH_DISABLE_MANIFEST_EVALUATOR", "")
         return raw_value.strip().lower() in {"1", "true", "yes", "on"}
+
+    @classmethod
+    def _split_pytest_command(cls, command):
+        if isinstance(command, str):
+            tokens = shlex.split(command)
+        elif isinstance(command, (list, tuple)):
+            tokens = [str(token) for token in command]
+        else:
+            return None, []
+
+        if not tokens:
+            return None, []
+
+        pytest_index = None
+        for idx, token in enumerate(tokens):
+            if token == "pytest":
+                pytest_index = idx
+                break
+        if pytest_index is None:
+            return None, []
+
+        cmd_tokens = ["python", "-m", "pytest"]
+        targets = []
+        idx = pytest_index + 1
+        option_tokens_with_values = {"-o", "-p"}
+        while idx < len(tokens):
+            token = tokens[idx]
+            if token.startswith("tests/") or token.startswith("--deselect="):
+                targets.extend(tokens[idx:])
+                break
+            cmd_tokens.append(token)
+            if token in option_tokens_with_values and idx + 1 < len(tokens):
+                idx += 1
+                cmd_tokens.append(tokens[idx])
+            idx += 1
+
+        return " ".join(shlex.quote(token) for token in cmd_tokens), cls._coerce_test_targets(targets)
 
     @staticmethod
     def _coerce_test_targets(raw_targets):

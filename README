@@ -92,8 +92,8 @@ can occur even when patches merge textually.
 
 As of the current repository state:
 
-- Official Commit0 v0.3 tasks: `18`
-- Excluded candidates: `fabric`, `python-progressbar`
+- Official Commit0 v0.3 tasks for current experiments: `17`
+- Excluded candidates: `fabric`, `fastapi`, `python-progressbar`
 - Non-official scratch/stress candidate retained for audit: `chardet`
 - Archived non-official artifacts:
   `archive/non_official/commit0_v0.3/`
@@ -105,7 +105,6 @@ commit0:cachetools
 commit0:cookiecutter
 commit0:deprecated
 commit0:dulwich
-commit0:fastapi
 commit0:filesystem_spec
 commit0:flask
 commit0:graphene
@@ -125,11 +124,12 @@ The current excluded or non-official candidates are:
 
 ```text
 commit0:fabric
+commit0:fastapi
 commit0:python-progressbar
 commit0:chardet
 ```
 
-The official 18-task list is the current experimental set unless and until the
+The official 17-task list is the current experimental set unless and until the
 human annotation and release rules mark a task otherwise. Historical artifacts
 for excluded/non-official candidates are kept under
 `archive/non_official/commit0_v0.3/` so prior construction and pilot runs are
@@ -179,6 +179,8 @@ Important protocol documents:
 ```text
 SPECIFICATION_v0.3.md
 docs/COLLABORATOR_RUNBOOK.md
+docs/GITHUB_COLLABORATOR_HANDOFF.md
+docs/MODEL_EXPERIMENT_RUNBOOK.md
 docs/CODEX_ONBOARDING.md
 docs/protocols/COMMIT0_DATA_EXAMPLE_GUIDE_v0.3.md
 docs/protocols/COMMIT0_DATA_AND_METRIC_LABEL_GUIDE_v0.3.md
@@ -186,7 +188,10 @@ docs/protocols/README.md
 ```
 
 Use `docs/COLLABORATOR_RUNBOOK.md` for GitHub upload, fresh-clone setup,
-agent-runner configuration, model switching, and experiment commands.
+and base environment setup. Use `docs/MODEL_EXPERIMENT_RUNBOOK.md` for
+running a new model across the 17 official tasks and generating model-level
+tables. Use `docs/GITHUB_COLLABORATOR_HANDOFF.md` before pushing a collaborator
+branch to avoid committing API keys, raw data, or runtime outputs.
 Use `docs/CODEX_ONBOARDING.md` to orient a new Codex session or collaborator
 agent before it edits files or runs experiments.
 

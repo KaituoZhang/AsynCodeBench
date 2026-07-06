@@ -13,9 +13,10 @@ If a collaborator uses Codex or another coding agent, ask that agent to read
 `docs/CODEX_ONBOARDING.md` first. That file explains the project structure,
 which files to inspect first, and where LLM/API configuration lives.
 
-For copy-paste commands to run the four agent protocols, use
-`docs/AGENT_EXPERIMENT_RUNBOOK.md`. That document explains how to verify that
-the runner is using AsyncCodeBench curated inputs rather than raw Commit0
+For copy-paste commands to run a new model across the current official task
+set, use `docs/MODEL_EXPERIMENT_RUNBOOK.md`. For lower-level runner details,
+use `docs/AGENT_EXPERIMENT_RUNBOOK.md`. These documents explain how to verify
+that the runner is using AsyncCodeBench curated inputs rather than raw Commit0
 fallbacks.
 
 For evaluation metrics and post-run analysis, ask collaborators to read
@@ -302,7 +303,6 @@ cachetools
 cookiecutter
 deprecated
 dulwich
-fastapi
 filesystem_spec
 flask
 graphene
@@ -322,6 +322,7 @@ Excluded or needs-revision candidates:
 
 ```text
 chardet
+fastapi
 python-progressbar
 fabric
 ```
@@ -336,7 +337,7 @@ Run all four protocols for the recommended task set:
 cd reproductions/async-swe-agents
 
 for repo in \
-  cachetools cookiecutter deprecated dulwich fastapi filesystem_spec flask \
+  cachetools cookiecutter deprecated dulwich filesystem_spec flask \
   graphene imapclient marshmallow parsel pexpect portalocker python-rsa \
   requests simpy tinydb wcwidth
 do

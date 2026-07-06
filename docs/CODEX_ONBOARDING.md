@@ -12,10 +12,12 @@ Read in this order:
 3. `docs/COLLABORATOR_RUNBOOK.md`
 4. `docs/AGENT_EXPERIMENT_RUNBOOK.md`
 5. `docs/EVALUATION_METRICS.md`
-6. `docs/protocols/COMMIT0_DATA_AND_METRIC_LABEL_GUIDE_v0.3.md`
-7. `docs/protocols/README.md`
-8. `skills/commit0-to-asynccodebench/SKILL.md`
-9. `reproductions/async-swe-agents/protocols/README.md`
+6. `docs/MODEL_EXPERIMENT_RUNBOOK.md`
+7. `docs/GITHUB_COLLABORATOR_HANDOFF.md`
+8. `docs/protocols/COMMIT0_DATA_AND_METRIC_LABEL_GUIDE_v0.3.md`
+9. `docs/protocols/README.md`
+10. `skills/commit0-to-asynccodebench/SKILL.md`
+11. `reproductions/async-swe-agents/protocols/README.md`
 
 If the task is about paper writing or methodology, also read:
 
@@ -49,10 +51,10 @@ visibility, stale assumptions, and late integration.
 
 The current v0.3 release set contains:
 
-- 18 official Commit0-derived tasks;
+- 17 official Commit0-derived tasks for current experiments;
 - retained non-official artifacts under
   `archive/non_official/commit0_v0.3/` for audit/history;
-- excluded candidates: `fabric` and `python-progressbar`;
+- excluded candidates: `fabric`, `fastapi`, and `python-progressbar`;
 - non-official scratch/stress candidate retained for audit: `chardet`.
 
 The current qualification-ready experimental set is:
@@ -62,7 +64,6 @@ cachetools
 cookiecutter
 deprecated
 dulwich
-fastapi
 filesystem_spec
 flask
 graphene
@@ -78,8 +79,8 @@ tinydb
 wcwidth
 ```
 
-Do not treat `chardet`, `python-progressbar`, or `fabric` as current release
-tasks without explicit human approval.
+Do not treat `chardet`, `fastapi`, `python-progressbar`, or `fabric` as
+current release tasks without explicit human approval.
 
 ## Key Directories
 

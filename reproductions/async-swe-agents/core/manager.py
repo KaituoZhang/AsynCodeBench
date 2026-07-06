@@ -1,4 +1,5 @@
 import json
+import shlex
 from datetime import datetime
 from pathlib import Path
 
@@ -672,10 +673,45 @@ class Manager:
 
         return modified_files
 
-    def commit_worktree_changes(self, worktree_path, branch_name, engineer_id, task_id):
+    @staticmethod
+    def _split_assigned_file_paths(file_path):
+        if not file_path:
+            return []
+        return [
+            item.strip()
+            for item in str(file_path).split(",")
+            if item.strip()
+        ]
+
+    @staticmethod
+    def _is_under_assigned_path(file_path, assigned_paths):
+        normalized = str(file_path).strip().rstrip("/")
+        for assigned in assigned_paths:
+            assigned = str(assigned).strip().rstrip("/")
+            if normalized == assigned or normalized.startswith(f"{assigned}/"):
+                return True
+        return False
+
+    def commit_worktree_changes(self, worktree_path, branch_name, engineer_id, task_id, allowed_file_paths=None):
         self.log(f"Committing uncommitted changes in worktree for {engineer_id}...")
 
         modified_files = self.get_uncommitted_changes(worktree_path)
+        if allowed_file_paths:
+            ignored_files = [
+                path
+                for path in modified_files
+                if not self._is_under_assigned_path(path, allowed_file_paths)
+            ]
+            modified_files = [
+                path
+                for path in modified_files
+                if self._is_under_assigned_path(path, allowed_file_paths)
+            ]
+            if ignored_files:
+                self.log(
+                    "Ignoring unassigned uncommitted files in worktree: "
+                    f"{ignored_files}"
+                )
         if not modified_files:
             self.log("No uncommitted changes found in worktree")
             return False, "No uncommitted changes to commit", []
@@ -694,7 +730,8 @@ class Manager:
             timeout=30,
         )
 
-        add_cmd = f"cd {worktree_path} && git add ."
+        add_paths = " ".join(shlex.quote(path) for path in modified_files)
+        add_cmd = f"cd {worktree_path} && git add -- {add_paths}"
         add_result = self.workspace.execute_command(add_cmd, timeout=60)
         if add_result.exit_code != 0:
             self.log(f"Failed to stage changes: {add_result.stderr}")
@@ -807,8 +844,9 @@ class Manager:
         # No commit or branch merge failed - try to commit and merge uncommitted changes
         if self.task.should_try_uncommitted_merge and worktree_path and branch_name:
             self.log("Checking for uncommitted changes in worktree...")
+            allowed_file_paths = self._split_assigned_file_paths(subagent_result.file_path)
             commit_success, commit_message, committed_files = self.commit_worktree_changes(
-                worktree_path, branch_name, engineer_id, task_id
+                worktree_path, branch_name, engineer_id, task_id, allowed_file_paths
             )
 
             if commit_success and committed_files:
