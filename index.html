@@ -7,7 +7,7 @@
   <title>AsynCodeBench</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=IBM+Plex+Mono:wght@500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
   <style>
     :root {
       --ink: #0e1a17;
@@ -16,7 +16,6 @@
       --foam: #f4faf6;
       --accent: #1f7a5c;
       --accent-bright: #2f9d75;
-      --line: rgba(14, 26, 23, 0.12);
       --glow: rgba(47, 157, 117, 0.35);
     }
 
@@ -70,18 +69,17 @@
       width: 64px;
       height: 64px;
       margin-bottom: 1.75rem;
-      border-radius: 18px;
+      border-radius: 16px;
       background: linear-gradient(145deg, var(--accent-bright), var(--accent));
       box-shadow:
         0 0 0 1px rgba(255, 255, 255, 0.25) inset,
         0 18px 40px var(--glow);
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 1.15rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: #fff;
       animation: rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
-    }
-
-    .mark svg {
-      width: 34px;
-      height: 34px;
-      color: white;
     }
 
     h1 {
@@ -110,51 +108,6 @@
       animation: rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.16s both;
     }
 
-    .flow {
-      margin-top: 2.75rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.65rem;
-      flex-wrap: wrap;
-      animation: rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.28s both;
-    }
-
-    .node {
-      font-size: 0.8rem;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      color: var(--ink-soft);
-      padding: 0.55rem 0.9rem;
-      border: 1px solid var(--line);
-      background: rgba(244, 250, 246, 0.65);
-      backdrop-filter: blur(8px);
-    }
-
-    .arrow {
-      width: 28px;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--accent), transparent);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .arrow::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(90deg, transparent, #fff, transparent);
-      animation: shimmer 2.4s ease-in-out infinite;
-    }
-
-    .footnote {
-      margin-top: 3.5rem;
-      font-size: 0.85rem;
-      color: rgba(42, 61, 55, 0.7);
-      animation: rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.4s both;
-    }
-
     @keyframes rise {
       from {
         opacity: 0;
@@ -165,57 +118,15 @@
         transform: translateY(0);
       }
     }
-
-    @keyframes shimmer {
-      0% { transform: translateX(-100%); }
-      55%, 100% { transform: translateX(100%); }
-    }
-
-    @media (max-width: 520px) {
-      .flow {
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-
-      .arrow {
-        width: 2px;
-        height: 22px;
-        background: linear-gradient(180deg, transparent, var(--accent), transparent);
-      }
-
-      .arrow::after {
-        background: linear-gradient(180deg, transparent, #fff, transparent);
-        animation-name: shimmer-v;
-      }
-    }
-
-    @keyframes shimmer-v {
-      0% { transform: translateY(-100%); }
-      55%, 100% { transform: translateY(100%); }
-    }
   </style>
 </head>
 <body>
   <div class="noise" aria-hidden="true"></div>
   <main class="shell">
     <section class="hero">
-      <div class="mark" aria-hidden="true">
-        <svg viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M6 10c4-6 10-6 14 0s8 6 8 0" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-          <path d="M6 18c4-6 10-6 14 0s8 6 8 0" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" opacity="0.75"/>
-          <path d="M6 26c4-6 10-6 14 0s8 6 8 0" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" opacity="0.5"/>
-        </svg>
-      </div>
+      <div class="mark" aria-hidden="true">&lt;/&gt;</div>
       <h1>Asyn<em>Code</em>Bench</h1>
       <p class="tagline">An asynchronous multi-agent coding benchmark.</p>
-      <div class="flow" aria-hidden="true">
-        <span class="node">Agent A</span>
-        <span class="arrow"></span>
-        <span class="node">Agent B</span>
-        <span class="arrow"></span>
-        <span class="node">Evaluate</span>
-      </div>
-      <p class="footnote">GitHub Pages</p>
     </section>
   </main>
 </body>
