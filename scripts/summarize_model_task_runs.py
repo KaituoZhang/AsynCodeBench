@@ -17,6 +17,7 @@ import argparse
 import csv
 import hashlib
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -24,6 +25,8 @@ from typing import Any
 MODE_ORDER = ["single", "serial_specialists", "async_private", "CAID_multi"]
 INDEXED_PATTERNS = [
     "report.json",
+    "report.pre_manifest_retest.json",
+    "manifest_retest_metadata.json",
     "cost.json",
     "runtime.txt",
     "outputs.jsonl",
@@ -31,7 +34,9 @@ INDEXED_PATTERNS = [
     "protocol.json",
     "delegations.json",
     "*_test_output.txt",
+    "*_test_output.pre_manifest_retest.txt",
     "*_pytest_exit_code.txt",
+    "*_pytest_exit_code.pre_manifest_retest.txt",
     "process_metrics_summary.json",
     "dependency_probe_checkpoints.jsonl",
     "strict_dependency_metrics.json",
@@ -230,7 +235,7 @@ def strict_cail_summary(run_dir: Path) -> dict[str, Any] | None:
     if not strict:
         return None
     cail = strict.get("strict_CAIL", {})
-    drs = strict.get("strict_DRS", {})
+    drs_summary = strict.get("strict_DRS", {})
     rows = strict.get("dependency_metrics", []) or []
     observed_cail = [
         row.get("strict_CAIL")
@@ -243,16 +248,57 @@ def strict_cail_summary(run_dir: Path) -> dict[str, Any] | None:
         if isinstance(row.get("strict_DRS"), int)
     ]
     total = len(rows)
+    checkpoint_count = strict.get("checkpoint_count")
+    drs_penalized: list[int] = []
+    cail_penalized: list[int] = []
+    dependency_resolution_efficiency: list[float] = []
+    if isinstance(checkpoint_count, int) and checkpoint_count > 0:
+        for row in rows:
+            dependency_drs = row.get("strict_DRS")
+            upstream = row.get("upstream_resolution_step")
+            downstream = row.get("downstream_resolution_step")
+            resolved = bool(row.get("final_integrated_pass")) and isinstance(
+                dependency_drs, int
+            )
+
+            penalized_drs = dependency_drs if resolved else checkpoint_count + 1
+            drs_penalized.append(penalized_drs)
+            dependency_resolution_efficiency.append(
+                1 - (penalized_drs - 1) / checkpoint_count if resolved else 0.0
+            )
+
+            if isinstance(upstream, int) and isinstance(downstream, int):
+                cail_penalized.append(max(0, downstream - upstream))
+            elif isinstance(upstream, int):
+                cail_penalized.append(checkpoint_count + 1 - upstream)
+            else:
+                cail_penalized.append(checkpoint_count + 1)
     return {
+        "strict_checkpoint_count": checkpoint_count,
+        "strict_unresolved_count": sum(
+            1 for row in rows if not row.get("final_integrated_pass")
+        ),
+        "drs_penalized_mean": (
+            sum(drs_penalized) / len(drs_penalized) if drs_penalized else None
+        ),
+        "cail_penalized_mean": (
+            sum(cail_penalized) / len(cail_penalized) if cail_penalized else None
+        ),
+        "dependency_resolution_efficiency_mean": (
+            sum(dependency_resolution_efficiency)
+            / len(dependency_resolution_efficiency)
+            if dependency_resolution_efficiency
+            else None
+        ),
         "cail_observed_count": cail.get("observed_count", len(observed_cail)),
         "cail_unresolved_count": cail.get("unobserved_count", total - len(observed_cail)),
         "cail_total_dependency_views": total,
         "cail_nonzero_count": sum(1 for value in observed_cail if value != 0),
         "cail_max": cail.get("max"),
         "cail_mean": cail.get("mean"),
-        "drs_observed_count": drs.get("observed_count", len(observed_drs)),
-        "drs_min": drs.get("min"),
-        "drs_max": drs.get("max"),
+        "drs_observed_count": drs_summary.get("observed_count", len(observed_drs)),
+        "drs_min": drs_summary.get("min"),
+        "drs_max": drs_summary.get("max"),
         "sad_proxy_candidate_count": 0,
         "per_report_cail_summary": "strict_dependency_metrics.json: "
         + "; ".join(
@@ -329,6 +375,96 @@ def hygiene_files(run_dir: Path) -> list[str]:
     return out
 
 
+def final_test_collection_status(run_dir: Path) -> tuple[bool, int]:
+    """Return collection-failure evidence without treating it as an infra failure."""
+    report = load_json(run_dir / "report.json", {})
+    collectors = report.get("collectors", []) if isinstance(report, dict) else []
+    failed_collectors = sum(
+        1
+        for collector in collectors or []
+        if isinstance(collector, dict) and collector.get("outcome") == "failed"
+    )
+
+    output = "\n".join(
+        read_text(path)
+        for path in sorted(run_dir.glob("*_test_output.txt"))
+        if ".pre_manifest_retest." not in path.name
+    )
+    lowered = output.lower()
+    collection_failure = failed_collectors > 0 or any(
+        marker in lowered
+        for marker in (
+            "error collecting",
+            "errors during collection",
+            "importerror while loading conftest",
+        )
+    )
+    if failed_collectors:
+        return collection_failure, failed_collectors
+
+    matches = re.findall(r"(?:^|\s)(\d+) errors? in [0-9.]+s", lowered)
+    if matches:
+        return collection_failure, int(matches[-1])
+    return collection_failure, 1 if collection_failure else 0
+
+
+def final_test_timeout_status(run_dir: Path) -> bool:
+    report = load_json(run_dir / "report.json", {})
+    metadata = report.get("asynccodebench", {}) if isinstance(report, dict) else {}
+    if metadata.get("timed_out") is True:
+        return True
+    output = "\n".join(
+        read_text(path)
+        for path in sorted(run_dir.glob("*_test_output.txt"))
+        if ".pre_manifest_retest." not in path.name
+    )
+    return "final pytest timed out" in output.lower()
+
+
+def normalize_expected_test_totals(rows: list[dict[str, Any]]) -> None:
+    """Give model-induced collection failures a numeric, task-level denominator.
+
+    A protocol that breaks imports may collect zero tests even though its sibling
+    protocols establish the size of the same fixed evaluator suite. We retain the
+    collection-failure flag and use that common observed suite size as the expected
+    denominator. This makes pass-rate aggregation numeric without claiming that the
+    unexecuted assertions were ordinary pytest failures.
+    """
+    observed_totals = {
+        row.get("final_tests_total")
+        for row in rows
+        if isinstance(row.get("final_tests_total"), int)
+        and row.get("final_tests_total") > 0
+        and not row.get("final_test_collection_failure")
+        and not row.get("final_test_timed_out")
+    }
+    expected_total = next(iter(observed_totals)) if len(observed_totals) == 1 else None
+    for row in rows:
+        total = row.get("final_tests_total")
+        row["final_tests_observed_total"] = total
+        incomplete_evaluation = bool(
+            row.get("final_test_collection_failure") or row.get("final_test_timed_out")
+        )
+        if (
+            incomplete_evaluation
+            and expected_total is not None
+            and (not isinstance(total, int) or total < expected_total)
+        ):
+            row["final_tests_total"] = expected_total
+            if row.get("final_test_collection_failure"):
+                row["final_tests_total_source"] = (
+                    "sibling_protocol_expected_total_due_collection_failure"
+                )
+            else:
+                row["final_tests_total_source"] = (
+                    "sibling_protocol_expected_total_due_evaluator_timeout"
+                )
+        elif isinstance(total, int) and total > 0:
+            row["final_tests_total_source"] = "report.summary.total"
+        else:
+            row["final_tests_total_source"] = "unavailable"
+
+
 def run_row(mode: str, run_dir: Path) -> dict[str, Any]:
     summary = load_json(run_dir / "process_metrics_summary.json", {})
     if not summary:
@@ -360,6 +496,8 @@ def run_row(mode: str, run_dir: Path) -> dict[str, Any]:
     if isinstance(attempts, int) and isinstance(merged, int) and manager_reviews:
         nonmerged = max(0, attempts - merged)
     duplicate_symbols = duplicate.get("duplicated_contract_unique_added_symbols") or []
+    collection_failure, collection_error_count = final_test_collection_status(run_dir)
+    test_timed_out = final_test_timeout_status(run_dir)
 
     return {
         "mode": mode,
@@ -368,6 +506,11 @@ def run_row(mode: str, run_dir: Path) -> dict[str, Any]:
         "final_tests_failed": primary.get("failed"),
         "final_tests_errors": primary.get("errors"),
         "final_tests_total": primary.get("total"),
+        "final_tests_observed_total": primary.get("total"),
+        "final_tests_total_source": "report.summary.total",
+        "final_test_collection_failure": collection_failure,
+        "final_test_collection_error_count": collection_error_count,
+        "final_test_timed_out": test_timed_out,
         "final_success": primary.get("final_success"),
         "final_integrated_ADPR": final_adpr,
         "final_integrated_ADPR_source": final_adpr_source,
@@ -440,6 +583,11 @@ def write_csv(rows: list[dict[str, Any]], path: Path) -> None:
         "final_tests_failed",
         "final_tests_errors",
         "final_tests_total",
+        "final_tests_observed_total",
+        "final_tests_total_source",
+        "final_test_collection_failure",
+        "final_test_collection_error_count",
+        "final_test_timed_out",
         "final_success",
         "final_integrated_ADPR",
         "final_integrated_ADPR_source",
@@ -471,6 +619,11 @@ def write_csv(rows: list[dict[str, Any]], path: Path) -> None:
         "cail_nonzero_count",
         "cail_max",
         "cail_mean",
+        "strict_checkpoint_count",
+        "strict_unresolved_count",
+        "drs_penalized_mean",
+        "cail_penalized_mean",
+        "dependency_resolution_efficiency_mean",
         "drs_observed_count",
         "drs_min",
         "drs_max",
@@ -504,6 +657,22 @@ def write_index(args: argparse.Namespace, rows: list[dict[str, Any]], runs: dict
             "checksum": combined_checksum(artifacts),
             "report_json": str(run_dir / "report.json"),
             "process_metrics_summary": str(run_dir / "process_metrics_summary.json"),
+            "final_tests_total_source": next(
+                (row.get("final_tests_total_source") for row in rows if row["mode"] == mode),
+                None,
+            ),
+            "final_test_collection_failure": next(
+                (
+                    row.get("final_test_collection_failure")
+                    for row in rows
+                    if row["mode"] == mode
+                ),
+                None,
+            ),
+            "final_test_timed_out": next(
+                (row.get("final_test_timed_out") for row in rows if row["mode"] == mode),
+                None,
+            ),
             "final_integrated_ADPR_source": next(
                 (row.get("final_integrated_ADPR_source") for row in rows if row["mode"] == mode),
                 None,
@@ -524,6 +693,7 @@ def write_index(args: argparse.Namespace, rows: list[dict[str, Any]], runs: dict
         "notes": [
             "Raw run artifact directories are ignored by git unless explicitly force-added or uploaded to shared storage.",
             "final_integrated_ADPR is canonical for paper tables; mean_per_agent_view_ADPR is diagnostic only.",
+            "For model-induced collection failures, a common positive test total observed in sibling protocols is used as the expected denominator; the collection-failure flag remains explicit.",
         ],
         "runs": run_payload,
     }
@@ -584,6 +754,42 @@ def write_markdown(args: argparse.Namespace, rows: list[dict[str, Any]], path: P
                 hygiene=fmt(row.get("artifact_hygiene_violation_count")),
             )
         )
+    collection_failures = [
+        row for row in rows if row.get("final_test_collection_failure")
+    ]
+    if collection_failures:
+        lines.extend(
+            [
+                "",
+                "Collection-failure normalization:",
+                "",
+            ]
+        )
+        for row in collection_failures:
+            lines.append(
+                "- `{mode}` failed during pytest collection with {errors} collector error(s). "
+                "Its pass count is recorded as `{passed}/{total}` using the fixed suite size "
+                "confirmed by sibling protocols; this is a model-induced execution "
+                "failure, not an infrastructure failure.".format(
+                    mode=row["mode"],
+                    errors=fmt(row.get("final_test_collection_error_count")),
+                    passed=fmt(row.get("final_tests_passed")),
+                    total=fmt(row.get("final_tests_total")),
+                )
+            )
+    timed_out = [row for row in rows if row.get("final_test_timed_out")]
+    if timed_out:
+        lines.extend(["", "Evaluator-timeout normalization:", ""])
+        for row in timed_out:
+            lines.append(
+                "- `{mode}` exceeded the fixed evaluator timeout. Its conservative "
+                "pass count is recorded as `{passed}/{total}` using the suite size "
+                "confirmed by sibling protocols; the timeout flag remains explicit.".format(
+                    mode=row["mode"],
+                    passed=fmt(row.get("final_tests_passed")),
+                    total=fmt(row.get("final_tests_total")),
+                )
+            )
     lines.extend(
         [
             "",
@@ -600,25 +806,27 @@ def write_markdown(args: argparse.Namespace, rows: list[dict[str, Any]], path: P
     lines.extend(
         [
             "",
-            "## DRS / CAIL / SAD Summary",
+            "## Strict Async Dependency Summary",
             "",
-            "| Mode | DRS observed | DRS min | DRS max | CAIL observed | CAIL unresolved | Nonzero CAIL | CAIL max | SAD-proxy | Missing-comm proxy |",
-            "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+            "| Mode | Checkpoints T | Unresolved deps | Mean DRS penalized | Mean CAIL penalized | Mean DRE | DRS observed | DRS min | DRS max | CAIL observed | CAIL unobserved | CAIL raw mean |",
+            "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
         ]
     )
     for row in rows:
         lines.append(
-            "| {mode} | {drs_count} | {drs_min} | {drs_max} | {cail_obs} | {cail_unres} | {cail_nonzero} | {cail_max} | {sad} | {missing} |".format(
+            "| {mode} | {checkpoints} | {unresolved} | {drs_penalized} | {cail_penalized} | {dre} | {drs_count} | {drs_min} | {drs_max} | {cail_obs} | {cail_unres} | {cail_mean} |".format(
                 mode=row["mode"],
+                checkpoints=fmt(row.get("strict_checkpoint_count")),
+                unresolved=fmt(row.get("strict_unresolved_count")),
+                drs_penalized=fmt(row.get("drs_penalized_mean")),
+                cail_penalized=fmt(row.get("cail_penalized_mean")),
+                dre=fmt(row.get("dependency_resolution_efficiency_mean")),
                 drs_count=fmt(row.get("drs_observed_count")),
                 drs_min=fmt(row.get("drs_min")),
                 drs_max=fmt(row.get("drs_max")),
                 cail_obs=fmt(row.get("cail_observed_count")),
                 cail_unres=fmt(row.get("cail_unresolved_count")),
-                cail_nonzero=fmt(row.get("cail_nonzero_count")),
-                cail_max=fmt(row.get("cail_max")),
-                sad=fmt(row.get("sad_proxy_candidate_count")),
-                missing=fmt(row.get("missing_communication_proxy_count")),
+                cail_mean=fmt(row.get("cail_mean")),
             )
         )
     lines.extend(
@@ -694,6 +902,8 @@ def main() -> int:
         row = run_row(mode, runs[mode])
         row["runner_adapter"] = args.runner_adapter
         rows.append(row)
+
+    normalize_expected_test_totals(rows)
 
     csv_path = args.output_dir / f"{args.task}_{args.model_tag}_metrics_table.csv"
     index_path = args.output_dir / f"{args.task}_{args.model_tag}_artifact_index.json"

@@ -13,11 +13,12 @@ Read in this order:
 4. `docs/AGENT_EXPERIMENT_RUNBOOK.md`
 5. `docs/EVALUATION_METRICS.md`
 6. `docs/MODEL_EXPERIMENT_RUNBOOK.md`
-7. `docs/GITHUB_COLLABORATOR_HANDOFF.md`
-8. `docs/protocols/COMMIT0_DATA_AND_METRIC_LABEL_GUIDE_v0.3.md`
-9. `docs/protocols/README.md`
-10. `skills/commit0-to-asynccodebench/SKILL.md`
-11. `reproductions/async-swe-agents/protocols/README.md`
+7. `docs/LOCAL_VLLM_EXPERIMENT_RUNBOOK.md` when using a locally served model
+8. `docs/GITHUB_COLLABORATOR_HANDOFF.md`
+9. `docs/protocols/COMMIT0_DATA_AND_METRIC_LABEL_GUIDE_v0.3.md`
+10. `docs/protocols/README.md`
+11. `skills/commit0-to-asynccodebench/SKILL.md`
+12. `reproductions/async-swe-agents/protocols/README.md`
 
 If the task is about paper writing or methodology, also read:
 

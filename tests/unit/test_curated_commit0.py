@@ -45,6 +45,10 @@ def test_tinydb_curated_overlay_is_versioned_and_verified() -> None:
 def test_materialize_curated_task_applies_overlay_without_mutating_base(
     tmp_path: Path,
 ) -> None:
+    # The production destination is nested below the AsyncCodeBench checkout.
+    # Reproduce that parent-repository layout so Git must not skip the overlay.
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
+
     repository = tmp_path / "repository"
     repository.mkdir()
     subprocess.run(["git", "init", "-q"], cwd=repository, check=True)

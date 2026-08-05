@@ -55,6 +55,7 @@ def test_parsel_curated_config_uses_stripped_ref_and_checksum_overlay() -> None:
 
     assert task["base_ref"] == "origin/commit0_combined"
     assert task["base_sha"] == "7e73d60665ef2e3ddfe3c1bb01eed981cd317c6f"
+    assert task["python_dependencies"] == ["psutil==5.6.3"]
     assert [overlay["path"] for overlay in task["overlays"]] == [
         "data/overlays/commit0/parsel/0001-xpathfuncs-setup-bootstrap.patch",
     ]

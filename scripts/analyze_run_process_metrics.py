@@ -235,7 +235,7 @@ def count_test_invocations(agent_events: dict[str, list[dict[str, Any]]]) -> dic
 def summarize_primary_outcome(run_dir: Path) -> dict[str, Any]:
     report = load_json(run_dir / "report.json", {})
     summary = report.get("summary", {}) if isinstance(report, dict) else {}
-    passed = summary.get("passed")
+    passed = summary.get("passed", 0)
     total = summary.get("total")
     failed = summary.get("failed", 0)
     errors = summary.get("error", summary.get("errors", 0))
@@ -517,6 +517,7 @@ def outputs_agent_responses(outputs: list[dict[str, Any]]) -> list[dict[str, Any
             content = event.get("content") or {}
             responses.append(
                 {
+                    "event_id": event.get("event_id"),
                     "event_type": event.get("event_type"),
                     "source": "single_agent",
                     "target": "manager",
@@ -541,6 +542,7 @@ def outputs_agent_responses(outputs: list[dict[str, Any]]) -> list[dict[str, Any
         content = event.get("content") or {}
         responses.append(
             {
+                "event_id": event.get("event_id"),
                 "event_type": event.get("event_type"),
                 "source": event.get("source"),
                 "target": event.get("target"),
@@ -560,6 +562,55 @@ def outputs_agent_responses(outputs: list[dict[str, Any]]) -> list[dict[str, Any
             }
         )
     return responses
+
+
+def agent_attempt_outcomes(
+    outputs: list[dict[str, Any]], responses: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    """Classify attempts by whether integration produced a usable artifact."""
+    reviews_by_task: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for event in outputs:
+        if event.get("event_type") != "manager_review":
+            continue
+        content = event.get("content") or {}
+        task_id = content.get("task_id")
+        if task_id:
+            reviews_by_task[task_id].append(event)
+
+    outcomes = []
+    consumed_review_ids: set[Any] = set()
+    for response in responses:
+        response_event_id = response.get("event_id")
+        matching_review = None
+        for review in reviews_by_task.get(response.get("task_id"), []):
+            review_event_id = review.get("event_id")
+            if review_event_id in consumed_review_ids:
+                continue
+            if (
+                isinstance(response_event_id, int)
+                and isinstance(review_event_id, int)
+                and review_event_id < response_event_id
+            ):
+                continue
+            matching_review = review
+            consumed_review_ids.add(review_event_id)
+            break
+
+        review_content = (matching_review or {}).get("content") or {}
+        merged = review_content.get("merged") is True
+        directly_successful = response.get("success") is True
+        explicitly_failed = response.get("success") is False
+        usable_artifact = directly_successful or merged
+        outcomes.append(
+            {
+                "response": response,
+                "review": matching_review,
+                "usable_artifact": usable_artifact,
+                "recovered_artifact": merged and explicitly_failed,
+                "failed_without_usable_artifact": explicitly_failed and not usable_artifact,
+            }
+        )
+    return outcomes
 
 
 def assignment_scope_from_artifacts(run_dir: Path) -> dict[str, set[str]]:
@@ -595,6 +646,17 @@ def assignment_scope_from_artifacts(run_dir: Path) -> dict[str, set[str]]:
     return {agent: paths for agent, paths in scope.items()}
 
 
+def normalize_repo_relative_path(path: str) -> str:
+    """Normalize workspace-prefixed paths to the repository-relative form."""
+    normalized = path.strip().replace("\\", "/")
+    parts = [part for part in normalized.split("/") if part not in {"", "."}]
+    for index, part in enumerate(parts):
+        if part.endswith("_repo"):
+            parts = parts[index + 1 :]
+            break
+    return "/".join(parts)
+
+
 def scope_violations(run_dir: Path, responses: list[dict[str, Any]]) -> dict[str, Any]:
     scope = assignment_scope_from_artifacts(run_dir)
     violations = []
@@ -604,8 +666,16 @@ def scope_violations(run_dir: Path, responses: list[dict[str, Any]]) -> dict[str
         if not agent or agent not in scope:
             continue
         scoped_agents += 1
-        allowed = scope[agent]
-        modified = set(response.get("files_modified") or [])
+        allowed = {
+            normalize_repo_relative_path(path)
+            for path in scope[agent]
+            if normalize_repo_relative_path(path)
+        }
+        modified = {
+            normalize_repo_relative_path(path)
+            for path in response.get("files_modified") or []
+            if normalize_repo_relative_path(path)
+        }
         out_of_scope = sorted(path for path in modified if path not in allowed)
         if out_of_scope:
             violations.append(
@@ -700,10 +770,15 @@ def summarize_process_metrics(
     modified_files = extract_modified_files(patch_text)
     added_defs_by_file = extract_patch_added_defs(patch_text)
     responses = outputs_agent_responses(outputs)
+    attempt_outcomes = agent_attempt_outcomes(outputs, responses)
     scope_summary = scope_violations(run_dir, responses)
     agent_attempts = len(responses)
-    successful_attempts = sum(1 for response in responses if response.get("success") is True)
-    failed_attempts = sum(1 for response in responses if response.get("success") is False)
+    successful_attempts = sum(
+        1 for outcome in attempt_outcomes if outcome["usable_artifact"]
+    )
+    failed_attempts = sum(
+        1 for outcome in attempt_outcomes if outcome["failed_without_usable_artifact"]
+    )
 
     files_by_agent: dict[str, list[str]] = {}
     agents_by_file: dict[str, list[str]] = defaultdict(list)
@@ -726,17 +801,25 @@ def summarize_process_metrics(
 
     reviews = [event for event in outputs if event.get("event_type") == "manager_review"]
     textual_conflict_events = []
-    reviewer_repair_success = 0
+    reviewer_repair_success = sum(
+        1 for outcome in attempt_outcomes if outcome["recovered_artifact"]
+    )
     for review in reviews:
         content = review.get("content") or {}
         reason = str(content.get("review_reason", ""))
         merged = content.get("merged")
         if not merged and re.search(r"conflict|CONFLICT", reason):
             textual_conflict_events.append(review)
-        if merged and re.search(r"recover|repair|resolved", reason, re.I):
-            reviewer_repair_success += 1
     run_logs = "\n".join(read_text(path) for path in sorted(run_dir.glob("run_*.log")))
-    textual_patch_conflict = bool(textual_conflict_events or re.search(r"\bCONFLICT\b|merge conflict", run_logs, re.I))
+    textual_patch_conflict = bool(
+        textual_conflict_events
+        or re.search(
+            r"CONFLICT \([^\n)]*\): Merge conflict in|"
+            r"Automatic merge failed; fix conflicts and then commit",
+            run_logs,
+            re.I,
+        )
+    )
 
     primary = summarize_primary_outcome(run_dir)
     semantic_integration_failure = (
@@ -750,14 +833,14 @@ def summarize_process_metrics(
         protocol=load_json(run_dir / "protocol.json", {}),
     )
     failed_attempt_cost = sum(
-        response.get("cost") or 0.0
-        for response in responses
-        if response.get("success") is False
+        outcome["response"].get("cost") or 0.0
+        for outcome in attempt_outcomes
+        if outcome["failed_without_usable_artifact"]
     )
     failed_attempt_tokens = sum(
-        response.get("total_tokens") or 0
-        for response in responses
-        if response.get("success") is False
+        outcome["response"].get("total_tokens") or 0
+        for outcome in attempt_outcomes
+        if outcome["failed_without_usable_artifact"]
     )
     return {
         "patch_file_generation_success": {
@@ -862,11 +945,8 @@ def formal_metric_values(
             for files in process["patch_file_generation_success"]["agent_files_modified"].values()
             if files
         )
-    detected_manager_repair_failures = (
-        process["textual_patch_conflict"]["conflict_event_count"]
-        + int(process["semantic_integration_failure"]["observed"])
-    )
     recovered = process["reviewer_repair_success"]["reviewer_repair_success_count"]
+    detected_manager_repair_failures = failed_attempts + recovered
     return {
         "FSR": {
             "name": "Final Success Rate",
@@ -935,7 +1015,7 @@ def formal_metric_values(
         },
         "MRR": {
             "name": "Manager Recovery Rate",
-            "formula": "# recovered dependency or integration failures / # detected dependency or integration failures",
+            "formula": "# failed subagent attempts recovered into usable merged artifacts / # raw failed subagent attempts",
             "value": (
                 recovered / detected_manager_repair_failures
                 if detected_manager_repair_failures

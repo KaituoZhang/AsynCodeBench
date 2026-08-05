@@ -145,9 +145,14 @@ reproductions/async-swe-agents/tasks/commit0.py
 ## Collaborator Fresh Clone
 
 ```bash
-git clone https://github.com/KaituoZhang/Asynccodebench.git
+git clone --branch agent/reproducible-model-evaluation --single-branch \
+  https://github.com/KaituoZhang/Asynccodebench.git
 cd Asynccodebench
 ```
+
+Start with `docs/EVALUATION_BRANCH_QUICKSTART.md`. It is the concise operational
+entry point; the longer runbooks linked there explain model-specific serving,
+metrics, and failure classification.
 
 Install the top-level validation environment:
 
@@ -218,6 +223,12 @@ After setup, use:
 docs/MODEL_EXPERIMENT_RUNBOOK.md
 ```
 
+For a locally served OpenAI-compatible model, read this before starting vLLM:
+
+```text
+docs/LOCAL_VLLM_EXPERIMENT_RUNBOOK.md
+```
+
 That document contains:
 
 - the official 17-task list;
@@ -241,15 +252,15 @@ The second command should not list API keys, raw data, runtime output
 directories, local repositories, or external checkouts. If it does, remove the
 file from the Git index before pushing.
 
-Use a release branch:
+Use the dedicated evaluation branch:
 
 ```bash
-git switch -c release/collaborator-model-runbook
+git switch -c agent/reproducible-model-evaluation
 git add README data/README.md docs configs manifests schemas scripts skills src tests
 git add reproductions/README.md reproductions/async-swe-agents
 git status --short
 git commit -m "Prepare collaborator model experiment runbook"
-git push -u origin release/collaborator-model-runbook
+git push -u origin agent/reproducible-model-evaluation
 ```
 
 If `reproductions/async-swe-agents/outputs/` was previously tracked, remove it
@@ -261,4 +272,3 @@ git rm -r --cached reproductions/async-swe-agents/outputs
 
 Do not use plain `rm -rf` for local outputs unless you intentionally want to
 delete them from disk.
-

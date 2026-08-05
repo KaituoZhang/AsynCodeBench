@@ -3,11 +3,18 @@ import shlex
 from datetime import datetime
 from pathlib import Path
 
+from config import SubAgent
 from openhands.sdk import Agent, Conversation, LLMSummarizingCondenser
 from openhands.sdk.context import AgentContext
 from openhands.tools.preset.default import get_default_tools
 
-from config import SubAgent
+from core.subagent import (
+    conversation_error_requires_fresh,
+    latest_conversation_error,
+    reconcile_conversation_events,
+    run_conversation_with_trigger_recovery,
+    send_conversation_message,
+)
 from core.utils import (
     PanelVisualizer,
     build_delegation_plan,
@@ -81,6 +88,51 @@ class Manager:
 
         self.analysis_metrics = None
         self.current_round = 1
+        self.conversation_needs_reset = False
+        self.conversation_mode = "multi_agent"
+        self.retired_conversations = []
+
+    def ensure_usable_conversation(self):
+        """Start a new manager conversation after a terminal remote run."""
+        if not self.conversation_needs_reset:
+            return
+        if self.conversation is not None:
+            self.retired_conversations.append(self.conversation)
+        self.log(
+            "Previous manager conversation is still terminal or timed out; "
+            "starting a fresh conversation"
+        )
+        self.setup(mode=self.conversation_mode)
+
+    def run_active_conversation(self):
+        """Run and reconcile a manager conversation before metrics are read."""
+        try:
+            run_conversation_with_trigger_recovery(
+                self.conversation,
+                self.log,
+            )
+        except Exception as error:
+            if conversation_error_requires_fresh(error):
+                self.conversation_needs_reset = True
+            reconcile_conversation_events(self.conversation, self.log)
+            if str(error).endswith(": Remote conversation ended with error"):
+                structured_error = latest_conversation_error(
+                    self.conversation.state.events
+                )
+                if structured_error:
+                    raise RuntimeError(structured_error) from error
+            raise
+        reconcile_conversation_events(self.conversation, self.log)
+
+    def send_message(self, message):
+        """Send a manager prompt using the remote request timeout policy."""
+        self.ensure_usable_conversation()
+        try:
+            send_conversation_message(self.conversation, message, self.log)
+        except Exception as error:
+            if conversation_error_requires_fresh(error):
+                self.conversation_needs_reset = True
+            raise
 
     def log(self, message):
         print(f"[Manager] {message}")
@@ -122,6 +174,7 @@ class Manager:
 
     def setup(self, mode="multi_agent"):
         self.log(f"Setting up agent in {mode} mode...")
+        self.conversation_mode = mode
         tools = get_default_tools(enable_browser=False)
 
         format_args = self.task.get_prompt_format_args(self.config)
@@ -152,6 +205,7 @@ class Manager:
             max_iteration_per_run=self.config.manager_max_iterations,
             visualizer=PanelVisualizer(),
         )
+        self.conversation_needs_reset = False
         self.log("Agent ready")
 
     def run_single_agent(self):
@@ -171,9 +225,9 @@ class Manager:
 
         self.analysis_start_time = datetime.now()
         self.log("Starting implementation...")
-        self.conversation.send_message(user_instruction)
+        self.send_message(user_instruction)
         try:
-            self.conversation.run()
+            self.run_active_conversation()
         except Exception as e:
             self.log(f"Agent run ended with: {e}")
 
@@ -235,10 +289,10 @@ class Manager:
 
         self.log("Starting analysis...")
         prompt = self.prompts.get("scan_analysis", "")
-        self.conversation.send_message(prompt)
+        self.send_message(prompt)
 
         try:
-            self.conversation.run()
+            self.run_active_conversation()
         except Exception as e:
             self.log(f"Agent run ended with: {e}")
 
@@ -300,9 +354,9 @@ class Manager:
                 self.config.max_subagents,
             )
             self.log("Creating delegation plan...")
-            self.conversation.send_message(prompt)
+            self.send_message(prompt)
             try:
-                self.conversation.run()
+                self.run_active_conversation()
             except Exception as e:
                 self.log(f"Agent run ended with: {e}")
 
@@ -952,9 +1006,9 @@ class Manager:
         tokens_before = metrics_before["total_tokens"]
 
         self.log("Deciding next task assignment...")
-        self.conversation.send_message(prompt)
+        self.send_message(prompt)
         try:
-            self.conversation.run()
+            self.run_active_conversation()
         except Exception as e:
             self.log(f"Agent run ended with: {e}")
 
@@ -1139,8 +1193,8 @@ class Manager:
 
         try:
             self.log("Exploring for upcoming tasks...")
-            self.conversation.send_message(prompt)
-            self.conversation.run()
+            self.send_message(prompt)
+            self.run_active_conversation()
 
             findings = {
                 "findings": [],
@@ -1205,6 +1259,11 @@ class Manager:
         self.log("=" * 60)
         self.log("Manager Final Review")
         self.log("=" * 60)
+
+        # A timed-out remote run may continue holding the old server-side
+        # conversation lock. Establish the final-review conversation before
+        # taking event and metric baselines.
+        self.ensure_usable_conversation()
 
         final_review_start = datetime.now()
         event_count_before = len(list(self.conversation.state.events))
@@ -1287,9 +1346,9 @@ class Manager:
 
         try:
             self.log(f"Starting final review (max {max_iterations} iterations)...")
-            self.conversation.send_message(prompt)
             try:
-                self.conversation.run()
+                self.send_message(prompt)
+                self.run_active_conversation()
             except Exception as e:
                 self.log(f"Agent run ended with: {e}")
         finally:
@@ -1337,6 +1396,11 @@ class Manager:
         }
 
     def cleanup(self):
+        for conversation in self.retired_conversations:
+            try:
+                conversation.close()
+            except Exception:
+                pass
         if self.conversation:
             try:
                 self.conversation.close()

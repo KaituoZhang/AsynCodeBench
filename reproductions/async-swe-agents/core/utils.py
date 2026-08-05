@@ -1146,11 +1146,49 @@ def build_llm_kwargs(model_name):
     base_url = os.getenv("LLM_BASE_URL")
     if not base_url:
         raise ValueError("Please set LLM_BASE_URL environment variable")
-    return {
+    llm_kwargs = {
         "model": model_name,
         "api_key": SecretStr(api_key),
         "base_url": base_url,
     }
+    extra_body_json = os.getenv("LLM_EXTRA_BODY_JSON")
+    if extra_body_json:
+        try:
+            extra_body = json.loads(extra_body_json)
+        except json.JSONDecodeError as exc:
+            raise ValueError(
+                "LLM_EXTRA_BODY_JSON must be valid JSON, for example: "
+                '\'{"chat_template_kwargs":{"enable_thinking":true}}\''
+            ) from exc
+        if not isinstance(extra_body, dict):
+            raise ValueError("LLM_EXTRA_BODY_JSON must decode to a JSON object")
+        llm_kwargs["litellm_extra_body"] = extra_body
+    optional_int_fields = {
+        "LLM_MAX_INPUT_TOKENS": "max_input_tokens",
+        "LLM_MAX_OUTPUT_TOKENS": "max_output_tokens",
+        "LLM_TIMEOUT": "timeout",
+        "LLM_NUM_RETRIES": "num_retries",
+    }
+    for env_name, field_name in optional_int_fields.items():
+        value = os.getenv(env_name)
+        if value:
+            try:
+                llm_kwargs[field_name] = int(value)
+            except ValueError as exc:
+                raise ValueError(f"{env_name} must be an integer") from exc
+    optional_float_fields = {
+        "LLM_TEMPERATURE": "temperature",
+        "LLM_TOP_P": "top_p",
+        "LLM_TOP_K": "top_k",
+    }
+    for env_name, field_name in optional_float_fields.items():
+        value = os.getenv(env_name)
+        if value:
+            try:
+                llm_kwargs[field_name] = float(value)
+            except ValueError as exc:
+                raise ValueError(f"{env_name} must be a number") from exc
+    return llm_kwargs
 
 
 def filter_kwargs(kwargs, key_map):

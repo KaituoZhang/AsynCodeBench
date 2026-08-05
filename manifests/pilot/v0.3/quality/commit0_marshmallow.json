@@ -235,7 +235,7 @@
         "addopts=",
         "tests/test_decorators.py::TestValidatesDecorator::test_validates",
         "tests/test_decorators.py::TestValidatesSchemaDecorator::test_decorated_validators",
-        "tests/test_schema.py::MySchema::test_custom_error_handler_with_validates_schema_decorator"
+        "tests/test_decorators.py::test_decorator_error_handling"
       ],
       "description": "Schema hook/error behavior after decorator metadata and schema processing are integrated.",
       "group_id": "decorator_schema_cross_contract",

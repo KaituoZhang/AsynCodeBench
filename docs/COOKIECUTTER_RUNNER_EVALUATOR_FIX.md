@@ -221,51 +221,92 @@ directory.
 
 ## Recommended Commands
 
-Run from:
+Use these commands for the local `Qwen/Qwen3.6-27B` single-GPU profile. Start
+vLLM first, then run the agent protocols strictly one at a time. With
+`--max-num-seqs 2`, the server can schedule at least two in-flight sequences;
+still do not run separate task protocols in parallel because they would compete
+for the same GPU scheduler and OpenHands host port. See
+`docs/LOCAL_VLLM_EXPERIMENT_RUNBOOK.md` for the authoritative serving profile.
+
+First load the runner environment:
 
 ```bash
 cd /home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents
+
+export ENV_FILE="$PWD/.env.qwen36-27"
 source scripts/env.sh
 
 unset ASYNCCODEBENCH_DISABLE_CURATED_TASK_SOURCE
 unset ASYNCCODEBENCH_DISABLE_CURATED_TASK_CONFIG
 unset ASYNCCODEBENCH_DISABLE_MANIFEST_EVALUATOR
+
+export LLM_BASE_URL=http://127.0.0.1:8006/v1
+export LLM_MODEL=openai/Qwen/Qwen3.6-27B
+export LLM_SUBAGENT_MODEL=openai/Qwen/Qwen3.6-27B
+export LLM_MAX_OUTPUT_TOKENS=4096
+export LLM_TIMEOUT=600
+export LLM_NUM_RETRIES=2
+export LLM_EXTRA_BODY_JSON='{"chat_template_kwargs":{"enable_thinking":true}}'
+export LLM_TEMPERATURE=0.6
+export LLM_TOP_P=0.95
+export LLM_TOP_K=20
+
+curl -s "$LLM_BASE_URL/models"
+
+TASK=cookiecutter
+MODEL_TAG=qwen36-27
+RUN_VERSION=curated_thinking_gpu1_65k_o4096_v01
+MAX_SUBAGENTS=4
+BASE_OUT=outputs/repro_commit0/${TASK}
+```
+
+The host ports below are intentionally distinct. The protocols are still meant
+to run sequentially; separate ports make interrupted container cleanup easier to
+reason about.
+
+### Single agent
+
+```bash
+ASYNCCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
+ASYNCCODEBENCH_WORKSPACE_HOST_PORT=8020 \
+MAX_ITERATIONS=30 \
+OUTPUT_DIR="${BASE_OUT}/${MODEL_TAG}_single_i30_${RUN_VERSION}" \
+scripts/run_commit0_single_env.sh "$TASK"
 ```
 
 ### Serial specialists
 
 ```bash
-uv run python run_static_protocol.py \
-  --task commit0 \
-  --protocol serial_specialists \
-  --repo cookiecutter \
-  --model "$LLM_MODEL" \
-  --max_subagents 4 \
-  --sub_iterations 30 \
-  --dataset_path "$COMMIT0_DATASET_PATH" \
-  --output_dir outputs/repro_commit0/cookiecutter/gpt54mini_serial_4agents_s30_curated_v04
+ASYNCCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
+ASYNCCODEBENCH_WORKSPACE_HOST_PORT=8021 \
+MAX_SUBAGENTS=$MAX_SUBAGENTS \
+SUB_ITERATIONS=30 \
+OUTPUT_DIR="${BASE_OUT}/${MODEL_TAG}_serial_4agents_s30_${RUN_VERSION}" \
+scripts/run_commit0_serial_env.sh "$TASK"
 ```
 
 ### Async private
 
 ```bash
-uv run python run_static_protocol.py \
-  --task commit0 \
-  --protocol async_private \
-  --repo cookiecutter \
-  --model "$LLM_MODEL" \
-  --max_subagents 4 \
-  --sub_iterations 30 \
-  --dataset_path "$COMMIT0_DATASET_PATH" \
-  --output_dir outputs/repro_commit0/cookiecutter/gpt54mini_async_private_4agents_s30_curated_v04
+ASYNCCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
+ASYNCCODEBENCH_WORKSPACE_HOST_PORT=8022 \
+MAX_SUBAGENTS=$MAX_SUBAGENTS \
+SUB_ITERATIONS=30 \
+OUTPUT_DIR="${BASE_OUT}/${MODEL_TAG}_async_private_4agents_s30_${RUN_VERSION}" \
+scripts/run_commit0_async_private_env.sh "$TASK"
 ```
 
 ### CAID multi-agent
 
 ```bash
-MAX_ITERATIONS=30 MAX_SUBAGENTS=4 SUB_ITERATIONS=30 ROUNDS_OF_CHAT=2 \
-OUTPUT_DIR=outputs/repro_commit0/cookiecutter/gpt54mini_caid_multi_4agents_m30_s30_curated_v04 \
-scripts/run_commit0_multi_env.sh cookiecutter
+ASYNCCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
+ASYNCCODEBENCH_WORKSPACE_HOST_PORT=8023 \
+MAX_ITERATIONS=30 \
+MAX_SUBAGENTS=$MAX_SUBAGENTS \
+SUB_ITERATIONS=30 \
+ROUNDS_OF_CHAT=2 \
+OUTPUT_DIR="${BASE_OUT}/${MODEL_TAG}_caid_multi_4agents_m30_s30_${RUN_VERSION}" \
+scripts/run_commit0_multi_env.sh "$TASK"
 ```
 
 ## Process Metrics Generation
@@ -276,27 +317,32 @@ Run from the repository root:
 cd /home/kzhang42/AsyncCodeBench
 
 METRICS=manifests/pilot/v0.3/metrics/commit0_cookiecutter_async_metrics.json
-SINGLE=reproductions/async-swe-agents/outputs/repro_commit0/cookiecutter/gpt54mini_single_i30_curated_v02
-SERIAL=reproductions/async-swe-agents/outputs/repro_commit0/cookiecutter/gpt54mini_serial_4agents_s30_curated_v04
-ASYNC=reproductions/async-swe-agents/outputs/repro_commit0/cookiecutter/gpt54mini_async_private_4agents_s30_curated_v04
-CAID=reproductions/async-swe-agents/outputs/repro_commit0/cookiecutter/gpt54mini_caid_multi_4agents_m30_s30_curated_v04
+MODEL_TAG=qwen36-27
+MODEL_ID=openai/Qwen/Qwen3.6-27B
+RUN_VERSION=curated_thinking_gpu1_65k_o4096_v01
+BASE=reproductions/async-swe-agents/outputs/repro_commit0/cookiecutter
 
-python3 scripts/analyze_run_process_metrics.py --run-dir "$SINGLE" --metrics "$METRICS" --output "$SINGLE/process_metrics_summary.json" --print-summary
-python3 scripts/analyze_run_process_metrics.py --run-dir "$SERIAL" --metrics "$METRICS" --baseline-run-dir "$SINGLE" --output "$SERIAL/process_metrics_summary.json" --print-summary
-python3 scripts/analyze_run_process_metrics.py --run-dir "$ASYNC" --metrics "$METRICS" --baseline-run-dir "$SINGLE" --output "$ASYNC/process_metrics_summary.json" --print-summary
-python3 scripts/analyze_run_process_metrics.py --run-dir "$CAID" --metrics "$METRICS" --baseline-run-dir "$SINGLE" --output "$CAID/process_metrics_summary.json" --print-summary
+SINGLE=${BASE}/${MODEL_TAG}_single_i30_${RUN_VERSION}
+SERIAL=${BASE}/${MODEL_TAG}_serial_4agents_s30_${RUN_VERSION}
+ASYNC=${BASE}/${MODEL_TAG}_async_private_4agents_s30_${RUN_VERSION}
+CAID=${BASE}/${MODEL_TAG}_caid_multi_4agents_m30_s30_${RUN_VERSION}
+
+python3.10 scripts/analyze_run_process_metrics.py --run-dir "$SINGLE" --metrics "$METRICS" --output "$SINGLE/process_metrics_summary.json" --print-summary
+python3.10 scripts/analyze_run_process_metrics.py --run-dir "$SERIAL" --metrics "$METRICS" --baseline-run-dir "$SINGLE" --output "$SERIAL/process_metrics_summary.json" --print-summary
+python3.10 scripts/analyze_run_process_metrics.py --run-dir "$ASYNC" --metrics "$METRICS" --baseline-run-dir "$SINGLE" --output "$ASYNC/process_metrics_summary.json" --print-summary
+python3.10 scripts/analyze_run_process_metrics.py --run-dir "$CAID" --metrics "$METRICS" --baseline-run-dir "$SINGLE" --output "$CAID/process_metrics_summary.json" --print-summary
 ```
 
 Then generate the standard three artifacts:
 
 ```bash
-python3 scripts/summarize_model_task_runs.py \
+python3.10 scripts/summarize_model_task_runs.py \
   --task cookiecutter \
-  --model-tag gpt-5.4-mini \
-  --model openai/gpt-5.4-mini \
+  --model-tag "$MODEL_TAG" \
+  --model "$MODEL_ID" \
   --runner-adapter native-strict-checkpoints \
   --metrics "$METRICS" \
-  --output-dir reproductions/async-swe-agents/outputs/gpt-5.4-mini \
+  --output-dir "reproductions/async-swe-agents/outputs/${MODEL_TAG}" \
   --run single="$SINGLE" \
   --run serial_specialists="$SERIAL" \
   --run async_private="$ASYNC" \
@@ -306,9 +352,9 @@ python3 scripts/summarize_model_task_runs.py \
 Expected generated files:
 
 ```text
-reproductions/async-swe-agents/outputs/gpt-5.4-mini/cookiecutter.md
-reproductions/async-swe-agents/outputs/gpt-5.4-mini/cookiecutter_gpt-5.4-mini_metrics_table.csv
-reproductions/async-swe-agents/outputs/gpt-5.4-mini/cookiecutter_gpt-5.4-mini_artifact_index.json
+reproductions/async-swe-agents/outputs/qwen36-27/cookiecutter.md
+reproductions/async-swe-agents/outputs/qwen36-27/cookiecutter_qwen36-27_metrics_table.csv
+reproductions/async-swe-agents/outputs/qwen36-27/cookiecutter_qwen36-27_artifact_index.json
 ```
 
 ## Acceptance Checklist
@@ -345,4 +391,3 @@ Traditional final tests show that all multi-agent protocols fail. The
 AsyncCodeBench dependency metrics explain the failure more precisely: all three
 annotated cross-agent dependency contracts remain unresolved in the integrated
 workspace, while the single-agent baseline resolves all three.
-

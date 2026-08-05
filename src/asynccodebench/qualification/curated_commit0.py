@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 import tarfile
@@ -80,10 +81,12 @@ def _run(
     arguments: list[str],
     *,
     cwd: Path | None = None,
+    env: dict[str, str] | None = None,
 ) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         arguments,
         cwd=cwd,
+        env=env,
         check=True,
         capture_output=True,
         text=True,
@@ -147,10 +150,21 @@ def materialize_curated_task(
                 f"overlay checksum mismatch for {overlay.path}: "
                 f"expected {overlay.sha256}, found {actual_digest}"
             )
+        # Generated workspaces normally live below the AsyncCodeBench Git
+        # checkout. Prevent ``git apply`` from discovering that parent repo;
+        # otherwise Git treats patch paths as checkout-root-relative and
+        # silently skips every path below the generated workspace.
+        apply_env = os.environ.copy()
+        apply_env["GIT_CEILING_DIRECTORIES"] = str(destination.resolve().parent)
         _run(
             ["git", "apply", "--check", str(overlay.path)],
             cwd=destination,
+            env=apply_env,
         )
-        _run(["git", "apply", str(overlay.path)], cwd=destination)
+        _run(
+            ["git", "apply", str(overlay.path)],
+            cwd=destination,
+            env=apply_env,
+        )
 
     return destination

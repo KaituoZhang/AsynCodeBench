@@ -8,6 +8,7 @@ from pathlib import Path
 TASK_FILE = Path("manifests/pilot/v0.3/tasks/commit0_marshmallow.json")
 SCENARIO_FILE = Path("manifests/pilot/v0.3/scenarios/commit0_marshmallow.json")
 QUALITY_FILE = Path("manifests/pilot/v0.3/quality/commit0_marshmallow.json")
+METRICS_FILE = Path("manifests/pilot/v0.3/metrics/commit0_marshmallow_async_metrics.json")
 ANNOTATION_DIR = Path("manifests/annotations/commit0_v0.3/marshmallow")
 CURATED_CONFIG = Path("configs/tasks/commit0_curated_tasks.v0.3.json")
 
@@ -87,6 +88,24 @@ def test_marshmallow_scenarios_use_natural_specialists() -> None:
         "field_agent",
         "schema_agent",
     ]
+
+
+def test_marshmallow_dependency_probes_are_collectable_tests() -> None:
+    metrics = _read_json(METRICS_FILE)
+    quality = _read_json(QUALITY_FILE)
+    dead_selector = (
+        "tests/test_schema.py::MySchema::"
+        "test_custom_error_handler_with_validates_schema_decorator"
+    )
+    replacement = "tests/test_decorators.py::test_decorator_error_handling"
+
+    serialized_metrics = json.dumps(metrics)
+    serialized_quality = json.dumps(quality)
+    assert metrics["metric_annotation_id"] == "commit0-marshmallow.async-metrics.v0.3.1"
+    assert dead_selector not in serialized_metrics
+    assert dead_selector not in serialized_quality
+    assert replacement in serialized_metrics
+    assert replacement in serialized_quality
 
 
 def test_marshmallow_annotation_requires_stripped_ref_review() -> None:

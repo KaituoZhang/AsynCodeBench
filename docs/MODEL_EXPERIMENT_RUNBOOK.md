@@ -7,6 +7,8 @@ repeat the `gpt-5.4-mini` workflow with another model family.
 Use this together with:
 
 - `docs/AGENT_EXPERIMENT_RUNBOOK.md` for lower-level runner details.
+- `docs/LOCAL_VLLM_EXPERIMENT_RUNBOOK.md` for local OpenAI-compatible vLLM
+  serving, Docker networking, concurrency, and smoke-test gates.
 - `docs/EVALUATION_METRICS.md` for metric definitions.
 - `docs/COOKIECUTTER_RUNNER_EVALUATOR_FIX.md` for `cookiecutter` pitfalls.
 - `docs/FLASK_EVALUATOR_COMPATIBILITY_FIX.md` for `flask` evaluator notes.
@@ -150,9 +152,43 @@ LLM_BASE_URL=https://openrouter.ai/api/v1
 LLM_API_KEY=YOUR_PROVIDER_KEY
 LLM_MODEL=qwen/qwen3.7-plus
 LLM_SUBAGENT_MODEL=
-COMMIT0_DATASET_PATH=/home/kzhang42/AsyncCodeBench/data/external/commit0_combined
+LLM_EXTRA_BODY_JSON=
+LLM_MAX_OUTPUT_TOKENS=
+LLM_TEMPERATURE=
+LLM_TOP_P=
+LLM_TOP_K=
+LLM_TIMEOUT=
+LLM_NUM_RETRIES=
+COMMIT0_DATASET_PATH=/home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents/data/commit0/commit0_combined
 SDK_SOURCE_DIR=/home/kzhang42/AsyncCodeBench/reproductions/software-agent-sdk
 ```
+
+Use whichever `COMMIT0_DATASET_PATH` exists on the machine. Some machines keep
+the Hugging Face dataset under `data/external/commit0_combined`; the current
+local runner layout usually uses
+`reproductions/async-swe-agents/data/commit0/commit0_combined`.
+
+`LLM_EXTRA_BODY_JSON` is optional. It is for provider-specific OpenAI-compatible
+server options that must be passed through LiteLLM as `extra_body`.
+
+For Qwen3-family models served by vLLM, official AsyncCodeBench runs should keep
+thinking enabled. Qwen's vLLM guide exposes this through `chat_template_kwargs`:
+
+```bash
+LLM_EXTRA_BODY_JSON='{"chat_template_kwargs":{"enable_thinking":true}}'
+LLM_MAX_OUTPUT_TOKENS=32768
+LLM_TEMPERATURE=0.6
+LLM_TOP_P=0.95
+LLM_TOP_K=20
+LLM_TIMEOUT=7200
+LLM_NUM_RETRIES=2
+```
+
+The larger output budget matters: a thinking model may otherwise spend the full
+completion budget in `reasoning_content` and never emit final assistant
+`content`. Use `enable_thinking=false` only as a temporary harness diagnostic;
+do not mix non-thinking Qwen runs into the official aggregate unless the
+experiment explicitly labels them as a separate ablation.
 
 `MODEL_ID` is the real provider model name used by the API, for example:
 
@@ -321,6 +357,105 @@ ROUNDS_OF_CHAT="$ROUNDS_OF_CHAT" \
 OUTPUT_DIR="outputs/repro_commit0/${TASK}/${MODEL_TAG}_caid_multi_${MAX_SUBAGENTS}agents_m${CAID_MANAGER_ITERATIONS}_s${CAID_SUB_ITERATIONS}_${RUN_VERSION}" \
 scripts/run_commit0_multi_env.sh "$TASK"
 ```
+
+### One-command Sequential Runner
+
+To run all four protocols sequentially without pasting a nested shell block:
+
+```bash
+ENV_FILE="$PWD/.env.<model_tag>" \
+MODEL_TAG="$MODEL_TAG" \
+MAX_SUBAGENTS="$MAX_SUBAGENTS" \
+RUN_VERSION="$RUN_VERSION" \
+scripts/run_commit0_all_protocols_env.sh "$TASK"
+```
+
+For a local vLLM endpoint, also pass the workspace network and port variables
+documented in `docs/LOCAL_VLLM_EXPERIMENT_RUNBOOK.md`.
+
+Set `WORKSPACE_PORT_STRATEGY=auto` when other experiments may already own the
+default OpenHands host port. The runner then selects four consecutive free
+workspace ports without changing `LLM_BASE_URL` or the vLLM endpoint port.
+
+### Local Qwen Cookiecutter Single-GPU Template
+
+For `Qwen/Qwen3.6-27B` served locally on GPU 1, keep the runner sequential.
+The vLLM server should be started separately using
+`docs/LOCAL_VLLM_EXPERIMENT_RUNBOOK.md` and the Qwen-specific notes in
+`docs/VLLM_QWEN_LOCAL_RUNBOOK.md`. Use at least `--max-num-seqs 2` for formal
+async runs. Keep protocols sequential at the task-run level so they do not
+compete for the same GPU scheduler and OpenHands host port.
+
+```bash
+cd /home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents
+
+export ENV_FILE="$PWD/.env.qwen36-27"
+source scripts/env.sh
+
+unset ASYNCCODEBENCH_DISABLE_CURATED_TASK_SOURCE
+unset ASYNCCODEBENCH_DISABLE_CURATED_TASK_CONFIG
+unset ASYNCCODEBENCH_DISABLE_MANIFEST_EVALUATOR
+
+export LLM_BASE_URL=http://127.0.0.1:8006/v1
+export LLM_MODEL=openai/Qwen/Qwen3.6-27B
+export LLM_SUBAGENT_MODEL=openai/Qwen/Qwen3.6-27B
+export LLM_MAX_OUTPUT_TOKENS=32768
+export LLM_TIMEOUT=7200
+export LLM_NUM_RETRIES=2
+export LLM_EXTRA_BODY_JSON='{"chat_template_kwargs":{"enable_thinking":true}}'
+export LLM_TEMPERATURE=0.6
+export LLM_TOP_P=0.95
+export LLM_TOP_K=20
+
+TASK=cookiecutter
+MODEL_TAG=qwen36-27
+RUN_VERSION=curated_thinking_gpu1_131k_o32768_v01
+MAX_SUBAGENTS=4
+BASE_OUT=outputs/repro_commit0/${TASK}
+```
+
+Run the four protocols strictly in order:
+
+```bash
+ASYNCCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
+ASYNCCODEBENCH_WORKSPACE_HOST_PORT=8020 \
+MAX_ITERATIONS=30 \
+OUTPUT_DIR="${BASE_OUT}/${MODEL_TAG}_single_i30_${RUN_VERSION}" \
+scripts/run_commit0_single_env.sh "$TASK"
+```
+
+```bash
+ASYNCCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
+ASYNCCODEBENCH_WORKSPACE_HOST_PORT=8021 \
+MAX_SUBAGENTS=$MAX_SUBAGENTS \
+SUB_ITERATIONS=30 \
+OUTPUT_DIR="${BASE_OUT}/${MODEL_TAG}_serial_4agents_s30_${RUN_VERSION}" \
+scripts/run_commit0_serial_env.sh "$TASK"
+```
+
+```bash
+ASYNCCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
+ASYNCCODEBENCH_WORKSPACE_HOST_PORT=8022 \
+MAX_SUBAGENTS=$MAX_SUBAGENTS \
+SUB_ITERATIONS=30 \
+OUTPUT_DIR="${BASE_OUT}/${MODEL_TAG}_async_private_4agents_s30_${RUN_VERSION}" \
+scripts/run_commit0_async_private_env.sh "$TASK"
+```
+
+```bash
+ASYNCCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
+ASYNCCODEBENCH_WORKSPACE_HOST_PORT=8023 \
+MAX_ITERATIONS=30 \
+MAX_SUBAGENTS=$MAX_SUBAGENTS \
+SUB_ITERATIONS=30 \
+ROUNDS_OF_CHAT=2 \
+OUTPUT_DIR="${BASE_OUT}/${MODEL_TAG}_caid_multi_4agents_m30_s30_${RUN_VERSION}" \
+scripts/run_commit0_multi_env.sh "$TASK"
+```
+
+If a run is interrupted or crashes, bump `RUN_VERSION` before restarting.
+`cookiecutter` tests can leave transient fixture directories, and reused output
+directories can contaminate checkpoint logs.
 
 ### 17-task Loop Template
 
@@ -576,6 +711,31 @@ python-progressbar
 fabric
 ```
 
+### Qwen3/vLLM official runs should keep thinking enabled.
+
+For Qwen3-family local vLLM endpoints, use the official thinking-mode switch and
+give the model enough output budget:
+
+```bash
+LLM_MODEL=openai/Qwen/Qwen3.6-27B
+LLM_SUBAGENT_MODEL=openai/Qwen/Qwen3.6-27B
+LLM_EXTRA_BODY_JSON='{"chat_template_kwargs":{"enable_thinking":true}}'
+LLM_MAX_OUTPUT_TOKENS=32768
+LLM_TEMPERATURE=0.6
+LLM_TOP_P=0.95
+LLM_TOP_K=20
+LLM_TIMEOUT=7200
+LLM_NUM_RETRIES=2
+```
+
+Avoid relying only on `/think` or `/no_think` prompt suffixes. If using vLLM
+reasoning parsing, prefer the Qwen-supported parser for the installed vLLM
+version and verify that a smoke completion returns non-empty final `content`.
+If the run only returns `reasoning_content` and stops by length, increase
+`LLM_MAX_OUTPUT_TOKENS` or fix the parser/config before running full tasks. A
+repeated response that reaches exactly the configured cap without `content` or
+`tool_calls` is a truncated harness run, not a valid model failure.
+
 ### Do not reuse output directories.
 
 If a run crashes or the runner code changes, use a new `RUN_VERSION`.
@@ -610,4 +770,3 @@ docs/FLASK_EVALUATOR_COMPATIBILITY_FIX.md
 ```
 
 before rerunning or debugging those tasks.
-

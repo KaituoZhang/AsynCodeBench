@@ -55,6 +55,9 @@
       "repository": "parsel",
       "base_ref": "origin/commit0_combined",
       "base_sha": "7e73d60665ef2e3ddfe3c1bb01eed981cd317c6f",
+      "python_dependencies": [
+        "psutil==5.6.3"
+      ],
       "overlays": [
         {
           "path": "data/overlays/commit0/parsel/0001-xpathfuncs-setup-bootstrap.patch",

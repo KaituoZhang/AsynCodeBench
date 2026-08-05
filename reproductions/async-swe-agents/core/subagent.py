@@ -1,18 +1,381 @@
 import asyncio
+import os
+import time
 from datetime import datetime
+from types import MethodType
 
+import httpx
+
+from config import SubAgent, SubAgentResult
 from openhands.sdk import Agent, Conversation
 from openhands.tools.preset.default import get_default_tools
 
-from config import SubAgent, SubAgentResult
 from core.dependency_probes import write_dependency_probe_checkpoint
 from core.utils import (
     PanelVisualizer,
     build_subagent_prompt,
-    extract_conversation_metrics,
     count_llm_iterations,
+    extract_conversation_metrics,
     serialize_event,
 )
+
+
+def _is_ambiguous_run_trigger_timeout(error):
+    """Return whether the remote /run trigger may have reached the server."""
+    message = str(error).strip().lower()
+    return (
+        "conversation run failed for id=" in message
+        and message.endswith(": timed out")
+    )
+
+
+def conversation_run_timeout():
+    return float(
+        os.getenv("ASYNCCODEBENCH_CONVERSATION_RUN_TIMEOUT", "3600")
+    )
+
+
+def remote_poll_timeout():
+    return float(os.getenv("ASYNCCODEBENCH_REMOTE_POLL_TIMEOUT", "900"))
+
+
+def remote_trigger_timeout():
+    return float(os.getenv("ASYNCCODEBENCH_REMOTE_TRIGGER_TIMEOUT", "30"))
+
+
+def remote_message_timeout():
+    return float(os.getenv("ASYNCCODEBENCH_REMOTE_MESSAGE_TIMEOUT", "900"))
+
+
+def remote_poll_interval():
+    return float(os.getenv("ASYNCCODEBENCH_REMOTE_POLL_INTERVAL", "5"))
+
+
+def remote_start_grace_seconds():
+    return float(os.getenv("ASYNCCODEBENCH_REMOTE_START_GRACE_SECONDS", "30"))
+
+
+def remote_terminal_confirm_seconds():
+    return float(
+        os.getenv("ASYNCCODEBENCH_REMOTE_TERMINAL_CONFIRM_SECONDS", "30")
+    )
+
+
+def configure_remote_message_timeout(conversation, log):
+    """Give remote message submission time to wait for the server state lock."""
+    if getattr(conversation, "_asynccodebench_message_timeout_configured", False):
+        return True
+
+    client = getattr(conversation, "_client", None)
+    if client is None:
+        return False
+
+    timeout = remote_message_timeout()
+    if timeout <= 0:
+        raise ValueError("ASYNCCODEBENCH_REMOTE_MESSAGE_TIMEOUT must be positive")
+
+    client.timeout = httpx.Timeout(timeout)
+    conversation._asynccodebench_message_timeout_configured = True
+    log(f"Configured remote message request timeout: {timeout}s")
+    return True
+
+
+def send_conversation_message(conversation, message, log):
+    """Submit a user message with the AsyncCodeBench remote timeout policy."""
+    configure_remote_message_timeout(conversation, log)
+    conversation.send_message(message)
+
+
+def configure_remote_status_polling(conversation, log):
+    """Replace the SDK's fixed 30-second REST status timeout.
+
+    The host runner currently uses OpenHands SDK 1.11 while the Docker agent
+    server is built from the newer local SDK source. On long Qwen tool turns,
+    the legacy status endpoint can block behind conversation state for longer
+    than 30 seconds even though the run is healthy. Keep the SDK polling flow,
+    but make its per-request timeout suitable for long local-model turns.
+    """
+    if getattr(conversation, "_asynccodebench_polling_configured", False):
+        return True
+
+    client = getattr(conversation, "_client", None)
+    poll_status = getattr(conversation, "_poll_status_once", None)
+    conversation_id = getattr(conversation, "_id", None)
+    if client is None or not callable(poll_status) or conversation_id is None:
+        return False
+
+    timeout = remote_poll_timeout()
+    if timeout <= 0:
+        raise ValueError("ASYNCCODEBENCH_REMOTE_POLL_TIMEOUT must be positive")
+    base_path = str(
+        getattr(conversation, "_conversation_info_base_path", "/api/conversations")
+    ).rstrip("/")
+
+    def poll_status_once(self):
+        response = self._client.get(
+            f"{base_path}/{self._id}",
+            timeout=timeout,
+        )
+        response.raise_for_status()
+        return response.json().get("execution_status")
+
+    conversation._poll_status_once = MethodType(poll_status_once, conversation)
+    conversation._asynccodebench_polling_configured = True
+    log(f"Configured remote status polling: interval={remote_poll_interval()}s, "
+        f"request_timeout={timeout}s")
+    return True
+
+
+def trigger_remote_run(conversation):
+    """Trigger a remote run without the legacy SDK's noisy timeout wrapper."""
+    timeout = remote_trigger_timeout()
+    if timeout <= 0:
+        raise ValueError("ASYNCCODEBENCH_REMOTE_TRIGGER_TIMEOUT must be positive")
+    base_path = str(
+        getattr(conversation, "_conversation_info_base_path", "/api/conversations")
+    ).rstrip("/")
+    response = conversation._client.post(
+        f"{base_path}/{conversation._id}/run",
+        timeout=timeout,
+    )
+    if response.status_code not in {200, 201, 204, 409}:
+        response.raise_for_status()
+
+
+def _is_request_timeout(error):
+    name = error.__class__.__name__.lower()
+    message = str(error).strip().lower()
+    return "timeout" in name or "timed out" in message
+
+
+def _normalized_remote_status(status):
+    value = getattr(status, "value", status)
+    return str(value or "").strip().lower()
+
+
+def _handle_remote_terminal_status(conversation, status):
+    handler = getattr(conversation, "_handle_conversation_status", None)
+    if callable(handler):
+        handler(status)
+        return
+    normalized = _normalized_remote_status(status)
+    if normalized == "error":
+        raise RuntimeError("Remote conversation ended with error")
+    if normalized == "stuck":
+        raise RuntimeError("Remote conversation got stuck")
+
+
+def _handle_remote_poll_exception(conversation, error):
+    handler = getattr(conversation, "_handle_poll_exception", None)
+    if callable(handler):
+        handler(error)
+        return
+    raise error
+
+
+def wait_for_remote_run_completion(conversation, log, timeout, poll_interval):
+    """Wait for a remote run without relying on the legacy SDK state machine.
+
+    OpenHands SDK 1.11 treats every non-running REST state as completion. The
+    newer agent server can briefly expose IDLE before a run starts and FINISHED
+    before its stop hooks and final event flush complete. Confirm REST terminal
+    state for a short interval and only retry a trigger after a bounded IDLE
+    grace period.
+    """
+    if timeout <= 0:
+        raise ValueError("ASYNCCODEBENCH_CONVERSATION_RUN_TIMEOUT must be positive")
+    if poll_interval <= 0:
+        raise ValueError("ASYNCCODEBENCH_REMOTE_POLL_INTERVAL must be positive")
+
+    start_grace = remote_start_grace_seconds()
+    terminal_confirm = remote_terminal_confirm_seconds()
+    if start_grace < 0:
+        raise ValueError(
+            "ASYNCCODEBENCH_REMOTE_START_GRACE_SECONDS must be nonnegative"
+        )
+    if terminal_confirm < 0:
+        raise ValueError(
+            "ASYNCCODEBENCH_REMOTE_TERMINAL_CONFIRM_SECONDS must be nonnegative"
+        )
+
+    poll_status = getattr(conversation, "_poll_status_once", None)
+    if not callable(poll_status):
+        raise RuntimeError("Remote conversation does not expose status polling")
+
+    started_at = time.monotonic()
+    observed_running = False
+    terminal_status = None
+    terminal_first_seen_at = None
+
+    while True:
+        now = time.monotonic()
+        elapsed = now - started_at
+        if elapsed > timeout:
+            raise RuntimeError(
+                f"Run timed out after {timeout} seconds. "
+                "The conversation may still be running on the server."
+            )
+
+        try:
+            status = poll_status()
+        except Exception as error:
+            _handle_remote_poll_exception(conversation, error)
+            terminal_status = None
+            terminal_first_seen_at = None
+        else:
+            normalized = _normalized_remote_status(status)
+            if normalized == "running":
+                observed_running = True
+                terminal_status = None
+                terminal_first_seen_at = None
+            elif normalized in {"error", "stuck"}:
+                _handle_remote_terminal_status(conversation, normalized)
+            elif normalized == "finished":
+                if terminal_status != normalized:
+                    terminal_status = normalized
+                    terminal_first_seen_at = now
+                if now - terminal_first_seen_at >= terminal_confirm:
+                    reconcile_conversation_events(conversation, log)
+                    return normalized
+            elif normalized == "idle" and not observed_running:
+                if elapsed >= start_grace:
+                    return normalized
+            elif normalized in {"paused", "waiting_for_confirmation"}:
+                raise RuntimeError(
+                    f"Remote conversation stopped in unexpected state: {normalized}"
+                )
+            else:
+                terminal_status = None
+                terminal_first_seen_at = None
+
+        time.sleep(poll_interval)
+
+
+def run_conversation_with_trigger_recovery(conversation, log):
+    """Trigger and monitor a remote run with legacy-client compatibility."""
+    timeout = conversation_run_timeout()
+    poll_interval = remote_poll_interval()
+    if poll_interval <= 0:
+        raise ValueError("ASYNCCODEBENCH_REMOTE_POLL_INTERVAL must be positive")
+    configured_remote = configure_remote_status_polling(conversation, log)
+    poll_status = getattr(conversation, "_poll_status_once", None)
+
+    if configured_remote and callable(poll_status):
+        for attempt in range(2):
+            try:
+                trigger_remote_run(conversation)
+            except Exception as error:
+                if not _is_request_timeout(error):
+                    raise
+                log(
+                    "Remote /run acknowledgement is delayed; tracking the "
+                    "accepted conversation without submitting duplicate work"
+                )
+
+            normalized_status = wait_for_remote_run_completion(
+                conversation,
+                log,
+                timeout=timeout,
+                poll_interval=poll_interval,
+            )
+            if normalized_status == "finished":
+                return
+            if attempt == 0:
+                log(
+                    "Conversation remained IDLE through the start grace period; "
+                    "retrying the /run trigger once"
+                )
+
+        raise RuntimeError(
+            "Remote conversation remained IDLE after two run triggers"
+        )
+
+    try:
+        conversation.run(poll_interval=poll_interval, timeout=timeout)
+        return
+    except Exception as error:
+        if not _is_ambiguous_run_trigger_timeout(error):
+            raise
+
+    wait_for_completion = getattr(conversation, "_wait_for_run_completion", None)
+    if not callable(wait_for_completion) or not callable(poll_status):
+        raise RuntimeError(
+            "Remote conversation trigger timed out and this SDK cannot recover "
+            "the accepted run"
+        )
+
+    log(
+        "Remote /run trigger timed out after 30s; polling the same "
+        "conversation because the server may already be running it"
+    )
+    wait_for_completion(poll_interval=poll_interval, timeout=timeout)
+
+    # A request that never reached the server remains IDLE. Retry only the
+    # trigger in that case; the original user message is already persisted.
+    status = poll_status()
+    status_value = getattr(status, "value", status)
+    if str(status_value).lower() == "idle":
+        log("Conversation remained IDLE; retrying the /run trigger once")
+        conversation.run(poll_interval=poll_interval, timeout=timeout)
+
+
+def reconcile_conversation_events(conversation, log):
+    """Fetch events missed by the remote client's WebSocket cache."""
+    events = getattr(getattr(conversation, "state", None), "events", None)
+    if events is None:
+        return 0
+    reconcile = getattr(events, "reconcile", None)
+    if not callable(reconcile):
+        return 0
+    try:
+        added = reconcile()
+    except Exception as error:
+        log(f"Warning: failed to reconcile remote events: {error}")
+        return 0
+    if added:
+        log(f"Reconciled {added} remote event(s) before metric extraction")
+    return added
+
+
+def latest_conversation_error(events):
+    """Return the latest structured remote conversation error, if present."""
+    for event in reversed(list(events)):
+        if event.__class__.__name__ != "ConversationErrorEvent":
+            continue
+        code = str(getattr(event, "code", "") or "").strip()
+        detail = str(getattr(event, "detail", "") or "").strip()
+        if code and detail:
+            return f"{code}: {detail}"
+        return detail or code or None
+    return None
+
+
+_UNUSABLE_CONVERSATION_ERROR_MARKERS = (
+    "got stuck",
+    "maxiterationsreached",
+    "remote conversation ended with error",
+    "run timed out",
+    "conversationrunerror",
+)
+
+
+def conversation_error_requires_fresh(error):
+    """Return whether a remote conversation cannot safely be reused."""
+    message = str(error or "").strip().lower()
+    return bool(message) and (
+        "timed out" in message
+        or any(
+            marker in message
+            for marker in _UNUSABLE_CONVERSATION_ERROR_MARKERS
+        )
+    )
+
+
+def result_requires_fresh_conversation(result):
+    """Return whether a terminal remote state cannot accept another CAID round."""
+    return conversation_error_requires_fresh(
+        getattr(result, "error", "") if result is not None else ""
+    )
 
 
 class SubAgentRunner:
@@ -44,6 +407,7 @@ class SubAgentRunner:
         self.completed_rounds = 0
         self.last_result = None
         self.last_saved_event_count = 0
+        self.conversation_round = None
 
     def log(self, message):
         print(f"[{self.subagent.engineer_id}] {message}")
@@ -59,6 +423,20 @@ class SubAgentRunner:
         self.subagent = new_subagent
         self.result = None
         self.instruction_time = datetime.now()
+        self.ensure_usable_conversation_for_round()
+
+    def ensure_usable_conversation_for_round(self):
+        """Replace terminal remote state once before a later CAID round."""
+        current_round = self.subagent.current_round
+        if (
+            result_requires_fresh_conversation(self.last_result)
+            and self.conversation_round != current_round
+        ):
+            self.log(
+                "Previous conversation is terminal; starting a fresh "
+                "conversation for this CAID round"
+            )
+            self.setup()
 
     def setup(self):
         self.log("Setting up subagent...")
@@ -76,6 +454,7 @@ class SubAgentRunner:
         )
         self.instruction_time = datetime.now()
         self.last_saved_event_count = 0
+        self.conversation_round = self.subagent.current_round
         self.log("Subagent ready")
 
     def create_result(self):
@@ -107,6 +486,7 @@ class SubAgentRunner:
         return prompt
 
     def run(self):
+        self.ensure_usable_conversation_for_round()
         result = self.create_result()
         start_time = datetime.now()
         result.start_time = start_time.isoformat()
@@ -145,8 +525,15 @@ class SubAgentRunner:
                             self.log(f"Retry attempt {attempt + 1}/{max_retries}, resuming conversation...")
 
                     if self.task_module.should_resend_on_retry or attempt == 0:
-                        self.conversation.send_message(prompt)
-                    self.conversation.run()
+                        send_conversation_message(
+                            self.conversation,
+                            prompt,
+                            self.log,
+                        )
+                    run_conversation_with_trigger_recovery(
+                        self.conversation,
+                        self.log,
+                    )
                     break
 
                 except Exception as llm_error:
@@ -185,6 +572,18 @@ class SubAgentRunner:
             result.success = False
             result.error = str(e)
             self.log(f"ERROR: {e}")
+
+        if self.conversation:
+            reconcile_conversation_events(self.conversation, self.log)
+            if result.error and result.error.endswith(
+                ": Remote conversation ended with error"
+            ):
+                structured_error = latest_conversation_error(
+                    self.conversation.state.events
+                )
+                if structured_error:
+                    result.error = structured_error
+                    self.log(f"Remote error detail: {structured_error}")
 
         end_time = datetime.now()
         result.end_time = end_time.isoformat()
@@ -613,6 +1012,10 @@ async def run_subagents_parallel(runners, manager=None, task_module=None, output
             print("[Manager] Engineer finished - stopping exploration immediately...")
             if manager:
                 manager.cancel_exploration()
+            try:
+                await exploration_task
+            except Exception as error:
+                print(f"[Manager] Exploration stopped with: {error}")
             exploration_task = None
 
         # Sort completed tasks by end_time to process in completion order

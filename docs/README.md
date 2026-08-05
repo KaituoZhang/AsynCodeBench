@@ -6,9 +6,13 @@ Start here when onboarding a collaborator or a new Codex session.
 
 | Document | Use |
 | --- | --- |
+| `EVALUATION_BRANCH_QUICKSTART.md` | Short clone-to-four-protocol guide for the reproducible evaluation branch. |
 | `CODEX_ONBOARDING.md` | First-read guide for a new coding-agent session. |
 | `GITHUB_COLLABORATOR_HANDOFF.md` | What to commit, what not to commit, and how collaborators should clone/setup. |
 | `MODEL_EXPERIMENT_RUNBOOK.md` | Main guide for running another model across the official 17 tasks. |
+| `LOCAL_VLLM_EXPERIMENT_RUNBOOK.md` | Main local-vLLM guide: capacity, networking, environment, smoke gates, and failure diagnosis. |
+| `VLLM_QWEN_LOCAL_RUNBOOK.md` | Local vLLM/Qwen setup, Docker networking, tool calling, and smoke tests. |
+| `GEMMA4_CAID_HARNESS_FIX.md` | Gemma 4 parser/version gate, CAID remote-lifecycle fix, and result-validity rules. |
 | `COLLABORATOR_RUNBOOK.md` | General collaborator setup and repository release notes. |
 | `AGENT_EXPERIMENT_RUNBOOK.md` | Lower-level agent runner commands and debugging checks. |
 | `EVALUATION_METRICS.md` | Metric definitions and post-run analysis rules. |
@@ -61,4 +65,3 @@ python-progressbar
 fabric
 chardet
 ```
-

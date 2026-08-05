@@ -116,21 +116,31 @@ async def run_workflow_inner(task, workflow_config, task_module, multi_agent=Tru
     original_cwd = os.getcwd()
     os.chdir(sdk_source_dir)
 
+    workspace_network = os.getenv("ASYNCCODEBENCH_WORKSPACE_DOCKER_NETWORK") or None
+    workspace_host_port_env = os.getenv("ASYNCCODEBENCH_WORKSPACE_HOST_PORT")
+    workspace_host_port = (
+        int(workspace_host_port_env)
+        if workspace_host_port_env
+        else (8000 if workspace_network == "host" else None)
+    )
+
     if workspace_config.get("base_image"):
         workspace_ctx = DockerDevWorkspace(
             base_image=workspace_config["base_image"],
             server_image=None,
             target=workspace_config.get("target", "source-minimal"),
-            host_port=None,
+            host_port=workspace_host_port,
             platform="linux/amd64",
             detach_logs=False,
+            network=workspace_network,
         )
     else:
         workspace_ctx = DockerWorkspace(
             server_image=workspace_config["server_image"],
-            host_port=None,
+            host_port=workspace_host_port,
             platform=detect_platform(),
             detach_logs=False,
+            network=workspace_network,
         )
 
     os.chdir(original_cwd)

@@ -14,6 +14,7 @@
     "The fields_to_schema dependency is the primary signal because schema load/dump behavior is highly sensitive to stale field and validator contracts.",
     "The registry_to_nested dependency captures stale assumptions around schema class registration, declared fields, only/exclude propagation, and Nested resolution.",
     "The decorators_to_schema dependency captures stale assumptions around hook metadata and error-store shape.",
+    "Revision v0.3.1 replaces an uncollectable MySchema method selector with the public, collected test_decorator_error_handling probe.",
     "These labels identify public test-observable contracts, not solution code."
   ],
   "dependency_points": [
@@ -108,13 +109,13 @@
       "dependency_id": "marshmallow.decorators_to_schema.hook_error_contract",
       "dependency_type": "shared_state_contract",
       "downstream_probe_tests": [
-        "tests/test_schema.py::MySchema::test_custom_error_handler_with_validates_schema_decorator",
+        "tests/test_decorators.py::test_decorator_error_handling",
         "tests/test_decorators.py::TestValidatesSchemaDecorator::test_decorated_validators"
       ],
       "integrated_probe_tests": [
         "tests/test_decorators.py::TestValidatesDecorator::test_validates",
         "tests/test_decorators.py::TestValidatesSchemaDecorator::test_decorated_validators",
-        "tests/test_schema.py::MySchema::test_custom_error_handler_with_validates_schema_decorator",
+        "tests/test_decorators.py::test_decorator_error_handling",
         "tests/test_error_store.py::TestMergeErrors::test_merging_dict_and_dict"
       ],
       "metrics_enabled": [
@@ -152,7 +153,7 @@
     "minimum_policy": "Run probe tests after each agent final artifact and after final integration.",
     "recommended_policy": "Run probe tests after every committed patch, every explicit artifact transfer, and final integration."
   },
-  "metric_annotation_id": "commit0-marshmallow.async-metrics.v0.3",
+  "metric_annotation_id": "commit0-marshmallow.async-metrics.v0.3.1",
   "metric_definitions": {
     "ADPR": {
       "definition": "Fraction of registered dependency_points whose required integrated_probe_tests pass in the final integrated workspace.",

@@ -724,19 +724,40 @@ class Commit0Task(TaskModule):
         cmd_tokens = ["python", "-m", "pytest"]
         targets = []
         idx = pytest_index + 1
-        option_tokens_with_values = {"-o", "-p"}
+        option_tokens_with_values = {
+            "-o",
+            "-p",
+            "-k",
+            "-m",
+            "--basetemp",
+            "--capture",
+            "--confcutdir",
+            "--deselect",
+            "--durations",
+            "--durations-min",
+            "--ignore",
+            "--ignore-glob",
+            "--junitxml",
+            "--maxfail",
+            "--rootdir",
+            "--tb",
+        }
         while idx < len(tokens):
             token = tokens[idx]
-            if token.startswith("tests/") or token.startswith("--deselect="):
-                targets.extend(tokens[idx:])
+            if token == "--":
+                targets.extend(tokens[idx + 1 :])
                 break
-            cmd_tokens.append(token)
-            if token in option_tokens_with_values and idx + 1 < len(tokens):
-                idx += 1
-                cmd_tokens.append(tokens[idx])
+            if token.startswith("-"):
+                cmd_tokens.append(token)
+                if token in option_tokens_with_values and idx + 1 < len(tokens):
+                    idx += 1
+                    cmd_tokens.append(tokens[idx])
+            else:
+                targets.append(token)
             idx += 1
 
-        return " ".join(shlex.quote(token) for token in cmd_tokens), cls._coerce_test_targets(targets)
+        test_cmd = " ".join(shlex.quote(token) for token in cmd_tokens)
+        return test_cmd, cls._coerce_test_targets(targets)
 
     @staticmethod
     def _coerce_test_targets(raw_targets):
