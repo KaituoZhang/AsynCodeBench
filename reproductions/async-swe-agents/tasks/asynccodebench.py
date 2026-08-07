@@ -14,7 +14,7 @@ from .commit0 import Commit0Config, Commit0Task
 
 @dataclass
 class AsyncCodeBenchConfig:
-    task_id: str = "asynccodebench:cachetools"
+    task_id: str = "asyncodebench:cachetools"
     release: str = "v0.3"
     docker_image_prefix: str = "docker.io/wentingzhao/"
     curated_config_path: str = ""
@@ -24,7 +24,7 @@ class AsyncCodeBenchConfig:
 class AsyncCodeBenchTask(Commit0Task):
     """Materialize and evaluate one manifest-defined AsyncCodeBench task."""
 
-    PUBLIC_NAMESPACE = "asynccodebench"
+    PUBLIC_NAMESPACE = "asyncodebench"
     PROVENANCE_NAMESPACE = "commit0"
 
     def __init__(self, config: AsyncCodeBenchConfig):
@@ -87,7 +87,7 @@ class AsyncCodeBenchTask(Commit0Task):
         source, separator, repo_name = str(task_id).partition(":")
         if not separator or not source or not repo_name:
             raise ValueError(
-                "task_id must use the form 'asynccodebench:<repository>'"
+                "task_id must use the form 'asyncodebench:<repository>'"
             )
         return source, repo_name
 

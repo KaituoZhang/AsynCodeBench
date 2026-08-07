@@ -101,23 +101,23 @@ As of the current repository state:
 Current AsyncCodeBench v0.3 qualification-ready task records:
 
 ```text
-asynccodebench:cachetools
-asynccodebench:cookiecutter
-asynccodebench:deprecated
-asynccodebench:dulwich
-asynccodebench:filesystem_spec
-asynccodebench:flask
-asynccodebench:graphene
-asynccodebench:imapclient
-asynccodebench:marshmallow
-asynccodebench:parsel
-asynccodebench:pexpect
-asynccodebench:portalocker
-asynccodebench:python-rsa
-asynccodebench:requests
-asynccodebench:simpy
-asynccodebench:tinydb
-asynccodebench:wcwidth
+asyncodebench:cachetools
+asyncodebench:cookiecutter
+asyncodebench:deprecated
+asyncodebench:dulwich
+asyncodebench:filesystem_spec
+asyncodebench:flask
+asyncodebench:graphene
+asyncodebench:imapclient
+asyncodebench:marshmallow
+asyncodebench:parsel
+asyncodebench:pexpect
+asyncodebench:portalocker
+asyncodebench:python-rsa
+asyncodebench:requests
+asyncodebench:simpy
+asyncodebench:tinydb
+asyncodebench:wcwidth
 ```
 
 The current excluded or non-official candidates are:
