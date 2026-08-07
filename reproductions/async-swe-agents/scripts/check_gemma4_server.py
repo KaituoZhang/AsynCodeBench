@@ -28,6 +28,7 @@ def validate_server(
     base_url: str,
     expected_model: str,
     minimum_version: str,
+    minimum_context: int | None = None,
 ) -> dict[str, object]:
     root = server_root(base_url)
     version_payload = read_json(f"{root}/version")
@@ -52,10 +53,19 @@ def validate_server(
             f"Expected served model {expected_model!r}; found {sorted(models)}"
         )
 
+    max_model_len = models[expected_model].get("max_model_len")
+    if minimum_context is not None:
+        if not isinstance(max_model_len, int) or max_model_len < minimum_context:
+            raise RuntimeError(
+                f"Gemma 4 server context is too small: found {max_model_len}, "
+                f"require at least {minimum_context}. The client reserves "
+                "131072 input tokens and 32768 output tokens."
+            )
+
     return {
         "vllm_version": version,
         "model": expected_model,
-        "max_model_len": models[expected_model].get("max_model_len"),
+        "max_model_len": max_model_len,
     }
 
 
@@ -64,12 +74,14 @@ def main() -> int:
     parser.add_argument("--base-url", required=True)
     parser.add_argument("--model", required=True)
     parser.add_argument("--minimum-version", default="0.24.0")
+    parser.add_argument("--minimum-context", type=int)
     args = parser.parse_args()
 
     result = validate_server(
         base_url=args.base_url,
         expected_model=args.model,
         minimum_version=args.minimum_version,
+        minimum_context=args.minimum_context,
     )
     print(
         "[Gemma4] server preflight passed: "

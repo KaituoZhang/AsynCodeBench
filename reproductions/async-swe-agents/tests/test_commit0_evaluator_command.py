@@ -52,3 +52,19 @@ def test_split_pytest_command_preserves_multiple_targets_and_option_values():
         "smoke",
     ]
     assert targets == ["tests/unit", "tests/integration"]
+
+
+def test_canonical_test_paths_strip_node_ids_and_reject_unsafe_paths():
+    targets = [
+        "tests/test_utils.py::test_flatten",
+        "tests/test_utils.py",
+        "tests/integration",
+        "--ignore=tests/test_slow.py",
+        "/tmp/not-a-task-test.py",
+        "../outside.py",
+    ]
+
+    assert Commit0Task._canonical_test_paths(targets) == [
+        "tests/test_utils.py",
+        "tests/integration",
+    ]

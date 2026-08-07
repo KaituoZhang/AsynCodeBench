@@ -6,6 +6,7 @@ Start here when onboarding a collaborator or a new Codex session.
 
 | Document | Use |
 | --- | --- |
+| `ASYNCCODEBENCH_HARNESS_V2.md` | Native `task_id`-based runner, protocol guarantees, dry-run, and four-protocol commands. |
 | `EVALUATION_BRANCH_QUICKSTART.md` | Short clone-to-four-protocol guide for the reproducible evaluation branch. |
 | `CODEX_ONBOARDING.md` | First-read guide for a new coding-agent session. |
 | `GITHUB_COLLABORATOR_HANDOFF.md` | What to commit, what not to commit, and how collaborators should clone/setup. |

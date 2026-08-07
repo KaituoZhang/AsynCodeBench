@@ -5,6 +5,7 @@ runner_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 gpu_id="${1:?Usage: scripts/serve_gemma4_26b_a4b.sh <gpu-id> <port> <max-seqs>}"
 port="${2:?Usage: scripts/serve_gemma4_26b_a4b.sh <gpu-id> <port> <max-seqs>}"
 max_seqs="${3:?Usage: scripts/serve_gemma4_26b_a4b.sh <gpu-id> <port> <max-seqs>}"
+max_model_len="${GEMMA_MAX_MODEL_LEN:-163840}"
 
 vllm_bin="${VLLM_BIN:-$runner_root/.venv-vllm-gemma4/bin/vllm}"
 vllm_python="${VLLM_PYTHON:-$(dirname "$vllm_bin")/python}"
@@ -30,7 +31,7 @@ if ! "$vllm_python" -c 'import re, sys; parts = [int(item) for item in re.findal
   echo "[Gemma4] WARNING: allowing legacy vLLM $vllm_version for diagnostics only" >&2
 fi
 
-echo "[Gemma4] vllm=$vllm_version gpu=$gpu_id port=$port max_seqs=$max_seqs model=$model"
+echo "[Gemma4] vllm=$vllm_version gpu=$gpu_id port=$port max_seqs=$max_seqs max_model_len=$max_model_len model=$model"
 
 if [[ -n "${CUDA_HOME:-}" ]]; then
   echo "[Gemma4] ignoring inherited CUDA_HOME=$CUDA_HOME"
@@ -51,7 +52,7 @@ exec env \
     --trust-remote-code \
     --host 0.0.0.0 \
     --port "$port" \
-    --max-model-len 135168 \
+    --max-model-len "$max_model_len" \
     --gpu-memory-utilization 0.90 \
     --max-num-seqs "$max_seqs" \
     --max-num-batched-tokens 32768 \

@@ -525,6 +525,7 @@ def run_row(mode: str, run_dir: Path) -> dict[str, Any]:
         "merge_failure_count": conflict.get("conflict_event_count"),
         "semantic_integration_failure": semantic.get("observed"),
         "scope_violation_count": scope.get("violating_agent_attempt_count"),
+        "scope_violation_rate": scope.get("SVR"),
         "artifact_hygiene_violation_count": len(hygiene),
         "artifact_hygiene_files": "; ".join(hygiene),
         "duplicated_contract_unique_symbol_count": duplicate.get(
@@ -602,6 +603,7 @@ def write_csv(rows: list[dict[str, Any]], path: Path) -> None:
         "merge_failure_count",
         "semantic_integration_failure",
         "scope_violation_count",
+        "scope_violation_rate",
         "artifact_hygiene_violation_count",
         "artifact_hygiene_files",
         "duplicated_contract_unique_symbol_count",
@@ -730,12 +732,12 @@ def write_markdown(args: argparse.Namespace, rows: list[dict[str, Any]], path: P
         "",
         "ADPR convention: `final_integrated_ADPR` is the canonical run-level dependency score for paper tables. `mean_per_agent_view_ADPR` is diagnostic only.",
         "",
-        "| Mode | Final tests | Final success | Final-integrated ADPR | Mean per-agent ADPR | Async overlap | Runtime | Tokens | Cost | Artifact failures | Non-merged attempts | Merge failures | Scope violations | Duplicated contracts | Hygiene violations |",
-        "| --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| Mode | Final tests | Final success | Final-integrated ADPR | Mean per-agent ADPR | Async overlap | Runtime | Tokens | Cost | Artifact failures | Non-merged attempts | Merge failures | Scope violations | SVR | Duplicated contracts | Hygiene violations |",
+        "| --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for row in rows:
         lines.append(
-            "| {mode} | {passed}/{total} | {success} | {adpr} | {mean_adpr} | {overlap}s | {runtime}s | {tokens} | ${cost} | {failures} | {nonmerged} | {merge} | {scope} | {dups} | {hygiene} |".format(
+            "| {mode} | {passed}/{total} | {success} | {adpr} | {mean_adpr} | {overlap}s | {runtime}s | {tokens} | ${cost} | {failures} | {nonmerged} | {merge} | {scope} | {svr} | {dups} | {hygiene} |".format(
                 mode=row["mode"],
                 passed=fmt(row.get("final_tests_passed")),
                 total=fmt(row.get("final_tests_total")),
@@ -750,6 +752,7 @@ def write_markdown(args: argparse.Namespace, rows: list[dict[str, Any]], path: P
                 nonmerged=fmt(row.get("nonmerged_attempt_count")),
                 merge=fmt(row.get("merge_failure_count")),
                 scope=fmt(row.get("scope_violation_count")),
+                svr=fmt(row.get("scope_violation_rate")),
                 dups=fmt(row.get("duplicated_contract_unique_symbol_count")),
                 hygiene=fmt(row.get("artifact_hygiene_violation_count")),
             )

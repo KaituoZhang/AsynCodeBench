@@ -66,7 +66,14 @@ def write_commit0_final_probe_checkpoint(workspace, workflow_config, task_module
     )
 
 
-async def run_workflow_inner(task, workflow_config, task_module, multi_agent=True, **kwargs):
+async def run_workflow_inner(
+    task,
+    workflow_config,
+    task_module,
+    multi_agent=True,
+    manager_class=Manager,
+    **kwargs,
+):
     start_time = datetime.now()
 
     print("=" * 70)
@@ -155,7 +162,7 @@ async def run_workflow_inner(task, workflow_config, task_module, multi_agent=Tru
 
         print("[Setup] Docker workspace ready")
 
-        manager = Manager(
+        manager = manager_class(
             llm=llm,
             workspace=workspace,
             task=task_module,
@@ -770,14 +777,23 @@ async def run_workflow_inner(task, workflow_config, task_module, multi_agent=Tru
         print(f"Output directory: {workflow_config.output_dir}")
 
 
-async def run_workflow(task, workflow_config, task_module, multi_agent=True, **kwargs):
+async def run_workflow(
+    task,
+    workflow_config,
+    task_module,
+    multi_agent=True,
+    manager_class=Manager,
+    **kwargs,
+):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     log_path = str(Path(workflow_config.output_dir) / f"run_{timestamp}.log")
 
     with TeeLogger(log_path):
         return await run_workflow_inner(
             task, workflow_config, task_module,
-            multi_agent=multi_agent, **kwargs,
+            multi_agent=multi_agent,
+            manager_class=manager_class,
+            **kwargs,
         )
 
 

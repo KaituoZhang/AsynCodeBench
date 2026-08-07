@@ -27,6 +27,11 @@ class Commit0Task(TaskModule):
         self.config = config
         self.task_data = None
         self.curated_task = self._load_curated_task_record()
+        self._canonical_test_ref = None
+        self._canonical_test_restore = {
+            "restored_paths": [],
+            "untracked_paths_removed": [],
+        }
 
     def get_docker_image(self):
         prefix = self.config.docker_image_prefix.rstrip("/")
@@ -161,6 +166,7 @@ class Commit0Task(TaskModule):
 
         self._verify_curated_base(workspace, work_dir)
         self._apply_curated_overlays(workspace, work_dir)
+        self._capture_canonical_test_ref(workspace, work_dir)
 
         # Step 2: Setup Repository
         print("\n" + "-" * 60)
@@ -463,15 +469,123 @@ class Commit0Task(TaskModule):
             timeout=60,
         )
 
+    def _capture_canonical_test_ref(self, workspace, work_dir):
+        result = workspace.execute_command(
+            f"cd {work_dir} && git rev-parse HEAD",
+            timeout=60,
+        )
+        if result.exit_code != 0:
+            raise RuntimeError(
+                "Failed to capture canonical test ref for "
+                f"{self.config.repo_name}: {result.stderr or result.stdout}"
+            )
+        self._canonical_test_ref = result.stdout.strip()
+        print(
+            "[AsyncCodeBench] Captured canonical test ref: "
+            f"{self._canonical_test_ref}"
+        )
+
+    @staticmethod
+    def _canonical_test_paths(test_targets):
+        paths = []
+        for target in test_targets:
+            path = str(target).split("::", 1)[0].strip()
+            if not path or path.startswith("-") or path.startswith("/"):
+                continue
+            if path == "." or ".." in Path(path).parts:
+                continue
+            paths.append(path)
+        return Commit0Task._dedupe_preserve_order(paths)
+
+    def _restore_canonical_test_targets(
+        self, workspace, work_dir, test_targets
+    ):
+        if not self._canonical_test_ref:
+            raise RuntimeError(
+                "Canonical test ref was not captured before evaluation"
+            )
+
+        test_paths = self._canonical_test_paths(test_targets)
+        if not test_paths:
+            return
+
+        path_args = " ".join(shlex.quote(path) for path in test_paths)
+        changed = workspace.execute_command(
+            f"cd {work_dir} && "
+            f"git diff --name-only {shlex.quote(self._canonical_test_ref)} -- "
+            f"{path_args}",
+            timeout=60,
+        )
+        if changed.exit_code != 0:
+            raise RuntimeError(
+                "Failed to audit canonical test paths: "
+                f"{changed.stderr or changed.stdout}"
+            )
+
+        untracked = workspace.execute_command(
+            f"cd {work_dir} && git ls-files --others --exclude-standard -- "
+            f"{path_args}",
+            timeout=60,
+        )
+        if untracked.exit_code != 0:
+            raise RuntimeError(
+                "Failed to audit untracked evaluator paths: "
+                f"{untracked.stderr or untracked.stdout}"
+            )
+
+        restored_paths = [
+            line.strip() for line in changed.stdout.splitlines() if line.strip()
+        ]
+        untracked_paths = [
+            line.strip() for line in untracked.stdout.splitlines() if line.strip()
+        ]
+        self._canonical_test_restore = {
+            "canonical_ref": self._canonical_test_ref,
+            "restored_paths": restored_paths,
+            "untracked_paths_removed": untracked_paths,
+        }
+
+        if restored_paths:
+            restore = workspace.execute_command(
+                f"cd {work_dir} && "
+                f"git checkout {shlex.quote(self._canonical_test_ref)} -- "
+                f"{path_args}",
+                timeout=120,
+            )
+            if restore.exit_code != 0:
+                raise RuntimeError(
+                    "Failed to restore canonical evaluator paths: "
+                    f"{restore.stderr or restore.stdout}"
+                )
+
+        if untracked_paths:
+            clean = workspace.execute_command(
+                f"cd {work_dir} && git clean -fd -- {path_args}",
+                timeout=120,
+            )
+            if clean.exit_code != 0:
+                raise RuntimeError(
+                    "Failed to remove untracked evaluator paths: "
+                    f"{clean.stderr or clean.stdout}"
+                )
+
+        if restored_paths or untracked_paths:
+            print(
+                "[AsyncCodeBench] Restored canonical evaluator paths; "
+                f"tracked={len(restored_paths)} untracked={len(untracked_paths)}"
+            )
+
     def evaluate(self, workspace):
         if self.task_data is None:
             raise RuntimeError("Call load_task_data() before evaluate()")
 
         work_dir = self.get_work_dir()
+        test_cmd, test_targets, evaluator_source = self._resolve_evaluator()
 
         # Commit any remaining changes
         print("[Commit0] Committing any remaining changes...")
         self._clean_transient_test_artifacts(workspace, work_dir)
+        self._restore_canonical_test_targets(workspace, work_dir, test_targets)
         workspace.execute_command(f"cd {work_dir} && git add .", timeout=600)
         workspace.execute_command(
             f"cd {work_dir} && "
@@ -481,7 +595,6 @@ class Commit0Task(TaskModule):
             timeout=600,
         )
 
-        test_cmd, test_targets, evaluator_source = self._resolve_evaluator()
         test_target_args = " ".join(shlex.quote(str(target)) for target in test_targets)
 
         eval_timeout = self._final_pytest_timeout_seconds()
@@ -534,6 +647,7 @@ class Commit0Task(TaskModule):
                 evaluator_source=evaluator_source,
                 timeout_seconds=eval_timeout,
                 timed_out=timed_out,
+                canonical_test_restore=self._canonical_test_restore,
             )
             report_json = json.dumps(report_data, indent=2)
         except (json.JSONDecodeError, Exception) as e:
@@ -803,6 +917,7 @@ class Commit0Task(TaskModule):
         evaluator_source,
         timeout_seconds,
         timed_out,
+        canonical_test_restore=None,
     ):
         report_data.setdefault("asynccodebench", {}).update(
             {
@@ -811,6 +926,7 @@ class Commit0Task(TaskModule):
                 "final_test_targets": test_targets,
                 "final_pytest_timeout_seconds": timeout_seconds,
                 "timed_out": timed_out,
+                "canonical_test_restore": canonical_test_restore or {},
             }
         )
 

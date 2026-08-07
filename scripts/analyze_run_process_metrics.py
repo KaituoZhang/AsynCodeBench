@@ -657,15 +657,88 @@ def normalize_repo_relative_path(path: str) -> str:
     return "/".join(parts)
 
 
+def scope_violations_from_validation_records(
+    run_dir: Path,
+) -> dict[str, Any] | None:
+    """Use harness-v2 pre-merge scope decisions as authoritative evidence."""
+    path = run_dir / "scope_validation.jsonl"
+    if not path.exists():
+        return None
+
+    records = load_jsonl(path)
+    attempts = []
+    for record in records:
+        agent = record.get("agent_id") or record.get("engineer_id")
+        if not agent:
+            continue
+        allowed = sorted(
+            {
+                normalize_repo_relative_path(item)
+                for item in record.get("writable_paths", []) or []
+                if normalize_repo_relative_path(item)
+            }
+        )
+        changed = sorted(
+            {
+                normalize_repo_relative_path(item)
+                for item in record.get("changed_paths", []) or []
+                if normalize_repo_relative_path(item)
+            }
+        )
+        out_of_scope = sorted(
+            {
+                normalize_repo_relative_path(item)
+                for item in record.get("violations", []) or []
+                if normalize_repo_relative_path(item)
+            }
+        )
+        attempts.append(
+            {
+                "agent": agent,
+                "task_id": record.get("task_assignment_id")
+                or record.get("manifest_subproblem_id"),
+                "allowed_files": allowed,
+                "changed_files": changed,
+                "out_of_scope_files": out_of_scope,
+                "policy": record.get("policy"),
+                "passed": record.get("passed"),
+            }
+        )
+
+    scoped_agents = {attempt["agent"] for attempt in attempts}
+    violating_attempts = [
+        attempt for attempt in attempts if attempt["out_of_scope_files"]
+    ]
+    violating_agents = {attempt["agent"] for attempt in violating_attempts}
+    return {
+        "evidence_source": "scope_validation.jsonl",
+        "scoped_agent_attempt_count": len(attempts),
+        "violating_agent_attempt_count": len(violating_attempts),
+        "violations": violating_attempts,
+        "SVR": (len(violating_attempts) / len(attempts)) if attempts else None,
+        "unique_scoped_agent_count": len(scoped_agents),
+        "unique_violating_agent_count": len(violating_agents),
+        "unique_agent_SVR": (
+            len(violating_agents) / len(scoped_agents) if scoped_agents else None
+        ),
+    }
+
+
 def scope_violations(run_dir: Path, responses: list[dict[str, Any]]) -> dict[str, Any]:
+    recorded = scope_violations_from_validation_records(run_dir)
+    if recorded is not None:
+        return recorded
+
     scope = assignment_scope_from_artifacts(run_dir)
     violations = []
     scoped_agents = 0
+    scoped_agent_ids = set()
     for response in responses:
         agent = response.get("source")
         if not agent or agent not in scope:
             continue
         scoped_agents += 1
+        scoped_agent_ids.add(agent)
         allowed = {
             normalize_repo_relative_path(path)
             for path in scope[agent]
@@ -686,11 +759,20 @@ def scope_violations(run_dir: Path, responses: list[dict[str, Any]]) -> dict[str
                     "out_of_scope_files": out_of_scope,
                 }
             )
+    violating_agent_ids = {violation["agent"] for violation in violations}
     return {
+        "evidence_source": "derived_from_agent_responses",
         "scoped_agent_attempt_count": scoped_agents,
         "violating_agent_attempt_count": len(violations),
         "violations": violations,
         "SVR": (len(violations) / scoped_agents) if scoped_agents else None,
+        "unique_scoped_agent_count": len(scoped_agent_ids),
+        "unique_violating_agent_count": len(violating_agent_ids),
+        "unique_agent_SVR": (
+            len(violating_agent_ids) / len(scoped_agent_ids)
+            if scoped_agent_ids
+            else None
+        ),
     }
 
 
@@ -1007,11 +1089,24 @@ def formal_metric_values(
         },
         "SVR": {
             "name": "Scope Violation Rate",
-            "formula": "# agents modifying out-of-scope files / # total scoped agents",
+            "formula": (
+                "# scoped agent attempts modifying out-of-scope files / "
+                "# total scoped agent attempts"
+            ),
             "value": process["scope_violation_rate"]["SVR"],
             "numerator": process["scope_violation_rate"]["violating_agent_attempt_count"],
             "denominator": process["scope_violation_rate"]["scoped_agent_attempt_count"],
             "violations": process["scope_violation_rate"]["violations"],
+            "evidence_source": process["scope_violation_rate"]["evidence_source"],
+            "unique_agent_value": process["scope_violation_rate"][
+                "unique_agent_SVR"
+            ],
+            "unique_agent_numerator": process["scope_violation_rate"][
+                "unique_violating_agent_count"
+            ],
+            "unique_agent_denominator": process["scope_violation_rate"][
+                "unique_scoped_agent_count"
+            ],
         },
         "MRR": {
             "name": "Manager Recovery Rate",

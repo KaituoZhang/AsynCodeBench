@@ -50,7 +50,8 @@ expected_model="openai/google/gemma-4-26B-A4B-it"
 uv run python scripts/check_gemma4_server.py \
   --base-url "$LLM_BASE_URL" \
   --model "${expected_model#openai/}" \
-  --minimum-version 0.24.0
+  --minimum-version 0.24.0 \
+  --minimum-context 163840
 
 model_tag="${MODEL_TAG:-gemma4-26b-a4b-v2}"
 run_version="${RUN_VERSION:-officialtmpl_131072_o32768_v05}"

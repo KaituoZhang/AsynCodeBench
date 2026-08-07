@@ -51,3 +51,45 @@ def test_remote_timeout_is_infrastructure_failure(tmp_path):
 
     assert result["healthy"] is False
     assert "remote_execution_timeout" in result["issues"]
+
+
+def test_source_code_connection_error_text_is_not_transport_failure(tmp_path):
+    run_dir = create_run(
+        tmp_path,
+        'class ConnectionError(RequestException):\n'
+        '    """A Connection error occurred."""\n',
+    )
+
+    result = inspect_run(run_dir)
+
+    assert result["healthy"] is True
+    assert "provider_or_transport" not in result["issues"]
+
+
+def test_openai_connection_error_is_transport_failure(tmp_path):
+    run_dir = create_run(
+        tmp_path,
+        "litellm.InternalServerError: OpenAIException - Connection error.\n",
+    )
+
+    result = inspect_run(run_dir)
+
+    assert result["healthy"] is False
+    assert "provider_or_transport" in result["issues"]
+
+
+def test_canonical_test_restore_is_recorded_as_model_behavior(tmp_path):
+    run_dir = create_run(tmp_path, "normal run\n")
+    report_path = run_dir / "report.json"
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    report["asynccodebench"]["canonical_test_restore"] = {
+        "canonical_ref": "abc123",
+        "restored_paths": ["tests/test_utils.py"],
+        "untracked_paths_removed": [],
+    }
+    report_path.write_text(json.dumps(report), encoding="utf-8")
+
+    result = inspect_run(run_dir)
+
+    assert result["healthy"] is True
+    assert result["observations"] == ["canonical_test_paths_restored"]

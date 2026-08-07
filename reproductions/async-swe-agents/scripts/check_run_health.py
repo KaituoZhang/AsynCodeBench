@@ -20,7 +20,9 @@ ERROR_PATTERNS = {
         re.IGNORECASE,
     ),
     "provider_or_transport": re.compile(
-        r"LLMServiceUnavailableError|LLMBadRequestError|Connection error",
+        r"LLMServiceUnavailableError|LLMBadRequestError|APIConnectionError|"
+        r"(?:OpenAIException|InternalServerError)\s*-\s*Connection error|"
+        r"(?:httpx|httpcore)\.(?:Connect|Read|Write|Pool)Error",
         re.IGNORECASE,
     ),
     "remote_execution_timeout": re.compile(
@@ -59,6 +61,13 @@ def inspect_run(run_dir: Path) -> dict[str, object]:
         else:
             if evaluator_source != "asynccodebench_manifest":
                 issues.append(f"wrong_evaluator:{evaluator_source}")
+            canonical_restore = report.get("asynccodebench", {}).get(
+                "canonical_test_restore", {}
+            )
+            if canonical_restore.get("restored_paths") or canonical_restore.get(
+                "untracked_paths_removed"
+            ):
+                observations.append("canonical_test_paths_restored")
 
     scan_files = logs + sorted(run_dir.glob("*.jsonl"))
     scan_files += sorted((run_dir / "agent_events").glob("*.jsonl"))
