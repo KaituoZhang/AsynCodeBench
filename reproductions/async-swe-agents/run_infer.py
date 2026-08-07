@@ -128,7 +128,7 @@ async def run_workflow_inner(
     workspace_host_port = (
         int(workspace_host_port_env)
         if workspace_host_port_env
-        else (8000 if workspace_network == "host" else None)
+        else None
     )
 
     if workspace_config.get("base_image"):

@@ -104,11 +104,15 @@ export LLM_BASE_URL=http://127.0.0.1:8006/v1
 export ASYNCCODEBENCH_MODEL_SERVER_KIND=vllm
 export ASYNCCODEBENCH_VLLM_CONFIG_JSON='{"max_model_len":131000,"max_num_seqs":2,"tool_call_parser":"qwen3_xml","reasoning_parser":"deepseek_r1"}'
 export ASYNCCODEBENCH_WORKSPACE_DOCKER_NETWORK=host
-export ASYNCCODEBENCH_WORKSPACE_HOST_PORT=<free-agent-server-port>
+# Optional. Omit this variable to let OpenHands choose a free port.
+# export ASYNCCODEBENCH_WORKSPACE_HOST_PORT=<free-agent-server-port>
 ```
 
 The workspace host port is the OpenHands agent-server port, not the vLLM port.
-They must not be the same and the host port must be free before each run.
+They must not be the same. If the variable is omitted, the harness lets
+OpenHands choose a free port from its dynamic port range; this is recommended
+when several terminals run concurrently. If it is set, the port must be free
+before each run.
 `ASYNCCODEBENCH_VLLM_CONFIG_JSON` should mirror the actual server launch flags;
 `LLM_EXTRA_BODY_JSON` records thinking/chat-template request arguments. When a
 custom chat template is used, set `ASYNCCODEBENCH_CHAT_TEMPLATE_PATH` so its
