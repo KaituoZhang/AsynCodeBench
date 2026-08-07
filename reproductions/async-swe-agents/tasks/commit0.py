@@ -456,6 +456,16 @@ class Commit0Task(TaskModule):
             )
 
     def _clean_transient_test_artifacts(self, workspace, work_dir):
+        # Package imports and pytest can create bytecode caches before the
+        # native pre-model cleanliness gate. They are generated artifacts, not
+        # agent edits, so remove them before checking git status.
+        workspace.execute_command(
+            f"cd {work_dir} && "
+            "find . -type d -name __pycache__ -prune -exec rm -rf {} + && "
+            "find . -type f \\( -name '*.pyc' -o -name '*.pyo' \\) -delete",
+            timeout=60,
+        )
+
         if self.config.repo_name != "cookiecutter":
             return
 

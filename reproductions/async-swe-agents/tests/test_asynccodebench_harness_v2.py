@@ -15,6 +15,7 @@ from protocols.asynccodebench.ordering import path_in_scope, topological_assignm
 from protocols.asynccodebench.runner import AsyncCodeBenchProtocolRunner
 from run_asynccodebench import main as run_asynccodebench
 from tasks.asynccodebench import AsyncCodeBenchConfig, AsyncCodeBenchTask
+from tasks.commit0 import Commit0Task
 
 
 def make_task(task_id="asyncodebench:cachetools"):
@@ -35,6 +36,20 @@ class LocalWorkspace:
             exit_code=result.returncode,
             stdout=result.stdout,
             stderr=result.stderr,
+        )
+
+
+class RecordingWorkspace:
+    def __init__(self):
+        self.commands = []
+
+    def execute_command(self, command, timeout=30):
+        del timeout
+        self.commands.append(command)
+        return SimpleNamespace(
+            exit_code=0,
+            stdout="",
+            stderr="",
         )
 
 
@@ -134,6 +149,42 @@ def test_native_task_never_falls_back_to_raw_dataset(monkeypatch):
 
     with pytest.raises(RuntimeError, match="requires curated task source"):
         task.load_task_data()
+
+
+def test_transient_cleanup_removes_python_bytecode_artifacts():
+    task = make_task()
+    workspace = RecordingWorkspace()
+
+    task._clean_transient_test_artifacts(workspace, task.get_work_dir())
+
+    assert any("-name __pycache__" in command for command in workspace.commands)
+    assert any("-name '*.pyc'" in command for command in workspace.commands)
+
+
+def test_filesystem_spec_restores_generated_version_before_clean_gate(
+    monkeypatch,
+):
+    task = make_task("asyncodebench:filesystem_spec")
+    workspace = RecordingWorkspace()
+    monkeypatch.setattr(
+        Commit0Task,
+        "setup_workspace",
+        lambda self, active_workspace: None,
+    )
+
+    task.setup_workspace(workspace)
+
+    restore_index = next(
+        index
+        for index, command in enumerate(workspace.commands)
+        if "git restore --source=HEAD -- fsspec/_version.py" in command
+    )
+    status_index = next(
+        index
+        for index, command in enumerate(workspace.commands)
+        if "git status --porcelain" in command
+    )
+    assert restore_index < status_index
 
 
 def test_caid_fallback_uses_active_async_message_scenario(tmp_path):

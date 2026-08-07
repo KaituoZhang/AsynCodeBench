@@ -157,6 +157,15 @@ class AsyncCodeBenchTask(Commit0Task):
         super().setup_workspace(workspace)
         work_dir = self.get_work_dir()
         self._clean_transient_test_artifacts(workspace, work_dir)
+        if self.config.repo_name == "filesystem_spec":
+            # pip install -e rewrites the overlay-provided version module.
+            # Restore only this setup artifact before the model starts; later
+            # scope checks must preserve any actual agent edit to the file.
+            workspace.execute_command(
+                f"cd {work_dir} && "
+                "git restore --source=HEAD -- fsspec/_version.py",
+                timeout=60,
+            )
         status = workspace.execute_command(
             f"cd {work_dir} && git status --porcelain", timeout=30
         )
