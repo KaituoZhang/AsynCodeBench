@@ -14,7 +14,7 @@ from .commit0 import Commit0Config, Commit0Task
 
 @dataclass
 class AsyncCodeBenchConfig:
-    task_id: str = "commit0:cachetools"
+    task_id: str = "asynccodebench:cachetools"
     release: str = "v0.3"
     docker_image_prefix: str = "docker.io/wentingzhao/"
     curated_config_path: str = ""
@@ -24,6 +24,9 @@ class AsyncCodeBenchConfig:
 class AsyncCodeBenchTask(Commit0Task):
     """Materialize and evaluate one manifest-defined AsyncCodeBench task."""
 
+    PUBLIC_NAMESPACE = "asynccodebench"
+    PROVENANCE_NAMESPACE = "commit0"
+
     def __init__(self, config: AsyncCodeBenchConfig):
         self.asynccodebench_config = config
         if config.release != "v0.3":
@@ -32,10 +35,13 @@ class AsyncCodeBenchTask(Commit0Task):
                 "this harness currently supports v0.3"
             )
         source, repo_name = self._parse_task_id(config.task_id)
-        if source != "commit0":
+        if source not in {self.PUBLIC_NAMESPACE, self.PROVENANCE_NAMESPACE}:
             raise ValueError(
-                f"Unsupported AsyncCodeBench source {source!r}; v0.3 supports commit0"
+                f"Unsupported AsyncCodeBench task namespace {source!r}; "
+                f"use {self.PUBLIC_NAMESPACE}:<repository>"
             )
+        self.repository_name = repo_name
+        self.public_task_id = f"{self.PUBLIC_NAMESPACE}:{repo_name}"
 
         self.release_root = self._repo_root() / "manifests" / "pilot" / config.release
         self.official_manifest = self._read_json(
@@ -80,7 +86,9 @@ class AsyncCodeBenchTask(Commit0Task):
     def _parse_task_id(task_id):
         source, separator, repo_name = str(task_id).partition(":")
         if not separator or not source or not repo_name:
-            raise ValueError("task_id must use the form '<source>:<repository>'")
+            raise ValueError(
+                "task_id must use the form 'asynccodebench:<repository>'"
+            )
         return source, repo_name
 
     @staticmethod
@@ -99,6 +107,12 @@ class AsyncCodeBenchTask(Commit0Task):
 
     @property
     def task_id(self):
+        """Public benchmark identifier; source IDs remain provenance-only."""
+        return self.public_task_id
+
+    @property
+    def source_task_id(self):
+        """Original Commit0-derived identifier stored in release manifests."""
         return self.task_manifest["task_id"]
 
     @property

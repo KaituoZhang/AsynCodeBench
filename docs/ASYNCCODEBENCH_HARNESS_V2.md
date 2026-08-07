@@ -31,6 +31,11 @@ The four supported protocols are:
 
 ## What Is Native
 
+The public task identifier is `asynccodebench:<repository>`. The `commit0_*`
+manifest filenames and internal `commit0:<repository>` fields are retained as
+source/provenance identifiers; they do not change the public benchmark
+namespace.
+
 The task adapter is
 `reproductions/async-swe-agents/tasks/asynccodebench.py`. It requires all of the
 following artifacts:
@@ -115,7 +120,7 @@ Always validate a task before spending model tokens:
 
 ```bash
 .venv/bin/python run_asynccodebench.py \
-  --task_id commit0:cachetools \
+  --task_id asynccodebench:cachetools \
   --protocol serial_specialists \
   --model "$LLM_MODEL" \
   --dry_run
@@ -131,7 +136,7 @@ Use a unique `run_id` for every attempt. Failed and interrupted directories are
 immutable evidence and cannot be reused.
 
 ```bash
-TASK_ID=commit0:cachetools
+TASK_ID=asynccodebench:cachetools
 MODEL_TAG=qwen36-27
 VERSION=curated_v2_01
 

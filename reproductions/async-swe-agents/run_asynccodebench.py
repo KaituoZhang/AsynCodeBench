@@ -135,7 +135,7 @@ def _print_dry_run(task, protocol, workflow_config, output_dir):
 
 
 def main(
-    task_id="commit0:cachetools",
+    task_id="asynccodebench:cachetools",
     protocol="single",
     model=None,
     subagent_model=None,

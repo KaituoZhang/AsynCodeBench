@@ -5,7 +5,7 @@ cd "$(dirname "$0")/.."
 
 : "${LLM_MODEL:?Load scripts/env.sh or set LLM_MODEL first}"
 
-TASK_ID="${ASYNCCODEBENCH_SMOKE_TASK_ID:-commit0:cachetools}"
+TASK_ID="${ASYNCCODEBENCH_SMOKE_TASK_ID:-asynccodebench:cachetools}"
 RUN_ID="${ASYNCCODEBENCH_SMOKE_RUN_ID:-smoke_v2_$(date -u +%Y%m%dT%H%M%SZ)}"
 WORKSPACE_BASE_HOST_PORT="${ASYNCCODEBENCH_SMOKE_BASE_HOST_PORT:-${ASYNCCODEBENCH_WORKSPACE_HOST_PORT:-}}"
 

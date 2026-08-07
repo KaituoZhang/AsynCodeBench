@@ -17,7 +17,7 @@ from run_asynccodebench import main as run_asynccodebench
 from tasks.asynccodebench import AsyncCodeBenchConfig, AsyncCodeBenchTask
 
 
-def make_task(task_id="commit0:cachetools"):
+def make_task(task_id="asynccodebench:cachetools"):
     return AsyncCodeBenchTask(AsyncCodeBenchConfig(task_id=task_id))
 
 
@@ -93,17 +93,18 @@ def make_manager(task, workspace, output_dir, repo_dir):
 def test_native_task_loads_required_manifests_and_curated_source():
     task = make_task()
 
-    assert task.task_id == "commit0:cachetools"
+    assert task.task_id == "asynccodebench:cachetools"
+    assert task.source_task_id == "commit0:cachetools"
     assert len(task.official_tasks) == 17
     assert task.curated_task["base_sha"] == task.task_manifest["upstream_version"]
-    assert task.metrics_manifest["task_id"] == task.task_id
+    assert task.metrics_manifest["task_id"] == task.source_task_id
     assert task.scenario_for("single")["execution_mode"] == "iterative_single"
     assert task.scenario_for("caid_manager")["execution_mode"] == "async_message"
 
 
 def test_native_task_rejects_non_official_task():
     with pytest.raises(ValueError, match="not an official"):
-        make_task("commit0:fastapi")
+        make_task("asynccodebench:fastapi")
 
 
 def test_all_official_tasks_have_native_v2_contracts():
@@ -111,11 +112,11 @@ def test_all_official_tasks_have_native_v2_contracts():
 
     assert len(official_tasks) == 17
     for repository in official_tasks:
-        task = make_task(f"commit0:{repository}")
+        task = make_task(f"asynccodebench:{repository}")
         assert task.curated_task.get("base_sha")
         assert task.task_manifest.get("problem_statement")
         assert task.metrics_manifest.get("dependency_points")
-        assert task.quality_manifest.get("task_id") == task.task_id
+        assert task.quality_manifest.get("task_id") == task.source_task_id
         assert {
             scenario.get("execution_mode")
             for scenario in task.scenario_manifest.get("scenarios", [])
@@ -372,7 +373,7 @@ def test_static_runner_uses_manifest_dependency_order(tmp_path):
 
 
 def test_existing_shared_scope_and_cycle_are_reported_not_hidden(tmp_path):
-    task = make_task("commit0:marshmallow")
+    task = make_task("asynccodebench:marshmallow")
     task.set_active_protocol("serial_specialists")
     config = WorkflowConfig(
         model="test/model",
@@ -499,7 +500,7 @@ def test_dry_run_does_not_create_output_directory(tmp_path):
     output_dir = tmp_path / "dry-run-output"
 
     run_asynccodebench(
-        task_id="commit0:cachetools",
+        task_id="asynccodebench:cachetools",
         protocol="serial_specialists",
         model="test/model",
         output_dir=str(output_dir),
