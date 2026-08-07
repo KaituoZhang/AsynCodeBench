@@ -409,6 +409,31 @@ def test_caid_merges_in_scope_committed_patch(tmp_path):
     assert (repo / "src/cachetools/keys.py").read_text() == "VALUE = 1\n"
 
 
+def test_caid_merges_committed_patch_after_iteration_limit(tmp_path):
+    repo, worktree, base_head, commit = make_git_worktree(
+        tmp_path, ["src/cachetools/keys.py"]
+    )
+    task = make_task()
+    manager = make_manager(task, LocalWorkspace(), tmp_path / "output", repo)
+    Path(manager.config.output_dir).mkdir()
+    result = SubAgentResult(
+        engineer_id="key_agent",
+        task_id="key_construction",
+        branch_name="agent_key",
+        worktree_path=str(worktree),
+        success=False,
+        error="MaxIterationsReached",
+        round_num=1,
+    )
+
+    review = manager.collect_and_merge(result)
+
+    assert review["merged"] is True
+    assert result.commit_hash == commit
+    assert git(repo, "rev-parse", "HEAD") != base_head
+    assert (repo / "src/cachetools/keys.py").read_text() == "VALUE = 1\n"
+
+
 def test_caid_rejects_merge_when_main_workspace_is_dirty(tmp_path):
     repo, worktree, base_head, commit = make_git_worktree(
         tmp_path, ["src/cachetools/keys.py"]

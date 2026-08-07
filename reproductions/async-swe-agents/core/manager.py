@@ -821,6 +821,34 @@ class Manager:
         branch_name = subagent_result.branch_name
         worktree_path = subagent_result.worktree_path
 
+        # A conversation can hit its iteration limit immediately after the
+        # agent commits. Recover that branch tip so a valid, scoped artifact
+        # is not silently discarded just because the final response failed.
+        if branch_name and not subagent_result.commit_hash:
+            branch_tip = self.workspace.execute_command(
+                f"cd {self.repo_dir} && "
+                f"git rev-list --max-count=1 HEAD..{shlex.quote(branch_name)}",
+                timeout=30,
+            )
+            recovered_hash = branch_tip.stdout.strip()
+            if branch_tip.exit_code == 0 and recovered_hash:
+                subagent_result.commit_hash = recovered_hash
+                changed = self.workspace.execute_command(
+                    f"cd {self.repo_dir} && "
+                    f"git diff --name-only HEAD..{shlex.quote(branch_name)}",
+                    timeout=30,
+                )
+                if changed.exit_code == 0:
+                    subagent_result.files_modified = [
+                        path.strip()
+                        for path in changed.stdout.splitlines()
+                        if path.strip()
+                    ]
+                self.log(
+                    "Recovered committed artifact after incomplete conversation: "
+                    f"{recovered_hash[:8]}"
+                )
+
         self.log(f"Collecting {engineer_id}'s work...")
         self.log(f"  - Task: {task_id}")
         extra_log = self.task.get_collect_extra_log(subagent_result)
@@ -844,8 +872,14 @@ class Manager:
         round_num = subagent_result.round_num
         files_modified = subagent_result.files_modified or []
 
-        # Subagent made a commit - try to merge via branch
-        if subagent_result.success and subagent_result.commit_hash and branch_name:
+        # A committed artifact is eligible for merge even if the conversation
+        # ended at its iteration limit after creating that commit.
+        if subagent_result.commit_hash and branch_name:
+            if not subagent_result.success:
+                self.log(
+                    "Attempt ended without a successful final response, but a "
+                    "committed artifact is available for integration."
+                )
             self.log("Attempting branch merge (commit found)...")
             merge_success, merge_message, conflict_files = self.merge_branch(branch_name)
 
@@ -874,7 +908,11 @@ class Manager:
             if merge_success:
                 review_result["merged"] = True
                 review_result["merge_message"] = merge_message
-                review_result["review_notes"] = "Implementation approved and merged via branch"
+                review_result["review_notes"] = (
+                    "Committed artifact merged via branch"
+                    if not subagent_result.success
+                    else "Implementation approved and merged via branch"
+                )
                 review_result["merge_method"] = "branch_merge"
                 self.log(f"Collect: MERGED - {merge_message}")
 
