@@ -479,6 +479,55 @@ class Commit0Task(TaskModule):
             timeout=60,
         )
 
+    def _read_workspace_text(self, workspace, remote_path, chunk_size=1024 * 1024):
+        """Read large workspace files without command-output truncation."""
+        quoted_path = shlex.quote(remote_path)
+        size_result = workspace.execute_command(
+            f"stat -c%s {quoted_path}", timeout=30
+        )
+        if size_result.exit_code != 0:
+            print(
+                "[Commit0] Warning: could not stat workspace file "
+                f"{remote_path}: {size_result.stderr or size_result.stdout}"
+            )
+            return ""
+
+        try:
+            file_size = int(size_result.stdout.strip())
+        except ValueError:
+            print(f"[Commit0] Warning: invalid workspace file size for {remote_path}")
+            return ""
+
+        chunks = []
+        offset = 0
+        while offset < file_size:
+            result = workspace.execute_command(
+                f"dd if={quoted_path} bs=1 skip={offset} count={chunk_size} "
+                "status=none | base64 -w 0",
+                timeout=120,
+            )
+            if result.exit_code != 0:
+                print(
+                    "[Commit0] Warning: could not read workspace file "
+                    f"{remote_path} at offset {offset}: "
+                    f"{result.stderr or result.stdout}"
+                )
+                return ""
+            try:
+                chunk = base64.b64decode(result.stdout)
+            except (ValueError, TypeError) as exc:
+                print(
+                    "[Commit0] Warning: could not decode workspace file "
+                    f"{remote_path} at offset {offset}: {exc}"
+                )
+                return ""
+            if not chunk:
+                break
+            chunks.append(chunk)
+            offset += len(chunk)
+
+        return b"".join(chunks).decode("utf-8", errors="replace")
+
     def _capture_canonical_test_ref(self, workspace, work_dir):
         result = workspace.execute_command(
             f"cd {work_dir} && git rev-parse HEAD",
@@ -624,15 +673,12 @@ class Commit0Task(TaskModule):
         pytest_result = workspace.execute_command(full_cmd, timeout=eval_timeout + 60)
 
         # Read results
-        output_result = workspace.execute_command(
-            f"cat {work_dir}/test_output.txt", timeout=60
+        test_output = self._read_workspace_text(
+            workspace, f"{work_dir}/test_output.txt"
         )
-        test_output = output_result.stdout if output_result.exit_code == 0 else ""
-
-        report_result = workspace.execute_command(
-            f"cat {work_dir}/report.json", timeout=60
-        )
-        report_json = report_result.stdout if report_result.exit_code == 0 else "{}"
+        report_json = self._read_workspace_text(workspace, f"{work_dir}/report.json")
+        if not report_json:
+            report_json = "{}"
 
         timed_out = str(pytest_result.exit_code) == "124"
         if timed_out:

@@ -1,4 +1,5 @@
 import json
+import base64
 import subprocess
 from pathlib import Path
 from types import SimpleNamespace
@@ -51,6 +52,29 @@ class RecordingWorkspace:
             stdout="",
             stderr="",
         )
+
+
+class ChunkedDownloadWorkspace:
+    def __init__(self, content):
+        self.content = content
+        self.commands = []
+
+    def execute_command(self, command, timeout=30):
+        del timeout
+        self.commands.append(command)
+        if command.startswith("stat -c%s"):
+            return SimpleNamespace(
+                exit_code=0,
+                stdout=str(len(self.content)),
+                stderr="",
+            )
+        if command.startswith("dd if="):
+            return SimpleNamespace(
+                exit_code=0,
+                stdout=base64.b64encode(self.content).decode("ascii"),
+                stderr="",
+            )
+        raise AssertionError(f"Unexpected command: {command}")
 
 
 def git(repo, *args):
@@ -159,6 +183,16 @@ def test_transient_cleanup_removes_python_bytecode_artifacts():
 
     assert any("-name __pycache__" in command for command in workspace.commands)
     assert any("-name '*.pyc'" in command for command in workspace.commands)
+
+
+def test_workspace_file_reader_uses_chunked_base64_transfer():
+    task = make_task()
+    workspace = ChunkedDownloadWorkspace(b'{"summary": {}}')
+
+    assert task._read_workspace_text(workspace, "/workspace/report.json") == '{"summary": {}}'
+    assert any(command.startswith("stat -c%s") for command in workspace.commands)
+    assert any(command.startswith("dd if=") for command in workspace.commands)
+    assert not any(command.startswith("cat ") for command in workspace.commands)
 
 
 def test_filesystem_spec_restores_generated_version_before_clean_gate(
