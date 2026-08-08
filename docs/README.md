@@ -9,13 +9,13 @@ Start here when onboarding a collaborator or a new Codex session.
 | `ASYNCODEBENCH_HARNESS_V2.md` | Native `task_id`-based runner, protocol guarantees, dry-run, and four-protocol commands. |
 | `EVALUATION_BRANCH_QUICKSTART.md` | Short clone-to-four-protocol guide for the reproducible evaluation branch. |
 | `CODEX_ONBOARDING.md` | First-read guide for a new coding-agent session. |
-| `GITHUB_COLLABORATOR_HANDOFF.md` | What to commit, what not to commit, and how collaborators should clone/setup. |
+| `GITHUB_COLLABORATOR_HANDOFF.md` | What to commit, what not to commit, and the native harness setup for collaborators. |
 | `MODEL_EXPERIMENT_RUNBOOK.md` | Main guide for running another model across the official 16 tasks. |
 | `LOCAL_VLLM_EXPERIMENT_RUNBOOK.md` | Main local-vLLM guide: capacity, networking, environment, smoke gates, and failure diagnosis. |
 | `VLLM_QWEN_LOCAL_RUNBOOK.md` | Local vLLM/Qwen setup, Docker networking, tool calling, and smoke tests. |
 | `GEMMA4_CAID_HARNESS_FIX.md` | Gemma 4 parser/version gate, CAID remote-lifecycle fix, and result-validity rules. |
-| `COLLABORATOR_RUNBOOK.md` | General collaborator setup and repository release notes. |
-| `AGENT_EXPERIMENT_RUNBOOK.md` | Lower-level agent runner commands and debugging checks. |
+| `COLLABORATOR_RUNBOOK.md` | General collaborator setup and repository release notes; use its native-runner section. |
+| `AGENT_EXPERIMENT_RUNBOOK.md` | Historical v1 runner reference only; do not use it for new official runs. |
 | `EVALUATION_METRICS.md` | Metric definitions and post-run analysis rules. |
 
 ## Task Construction And Methodology

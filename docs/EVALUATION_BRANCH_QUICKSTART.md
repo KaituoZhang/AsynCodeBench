@@ -9,7 +9,7 @@ in `MODEL_EXPERIMENT_RUNBOOK.md`, `LOCAL_VLLM_EXPERIMENT_RUNBOOK.md`, and
 
 ```bash
 git clone --branch agent/reproducible-model-evaluation --single-branch \
-  https://github.com/KaituoZhang/AsynCodeBench.git
+  https://github.com/KaituoZhang/Asynccodebench.git AsynCodeBench
 cd AsynCodeBench
 ```
 

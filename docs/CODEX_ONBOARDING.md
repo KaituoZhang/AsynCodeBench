@@ -9,10 +9,10 @@ Read in this order:
 
 1. `README`
 2. `SPECIFICATION_v0.3.md`
-3. `docs/COLLABORATOR_RUNBOOK.md`
-4. `docs/AGENT_EXPERIMENT_RUNBOOK.md`
-5. `docs/EVALUATION_METRICS.md`
-6. `docs/MODEL_EXPERIMENT_RUNBOOK.md`
+3. `docs/EVALUATION_BRANCH_QUICKSTART.md`
+4. `docs/ASYNCODEBENCH_HARNESS_V2.md`
+5. `docs/MODEL_EXPERIMENT_RUNBOOK.md`
+6. `docs/EVALUATION_METRICS.md`
 7. `docs/LOCAL_VLLM_EXPERIMENT_RUNBOOK.md` when using a locally served model
 8. `docs/GITHUB_COLLABORATOR_HANDOFF.md`
 9. `docs/protocols/COMMIT0_DATA_AND_METRIC_LABEL_GUIDE_v0.3.md`
@@ -108,26 +108,30 @@ The executable agent protocols live under:
 reproductions/async-swe-agents/
 ```
 
-There are four current experiment conditions:
+There are four current experiment conditions. New official runs use
+`run_asyncodebench.py` directly or
+`scripts/run_asyncodebench_all_protocols_env.sh` for all four sequentially.
 
-| Protocol | Script |
+| Protocol | `--protocol` value |
 | --- | --- |
-| Single agent | `scripts/run_commit0_single_env.sh` |
-| Serial specialists | `scripts/run_commit0_serial_env.sh` |
-| Async private workspace | `scripts/run_commit0_async_private_env.sh` |
-| CAID manager-mediated multi-agent | `scripts/run_commit0_multi_env.sh` |
+| Single agent | `single` |
+| Serial specialists | `serial_specialists` |
+| Async private workspace | `async_private` |
+| CAID manager-mediated multi-agent | `caid_manager` |
 
-The static specialist protocols are implemented in:
+The native public entry point and manifest adapter are:
 
 ```text
-reproductions/async-swe-agents/run_static_protocol.py
-reproductions/async-swe-agents/protocols/static_commit0.py
+reproductions/async-swe-agents/run_asyncodebench.py
+reproductions/async-swe-agents/tasks/asyncodebench.py
+reproductions/async-swe-agents/protocols/asyncodebench/
 ```
 
-The existing CAID/single-agent workflow is implemented in:
+`run_infer.py`, `run_static_protocol.py`, and `run_commit0_*` scripts are
+legacy implementation paths. Do not use them to generate official results.
 
 ```text
-reproductions/async-swe-agents/run_infer.py
+reproductions/async-swe-agents/core/asyncodebench_manager.py
 reproductions/async-swe-agents/core/manager.py
 reproductions/async-swe-agents/core/subagent.py
 ```
@@ -195,8 +199,8 @@ The Python code that consumes these values is:
 
 ```text
 reproductions/async-swe-agents/core/utils.py::build_llm_kwargs
-reproductions/async-swe-agents/run_infer.py
-reproductions/async-swe-agents/run_static_protocol.py
+reproductions/async-swe-agents/run_asyncodebench.py
+reproductions/async-swe-agents/tasks/asyncodebench.py
 ```
 
 ## Environment Setup
@@ -287,8 +291,8 @@ Follow these rules unless the user explicitly says otherwise:
 
 ```bash
 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest -q tests/contracts
-python3 -m py_compile reproductions/async-swe-agents/run_static_protocol.py \
-  reproductions/async-swe-agents/protocols/static_commit0.py
+python3 -m py_compile reproductions/async-swe-agents/run_asyncodebench.py \
+  reproductions/async-swe-agents/tasks/asyncodebench.py
 ```
 
 ## Common User Requests
@@ -303,7 +307,8 @@ If asked to run or debug experiments, start from:
 
 ```text
 docs/COLLABORATOR_RUNBOOK.md
-reproductions/async-swe-agents/protocols/README.md
+docs/EVALUATION_BRANCH_QUICKSTART.md
+docs/ASYNCODEBENCH_HARNESS_V2.md
 ```
 
 If asked to explain the paper story, start from:

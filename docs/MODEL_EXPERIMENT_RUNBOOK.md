@@ -6,12 +6,16 @@ repeat the `gpt-5.4-mini` workflow with another model family.
 
 Use this together with:
 
-- `docs/AGENT_EXPERIMENT_RUNBOOK.md` for lower-level runner details.
+- `docs/ASYNCODEBENCH_HARNESS_V2.md` for native runner guarantees and direct
+  protocol commands.
 - `docs/LOCAL_VLLM_EXPERIMENT_RUNBOOK.md` for local OpenAI-compatible vLLM
   serving, Docker networking, concurrency, and smoke-test gates.
 - `docs/EVALUATION_METRICS.md` for metric definitions.
 - `docs/COOKIECUTTER_RUNNER_EVALUATOR_FIX.md` for `cookiecutter` pitfalls.
 - `docs/FLASK_EVALUATOR_COMPATIBILITY_FIX.md` for `flask` evaluator notes.
+
+`docs/AGENT_EXPERIMENT_RUNBOOK.md` documents historical v1 pilot commands
+only. Do not use it for new official results.
 
 ## Benchmark Goal
 

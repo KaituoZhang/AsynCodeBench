@@ -1,41 +1,28 @@
 # AsynCodeBench Execution Protocols
 
-This directory contains the additional static execution protocols used for AsynCodeBench.
+This directory implements the protocol layer used by the native
+AsynCodeBench harness. The public runner is `../run_asyncodebench.py`; it
+accepts only `asyncodebench:<task>` identifiers and loads each protocol's
+assignment, scope, dependency, evaluator, and probe contracts from the release
+manifests.
 
-Existing CAID entrypoints are kept unchanged:
-
-- Single-agent baseline: `scripts/run_commit0_single_env.sh`
-- Manager-mediated CAID multi-agent: `scripts/run_commit0_multi_env.sh`
-
-New manifest-driven static protocols:
-
-- Synchronous specialist handoff: `scripts/run_commit0_serial_env.sh`
-- Asynchronous private workspace: `scripts/run_commit0_async_private_env.sh`
-
-Both new protocols read the AsynCodeBench scenario manifest:
-
-```text
-../../../manifests/pilot/v0.3/scenarios/commit0_<repo>.json
-```
-
-The runner selects the scenario by `execution_mode`:
-
-- `serial_specialists`: specialists run one at a time. Each downstream specialist starts from the merged upstream workspace.
-- `async_private`: specialists start concurrently from the same base commit in isolated worktrees. Their patches are merged only after all specialists finish.
-
-The new protocols reuse CAID's existing OpenHands subagent runner, worktree setup, merge logic, pytest evaluation, patch export, final repo tarball export, and cost logging. They do not call the CAID manager's scan/delegate/reassign loop.
-
-Example dry runs:
+Use the model-neutral wrapper to run all four conditions:
 
 ```bash
-uv run python run_static_protocol.py --protocol serial_specialists --repo cachetools --dry_run
-uv run python run_static_protocol.py --protocol async_private --repo cachetools --dry_run
+MODEL_TAG=<model-tag> RUN_VERSION=official_v01 \
+  ../scripts/run_asyncodebench_all_protocols_env.sh cachetools
 ```
 
-Example full runs:
+The four `--protocol` values are:
 
-```bash
-scripts/run_commit0_serial_env.sh cachetools
-scripts/run_commit0_async_private_env.sh cachetools
-```
+- `single`: one iterative agent owns the complete task.
+- `serial_specialists`: specialists run in dependency order and receive merged
+  upstream handoffs.
+- `async_private`: specialists begin from the same base in private worktrees;
+  their artifacts are integrated after independent execution.
+- `caid_manager`: a manager delegates, reviews, and integrates work under the
+  AsynCodeBench manifest gates.
 
+`static_commit0.py` and the `run_commit0_*` scripts are retained only for
+historical v1 reproduction. They are not public entry points for new official
+AsynCodeBench results.

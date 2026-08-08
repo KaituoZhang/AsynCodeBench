@@ -1,14 +1,19 @@
 # Cookiecutter Runner And Evaluator Notes
 
+> **Historical v1 compatibility note.** New official Cookiecutter runs use
+> `asyncodebench:cookiecutter` through `run_asyncodebench.py` or
+> `scripts/run_asyncodebench_all_protocols_env.sh`. The old `run_commit0_*`
+> commands retained below only explain earlier pilot outputs.
+
 This document records the runner/evaluator fixes needed for the
-AsynCodeBench `commit0:cookiecutter` task. It is intended to prevent repeated
+AsynCodeBench `asyncodebench:cookiecutter` task. It is intended to prevent repeated
 API-costly debugging by collaborators.
 
 ## Context
 
-`cookiecutter` is an official AsynCodeBench v0.3 task. The runner command
-still uses `--task commit0`, but the intended input is the curated
-AsynCodeBench task source, not the raw Commit0 task.
+`cookiecutter` is an official AsynCodeBench v0.3 task. Historical logs below
+use `--task commit0`; current runs use `asyncodebench:cookiecutter` and the
+native AsynCodeBench task source.
 
 Required environment convention:
 

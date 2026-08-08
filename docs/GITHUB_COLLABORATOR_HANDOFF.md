@@ -110,7 +110,7 @@ For the current server, this has usually been:
 Collaborators should set their own local path in
 `reproductions/async-swe-agents/.env.<model_tag>`.
 
-## Where The Four Agent Modes Live
+## Native Harness And Four Agent Modes
 
 The runner source is:
 
@@ -118,35 +118,41 @@ The runner source is:
 reproductions/async-swe-agents/
 ```
 
-The four protocol entry points are:
+All new experiments must use the native AsynCodeBench entry point:
 
-| Protocol | Script |
+| Protocol | Native command |
 | --- | --- |
-| Single agent | `reproductions/async-swe-agents/scripts/run_commit0_single_env.sh` |
-| Serial specialists | `reproductions/async-swe-agents/scripts/run_commit0_serial_env.sh` |
-| Async private workspaces | `reproductions/async-swe-agents/scripts/run_commit0_async_private_env.sh` |
-| CAID manager-mediated multi-agent | `reproductions/async-swe-agents/scripts/run_commit0_multi_env.sh` |
+| Single agent | `run_asyncodebench.py --task_id asyncodebench:<task> --protocol single` |
+| Serial specialists | `run_asyncodebench.py --task_id asyncodebench:<task> --protocol serial_specialists` |
+| Async private workspaces | `run_asyncodebench.py --task_id asyncodebench:<task> --protocol async_private` |
+| CAID manager-mediated multi-agent | `run_asyncodebench.py --task_id asyncodebench:<task> --protocol caid_manager` |
 
-Static specialist implementation:
+The model-neutral command for all four conditions is:
 
 ```text
-reproductions/async-swe-agents/run_static_protocol.py
-reproductions/async-swe-agents/protocols/static_commit0.py
+reproductions/async-swe-agents/scripts/run_asyncodebench_all_protocols_env.sh
 ```
 
-Single-agent and CAID implementation:
+It loads the task's scenario manifest, verifies the official release, assigns
+the declared agent count, creates immutable protocol-specific output folders,
+and invokes the native runner. The legacy `run_commit0_*`,
+`run_static_protocol.py`, and `run_infer.py` scripts remain implementation or
+historical-reproduction paths only; do not use them to produce new official
+results.
+
+Native implementation:
 
 ```text
-reproductions/async-swe-agents/run_infer.py
-reproductions/async-swe-agents/core/manager.py
-reproductions/async-swe-agents/tasks/commit0.py
+reproductions/async-swe-agents/run_asyncodebench.py
+reproductions/async-swe-agents/tasks/asyncodebench.py
+reproductions/async-swe-agents/protocols/asyncodebench/
 ```
 
 ## Collaborator Fresh Clone
 
 ```bash
 git clone --branch agent/reproducible-model-evaluation --single-branch \
-  https://github.com/KaituoZhang/AsynCodeBench.git
+  https://github.com/KaituoZhang/Asynccodebench.git AsynCodeBench
 cd AsynCodeBench
 ```
 

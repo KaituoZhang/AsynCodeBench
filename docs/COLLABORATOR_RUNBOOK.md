@@ -6,7 +6,7 @@ AsynCodeBench agent experiments from a fresh machine.
 Repository target:
 
 ```text
-https://github.com/KaituoZhang/AsynCodeBench
+https://github.com/KaituoZhang/Asynccodebench
 ```
 
 If a collaborator uses Codex or another coding agent, ask that agent to read
@@ -14,10 +14,10 @@ If a collaborator uses Codex or another coding agent, ask that agent to read
 which files to inspect first, and where LLM/API configuration lives.
 
 For copy-paste commands to run a new model across the current official task
-set, use `docs/MODEL_EXPERIMENT_RUNBOOK.md`. For lower-level runner details,
-use `docs/AGENT_EXPERIMENT_RUNBOOK.md`. These documents explain how to verify
-that the runner is using AsynCodeBench curated inputs rather than raw Commit0
-fallbacks.
+set, use `docs/MODEL_EXPERIMENT_RUNBOOK.md` and
+`docs/ASYNCODEBENCH_HARNESS_V2.md`. `docs/AGENT_EXPERIMENT_RUNBOOK.md` is a
+historical v1 reference only. New runs must use the native
+`run_asyncodebench.py` entry point rather than raw Commit0 fallback paths.
 
 For evaluation metrics and post-run analysis, ask collaborators to read
 `docs/EVALUATION_METRICS.md`. That document defines the current first-round
@@ -28,6 +28,9 @@ AsynCodeBench metrics, the required run artifacts, and the analysis commands.
 Include these project assets:
 
 - `README`
+- `LICENSE`
+- `THIRD_PARTY_NOTICES.md`
+- `CITATION.cff`
 - `SPECIFICATION_v0.3.md`
 - `configs/`
 - `data/overlays/`
@@ -95,7 +98,7 @@ cd "$REPO_ROOT"
 git init
 git branch -M main
 
-git remote add origin https://github.com/KaituoZhang/AsynCodeBench.git
+git remote add origin https://github.com/KaituoZhang/Asynccodebench.git
 
 git status --short
 git add .gitignore README SPECIFICATION_v0.3.md pyproject.toml environment.yml
@@ -110,7 +113,7 @@ git push -u origin main
 If `origin` already exists:
 
 ```bash
-git remote set-url origin https://github.com/KaituoZhang/AsynCodeBench.git
+git remote set-url origin https://github.com/KaituoZhang/Asynccodebench.git
 ```
 
 If Git warns about an embedded repository under
@@ -121,7 +124,7 @@ If Git warns about an embedded repository under
 On a collaborator machine:
 
 ```bash
-git clone https://github.com/KaituoZhang/AsynCodeBench.git
+git clone https://github.com/KaituoZhang/Asynccodebench.git AsynCodeBench
 cd AsynCodeBench
 ```
 
@@ -385,10 +388,16 @@ The runner supports four experimental conditions:
 
 | Protocol | Script | Meaning |
 | --- | --- | --- |
-| Single agent | `scripts/run_commit0_single_env.sh` | One agent solves the full task. |
-| Serial specialists | `scripts/run_commit0_serial_env.sh` | Specialists run one at a time; downstream starts after upstream merge. |
-| Async private | `scripts/run_commit0_async_private_env.sh` | Specialists start from the same base in private worktrees; merge happens after all finish. |
-| CAID manager | `scripts/run_commit0_multi_env.sh` | Manager scans, delegates, reviews, merges, and can recover. |
+| Single agent | `run_asyncodebench.py --protocol single` | One agent solves the full task. |
+| Serial specialists | `run_asyncodebench.py --protocol serial_specialists` | Specialists run one at a time; downstream starts after upstream merge. |
+| Async private | `run_asyncodebench.py --protocol async_private` | Specialists start from the same base in private worktrees; merge happens after all finish. |
+| CAID manager | `run_asyncodebench.py --protocol caid_manager` | Manager scans, delegates, reviews, merges, and can recover. |
+
+For new official experiments, use
+`scripts/run_asyncodebench_all_protocols_env.sh <task>` rather than the
+historical `run_commit0_*` scripts. The native wrapper enforces
+`asyncodebench:<task>` IDs and loads the correct agent count from the scenario
+manifest.
 
 ## Reproducibility Checklist
 

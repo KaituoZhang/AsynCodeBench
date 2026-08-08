@@ -484,3 +484,12 @@ The transformation pipeline and skill are part of the intended open-source
 release. They make the dataset construction process reproducible and auditable,
 and they let future contributors extend AsynCodeBench from additional public
 coding datasets without rewriting the methodology.
+
+## License and Provenance
+
+AsynCodeBench's original code, manifests, documentation, schemas, and
+non-solution bootstrap overlays are released under the Apache License 2.0; see
+[`LICENSE`](LICENSE). The raw Commit0 dataset and upstream repository checkouts
+are external inputs and retain their own licenses. See
+[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) before redistributing task
+sources or derived artifacts.

@@ -1,12 +1,17 @@
 # Flask Evaluator Compatibility Fix
 
+> **Historical v1 compatibility note.** New official Flask runs use
+> `asyncodebench:flask` through `run_asyncodebench.py` or
+> `scripts/run_asyncodebench_all_protocols_env.sh`. The legacy commands below
+> document the original evaluator investigation only.
+
 This note records the Flask-specific evaluator issue we hit while running
 AsynCodeBench with `gpt-5.4-mini`, so future runs do not waste API budget on
 invalid Flask outputs.
 
 ## Scope
 
-Task: `commit0:flask`
+Task: `asyncodebench:flask`
 
 Curated source:
 
@@ -148,4 +153,3 @@ This is not a pytest fixture failure anymore. It shows that the multi-agent
 runs did not integrate the Flask producer-consumer dependency contracts, while
 the single-agent run resolved all three dependency points despite one remaining
 edge-case test failure.
-

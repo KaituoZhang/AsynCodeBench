@@ -1,9 +1,13 @@
-# AsynCodeBench Agent Experiment Runbook
+# Historical AsynCodeBench v1 Agent Experiment Runbook
 
-This document is the operational guide for running AsynCodeBench agent
-experiments. It explains how the runner uses AsynCodeBench curated tasks rather
-than raw Commit0 records, how to run the four protocol conditions, and what to
-check before using a run in paper tables.
+> **Historical reference only.** New official experiments must start from
+> `docs/EVALUATION_BRANCH_QUICKSTART.md` and use
+> `scripts/run_asyncodebench_all_protocols_env.sh` or
+> `run_asyncodebench.py`. The commands in this file reproduce the pre-native
+> Commit0-compatible harness and must not be mixed into v0.3 official results.
+
+This document preserves the pre-native operational workflow for interpreting
+historical pilot results and debugging old output folders.
 
 Use this with:
 

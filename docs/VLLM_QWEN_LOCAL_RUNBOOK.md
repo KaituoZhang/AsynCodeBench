@@ -299,11 +299,14 @@ TASK=cachetools
 MODEL_TAG=qwen36-27
 RUN_VERSION=curated_thinking_v08
 
-ASYNCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
-ASYNCODEBENCH_WORKSPACE_HOST_PORT=8000 \
-MAX_ITERATIONS=30 \
-OUTPUT_DIR="outputs/repro_commit0/${TASK}/${MODEL_TAG}_single_i30_${RUN_VERSION}" \
-scripts/run_commit0_single_env.sh "$TASK"
+MODEL_TAG="$MODEL_TAG" \
+RUN_VERSION="$RUN_VERSION" \
+SINGLE_ITERATIONS=30 \
+RUN_SERIAL=0 \
+RUN_ASYNC_PRIVATE=0 \
+RUN_CAID=0 \
+WORKSPACE_PORT_STRATEGY=auto \
+scripts/run_asyncodebench_all_protocols_env.sh "$TASK"
 ```
 
 A valid real run should show:
