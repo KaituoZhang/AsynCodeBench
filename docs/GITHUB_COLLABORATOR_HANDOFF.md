@@ -1,7 +1,7 @@
 # GitHub Collaborator Handoff
 
 This document explains how to prepare the repository for collaborators and how
-they should start running new-model AsyncCodeBench experiments after cloning.
+they should start running new-model AsynCodeBench experiments after cloning.
 
 ## What This Branch Should Contain
 
@@ -50,7 +50,7 @@ checksum-pinned non-solution bootstrap overlays needed by some curated tasks.
 
 ## Current Official Experiment Set
 
-The current official v0.3 model-comparison set has 17 tasks:
+The current official v0.3 model-comparison set has 16 tasks:
 
 ```text
 cachetools
@@ -60,7 +60,6 @@ tinydb
 wcwidth
 requests
 simpy
-dulwich
 parsel
 filesystem_spec
 marshmallow
@@ -75,6 +74,7 @@ cookiecutter
 Do not include these in official aggregate tables:
 
 ```text
+dulwich
 fastapi
 python-progressbar
 fabric
@@ -83,7 +83,7 @@ chardet
 
 ## Where The Dataset Lives
 
-AsyncCodeBench's versioned dataset metadata lives in the repository:
+AsynCodeBench's versioned dataset metadata lives in the repository:
 
 ```text
 configs/tasks/commit0_curated_tasks.v0.3.json
@@ -104,7 +104,7 @@ COMMIT0_DATASET_PATH=/absolute/path/to/commit0_combined
 For the current server, this has usually been:
 
 ```text
-/home/kzhang42/AsyncCodeBench/data/external/commit0_combined
+/absolute/path/to/AsynCodeBench/data/external/commit0_combined
 ```
 
 Collaborators should set their own local path in
@@ -146,8 +146,8 @@ reproductions/async-swe-agents/tasks/commit0.py
 
 ```bash
 git clone --branch agent/reproducible-model-evaluation --single-branch \
-  https://github.com/KaituoZhang/Asynccodebench.git
-cd Asynccodebench
+  https://github.com/KaituoZhang/AsynCodeBench.git
+cd AsynCodeBench
 ```
 
 Start with `docs/EVALUATION_BRANCH_QUICKSTART.md`. It is the concise operational
@@ -157,8 +157,8 @@ metrics, and failure classification.
 Install the top-level validation environment:
 
 ```bash
-conda create -n asynccodebench python=3.10 -y
-conda activate asynccodebench
+conda create -n asyncodebench python=3.10 -y
+conda activate asyncodebench
 python -m pip install -U pip
 python -m pip install -e ".[dev]"
 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest -q tests/contracts
@@ -183,14 +183,14 @@ LLM API credentials
 If `software-agent-sdk` is not already available:
 
 ```bash
-cd /path/to/Asynccodebench/reproductions
+cd /path/to/AsynCodeBench/reproductions
 git clone https://github.com/OpenHands/software-agent-sdk.git
 ```
 
 Then configure:
 
 ```bash
-cd /path/to/Asynccodebench/reproductions/async-swe-agents
+cd /path/to/AsynCodeBench/reproductions/async-swe-agents
 cp .env.example .env.<model_tag>
 ```
 
@@ -202,7 +202,7 @@ LLM_API_KEY=YOUR_PROVIDER_KEY
 LLM_MODEL=<provider/model-id>
 LLM_SUBAGENT_MODEL=
 COMMIT0_DATASET_PATH=/absolute/path/to/commit0_combined
-SDK_SOURCE_DIR=/absolute/path/to/Asynccodebench/reproductions/software-agent-sdk
+SDK_SOURCE_DIR=/absolute/path/to/AsynCodeBench/reproductions/software-agent-sdk
 ```
 
 Load the model environment:
@@ -210,9 +210,9 @@ Load the model environment:
 ```bash
 export ENV_FILE="$PWD/.env.<model_tag>"
 source scripts/env.sh
-unset ASYNCCODEBENCH_DISABLE_CURATED_TASK_SOURCE
-unset ASYNCCODEBENCH_DISABLE_CURATED_TASK_CONFIG
-unset ASYNCCODEBENCH_DISABLE_MANIFEST_EVALUATOR
+unset ASYNCODEBENCH_DISABLE_CURATED_TASK_SOURCE
+unset ASYNCODEBENCH_DISABLE_CURATED_TASK_CONFIG
+unset ASYNCODEBENCH_DISABLE_MANIFEST_EVALUATOR
 ```
 
 ## Main Runbook For New Models
@@ -231,8 +231,8 @@ docs/LOCAL_VLLM_EXPERIMENT_RUNBOOK.md
 
 That document contains:
 
-- the official 17-task list;
-- `MAX_SUBAGENTS` for each task;
+- the official 16-task list;
+- manifest-defined specialist counts for each task;
 - smoke-test commands;
 - commands for all four agent modes;
 - post-run metric commands;

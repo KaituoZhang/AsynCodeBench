@@ -1,12 +1,12 @@
 #!/usr/bin/env python
-"""Screen local Commit0 repositories for AsyncCodeBench v0.3 curation."""
+"""Screen local Commit0 repositories for AsynCodeBench v0.3 curation."""
 
 from __future__ import annotations
 
 import argparse
 from pathlib import Path
 
-from asynccodebench.qualification.commit0_async_screening import (
+from asyncodebench.qualification.commit0_async_screening import (
     screen_commit0_repositories,
     write_screening_inventory,
 )

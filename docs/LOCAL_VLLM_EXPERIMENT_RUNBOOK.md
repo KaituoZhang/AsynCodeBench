@@ -1,6 +1,6 @@
 # Local vLLM Experiment Runbook
 
-This is the main operational guide for running AsyncCodeBench against a local
+This is the main operational guide for running AsynCodeBench against a local
 OpenAI-compatible vLLM server. It is intended for collaborators, fresh agent
 sessions, and public reproduction. Use it together with:
 
@@ -23,7 +23,7 @@ Before a formal local-model run, verify all of the following:
 2. The model supports chat and structured tool calling with the selected chat
    template and tool parser.
 3. Thinking mode is configured explicitly and held constant across all tasks.
-4. `--max-num-seqs` is at least `2` for AsyncCodeBench multi-agent runs.
+4. `--max-num-seqs` is at least `2` for AsynCodeBench multi-agent runs.
 5. The Docker workspace can reach the vLLM endpoint, not just the host shell.
 6. The same vLLM command and runner environment are used for all four protocols.
 7. Runs are executed sequentially unless parallel task execution is an explicit
@@ -67,8 +67,8 @@ the full agent can reach vLLM.
 On the tested Linux server, the reliable configuration is:
 
 ```bash
-ASYNCCODEBENCH_WORKSPACE_DOCKER_NETWORK=host
-ASYNCCODEBENCH_WORKSPACE_HOST_PORT=8000
+ASYNCODEBENCH_WORKSPACE_DOCKER_NETWORK=host
+ASYNCODEBENCH_WORKSPACE_HOST_PORT=8000
 LLM_BASE_URL=http://127.0.0.1:8006/v1
 ```
 
@@ -181,7 +181,7 @@ within one reported model experiment because it changes the serving profile.
 Create an untracked env file under the runner directory:
 
 ```bash
-cd /home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents
+cd /absolute/path/to/AsynCodeBench/reproductions/async-swe-agents
 cp .env.example .env.local-model
 ```
 
@@ -202,16 +202,16 @@ LLM_TOP_K=20
 LLM_TIMEOUT=7200
 LLM_NUM_RETRIES=2
 
-ASYNCCODEBENCH_CONVERSATION_RUN_TIMEOUT=43200
-ASYNCCODEBENCH_REMOTE_TRIGGER_TIMEOUT=30
-ASYNCCODEBENCH_REMOTE_POLL_TIMEOUT=3600
-ASYNCCODEBENCH_REMOTE_POLL_INTERVAL=5
+ASYNCODEBENCH_CONVERSATION_RUN_TIMEOUT=43200
+ASYNCODEBENCH_REMOTE_TRIGGER_TIMEOUT=30
+ASYNCODEBENCH_REMOTE_POLL_TIMEOUT=3600
+ASYNCODEBENCH_REMOTE_POLL_INTERVAL=5
 
-ASYNCCODEBENCH_WORKSPACE_DOCKER_NETWORK=host
-ASYNCCODEBENCH_WORKSPACE_HOST_PORT=8000
+ASYNCODEBENCH_WORKSPACE_DOCKER_NETWORK=host
+ASYNCODEBENCH_WORKSPACE_HOST_PORT=8000
 
-COMMIT0_DATASET_PATH=/home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents/data/commit0/commit0_combined
-SDK_SOURCE_DIR=/home/kzhang42/AsyncCodeBench/reproductions/software-agent-sdk
+COMMIT0_DATASET_PATH=/absolute/path/to/AsynCodeBench/reproductions/async-swe-agents/data/commit0/commit0_combined
+SDK_SOURCE_DIR=/absolute/path/to/AsynCodeBench/reproductions/software-agent-sdk
 ```
 
 Important rules:
@@ -224,18 +224,18 @@ Important rules:
   `--max-model-len`. Choose `LLM_MAX_OUTPUT_TOKENS` separately so their sum
   still leaves enough room for the observed prompt history.
 - Do not commit `.env*` files containing credentials or private endpoints.
-- Do not set any `ASYNCCODEBENCH_DISABLE_CURATED_*` variable for formal runs.
+- Do not set any `ASYNCODEBENCH_DISABLE_CURATED_*` variable for formal runs.
 
 Load and verify the environment:
 
 ```bash
-cd /home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents
+cd /absolute/path/to/AsynCodeBench/reproductions/async-swe-agents
 export ENV_FILE="$PWD/.env.local-model"
 source scripts/env.sh
 
-unset ASYNCCODEBENCH_DISABLE_CURATED_TASK_SOURCE
-unset ASYNCCODEBENCH_DISABLE_CURATED_TASK_CONFIG
-unset ASYNCCODEBENCH_DISABLE_MANIFEST_EVALUATOR
+unset ASYNCODEBENCH_DISABLE_CURATED_TASK_SOURCE
+unset ASYNCODEBENCH_DISABLE_CURATED_TASK_CONFIG
+unset ASYNCODEBENCH_DISABLE_MANIFEST_EVALUATOR
 
 printf 'model=%s\nbase=%s\n' "$LLM_MODEL" "$LLM_BASE_URL"
 ```
@@ -319,13 +319,13 @@ The request must reach vLLM and return either a valid structured tool call or a
 clear final response. Reject the configuration if it produces parser exceptions,
 ends by length with only `reasoning_content`, or returns malformed arguments.
 
-## AsyncCodeBench Smoke Test
+## AsynCodeBench Smoke Test
 
 The three gates validate transport and parsing, but only a real runner smoke
 validates OpenHands. Start with `cachetools` and a fresh directory:
 
 ```bash
-cd /home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents
+cd /absolute/path/to/AsynCodeBench/reproductions/async-swe-agents
 export ENV_FILE="$PWD/.env.local-model"
 source scripts/env.sh
 
@@ -345,7 +345,7 @@ A valid smoke run has all of these properties:
 - no provider, connection, tool-parser, or context-window error occurs;
 - the output directory contains `report.json`, `cost.json`, `runtime.txt`, and
   `dependency_probe_checkpoints.jsonl`;
-- `report.json` identifies the AsyncCodeBench manifest evaluator;
+- `report.json` identifies the AsynCodeBench manifest evaluator;
 - the run tests the curated task source rather than raw Commit0 fallback.
 
 The model does not need to solve the smoke task. The smoke gate checks the
@@ -357,40 +357,27 @@ After the smoke passes, use the same server process and environment for all four
 protocols. Run these commands sequentially:
 
 ```bash
-cd /home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents
+cd /absolute/path/to/AsynCodeBench/reproductions/async-swe-agents
 export ENV_FILE="$PWD/.env.local-model"
 source scripts/env.sh
 
-unset ASYNCCODEBENCH_DISABLE_CURATED_TASK_SOURCE
-unset ASYNCCODEBENCH_DISABLE_CURATED_TASK_CONFIG
-unset ASYNCCODEBENCH_DISABLE_MANIFEST_EVALUATOR
+unset ASYNCODEBENCH_DISABLE_CURATED_TASK_SOURCE
+unset ASYNCODEBENCH_DISABLE_CURATED_TASK_CONFIG
+unset ASYNCODEBENCH_DISABLE_MANIFEST_EVALUATOR
 
 TASK=cachetools
 MODEL_TAG=local-model
 RUN_VERSION=thinking_131k_o32768_seq2_v01
-MAX_SUBAGENTS=2
-BASE_OUT="outputs/repro_commit0/${TASK}"
 
-MAX_ITERATIONS=30 \
-OUTPUT_DIR="${BASE_OUT}/${MODEL_TAG}_single_i30_${RUN_VERSION}" \
-scripts/run_commit0_single_env.sh "$TASK"
-
-MAX_SUBAGENTS="$MAX_SUBAGENTS" \
-SUB_ITERATIONS=30 \
-OUTPUT_DIR="${BASE_OUT}/${MODEL_TAG}_serial_${MAX_SUBAGENTS}agents_s30_${RUN_VERSION}" \
-scripts/run_commit0_serial_env.sh "$TASK"
-
-MAX_SUBAGENTS="$MAX_SUBAGENTS" \
-SUB_ITERATIONS=30 \
-OUTPUT_DIR="${BASE_OUT}/${MODEL_TAG}_async_private_${MAX_SUBAGENTS}agents_s30_${RUN_VERSION}" \
-scripts/run_commit0_async_private_env.sh "$TASK"
-
-MAX_ITERATIONS=30 \
-MAX_SUBAGENTS="$MAX_SUBAGENTS" \
-SUB_ITERATIONS=30 \
+MODEL_TAG="$MODEL_TAG" \
+RUN_VERSION="$RUN_VERSION" \
+SINGLE_ITERATIONS=30 \
+SPECIALIST_ITERATIONS=30 \
+CAID_MANAGER_ITERATIONS=30 \
+CAID_SUB_ITERATIONS=30 \
 ROUNDS_OF_CHAT=2 \
-OUTPUT_DIR="${BASE_OUT}/${MODEL_TAG}_caid_multi_${MAX_SUBAGENTS}agents_m30_s30_${RUN_VERSION}" \
-scripts/run_commit0_multi_env.sh "$TASK"
+WORKSPACE_PORT_STRATEGY=auto \
+scripts/run_asyncodebench_all_protocols_env.sh "$TASK"
 ```
 
 Use `docs/MODEL_EXPERIMENT_RUNBOOK.md` for per-task specialist counts and the
@@ -435,7 +422,7 @@ reproductions/async-swe-agents/configs/model_profiles/gemma4-26b-a4b.env.example
 Create one ignored env file per endpoint:
 
 ```bash
-cd /home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents
+cd /absolute/path/to/AsynCodeBench/reproductions/async-swe-agents
 cp configs/model_profiles/gemma4-26b-a4b.env.example .env.gemma4-26b-a4b.8006
 ```
 
@@ -454,10 +441,10 @@ template. It rejects vLLM older than 0.24.0 before loading the model.
 After the server and the three connectivity gates pass, run one task with:
 
 ```bash
-cd /home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents
+cd /absolute/path/to/AsynCodeBench/reproductions/async-swe-agents
 
 ENV_FILE="$PWD/.env.gemma4-26b-a4b.8006" \
-ASYNCCODEBENCH_WORKSPACE_HOST_PORT=18000 \
+ASYNCODEBENCH_WORKSPACE_HOST_PORT=18000 \
 RUN_VERSION=officialtmpl_131072_o32768_v02 \
 scripts/run_gemma4_task_env.sh cachetools
 ```
@@ -469,10 +456,10 @@ terminal needs a different vLLM port, env file, GPU, and a non-overlapping block
 of four OpenHands workspace ports, for example `18000`, `18010`, `18020`, and
 `18030`.
 
-Before restarting all 17 tasks, run `cachetools` as the formal v2 smoke and
+Before restarting all 16 tasks, run `cachetools` as the formal v2 smoke and
 inspect every protocol. A valid corrected run must have nonzero iterations, no
 context-window exception, no raw `<|tool_call>` assistant output, no early
-pytest race, and the normal AsyncCodeBench evaluator/probe artifacts. Preserve
+pytest race, and the normal AsynCodeBench evaluator/probe artifacts. Preserve
 the old v1 directories; use the new model tag/version rather than overwriting
 them.
 
@@ -497,15 +484,14 @@ To avoid terminal corruption from pasting a long nested `bash -lc` block, the
 same sequence is available through a repository script:
 
 ```bash
-cd /home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents
+cd /absolute/path/to/AsynCodeBench/reproductions/async-swe-agents
 
 ENV_FILE="$PWD/.env.local-model" \
-ASYNCCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
-ASYNCCODEBENCH_WORKSPACE_HOST_PORT=8000 \
+ASYNCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
+ASYNCODEBENCH_WORKSPACE_HOST_PORT=8000 \
 MODEL_TAG=local-model \
-MAX_SUBAGENTS=2 \
 RUN_VERSION=thinking_131k_o32768_seq2_v01 \
-scripts/run_commit0_all_protocols_env.sh cachetools
+scripts/run_asyncodebench_all_protocols_env.sh cachetools
 ```
 
 The script rejects every pre-existing output directory before making any model
@@ -526,7 +512,7 @@ block instead of guessing a base port:
 WORKSPACE_PORT_STRATEGY=auto \
 WORKSPACE_PORT_SCAN_START=20000 \
 WORKSPACE_PORT_SCAN_END=60000 \
-scripts/run_commit0_all_protocols_env.sh cachetools
+scripts/run_asyncodebench_all_protocols_env.sh cachetools
 ```
 
 Automatic selection changes only OpenHands workspace ports. It does not change
@@ -538,7 +524,7 @@ completed modes and use a fresh version for the remaining outputs:
 ```bash
 RUN_SINGLE=0 \
 RUN_VERSION=thinking_131k_o32768_seq2_v02 \
-scripts/run_commit0_all_protocols_env.sh cachetools
+scripts/run_asyncodebench_all_protocols_env.sh cachetools
 ```
 
 Available mode flags are `RUN_SINGLE`, `RUN_SERIAL`, `RUN_ASYNC_PRIVATE`, and
@@ -627,10 +613,10 @@ Long local generations may exceed the legacy OpenHands request timeout even
 while vLLM is working. Use:
 
 ```bash
-ASYNCCODEBENCH_CONVERSATION_RUN_TIMEOUT=43200
-ASYNCCODEBENCH_REMOTE_TRIGGER_TIMEOUT=30
-ASYNCCODEBENCH_REMOTE_POLL_TIMEOUT=3600
-ASYNCCODEBENCH_REMOTE_POLL_INTERVAL=5
+ASYNCODEBENCH_CONVERSATION_RUN_TIMEOUT=43200
+ASYNCODEBENCH_REMOTE_TRIGGER_TIMEOUT=30
+ASYNCODEBENCH_REMOTE_POLL_TIMEOUT=3600
+ASYNCODEBENCH_REMOTE_POLL_INTERVAL=5
 ```
 
 If vLLM logs are advancing, do not submit the same run again. The trigger shim
@@ -648,7 +634,7 @@ docker ps --format 'table {{.ID}}\t{{.Names}}\t{{.Ports}}'
 ```
 
 Finish or stop only the workspace you own, or choose another free
-`ASYNCCODEBENCH_WORKSPACE_HOST_PORT`. Do not run two formal protocols against the
+`ASYNCODEBENCH_WORKSPACE_HOST_PORT`. Do not run two formal protocols against the
 same host port.
 
 ### vLLM Engine Initialization Fails Or OOMs
@@ -694,7 +680,7 @@ Include a local run in the official result set only when:
 - agent iterations are greater than zero;
 - no provider/network/parser/context instrumentation failure occurred;
 - the same vLLM profile was used across all four protocols;
-- the run used the curated AsyncCodeBench task source and manifest evaluator;
+- the run used the curated AsynCodeBench task source and manifest evaluator;
 - `dependency_probe_checkpoints.jsonl` and `process_metrics_summary.json` exist;
 - final tests were collected consistently with the task manifest;
 - the model patch, not a harness failure, explains any test failure;

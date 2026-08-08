@@ -2,7 +2,7 @@
 
 Date: 2026-06-24
 
-Scope: sequential candidate review after the existing v0.3 curated/reviewed set. This review inspects whether each repository can become an AsyncCodeBench task under the v0.3 benchmark direction: strong single-agent coding task, natural multi-agent decomposition, and measurable async coordination risk.
+Scope: sequential candidate review after the existing v0.3 curated/reviewed set. This review inspects whether each repository can become an AsynCodeBench task under the v0.3 benchmark direction: strong single-agent coding task, natural multi-agent decomposition, and measurable async coordination risk.
 
 Reviewed repositories:
 
@@ -22,7 +22,7 @@ Important branch/ref note:
 | --- | --- | --- | --- |
 | `simpy` | Promote to formal construction queue | High | Clean no-runtime-dependency package, strong event/resource interface dependencies, stable tests when evaluator is scoped to `tests/` and excludes metadata/docs controls. |
 | `bitstring` | Keep in candidate backlog | Medium | Strong abstraction chain, but the full stripped task is very large and dependency-heavy; needs a curated subset before becoming a release task. |
-| `minitorch` | Defer for v0.3 | Low/medium | Has many natural dependencies, but it is course-assignment shaped, broad, dependency-heavy, and includes test TODOs; likely noisy for the first AsyncCodeBench release. |
+| `minitorch` | Defer for v0.3 | Low/medium | Has many natural dependencies, but it is course-assignment shaped, broad, dependency-heavy, and includes test TODOs; likely noisy for the first AsynCodeBench release. |
 
 ## `commit0:simpy`
 
@@ -42,7 +42,7 @@ Important branch/ref note:
 
 ### Quality assessment
 
-`simpy` is a strong AsyncCodeBench candidate.
+`simpy` is a strong AsynCodeBench candidate.
 
 The repo has a natural interface dependency:
 
@@ -163,7 +163,7 @@ Admission status:
 
 ### Quality assessment
 
-`minitorch` is structurally rich but not a good first-release AsyncCodeBench task.
+`minitorch` is structurally rich but not a good first-release AsynCodeBench task.
 
 It has many natural dependency layers:
 
@@ -191,7 +191,7 @@ But this should not enter the main v0.3 release queue.
 Admission status:
 
 - Defer for v0.3.
-- Do not count toward the target 20 main AsyncCodeBench tasks unless a very small curated subset is explicitly designed and reviewed.
+- Do not count toward the target 20 main AsynCodeBench tasks unless a very small curated subset is explicitly designed and reviewed.
 
 ## Updated candidate queue implication
 

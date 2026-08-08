@@ -6,7 +6,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from asynccodebench.metrics.dependency_resolution import (
+from asyncodebench.metrics.dependency_resolution import (
     analyze_dependency_resolution,
     final_evaluator_checkpoint,
     load_json,
@@ -20,7 +20,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
             "Compute observed dependency-resolution iterations from an "
-            "AsyncCodeBench metrics manifest and async-swe-agents event log."
+            "AsynCodeBench metrics manifest and async-swe-agents event log."
         )
     )
     parser.add_argument(

@@ -297,7 +297,7 @@
     "minimum_success_condition_for_task_level_async_dependency_resolution": "Both primary_async_dependency_ids pass in the final integrated workspace."
   },
   "annotation_notes": [
-    "The two keys_to_func dependency points are the main AsyncCodeBench signal for this task because the key_agent and decorator_agent can work concurrently but the decorator behavior depends on the final key contract.",
+    "The two keys_to_func dependency points are the main AsynCodeBench signal for this task because the key_agent and decorator_agent can work concurrently but the decorator behavior depends on the final key contract.",
     "The typed_key_contract is the clearest stale-assumption probe: a downstream implementation can continue to treat typed=True as metadata or use hashkey even after typedkey exists.",
     "The wrapper metadata and maxsize/lock points are retained as secondary shared-contract probes because they capture integration failures that are not pure key semantics.",
     "These labels are answer-free: they identify public test-observable contracts and implicated files, not solution code."

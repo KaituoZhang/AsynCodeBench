@@ -29,7 +29,7 @@
       "evidence_scope": "public_initial_state",
       "failed": 374,
       "notes": [
-        "Verified in the AsyncCodeBench conda environment with PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 and PYTHONPATH=.",
+        "Verified in the AsynCodeBench conda environment with PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 and PYTHONPATH=.",
         "Pytest reports 6 xfailed parametrized corpus cases; TaskQualityRecord accounts for xfailed cases as skipped.",
         "Failures are functional detector/prober failures, primarily missing detector state and incomplete encoding-specific corpus behavior."
       ],

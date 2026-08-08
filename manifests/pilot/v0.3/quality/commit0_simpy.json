@@ -32,7 +32,7 @@
       "evidence_scope": "public_initial_state",
       "failed": 57,
       "notes": [
-        "Verified in the AsyncCodeBench conda environment with PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 and PYTHONPATH=src.",
+        "Verified in the AsynCodeBench conda environment with PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 and PYTHONPATH=src.",
         "The run also reports 11 deselected tests: benchmark tests plus the package-version metadata test.",
         "Failures are caused by unfinished environment, event, resource, realtime, and utility behavior."
       ],

@@ -1,6 +1,6 @@
-# AsyncCodeBench Execution Protocols
+# AsynCodeBench Execution Protocols
 
-This directory contains the additional static execution protocols used for AsyncCodeBench.
+This directory contains the additional static execution protocols used for AsynCodeBench.
 
 Existing CAID entrypoints are kept unchanged:
 
@@ -12,7 +12,7 @@ New manifest-driven static protocols:
 - Synchronous specialist handoff: `scripts/run_commit0_serial_env.sh`
 - Asynchronous private workspace: `scripts/run_commit0_async_private_env.sh`
 
-Both new protocols read the AsyncCodeBench scenario manifest:
+Both new protocols read the AsynCodeBench scenario manifest:
 
 ```text
 ../../../manifests/pilot/v0.3/scenarios/commit0_<repo>.json

@@ -1,7 +1,7 @@
 # Commit0 Candidate Review: voluptuous / seaborn / fastapi
 
 Date: 2026-06-24  
-Protocol: AsyncCodeBench v0.3, following `docs/protocols/COMMIT0_DATA_EXAMPLE_GUIDE_v0.3.md`
+Protocol: AsynCodeBench v0.3, following `docs/protocols/COMMIT0_DATA_EXAMPLE_GUIDE_v0.3.md`
 
 This audit reviews the next three locally available Commit0 repositories in config order:
 
@@ -9,11 +9,11 @@ This audit reviews the next three locally available Commit0 repositories in conf
 - `commit0:seaborn`
 - `commit0:fastapi`
 
-The goal is not to solve the repositories. The goal is to decide whether each repository contains a natural coding task that can support AsyncCodeBench: strong single-agent coding feasibility, but meaningful degradation under asynchronous multi-agent execution because agents act on stale teammate work, stale interfaces, or stale shared abstractions.
+The goal is not to solve the repositories. The goal is to decide whether each repository contains a natural coding task that can support AsynCodeBench: strong single-agent coding feasibility, but meaningful degradation under asynchronous multi-agent execution because agents act on stale teammate work, stale interfaces, or stale shared abstractions.
 
 ## Decision summary
 
-| Repository | Decision | AsyncCodeBench fit | Main reason |
+| Repository | Decision | AsynCodeBench fit | Main reason |
 |---|---:|---:|---|
 | `fastapi` | Promote to candidate construction queue | `partially_parallelizable` | Strong natural dependency chain across parameter declarations, routing/dependency handling, JSON encoding, and OpenAPI generation. Good stale-interface and shared-abstraction risk. |
 | `seaborn` | Keep as secondary backlog | `partially_parallelizable` after narrow curation | The objects API has a real pipeline across data, plot spec, scales, stats, marks, and rendering, but the task is broad and visualization-heavy. It should not be prioritized before simpler coding-agent tasks. |
@@ -68,7 +68,7 @@ The stripped tree contains many implementation gaps in core FastAPI modules, inc
 
 The test suite is broad. Collection in the current local environment is blocked by missing dependencies such as `dirty_equals` and `starlette`, which is an environment-freezing issue rather than evidence that the task is unsuitable.
 
-### Why it fits AsyncCodeBench
+### Why it fits AsynCodeBench
 
 FastAPI is a strong candidate because its implementation naturally has multiple interacting layers:
 
@@ -77,7 +77,7 @@ FastAPI is a strong candidate because its implementation naturally has multiple 
 3. Dependency/security handling adds another interface layer over request-time behavior.
 4. JSON encoding and OpenAPI generation consume the same metadata from a different direction.
 
-This creates the kind of stale-work risk AsyncCodeBench is meant to test:
+This creates the kind of stale-work risk AsynCodeBench is meant to test:
 
 - One agent may implement `Query`, `Path`, `Body`, `Depends`, or `Security` with one metadata format.
 - Another agent may implement routing based on a different assumed metadata format.
@@ -162,7 +162,7 @@ This creates shared-abstraction risk. For example:
 - Another agent may implement scales or properties assuming a different variable schema.
 - Another agent may implement marks or stats assuming different normalized data columns.
 
-That is a legitimate AsyncCodeBench pattern.
+That is a legitimate AsynCodeBench pattern.
 
 ### Why it should not be prioritized
 
@@ -209,11 +209,11 @@ error model
 -> humanized errors / utilities
 ```
 
-### Why it is weak for AsyncCodeBench
+### Why it is weak for AsynCodeBench
 
 The task is mostly centered on the schema compiler. The validators and humanized error reporting depend heavily on the same core semantics.
 
-This makes it a poor main AsyncCodeBench candidate:
+This makes it a poor main AsynCodeBench candidate:
 
 - The most important decisions are concentrated in one file/module.
 - A strong implementation likely needs one coherent schema model before other parts can be completed.

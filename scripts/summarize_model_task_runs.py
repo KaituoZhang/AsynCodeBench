@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Create a standard AsyncCodeBench model-task evaluation record.
+"""Create a standard AsynCodeBench model-task evaluation record.
 
 The script consumes existing run directories after
 scripts/analyze_async_dependency_resolution.py and
@@ -48,7 +48,7 @@ HYGIENE_MARKERS = (".backup", ".bak", "prototype", "tmp", "temp")
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Summarize one model/task across AsyncCodeBench protocols."
+        description="Summarize one model/task across AsynCodeBench protocols."
     )
     parser.add_argument("--task", required=True, help="Task/repo name, e.g. cachetools.")
     parser.add_argument("--model-tag", required=True, help="Filesystem-safe model tag.")
@@ -410,7 +410,7 @@ def final_test_collection_status(run_dir: Path) -> tuple[bool, int]:
 
 def final_test_timeout_status(run_dir: Path) -> bool:
     report = load_json(run_dir / "report.json", {})
-    metadata = report.get("asynccodebench", {}) if isinstance(report, dict) else {}
+    metadata = report.get("asyncodebench", {}) if isinstance(report, dict) else {}
     if metadata.get("timed_out") is True:
         return True
     output = "\n".join(
@@ -721,7 +721,7 @@ def write_markdown(args: argparse.Namespace, rows: list[dict[str, Any]], path: P
         "",
         f"Runner adapter: `{args.runner_adapter}`",
         "",
-        "This report is an automatically generated AsyncCodeBench evaluation record.",
+        "This report is an automatically generated AsynCodeBench evaluation record.",
         (
             "At least one protocol reaches final success."
             if any_success

@@ -1,6 +1,6 @@
 # Model Experiment Runbook
 
-This document is the main operational guide for running AsyncCodeBench on a
+This document is the main operational guide for running AsynCodeBench on a
 new base model. It is written for a fresh session or collaborator who needs to
 repeat the `gpt-5.4-mini` workflow with another model family.
 
@@ -15,11 +15,11 @@ Use this together with:
 
 ## Benchmark Goal
 
-AsyncCodeBench evaluates whether asynchronous coding agents can resolve
+AsynCodeBench evaluates whether asynchronous coding agents can resolve
 cross-agent software dependencies, not just whether the final repository passes
 tests.
 
-Traditional coding benchmarks mainly report final pass/fail. AsyncCodeBench
+Traditional coding benchmarks mainly report final pass/fail. AsynCodeBench
 adds dependency-aware process metrics:
 
 - `ADPR`: fraction of labeled dependency contracts resolved in the final
@@ -30,7 +30,7 @@ adds dependency-aware process metrics:
 - `IFR`: integration failure rate. Lower is better.
 - `Cost`, `Tokens`, and `Runtime`: lower is better, conditional on quality.
 
-The dependency labels are produced during the AsyncCodeBench transformation
+The dependency labels are produced during the AsynCodeBench transformation
 pipeline. They are not post-hoc observations. Each ADPR/DRS/CAIL value is tied
 to a labeled producer-consumer contract in:
 
@@ -75,7 +75,7 @@ Reference output format from the completed `gpt-5.4-mini` run:
 reproductions/async-swe-agents/outputs/gpt-5.4-mini/
 ```
 
-## Official 17-task Set
+## Official 16-task Set
 
 Use exactly these official v0.3 tasks for the current aggregate tables:
 
@@ -87,7 +87,6 @@ tinydb
 wcwidth
 requests
 simpy
-dulwich
 parsel
 filesystem_spec
 marshmallow
@@ -99,13 +98,14 @@ python-rsa
 cookiecutter
 ```
 
-Do not include these in official 17-task aggregates:
+Do not include these in official 16-task aggregates:
 
 ```text
 fastapi
 python-progressbar
 fabric
 chardet
+dulwich
 ```
 
 Specialist counts:
@@ -124,7 +124,6 @@ Specialist counts:
 | graphene | 3 |
 | imapclient | 3 |
 | simpy | 4 |
-| dulwich | 4 |
 | pexpect | 4 |
 | flask | 4 |
 | python-rsa | 4 |
@@ -135,7 +134,7 @@ Specialist counts:
 Start from the runner directory:
 
 ```bash
-export REPO_ROOT="${REPO_ROOT:-/home/kzhang42/AsyncCodeBench}"
+export REPO_ROOT="${REPO_ROOT:-/absolute/path/to/AsynCodeBench}"
 cd "$REPO_ROOT/reproductions/async-swe-agents"
 ```
 
@@ -159,8 +158,8 @@ LLM_TOP_P=
 LLM_TOP_K=
 LLM_TIMEOUT=
 LLM_NUM_RETRIES=
-COMMIT0_DATASET_PATH=/home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents/data/commit0/commit0_combined
-SDK_SOURCE_DIR=/home/kzhang42/AsyncCodeBench/reproductions/software-agent-sdk
+COMMIT0_DATASET_PATH=/absolute/path/to/AsynCodeBench/reproductions/async-swe-agents/data/commit0/commit0_combined
+SDK_SOURCE_DIR=/absolute/path/to/AsynCodeBench/reproductions/software-agent-sdk
 ```
 
 Use whichever `COMMIT0_DATASET_PATH` exists on the machine. Some machines keep
@@ -171,7 +170,7 @@ local runner layout usually uses
 `LLM_EXTRA_BODY_JSON` is optional. It is for provider-specific OpenAI-compatible
 server options that must be passed through LiteLLM as `extra_body`.
 
-For Qwen3-family models served by vLLM, official AsyncCodeBench runs should keep
+For Qwen3-family models served by vLLM, official AsynCodeBench runs should keep
 thinking enabled. Qwen's vLLM guide exposes this through `chat_template_kwargs`:
 
 ```bash
@@ -214,26 +213,85 @@ Load the environment:
 export ENV_FILE="$PWD/.env.qwen37plus"
 source scripts/env.sh
 
-unset ASYNCCODEBENCH_DISABLE_CURATED_TASK_SOURCE
-unset ASYNCCODEBENCH_DISABLE_CURATED_TASK_CONFIG
-unset ASYNCCODEBENCH_DISABLE_MANIFEST_EVALUATOR
+unset ASYNCODEBENCH_DISABLE_CURATED_TASK_SOURCE
+unset ASYNCODEBENCH_DISABLE_CURATED_TASK_CONFIG
+unset ASYNCODEBENCH_DISABLE_MANIFEST_EVALUATOR
 ```
 
 For official runs, never set:
 
 ```bash
-ASYNCCODEBENCH_DISABLE_CURATED_TASK_SOURCE=1
+ASYNCODEBENCH_DISABLE_CURATED_TASK_SOURCE=1
 ```
 
-The runner command still says `commit0` because it reuses the inherited Commit0
-adapter. Official AsyncCodeBench runs must show curated-source logs.
+The public runner command uses `asyncodebench:<task>`. Commit0 remains visible
+only in source-provenance fields and historical filenames. OpenHands is the
+underlying coding-agent and Docker runtime; AsynCodeBench owns task selection,
+protocol semantics, scope enforcement, probes, evaluation, and result records.
 
-## Smoke Test Before Full Runs
+## Native Smoke And Full Runs
+
+For every new model, start with a no-cost four-protocol dry-run on `cachetools`:
+
+```bash
+ENV_FILE="$PWD/.env.<model_tag>" \
+MODEL_TAG=<model_tag> \
+RUN_VERSION=dryrun_v01 \
+DRY_RUN=1 \
+scripts/run_asyncodebench_all_protocols_env.sh cachetools
+```
+
+Then run a low-budget real smoke. This checks model calls, OpenHands workspaces,
+private worktrees, evaluation, dependency checkpoints, snapshots, and automatic
+metric generation. It does not require the model to solve the task.
+
+```bash
+ENV_FILE="$PWD/.env.<model_tag>" \
+MODEL_TAG=<model_tag> \
+RUN_VERSION=smoke_v01 \
+SINGLE_ITERATIONS=2 \
+SPECIALIST_ITERATIONS=2 \
+CAID_MANAGER_ITERATIONS=2 \
+CAID_SUB_ITERATIONS=2 \
+WORKSPACE_PORT_STRATEGY=auto \
+scripts/run_asyncodebench_all_protocols_env.sh cachetools
+```
+
+For a formal task run, only the model tag, immutable run version, and task name
+are required. Agent counts come from the release scenario manifest.
+
+```bash
+ENV_FILE="$PWD/.env.<model_tag>" \
+MODEL_TAG=<model_tag> \
+RUN_VERSION=official_v01 \
+SINGLE_ITERATIONS=30 \
+SPECIALIST_ITERATIONS=30 \
+CAID_MANAGER_ITERATIONS=30 \
+CAID_SUB_ITERATIONS=30 \
+ROUNDS_OF_CHAT=2 \
+WORKSPACE_PORT_STRATEGY=auto \
+scripts/run_asyncodebench_all_protocols_env.sh cachetools
+```
+
+The native output layout is:
+
+```text
+outputs/asyncodebench/v0.3/<model_tag>/<task>/<protocol>/<run_version>/
+```
+
+Every completed native run generates `process_metrics_summary.json`
+automatically. Use a new `RUN_VERSION` after any interruption; run directories
+are immutable evidence.
+
+## Legacy v1 Smoke Reference
+
+The commands below reproduce historical `outputs/repro_commit0/` runs. Do not
+use them for a new AsynCodeBench campaign.
 
 For every new model, start with `cachetools`.
 
 ```bash
-cd /home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents
+cd /absolute/path/to/AsynCodeBench/reproductions/async-swe-agents
 source scripts/env.sh
 
 TASK=cachetools
@@ -291,14 +349,14 @@ Check curated source usage:
 
 ```bash
 RUN_DIR="outputs/repro_commit0/${TASK}/${MODEL_TAG}_single_i5_curated_${RUN_VERSION}"
-rg -n "Loaded curated|Verified curated|Applying .*AsyncCodeBench|Using AsyncCodeBench|asynccodebench_manifest" "$RUN_DIR"/run_*.log "$RUN_DIR"/report.json
+rg -n "Loaded curated|Verified curated|Applying .*AsynCodeBench|Using AsynCodeBench|asyncodebench_manifest" "$RUN_DIR"/run_*.log "$RUN_DIR"/report.json
 ```
 
 Stop and debug before full runs if curated-source lines are missing.
 
-## Full Experiment Commands
+## Legacy v1 Full-command Reference
 
-Use these defaults for new models:
+These were the defaults for the historical v1 runs:
 
 ```bash
 SINGLE_ITERATIONS=30
@@ -311,7 +369,7 @@ ROUNDS_OF_CHAT=2
 Set task/model variables:
 
 ```bash
-cd /home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents
+cd /absolute/path/to/AsynCodeBench/reproductions/async-swe-agents
 source scripts/env.sh
 
 TASK=cachetools
@@ -358,7 +416,7 @@ OUTPUT_DIR="outputs/repro_commit0/${TASK}/${MODEL_TAG}_caid_multi_${MAX_SUBAGENT
 scripts/run_commit0_multi_env.sh "$TASK"
 ```
 
-### One-command Sequential Runner
+### Legacy One-command Sequential Runner
 
 To run all four protocols sequentially without pasting a nested shell block:
 
@@ -387,14 +445,14 @@ async runs. Keep protocols sequential at the task-run level so they do not
 compete for the same GPU scheduler and OpenHands host port.
 
 ```bash
-cd /home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents
+cd /absolute/path/to/AsynCodeBench/reproductions/async-swe-agents
 
 export ENV_FILE="$PWD/.env.qwen36-27"
 source scripts/env.sh
 
-unset ASYNCCODEBENCH_DISABLE_CURATED_TASK_SOURCE
-unset ASYNCCODEBENCH_DISABLE_CURATED_TASK_CONFIG
-unset ASYNCCODEBENCH_DISABLE_MANIFEST_EVALUATOR
+unset ASYNCODEBENCH_DISABLE_CURATED_TASK_SOURCE
+unset ASYNCODEBENCH_DISABLE_CURATED_TASK_CONFIG
+unset ASYNCODEBENCH_DISABLE_MANIFEST_EVALUATOR
 
 export LLM_BASE_URL=http://127.0.0.1:8006/v1
 export LLM_MODEL=openai/Qwen/Qwen3.6-27B
@@ -417,16 +475,16 @@ BASE_OUT=outputs/repro_commit0/${TASK}
 Run the four protocols strictly in order:
 
 ```bash
-ASYNCCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
-ASYNCCODEBENCH_WORKSPACE_HOST_PORT=8020 \
+ASYNCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
+ASYNCODEBENCH_WORKSPACE_HOST_PORT=8020 \
 MAX_ITERATIONS=30 \
 OUTPUT_DIR="${BASE_OUT}/${MODEL_TAG}_single_i30_${RUN_VERSION}" \
 scripts/run_commit0_single_env.sh "$TASK"
 ```
 
 ```bash
-ASYNCCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
-ASYNCCODEBENCH_WORKSPACE_HOST_PORT=8021 \
+ASYNCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
+ASYNCODEBENCH_WORKSPACE_HOST_PORT=8021 \
 MAX_SUBAGENTS=$MAX_SUBAGENTS \
 SUB_ITERATIONS=30 \
 OUTPUT_DIR="${BASE_OUT}/${MODEL_TAG}_serial_4agents_s30_${RUN_VERSION}" \
@@ -434,8 +492,8 @@ scripts/run_commit0_serial_env.sh "$TASK"
 ```
 
 ```bash
-ASYNCCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
-ASYNCCODEBENCH_WORKSPACE_HOST_PORT=8022 \
+ASYNCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
+ASYNCODEBENCH_WORKSPACE_HOST_PORT=8022 \
 MAX_SUBAGENTS=$MAX_SUBAGENTS \
 SUB_ITERATIONS=30 \
 OUTPUT_DIR="${BASE_OUT}/${MODEL_TAG}_async_private_4agents_s30_${RUN_VERSION}" \
@@ -443,8 +501,8 @@ scripts/run_commit0_async_private_env.sh "$TASK"
 ```
 
 ```bash
-ASYNCCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
-ASYNCCODEBENCH_WORKSPACE_HOST_PORT=8023 \
+ASYNCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
+ASYNCODEBENCH_WORKSPACE_HOST_PORT=8023 \
 MAX_ITERATIONS=30 \
 MAX_SUBAGENTS=$MAX_SUBAGENTS \
 SUB_ITERATIONS=30 \
@@ -457,12 +515,12 @@ If a run is interrupted or crashes, bump `RUN_VERSION` before restarting.
 `cookiecutter` tests can leave transient fixture directories, and reused output
 directories can contaminate checkpoint logs.
 
-### 17-task Loop Template
+## Native 16-task Campaign Loop
 
 Run in small batches first. The full loop can spend substantial API budget.
 
 ```bash
-cd /home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents
+cd /absolute/path/to/AsynCodeBench/reproductions/async-swe-agents
 source scripts/env.sh
 
 MODEL_TAG=qwen3.7-plus
@@ -476,38 +534,18 @@ ROUNDS_OF_CHAT=2
 for TASK in \
   cachetools deprecated portalocker tinydb wcwidth \
   requests parsel filesystem_spec marshmallow graphene imapclient \
-  simpy dulwich pexpect flask python-rsa cookiecutter
+  simpy pexpect flask python-rsa cookiecutter
 do
-  case "$TASK" in
-    cachetools|deprecated|portalocker|tinydb|wcwidth)
-      MAX_SUBAGENTS=2
-      ;;
-    requests|parsel|filesystem_spec|marshmallow|graphene|imapclient)
-      MAX_SUBAGENTS=3
-      ;;
-    simpy|dulwich|pexpect|flask|python-rsa|cookiecutter)
-      MAX_SUBAGENTS=4
-      ;;
-  esac
-
-  MAX_ITERATIONS="$SINGLE_ITERATIONS" \
-  OUTPUT_DIR="outputs/repro_commit0/${TASK}/${MODEL_TAG}_single_i${SINGLE_ITERATIONS}_${RUN_VERSION}" \
-  scripts/run_commit0_single_env.sh "$TASK"
-
-  MAX_SUBAGENTS="$MAX_SUBAGENTS" SUB_ITERATIONS="$SPECIALIST_ITERATIONS" \
-  OUTPUT_DIR="outputs/repro_commit0/${TASK}/${MODEL_TAG}_serial_${MAX_SUBAGENTS}agents_s${SPECIALIST_ITERATIONS}_${RUN_VERSION}" \
-  scripts/run_commit0_serial_env.sh "$TASK"
-
-  MAX_SUBAGENTS="$MAX_SUBAGENTS" SUB_ITERATIONS="$SPECIALIST_ITERATIONS" \
-  OUTPUT_DIR="outputs/repro_commit0/${TASK}/${MODEL_TAG}_async_private_${MAX_SUBAGENTS}agents_s${SPECIALIST_ITERATIONS}_${RUN_VERSION}" \
-  scripts/run_commit0_async_private_env.sh "$TASK"
-
-  MAX_ITERATIONS="$CAID_MANAGER_ITERATIONS" \
-  MAX_SUBAGENTS="$MAX_SUBAGENTS" \
-  SUB_ITERATIONS="$CAID_SUB_ITERATIONS" \
+  ENV_FILE="$ENV_FILE" \
+  MODEL_TAG="$MODEL_TAG" \
+  RUN_VERSION="$RUN_VERSION" \
+  SINGLE_ITERATIONS="$SINGLE_ITERATIONS" \
+  SPECIALIST_ITERATIONS="$SPECIALIST_ITERATIONS" \
+  CAID_MANAGER_ITERATIONS="$CAID_MANAGER_ITERATIONS" \
+  CAID_SUB_ITERATIONS="$CAID_SUB_ITERATIONS" \
   ROUNDS_OF_CHAT="$ROUNDS_OF_CHAT" \
-  OUTPUT_DIR="outputs/repro_commit0/${TASK}/${MODEL_TAG}_caid_multi_${MAX_SUBAGENTS}agents_m${CAID_MANAGER_ITERATIONS}_s${CAID_SUB_ITERATIONS}_${RUN_VERSION}" \
-  scripts/run_commit0_multi_env.sh "$TASK"
+  WORKSPACE_PORT_STRATEGY=auto \
+    scripts/run_asyncodebench_all_protocols_env.sh "$TASK"
 done
 ```
 
@@ -516,7 +554,7 @@ done
 Run evaluation from the repository root:
 
 ```bash
-cd /home/kzhang42/AsyncCodeBench
+cd /absolute/path/to/AsynCodeBench
 
 TASK=cachetools
 METRIC_TASK="${TASK//-/_}"
@@ -525,16 +563,17 @@ MODEL_ID=qwen/qwen3.7-plus
 RUN_VERSION=curated_v01
 MAX_SUBAGENTS=2
 
-BASE_DIR="reproductions/async-swe-agents/outputs/repro_commit0/${TASK}"
+BASE_DIR="reproductions/async-swe-agents/outputs/asyncodebench/v0.3/${MODEL_TAG}/${TASK}"
 METRICS="manifests/pilot/v0.3/metrics/commit0_${METRIC_TASK}_async_metrics.json"
 
-SINGLE="${BASE_DIR}/${MODEL_TAG}_single_i30_${RUN_VERSION}"
-SERIAL="${BASE_DIR}/${MODEL_TAG}_serial_${MAX_SUBAGENTS}agents_s30_${RUN_VERSION}"
-ASYNC="${BASE_DIR}/${MODEL_TAG}_async_private_${MAX_SUBAGENTS}agents_s30_${RUN_VERSION}"
-CAID="${BASE_DIR}/${MODEL_TAG}_caid_multi_${MAX_SUBAGENTS}agents_m30_s30_${RUN_VERSION}"
+SINGLE="${BASE_DIR}/single/${RUN_VERSION}"
+SERIAL="${BASE_DIR}/serial_specialists/${RUN_VERSION}"
+ASYNC="${BASE_DIR}/async_private/${RUN_VERSION}"
+CAID="${BASE_DIR}/caid_manager/${RUN_VERSION}"
 ```
 
-Generate per-run process summaries:
+Native runs generate per-run process summaries automatically. Regenerate them
+only for auditing or after changing analysis code:
 
 ```bash
 python3 scripts/analyze_run_process_metrics.py \
@@ -597,7 +636,7 @@ reproductions/async-swe-agents/outputs/<model_tag>/<task>_<model_tag>_artifact_i
 
 ## Aggregate Tables
 
-After all 17 tasks have per-task summaries, aggregate them into the same shapes
+After all 16 tasks have per-task summaries, aggregate them into the same shapes
 used for the completed `gpt-5.4-mini` experiment.
 
 Reference files:
@@ -665,7 +704,7 @@ Official-result checklist:
 - The run directory is fresh and was not reused after a crash.
 - The run directory has exactly one `run_*.log`.
 - `report.json` records `final_evaluator_source` as
-  `asynccodebench_manifest`.
+  `asyncodebench_manifest`.
 - `dependency_probe_checkpoints.jsonl` exists.
 - `process_metrics_summary.json` exists.
 - The per-task artifact index points to the intended run directories.
@@ -684,7 +723,7 @@ test -f "$RUN_DIR/process_metrics_summary.json"
 
 ## Common Pitfalls
 
-### The command says `commit0`, but the data must be AsyncCodeBench.
+### The command says `commit0`, but the data must be AsynCodeBench.
 
 This is expected. `commit0` is the inherited runner adapter. Official runs must
 use curated v0.3 task records, manifests, base SHA checks, overlays, and
@@ -695,7 +734,7 @@ metrics manifests.
 Do not use:
 
 ```bash
-ASYNCCODEBENCH_DISABLE_CURATED_TASK_SOURCE=1
+ASYNCODEBENCH_DISABLE_CURATED_TASK_SOURCE=1
 ```
 
 unless intentionally debugging raw Commit0 fallback behavior.

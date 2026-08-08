@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Aggregate AsyncCodeBench run-level process metrics.
+"""Aggregate AsynCodeBench run-level process metrics.
 
 This script intentionally follows the metric names in SPECIFICATION_v0.3.md and
 COMMIT0_DATA_AND_METRIC_LABEL_GUIDE_v0.3.md. It consumes artifacts already

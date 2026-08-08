@@ -8,7 +8,7 @@ replay/live validation, statistics, and release maintenance belong here.
   independent v0.3 annotation templates and adjudication forms.
 - `COMMIT0_DATA_EXAMPLE_GUIDE_v0.3.md`: consistency guide and worked
   `commit0:cachetools` example for turning a Commit0 candidate into an
-  AsyncCodeBench data example.
+  AsynCodeBench data example.
 - `COMMIT0_DEPRECATED_DATA_EXAMPLE_v0.3.md`: second worked example covering
   the Classic-to-Sphinx dependency and its asynchronous freshness risk.
 - `COMMIT0_PORTALOCKER_DATA_EXAMPLE_v0.3.md`: qualification-ready POSIX core

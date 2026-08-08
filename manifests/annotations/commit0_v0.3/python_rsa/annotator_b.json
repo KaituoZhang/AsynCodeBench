@@ -13,7 +13,7 @@
     "Review the linked TaskQualityRecord, including the requirement to use origin/commit0_combined as the initial source ref.",
     "Do not inspect reference branches, solution patches, or diffs.",
     "Do not consult the other annotator before submitting.",
-    "Explicitly assess whether the arithmetic->key, key->serialization, and codec/key->PKCS#1 splits are natural AsyncCodeBench dependencies rather than artificial file partitioning."
+    "Explicitly assess whether the arithmetic->key, key->serialization, and codec/key->PKCS#1 splits are natural AsynCodeBench dependencies rather than artificial file partitioning."
   ],
   "parallelizability_label": null,
   "rationale": null,

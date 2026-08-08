@@ -3,7 +3,7 @@
 Date: 2026-06-24
 
 This note reviews whether `commit0:python-prompt-toolkit` and
-`commit0:pydantic` should enter the AsyncCodeBench v0.3 candidate pool. The
+`commit0:pydantic` should enter the AsynCodeBench v0.3 candidate pool. The
 decision standard here is candidate admission, not release readiness.
 
 ## Decision Summary
@@ -14,7 +14,7 @@ decision standard here is candidate admission, not release readiness.
 | `commit0:pydantic` | Admit as heavy candidate | high-value but environment-blocked; requires exact dependency freeze | Not yet |
 
 Both repositories are worth keeping in the candidate pool. Neither should be
-counted as a finalized AsyncCodeBench v0.3 task until we confirm a stable,
+counted as a finalized AsynCodeBench v0.3 task until we confirm a stable,
 offline, non-environment failure signal on a properly frozen evaluator.
 
 ## `commit0:python-prompt-toolkit`
@@ -54,7 +54,7 @@ Natural dependency patterns:
 - `KeyProcessor` depends on key binding registries and the current application.
 - Rendering/output code depends on width calculation and formatted text.
 
-These are good candidates for both AsyncCodeBench task types:
+These are good candidates for both AsynCodeBench task types:
 
 - Interface Dependency
 - Shared State / Shared Abstraction
@@ -79,7 +79,7 @@ The next blocker is a normal runtime dependency:
 ModuleNotFoundError: No module named 'wcwidth'
 ```
 
-Important: using AsyncCodeBench's local `commit0/wcwidth` repository as this
+Important: using AsynCodeBench's local `commit0/wcwidth` repository as this
 dependency is invalid for prompt-toolkit evaluation, because that repository is
 itself a benchmark skeleton. It caused false failures such as:
 
@@ -196,7 +196,7 @@ Natural dependency patterns:
   paths.
 - v1 compatibility layers interact with v2 internals and public APIs.
 
-These are strong candidates for AsyncCodeBench's Shared State / Shared
+These are strong candidates for AsynCodeBench's Shared State / Shared
 Abstraction category. They also provide Interface Dependency cases between
 schema producers and API consumers.
 
@@ -208,7 +208,7 @@ Current collection is environment-blocked:
 ModuleNotFoundError: No module named 'jsonschema'
 ```
 
-Additional test dependencies missing from the isolated AsyncCodeBench
+Additional test dependencies missing from the isolated AsynCodeBench
 environment include:
 
 ```text

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from asynccodebench.qualification.annotation_packets import (
+from asyncodebench.qualification.annotation_packets import (
     build_annotation_packet,
 )
-from asynccodebench.qualification.models import (
+from asyncodebench.qualification.models import (
     CandidateInventory,
     CandidateRecord,
 )

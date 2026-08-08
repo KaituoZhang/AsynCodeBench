@@ -1,4 +1,4 @@
-# AsyncCodeBench v0.3 Annotator Guidance
+# AsynCodeBench v0.3 Annotator Guidance
 
 This document explains how a human annotator should complete the v0.3
 annotation templates under:
@@ -8,12 +8,12 @@ manifests/annotations/commit0_v0.3/<task_name>/
 ```
 
 The goal of annotation is not to solve the coding task. The goal is to decide
-whether a candidate task is suitable for AsyncCodeBench and how naturally it
+whether a candidate task is suitable for AsynCodeBench and how naturally it
 supports multi-agent decomposition.
 
 ## 1. What annotators are judging
 
-AsyncCodeBench v0.3 focuses on LLM-based software-engineering agents under
+AsynCodeBench v0.3 focuses on LLM-based software-engineering agents under
 different coordination conditions:
 
 - single-agent iterative coding;
@@ -87,7 +87,7 @@ Use:
 "include": true
 ```
 
-if the task should be included in AsyncCodeBench after the remaining engineering
+if the task should be included in AsynCodeBench after the remaining engineering
 or release gates are satisfied.
 
 Use:
@@ -133,7 +133,7 @@ Allowed labels are:
 Use this when the task naturally splits into separate subproblems that can be
 implemented mostly independently.
 
-This is usually less interesting for AsyncCodeBench unless there is still a
+This is usually less interesting for AsynCodeBench unless there is still a
 clear integration risk.
 
 Example pattern:
@@ -150,7 +150,7 @@ Use this when the task has natural subproblems, but the subproblems depend on
 one another through an API contract, shared abstraction, shared state, or
 integration tests.
 
-This is the main target label for AsyncCodeBench.
+This is the main target label for AsynCodeBench.
 
 Example pattern:
 
@@ -186,7 +186,7 @@ The rationale should be a short but concrete paragraph. It should explain:
 A good included-task rationale looks like:
 
 ```text
-This task is suitable for AsyncCodeBench because it has two natural but
+This task is suitable for AsynCodeBench because it has two natural but
 dependent implementation surfaces: <subproblem A> and <subproblem B>.
 <subproblem B> depends on <subproblem A> through <API/shared abstraction/test
 contract>. This creates a realistic asynchronous-collaboration risk: if one
@@ -240,7 +240,7 @@ Example:
 {
   "include": true,
   "parallelizability_label": "partially_parallelizable",
-  "rationale": "The task is suitable for AsyncCodeBench because it has separable but dependent implementation surfaces: cache key construction and decorator/cache behavior. The decorator layer depends on typed-key semantics, cache parameter exposure, and shared public API contracts. This creates a realistic asynchronous-collaboration risk where one agent may proceed with a stale or incompatible assumption about the other agent's API.",
+  "rationale": "The task is suitable for AsynCodeBench because it has separable but dependent implementation surfaces: cache key construction and decorator/cache behavior. The decorator layer depends on typed-key semantics, cache parameter exposure, and shared public API contracts. This creates a realistic asynchronous-collaboration risk where one agent may proceed with a stale or incompatible assumption about the other agent's API.",
   "exclusion_reason": null
 }
 ```
@@ -290,7 +290,7 @@ The adjudicator must not be either annotator.
 After both annotation files are complete, run:
 
 ```bash
-cd /home/kzhang42/AsyncCodeBench
+cd /absolute/path/to/AsynCodeBench
 PYTHONPATH=src python scripts/finalize_v03_task_annotation.py \
   --task manifests/pilot/v0.3/tasks/commit0_cachetools.json \
   --annotation-a manifests/annotations/commit0_v0.3/cachetools/annotator_a.json \
@@ -301,7 +301,7 @@ PYTHONPATH=src python scripts/finalize_v03_task_annotation.py \
 If adjudication is needed:
 
 ```bash
-cd /home/kzhang42/AsyncCodeBench
+cd /absolute/path/to/AsynCodeBench
 PYTHONPATH=src python scripts/finalize_v03_task_annotation.py \
   --task manifests/pilot/v0.3/tasks/commit0_cachetools.json \
   --annotation-a manifests/annotations/commit0_v0.3/cachetools/annotator_a.json \

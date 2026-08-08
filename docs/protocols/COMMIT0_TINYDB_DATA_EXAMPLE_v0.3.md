@@ -5,7 +5,7 @@ Status: curated task; `qualification_ready`
 Task: `commit0:tinydb`
 
 This document records how raw Commit0 TinyDB is converted into a reproducible,
-answer-free curated initial state that satisfies the AsyncCodeBench data
+answer-free curated initial state that satisfies the AsynCodeBench data
 quality gates. It applies the same TaskQualityRecord standard used for
 cachetools and Deprecated.
 

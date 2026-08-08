@@ -34,7 +34,7 @@ Cross-source Phase 2 assets:
 - `candidates/annotation_packets/commit0_v0.2/`: answer-free independent
   annotation packets for the six ready Commit0 candidates.
 
-AsyncCodeBench v0.3 Commit0 draft assets:
+AsynCodeBench v0.3 Commit0 draft assets:
 
 - `pilot/v0.3/tasks/commit0_cachetools.json`: portable task record; pending
   independent human annotation;

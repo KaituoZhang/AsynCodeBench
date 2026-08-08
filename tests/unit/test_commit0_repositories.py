@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from asynccodebench.qualification.commit0_repositories import (
+from asyncodebench.qualification.commit0_repositories import (
     Commit0Repository,
     load_commit0_repositories,
     materialize_commit0_repository,
@@ -28,7 +28,7 @@ def _build_source_repository(path: Path, *, create_commit0_branch: bool = True) 
     path.mkdir(parents=True)
     _git(path, "init")
     _git(path, "config", "user.email", "test@example.invalid")
-    _git(path, "config", "user.name", "AsyncCodeBench Test")
+    _git(path, "config", "user.name", "AsynCodeBench Test")
     (path / "task.py").write_text("raise NotImplementedError\n", encoding="utf-8")
     _git(path, "add", "task.py")
     _git(path, "commit", "-m", "commit0")

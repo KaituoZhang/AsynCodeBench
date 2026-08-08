@@ -31,39 +31,39 @@ def _is_ambiguous_run_trigger_timeout(error):
 
 def conversation_run_timeout():
     return float(
-        os.getenv("ASYNCCODEBENCH_CONVERSATION_RUN_TIMEOUT", "3600")
+        os.getenv("ASYNCODEBENCH_CONVERSATION_RUN_TIMEOUT", "3600")
     )
 
 
 def remote_poll_timeout():
-    return float(os.getenv("ASYNCCODEBENCH_REMOTE_POLL_TIMEOUT", "900"))
+    return float(os.getenv("ASYNCODEBENCH_REMOTE_POLL_TIMEOUT", "900"))
 
 
 def remote_trigger_timeout():
-    return float(os.getenv("ASYNCCODEBENCH_REMOTE_TRIGGER_TIMEOUT", "30"))
+    return float(os.getenv("ASYNCODEBENCH_REMOTE_TRIGGER_TIMEOUT", "30"))
 
 
 def remote_message_timeout():
-    return float(os.getenv("ASYNCCODEBENCH_REMOTE_MESSAGE_TIMEOUT", "900"))
+    return float(os.getenv("ASYNCODEBENCH_REMOTE_MESSAGE_TIMEOUT", "900"))
 
 
 def remote_poll_interval():
-    return float(os.getenv("ASYNCCODEBENCH_REMOTE_POLL_INTERVAL", "5"))
+    return float(os.getenv("ASYNCODEBENCH_REMOTE_POLL_INTERVAL", "5"))
 
 
 def remote_start_grace_seconds():
-    return float(os.getenv("ASYNCCODEBENCH_REMOTE_START_GRACE_SECONDS", "30"))
+    return float(os.getenv("ASYNCODEBENCH_REMOTE_START_GRACE_SECONDS", "30"))
 
 
 def remote_terminal_confirm_seconds():
     return float(
-        os.getenv("ASYNCCODEBENCH_REMOTE_TERMINAL_CONFIRM_SECONDS", "30")
+        os.getenv("ASYNCODEBENCH_REMOTE_TERMINAL_CONFIRM_SECONDS", "30")
     )
 
 
 def configure_remote_message_timeout(conversation, log):
     """Give remote message submission time to wait for the server state lock."""
-    if getattr(conversation, "_asynccodebench_message_timeout_configured", False):
+    if getattr(conversation, "_asyncodebench_message_timeout_configured", False):
         return True
 
     client = getattr(conversation, "_client", None)
@@ -72,16 +72,16 @@ def configure_remote_message_timeout(conversation, log):
 
     timeout = remote_message_timeout()
     if timeout <= 0:
-        raise ValueError("ASYNCCODEBENCH_REMOTE_MESSAGE_TIMEOUT must be positive")
+        raise ValueError("ASYNCODEBENCH_REMOTE_MESSAGE_TIMEOUT must be positive")
 
     client.timeout = httpx.Timeout(timeout)
-    conversation._asynccodebench_message_timeout_configured = True
+    conversation._asyncodebench_message_timeout_configured = True
     log(f"Configured remote message request timeout: {timeout}s")
     return True
 
 
 def send_conversation_message(conversation, message, log):
-    """Submit a user message with the AsyncCodeBench remote timeout policy."""
+    """Submit a user message with the AsynCodeBench remote timeout policy."""
     configure_remote_message_timeout(conversation, log)
     conversation.send_message(message)
 
@@ -95,7 +95,7 @@ def configure_remote_status_polling(conversation, log):
     than 30 seconds even though the run is healthy. Keep the SDK polling flow,
     but make its per-request timeout suitable for long local-model turns.
     """
-    if getattr(conversation, "_asynccodebench_polling_configured", False):
+    if getattr(conversation, "_asyncodebench_polling_configured", False):
         return True
 
     client = getattr(conversation, "_client", None)
@@ -106,7 +106,7 @@ def configure_remote_status_polling(conversation, log):
 
     timeout = remote_poll_timeout()
     if timeout <= 0:
-        raise ValueError("ASYNCCODEBENCH_REMOTE_POLL_TIMEOUT must be positive")
+        raise ValueError("ASYNCODEBENCH_REMOTE_POLL_TIMEOUT must be positive")
     base_path = str(
         getattr(conversation, "_conversation_info_base_path", "/api/conversations")
     ).rstrip("/")
@@ -120,7 +120,7 @@ def configure_remote_status_polling(conversation, log):
         return response.json().get("execution_status")
 
     conversation._poll_status_once = MethodType(poll_status_once, conversation)
-    conversation._asynccodebench_polling_configured = True
+    conversation._asyncodebench_polling_configured = True
     log(f"Configured remote status polling: interval={remote_poll_interval()}s, "
         f"request_timeout={timeout}s")
     return True
@@ -130,7 +130,7 @@ def trigger_remote_run(conversation):
     """Trigger a remote run without the legacy SDK's noisy timeout wrapper."""
     timeout = remote_trigger_timeout()
     if timeout <= 0:
-        raise ValueError("ASYNCCODEBENCH_REMOTE_TRIGGER_TIMEOUT must be positive")
+        raise ValueError("ASYNCODEBENCH_REMOTE_TRIGGER_TIMEOUT must be positive")
     base_path = str(
         getattr(conversation, "_conversation_info_base_path", "/api/conversations")
     ).rstrip("/")
@@ -183,19 +183,19 @@ def wait_for_remote_run_completion(conversation, log, timeout, poll_interval):
     grace period.
     """
     if timeout <= 0:
-        raise ValueError("ASYNCCODEBENCH_CONVERSATION_RUN_TIMEOUT must be positive")
+        raise ValueError("ASYNCODEBENCH_CONVERSATION_RUN_TIMEOUT must be positive")
     if poll_interval <= 0:
-        raise ValueError("ASYNCCODEBENCH_REMOTE_POLL_INTERVAL must be positive")
+        raise ValueError("ASYNCODEBENCH_REMOTE_POLL_INTERVAL must be positive")
 
     start_grace = remote_start_grace_seconds()
     terminal_confirm = remote_terminal_confirm_seconds()
     if start_grace < 0:
         raise ValueError(
-            "ASYNCCODEBENCH_REMOTE_START_GRACE_SECONDS must be nonnegative"
+            "ASYNCODEBENCH_REMOTE_START_GRACE_SECONDS must be nonnegative"
         )
     if terminal_confirm < 0:
         raise ValueError(
-            "ASYNCCODEBENCH_REMOTE_TERMINAL_CONFIRM_SECONDS must be nonnegative"
+            "ASYNCODEBENCH_REMOTE_TERMINAL_CONFIRM_SECONDS must be nonnegative"
         )
 
     poll_status = getattr(conversation, "_poll_status_once", None)
@@ -256,7 +256,7 @@ def run_conversation_with_trigger_recovery(conversation, log):
     timeout = conversation_run_timeout()
     poll_interval = remote_poll_interval()
     if poll_interval <= 0:
-        raise ValueError("ASYNCCODEBENCH_REMOTE_POLL_INTERVAL must be positive")
+        raise ValueError("ASYNCODEBENCH_REMOTE_POLL_INTERVAL must be positive")
     configured_remote = configure_remote_status_polling(conversation, log)
     poll_status = getattr(conversation, "_poll_status_once", None)
 

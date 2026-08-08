@@ -3,7 +3,7 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
-from asynccodebench.qualification import extract_commit0_candidate
+from asyncodebench.qualification import extract_commit0_candidate
 
 
 def git(repository: Path, *args: str) -> str:

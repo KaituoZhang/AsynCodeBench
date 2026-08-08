@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from asynccodebench.dataset.models import ExecutionMode
-from asynccodebench.dataset.python_rsa_v03 import (
+from asyncodebench.dataset.models import ExecutionMode
+from asyncodebench.dataset.python_rsa_v03 import (
     build_annotation_forms,
     build_metric_labels,
     build_quality_record,

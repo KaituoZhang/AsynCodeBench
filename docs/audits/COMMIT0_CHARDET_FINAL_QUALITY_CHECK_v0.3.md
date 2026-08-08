@@ -7,7 +7,7 @@ Complete sanity ref: `commit0/main:98b2acd5505e02c3d53e8e53053af34c8e17cb9d`
 
 ## Decision
 
-`chardet` is suitable for AsyncCodeBench v0.3 as a curated detector/prober
+`chardet` is suitable for AsynCodeBench v0.3 as a curated detector/prober
 dependency-chain task.
 
 The raw stripped repository is broad and includes many encoding-specific model
@@ -58,7 +58,7 @@ Complete/default sanity ref:
 `TaskQualityRecord` accounts for xfailed parametrized corpus cases as skipped
 because the current v0.3 schema does not have a separate xfail field.
 
-## AsyncCodeBench structure
+## AsynCodeBench structure
 
 Natural subproblems:
 
@@ -112,7 +112,7 @@ Two other candidates were checked before finalizing `chardet`:
 ## Created assets
 
 ```text
-src/asynccodebench/dataset/chardet_v03.py
+src/asyncodebench/dataset/chardet_v03.py
 scripts/build_chardet_v03_data.py
 manifests/pilot/v0.3/tasks/commit0_chardet.json
 manifests/pilot/v0.3/scenarios/commit0_chardet.json

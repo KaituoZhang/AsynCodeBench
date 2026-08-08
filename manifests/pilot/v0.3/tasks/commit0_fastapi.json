@@ -48,7 +48,7 @@
     }
   ],
   "evaluator_command": [
-    "/home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents/.venv/bin/python",
+    "/home/kzhang42/AsynCodeBench/reproductions/async-swe-agents/.venv/bin/python",
     "-m",
     "pytest",
     "-q",

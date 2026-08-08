@@ -5,7 +5,7 @@ Status: curated task; `qualification_ready`
 Task: `commit0:portalocker`
 
 This document records how Portalocker is converted into a reproducible POSIX
-core task that satisfies the AsyncCodeBench data-quality requirements without
+core task that satisfies the AsynCodeBench data-quality requirements without
 copying substantive locking behavior from a completed implementation.
 
 ## 1. Task identity
@@ -74,7 +74,7 @@ behavior, or file lifecycle. In fact, the majority of tests continue to fail.
 The workspace is reconstructed with:
 
 ```bash
-cd /path/to/AsyncCodeBench
+cd /path/to/AsynCodeBench
 PYTHONPATH=src python scripts/materialize_curated_commit0_task.py \
   commit0:portalocker
 ```

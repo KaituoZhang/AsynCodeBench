@@ -1,0 +1,23 @@
+{
+  "allowed_labels": [
+    "parallelizable",
+    "partially_parallelizable",
+    "effectively_serial"
+  ],
+  "annotator_id": "annotator_a",
+  "candidate_evidence_file": "manifests/candidates/commit0_async_screening_v0.3.json",
+  "exclusion_reason": null,
+  "include": null,
+  "independence_instructions": [
+    "Use only public Commit0 evidence and the draft task record.",
+    "Review the linked TaskQualityRecord, including the excluded optional fuzzing/contrib tests and the dependency-metric labels.",
+    "Do not inspect reference branches, solution patches, or diffs.",
+    "Do not consult the other annotator before submitting.",
+    "Explicitly assess whether the config->repo/refs and pack->object-store splits are natural AsynCodeBench dependencies rather than artificial file partitioning."
+  ],
+  "parallelizability_label": null,
+  "rationale": null,
+  "schema_version": "0.3",
+  "task_id": "commit0:dulwich",
+  "task_record_file": "manifests/pilot/v0.3/tasks/commit0_dulwich.json"
+}

@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from asynccodebench.dataset.models import (
+from asyncodebench.dataset.models import (
     AdjudicationForm,
     AnnotationForm,
     ScenarioRecord,

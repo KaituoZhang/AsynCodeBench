@@ -1,4 +1,4 @@
-# AsyncCodeBench repository layout
+# AsynCodeBench repository layout
 
 This layout implements Specification v0.2. It separates benchmark semantics
 from executable pipelines, task material, experimental configuration, and
@@ -6,7 +6,7 @@ generated outputs.
 
 ## Core library
 
-`src/asynccodebench/` contains importable benchmark code:
+`src/asyncodebench/` contains importable benchmark code:
 
 - `contracts/`: typed task, event, action, observation, message, job, resource,
   artifact, snapshot, trajectory, and outcome contracts;
@@ -42,7 +42,7 @@ generated outputs.
 
 ## Predecessor-code migration rule
 
-The predecessor prototype remains external to AsyncCodeBench. Components are
+The predecessor prototype remains external to AsynCodeBench. Components are
 copied only after they receive one of these audit dispositions:
 
 1. `reuse`: semantics already satisfy v0.2;
@@ -50,7 +50,7 @@ copied only after they receive one of these audit dispositions:
 3. `rewrite`: concept is needed but implementation violates the new boundary;
 4. `exclude`: historical training, embodied, or obsolete preliminary code.
 
-Migration is copy-and-verify, not a destructive filesystem move. AsyncCodeBench
+Migration is copy-and-verify, not a destructive filesystem move. AsynCodeBench
 must not contain runtime paths or imports that point to the predecessor
 workspace.
 

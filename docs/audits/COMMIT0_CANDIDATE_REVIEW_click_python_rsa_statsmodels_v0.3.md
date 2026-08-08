@@ -1,7 +1,7 @@
 # Commit0 Candidate Review: click / python-rsa / statsmodels
 
 Date: 2026-06-24  
-Protocol: AsyncCodeBench v0.3, following `docs/protocols/COMMIT0_DATA_EXAMPLE_GUIDE_v0.3.md`
+Protocol: AsynCodeBench v0.3, following `docs/protocols/COMMIT0_DATA_EXAMPLE_GUIDE_v0.3.md`
 
 This audit reviews the next three locally available Commit0 repositories in config order after `voluptuous / seaborn / fastapi`:
 
@@ -9,11 +9,11 @@ This audit reviews the next three locally available Commit0 repositories in conf
 - `commit0:python-rsa`
 - `commit0:statsmodels`
 
-The screening goal is to find repositories that can become AsyncCodeBench tasks: tasks should be feasible for a strong single coding agent, while naturally exposing asynchronous multi-agent failure modes such as stale teammate interfaces or inconsistent shared abstractions.
+The screening goal is to find repositories that can become AsynCodeBench tasks: tasks should be feasible for a strong single coding agent, while naturally exposing asynchronous multi-agent failure modes such as stale teammate interfaces or inconsistent shared abstractions.
 
 ## Decision summary
 
-| Repository | Decision | AsyncCodeBench fit | Main reason |
+| Repository | Decision | AsynCodeBench fit | Main reason |
 |---|---:|---:|---|
 | `click` | Reject/defer for v0.3 main set | Not suitable as raw Commit0 task | Raw Commit0 already passes the visible suite. The remaining markers are mostly intentional abstract methods, no-op callbacks, or platform fallbacks rather than substantive missing implementation. |
 | `python-rsa` | Add to candidate pool, lower priority | Borderline `partially_parallelizable` | There is a real interface dependency between key objects/serialization and PKCS#1 encryption/signing behavior, but the task is compact and mostly concentrated in two modules. |
@@ -128,7 +128,7 @@ The visible tests cover:
 
 Collection is clean after disabling incompatible default pytest addopts. A local selected run collected 47 tests for `test_key.py`, `test_pkcs1.py`, and `test_load_save_keys.py`. Failures in the current environment are dominated by missing `pyasn1`, which is an environment-freezing issue rather than a benchmark-design blocker.
 
-### Why it partially fits AsyncCodeBench
+### Why it partially fits AsynCodeBench
 
 `python-rsa` has a real interface-dependency structure:
 
@@ -146,7 +146,7 @@ The natural stale-work risks are:
 - Agent C implements DER/PEM serialization using a different representation of multiprime key metadata.
 - The merged code may compile and pass some unit tests but fail on edge cases such as extra-zero rejection, multiprime signing, or malformed key loading.
 
-This is a legitimate AsyncCodeBench pattern, especially for `Interface Dependency`.
+This is a legitimate AsynCodeBench pattern, especially for `Interface Dependency`.
 
 ### Weaknesses
 
@@ -258,7 +258,7 @@ data handling
 -> regression / discrete / GLM consumers
 ```
 
-This could support an AsyncCodeBench task in principle.
+This could support an AsynCodeBench task in principle.
 
 However, it is not a clean v0.3 candidate:
 

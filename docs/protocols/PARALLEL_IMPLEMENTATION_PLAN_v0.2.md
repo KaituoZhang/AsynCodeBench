@@ -1,6 +1,6 @@
 # Parallel implementation plan
 
-Specification: AsyncCodeBench v0.2  
+Specification: AsynCodeBench v0.2
 Status: active implementation protocol  
 Date: 2026-06-22
 
@@ -116,7 +116,7 @@ repositories:
 - `portalocker`.
 
 The historical labels and changed-file lists are gold-informed secondary
-evidence only. AsyncCodeBench must regenerate primary qualification cards from
+evidence only. AsynCodeBench must regenerate primary qualification cards from
 public task information, executable tests, dependency structure, and measured
 runtime.
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
-from asynccodebench.contracts import (
+from asyncodebench.contracts import (
     SCHEMA_VERSION,
     ActionRequest,
     ArtifactProvenance,

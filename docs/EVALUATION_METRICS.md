@@ -1,10 +1,10 @@
-# AsyncCodeBench Evaluation Metrics
+# AsynCodeBench Evaluation Metrics
 
 This document explains the evaluation metrics used in the current
-AsyncCodeBench experiments, what each metric means, which artifacts it uses,
+AsynCodeBench experiments, what each metric means, which artifacts it uses,
 and how collaborators can compute the metrics from agent-run outputs.
 
-The current main metrics are the first-round AsyncCodeBench v0.3 metrics. They
+The current main metrics are the first-round AsynCodeBench v0.3 metrics. They
 are dependency-centered: the goal is not only to know whether the final
 repository passes tests, but also when the labeled cross-agent software
 dependencies are resolved and what coordination burden was required.
@@ -36,7 +36,7 @@ merge conflicts, or failed subagent attempts.
 
 ### 2. Dependency-Level Metrics
 
-These are the main AsyncCodeBench metrics. They use the dependency labels in:
+These are the main AsynCodeBench metrics. They use the dependency labels in:
 
 ```text
 manifests/pilot/v0.3/metrics/commit0_<repo>_async_metrics.json
@@ -116,7 +116,7 @@ the checkpoint policy.
 
 #### Strict Checkpoint Policy
 
-For new runs, AsyncCodeBench runners now write:
+For new runs, AsynCodeBench runners now write:
 
 ```text
 dependency_probe_checkpoints.jsonl
@@ -156,7 +156,7 @@ unresolved dependencies when computing aggregate statistics. Otherwise, systems
 that solve only one easy dependency and fail the rest can look artificially
 strong when DRS or CAIL is averaged only over resolved cases.
 
-AsyncCodeBench reports both raw/status metrics and penalized aggregate metrics.
+AsynCodeBench reports both raw/status metrics and penalized aggregate metrics.
 
 Let:
 
@@ -426,7 +426,7 @@ The dependency and coordination metrics distinguish the protocols:
 The key claim is:
 
 ```text
-Final pass/fail hides async coordination quality. AsyncCodeBench exposes when
+Final pass/fail hides async coordination quality. AsynCodeBench exposes when
 cross-agent dependencies are resolved, whether downstream work proceeds under
 stale or missing producer information, and how much recovery burden is needed
 to reach a passing final repository.

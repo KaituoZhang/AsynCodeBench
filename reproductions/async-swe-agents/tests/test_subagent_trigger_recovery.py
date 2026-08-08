@@ -34,7 +34,7 @@ class FakeConversation:
 
 
 def test_recovers_accepted_trigger_timeout(monkeypatch):
-    monkeypatch.setenv("ASYNCCODEBENCH_CONVERSATION_RUN_TIMEOUT", "7200")
+    monkeypatch.setenv("ASYNCODEBENCH_CONVERSATION_RUN_TIMEOUT", "7200")
     conversation = FakeConversation(["finished"])
     messages = []
 
@@ -155,7 +155,7 @@ class FakeMessageConversation:
 
 
 def test_configures_long_remote_message_timeout(monkeypatch):
-    monkeypatch.setenv("ASYNCCODEBENCH_REMOTE_MESSAGE_TIMEOUT", "900")
+    monkeypatch.setenv("ASYNCODEBENCH_REMOTE_MESSAGE_TIMEOUT", "900")
     messages = []
     conversation = FakeMessageConversation()
 
@@ -167,7 +167,7 @@ def test_configures_long_remote_message_timeout(monkeypatch):
 
 
 def test_rejects_nonpositive_remote_message_timeout(monkeypatch):
-    monkeypatch.setenv("ASYNCCODEBENCH_REMOTE_MESSAGE_TIMEOUT", "0")
+    monkeypatch.setenv("ASYNCODEBENCH_REMOTE_MESSAGE_TIMEOUT", "0")
 
     with pytest.raises(ValueError, match="must be positive"):
         configure_remote_message_timeout(
@@ -177,7 +177,7 @@ def test_rejects_nonpositive_remote_message_timeout(monkeypatch):
 
 
 def test_configures_long_remote_status_poll_timeout(monkeypatch):
-    monkeypatch.setenv("ASYNCCODEBENCH_REMOTE_POLL_TIMEOUT", "900")
+    monkeypatch.setenv("ASYNCODEBENCH_REMOTE_POLL_TIMEOUT", "900")
     messages = []
     conversation = FakeRemoteConversation()
 
@@ -190,7 +190,7 @@ def test_configures_long_remote_status_poll_timeout(monkeypatch):
 
 
 def test_rejects_nonpositive_remote_poll_timeout(monkeypatch):
-    monkeypatch.setenv("ASYNCCODEBENCH_REMOTE_POLL_TIMEOUT", "0")
+    monkeypatch.setenv("ASYNCODEBENCH_REMOTE_POLL_TIMEOUT", "0")
 
     with pytest.raises(ValueError, match="must be positive"):
         configure_remote_status_polling(FakeRemoteConversation(), lambda _message: None)
@@ -202,8 +202,8 @@ class FakeManagedRemoteConversation(FakeRemoteConversation):
 
 
 def test_remote_trigger_uses_managed_request_without_sdk_run(monkeypatch):
-    monkeypatch.setenv("ASYNCCODEBENCH_REMOTE_TRIGGER_TIMEOUT", "45")
-    monkeypatch.setenv("ASYNCCODEBENCH_REMOTE_TERMINAL_CONFIRM_SECONDS", "0")
+    monkeypatch.setenv("ASYNCODEBENCH_REMOTE_TRIGGER_TIMEOUT", "45")
+    monkeypatch.setenv("ASYNCODEBENCH_REMOTE_TERMINAL_CONFIRM_SECONDS", "0")
     conversation = FakeManagedRemoteConversation()
 
     run_conversation_with_trigger_recovery(conversation, lambda _message: None)
@@ -215,7 +215,7 @@ def test_remote_trigger_uses_managed_request_without_sdk_run(monkeypatch):
 
 
 def test_remote_trigger_waits_through_running_state(monkeypatch):
-    monkeypatch.setenv("ASYNCCODEBENCH_REMOTE_TERMINAL_CONFIRM_SECONDS", "0")
+    monkeypatch.setenv("ASYNCODEBENCH_REMOTE_TERMINAL_CONFIRM_SECONDS", "0")
     monkeypatch.setattr("core.subagent.time.sleep", lambda _seconds: None)
     conversation = FakeManagedRemoteConversation(["running", "finished"])
     messages = []
@@ -226,7 +226,7 @@ def test_remote_trigger_waits_through_running_state(monkeypatch):
 
 
 def test_remote_trigger_timeout_is_recovered_without_sdk_error_log(monkeypatch):
-    monkeypatch.setenv("ASYNCCODEBENCH_REMOTE_TERMINAL_CONFIRM_SECONDS", "0")
+    monkeypatch.setenv("ASYNCODEBENCH_REMOTE_TERMINAL_CONFIRM_SECONDS", "0")
     conversation = FakeManagedRemoteConversation()
     messages = []
 
@@ -241,8 +241,8 @@ def test_remote_trigger_timeout_is_recovered_without_sdk_error_log(monkeypatch):
 
 
 def test_remote_trigger_retries_only_after_idle_grace(monkeypatch):
-    monkeypatch.setenv("ASYNCCODEBENCH_REMOTE_START_GRACE_SECONDS", "0")
-    monkeypatch.setenv("ASYNCCODEBENCH_REMOTE_TERMINAL_CONFIRM_SECONDS", "0")
+    monkeypatch.setenv("ASYNCODEBENCH_REMOTE_START_GRACE_SECONDS", "0")
+    monkeypatch.setenv("ASYNCODEBENCH_REMOTE_TERMINAL_CONFIRM_SECONDS", "0")
     conversation = FakeManagedRemoteConversation(["idle", "finished"])
 
     run_conversation_with_trigger_recovery(conversation, lambda _message: None)
@@ -254,7 +254,7 @@ def test_remote_trigger_retries_only_after_idle_grace(monkeypatch):
 
 
 def test_rejects_nonpositive_remote_trigger_timeout(monkeypatch):
-    monkeypatch.setenv("ASYNCCODEBENCH_REMOTE_TRIGGER_TIMEOUT", "0")
+    monkeypatch.setenv("ASYNCODEBENCH_REMOTE_TRIGGER_TIMEOUT", "0")
 
     with pytest.raises(ValueError, match="must be positive"):
         run_conversation_with_trigger_recovery(

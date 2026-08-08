@@ -458,7 +458,7 @@ def annotation_form(annotator_id: str) -> dict:
             "Review the linked TaskQualityRecord, including the POSIX/ptyprocess environment requirement and checksum-recorded bootstrap overlay.",
             "Do not inspect reference branches, solution patches, or diffs.",
             "Do not consult the other annotator before submitting.",
-            "Explicitly assess whether the expect/search -> SpawnBase -> transport/wrapper split is a natural AsyncCodeBench dependency rather than artificial file partitioning.",
+            "Explicitly assess whether the expect/search -> SpawnBase -> transport/wrapper split is a natural AsynCodeBench dependency rather than artificial file partitioning.",
             "Explicitly assess whether excluding pxssh, ANSI, screen, socket_pexpect, and terminal-emulation tests is appropriate for this scoped expect/transport task.",
         ],
         "parallelizability_label": None,

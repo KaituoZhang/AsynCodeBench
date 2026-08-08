@@ -1,6 +1,6 @@
 # Phase 2 qualification status — 2026-06-22
 
-Specification: AsyncCodeBench v0.2  
+Specification: AsynCodeBench v0.2
 Status: historical v0.2 phase record; superseded for implementation by
 `SPECIFICATION_v0.3.md`
 

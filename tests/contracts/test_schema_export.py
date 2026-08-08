@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from asynccodebench.contracts.export import (
+from asyncodebench.contracts.export import (
     PUBLIC_CONTRACTS,
     export_public_schemas,
 )

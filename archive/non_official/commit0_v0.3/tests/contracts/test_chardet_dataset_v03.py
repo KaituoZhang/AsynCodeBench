@@ -1,13 +1,13 @@
 from pathlib import Path
 
-from asynccodebench.dataset.chardet_v03 import (
+from asyncodebench.dataset.chardet_v03 import (
     build_annotation_forms,
     build_metric_labels,
     build_quality_record,
     build_scenarios,
     build_task_record,
 )
-from asynccodebench.dataset.models import ExecutionMode
+from asyncodebench.dataset.models import ExecutionMode
 
 CANDIDATE_FILE = Path(
     "manifests/candidates/commit0_async_screening_v0.3.json"

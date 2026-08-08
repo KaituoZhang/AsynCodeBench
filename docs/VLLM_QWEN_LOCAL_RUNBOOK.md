@@ -1,6 +1,6 @@
 # Local vLLM Qwen Runbook
 
-This document records the working procedure for running AsyncCodeBench with a
+This document records the working procedure for running AsynCodeBench with a
 local Qwen model served by vLLM. It is based on the `Qwen/Qwen3.6-27B` setup on
 port `8006`, but the same pattern applies to other OpenAI-compatible local
 vLLM servers.
@@ -9,7 +9,7 @@ Use this together with:
 
 - `docs/LOCAL_VLLM_EXPERIMENT_RUNBOOK.md` for the authoritative local-serving
   checklist, concurrency requirements, and four-protocol template.
-- `docs/MODEL_EXPERIMENT_RUNBOOK.md` for the full 17-task experiment flow.
+- `docs/MODEL_EXPERIMENT_RUNBOOK.md` for the full 16-task experiment flow.
 - `docs/EVALUATION_METRICS.md` for post-run metric computation.
 - `reproductions/async-swe-agents/scripts/env.sh` for loading model env files.
 
@@ -25,7 +25,7 @@ vLLM server adds two extra failure modes:
    `127.0.0.1` inside that workspace is the container itself, not necessarily
    the host vLLM server.
 
-In this project, the reliable solution is to run the AsyncCodeBench Docker
+In this project, the reliable solution is to run the AsynCodeBench Docker
 workspace with host networking and keep vLLM reachable at
 `http://127.0.0.1:8006/v1`.
 
@@ -34,7 +34,7 @@ workspace with host networking and keep vLLM reachable at
 Create a model-specific env file:
 
 ```bash
-cd /home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents
+cd /absolute/path/to/AsynCodeBench/reproductions/async-swe-agents
 cp .env.example .env.qwen36-27
 ```
 
@@ -59,25 +59,25 @@ LLM_NUM_RETRIES=2
 
 # OpenHands remote-conversation status polling. Long local generations can
 # exceed the legacy SDK's 30-second per-request timeout.
-ASYNCCODEBENCH_CONVERSATION_RUN_TIMEOUT=43200
-ASYNCCODEBENCH_REMOTE_TRIGGER_TIMEOUT=30
-ASYNCCODEBENCH_REMOTE_POLL_TIMEOUT=3600
-ASYNCCODEBENCH_REMOTE_POLL_INTERVAL=5
+ASYNCODEBENCH_CONVERSATION_RUN_TIMEOUT=43200
+ASYNCODEBENCH_REMOTE_TRIGGER_TIMEOUT=30
+ASYNCODEBENCH_REMOTE_POLL_TIMEOUT=3600
+ASYNCODEBENCH_REMOTE_POLL_INTERVAL=5
 
-COMMIT0_DATASET_PATH=/home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents/data/commit0/commit0_combined
-SDK_SOURCE_DIR=/home/kzhang42/AsyncCodeBench/reproductions/software-agent-sdk
+COMMIT0_DATASET_PATH=/absolute/path/to/AsynCodeBench/reproductions/async-swe-agents/data/commit0/commit0_combined
+SDK_SOURCE_DIR=/absolute/path/to/AsynCodeBench/reproductions/software-agent-sdk
 ```
 
 Load it before running experiments:
 
 ```bash
-cd /home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents
+cd /absolute/path/to/AsynCodeBench/reproductions/async-swe-agents
 export ENV_FILE="$PWD/.env.qwen36-27"
 source scripts/env.sh
 
-unset ASYNCCODEBENCH_DISABLE_CURATED_TASK_SOURCE
-unset ASYNCCODEBENCH_DISABLE_CURATED_TASK_CONFIG
-unset ASYNCCODEBENCH_DISABLE_MANIFEST_EVALUATOR
+unset ASYNCODEBENCH_DISABLE_CURATED_TASK_SOURCE
+unset ASYNCODEBENCH_DISABLE_CURATED_TASK_CONFIG
+unset ASYNCODEBENCH_DISABLE_MANIFEST_EVALUATOR
 ```
 
 Important details:
@@ -183,18 +183,18 @@ docker run --rm curlimages/curl:8.10.1 \
   http://192.168.1.1:8006/v1/models
 ```
 
-For this project, use host networking for the AsyncCodeBench workspace:
+For this project, use host networking for the AsynCodeBench workspace:
 
 ```bash
-ASYNCCODEBENCH_WORKSPACE_DOCKER_NETWORK=host
-ASYNCCODEBENCH_WORKSPACE_HOST_PORT=8000
+ASYNCODEBENCH_WORKSPACE_DOCKER_NETWORK=host
+ASYNCODEBENCH_WORKSPACE_HOST_PORT=8000
 ```
 
 With host networking:
 
 - Keep `LLM_BASE_URL=http://127.0.0.1:8006/v1`.
 - Do not run multiple host-network workspace containers in parallel with the
-  same `ASYNCCODEBENCH_WORKSPACE_HOST_PORT`; they will conflict.
+  same `ASYNCODEBENCH_WORKSPACE_HOST_PORT`; they will conflict.
 - If you need parallel runs, use separate ports or run tasks sequentially.
 
 ## Smoke Tests
@@ -288,10 +288,10 @@ server uses `--tool-call-parser qwen3_xml`.
 
 ## Cachetools Single-Agent Test
 
-After the smoke tests pass, run one real AsyncCodeBench task:
+After the smoke tests pass, run one real AsynCodeBench task:
 
 ```bash
-cd /home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents
+cd /absolute/path/to/AsynCodeBench/reproductions/async-swe-agents
 export ENV_FILE="$PWD/.env.qwen36-27"
 source scripts/env.sh
 
@@ -299,8 +299,8 @@ TASK=cachetools
 MODEL_TAG=qwen36-27
 RUN_VERSION=curated_thinking_v08
 
-ASYNCCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
-ASYNCCODEBENCH_WORKSPACE_HOST_PORT=8000 \
+ASYNCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
+ASYNCODEBENCH_WORKSPACE_HOST_PORT=8000 \
 MAX_ITERATIONS=30 \
 OUTPUT_DIR="outputs/repro_commit0/${TASK}/${MODEL_TAG}_single_i30_${RUN_VERSION}" \
 scripts/run_commit0_single_env.sh "$TASK"
@@ -413,8 +413,8 @@ the host vLLM endpoint through the configured URL.
 Fix:
 
 ```bash
-ASYNCCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
-ASYNCCODEBENCH_WORKSPACE_HOST_PORT=8000 \
+ASYNCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
+ASYNCODEBENCH_WORKSPACE_HOST_PORT=8000 \
 ...
 ```
 
@@ -542,27 +542,27 @@ legacy OpenHands client used a fixed 30-second timeout for each conversation
 status request. Long Qwen reasoning or tool turns can keep the remote
 conversation endpoint busy longer than that interval.
 
-The AsyncCodeBench runner installs a per-conversation compatibility shim in
+The AsynCodeBench runner installs a per-conversation compatibility shim in
 `reproductions/async-swe-agents/core/subagent.py`. Configure it before local
 Qwen runs:
 
 ```bash
-export ASYNCCODEBENCH_CONVERSATION_RUN_TIMEOUT=43200
-export ASYNCCODEBENCH_REMOTE_TRIGGER_TIMEOUT=30
-export ASYNCCODEBENCH_REMOTE_POLL_TIMEOUT=3600
-export ASYNCCODEBENCH_REMOTE_POLL_INTERVAL=5
+export ASYNCODEBENCH_CONVERSATION_RUN_TIMEOUT=43200
+export ASYNCODEBENCH_REMOTE_TRIGGER_TIMEOUT=30
+export ASYNCODEBENCH_REMOTE_POLL_TIMEOUT=3600
+export ASYNCODEBENCH_REMOTE_POLL_INTERVAL=5
 ```
 
 These variables have separate meanings:
 
-- `ASYNCCODEBENCH_CONVERSATION_RUN_TIMEOUT` is the maximum duration of the
+- `ASYNCODEBENCH_CONVERSATION_RUN_TIMEOUT` is the maximum duration of the
   complete agent conversation.
-- `ASYNCCODEBENCH_REMOTE_TRIGGER_TIMEOUT` bounds only the initial `/run`
+- `ASYNCODEBENCH_REMOTE_TRIGGER_TIMEOUT` bounds only the initial `/run`
   acknowledgement. If the acknowledgement is delayed, the runner follows the
   same conversation ID without submitting duplicate work.
-- `ASYNCCODEBENCH_REMOTE_POLL_TIMEOUT` is the timeout for one remote status
+- `ASYNCODEBENCH_REMOTE_POLL_TIMEOUT` is the timeout for one remote status
   request. It must be long enough for a slow local generation.
-- `ASYNCCODEBENCH_REMOTE_POLL_INTERVAL` controls how often the host checks for
+- `ASYNCODEBENCH_REMOTE_POLL_INTERVAL` controls how often the host checks for
   terminal conversation state.
 
 A healthy run logs a line similar to:
@@ -626,4 +626,4 @@ For Qwen3-family official runs, keep the following stable across tasks:
 - same `LLM_MAX_OUTPUT_TOKENS`;
 - same thinking setting;
 - same Docker workspace networking mode;
-- same AsyncCodeBench curated task source and manifest evaluator.
+- same AsynCodeBench curated task source and manifest evaluator.

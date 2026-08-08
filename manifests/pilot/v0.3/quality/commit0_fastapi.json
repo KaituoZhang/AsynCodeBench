@@ -18,7 +18,7 @@
     {
       "collected": 1,
       "command": [
-        "/home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents/.venv/bin/python",
+        "/home/kzhang42/AsynCodeBench/reproductions/async-swe-agents/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -53,7 +53,7 @@
     {
       "collected": 21,
       "command": [
-        "/home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents/.venv/bin/python",
+        "/home/kzhang42/AsynCodeBench/reproductions/async-swe-agents/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -113,7 +113,7 @@
   "test_groups": [
     {
       "command": [
-        "/home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents/.venv/bin/python",
+        "/home/kzhang42/AsynCodeBench/reproductions/async-swe-agents/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -133,7 +133,7 @@
     },
     {
       "command": [
-        "/home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents/.venv/bin/python",
+        "/home/kzhang42/AsynCodeBench/reproductions/async-swe-agents/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -154,7 +154,7 @@
     },
     {
       "command": [
-        "/home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents/.venv/bin/python",
+        "/home/kzhang42/AsynCodeBench/reproductions/async-swe-agents/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -174,7 +174,7 @@
     },
     {
       "command": [
-        "/home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents/.venv/bin/python",
+        "/home/kzhang42/AsynCodeBench/reproductions/async-swe-agents/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -197,7 +197,7 @@
     },
     {
       "command": [
-        "/home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents/.venv/bin/python",
+        "/home/kzhang42/AsynCodeBench/reproductions/async-swe-agents/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -223,7 +223,7 @@
     },
     {
       "command": [
-        "/home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents/.venv/bin/python",
+        "/home/kzhang42/AsynCodeBench/reproductions/async-swe-agents/.venv/bin/python",
         "-m",
         "pytest",
         "-q",

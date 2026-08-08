@@ -2,11 +2,11 @@
 
 Specification: `SPECIFICATION_v0.3.md`  
 Base protocol: `docs/protocols/COMMIT0_DATA_EXAMPLE_GUIDE_v0.3.md`  
-Status: operating guide for AsyncCodeBench task construction  
+Status: operating guide for AsynCodeBench task construction
 Primary example: `commit0:cachetools`
 
 This document extends the Commit0 data-example guide with the dependency
-labels needed by AsyncCodeBench's async-specific metrics. All non-metric
+labels needed by AsynCodeBench's async-specific metrics. All non-metric
 requirements remain unchanged: use only public Commit0 evidence, preserve the
 upstream task, do not inspect gold patches, and do not manufacture coordination
 difficulty.
@@ -166,7 +166,7 @@ This is the preferred pattern for future tasks:
 For every newly transformed task, produce:
 
 ```text
-src/asynccodebench/dataset/<repo>_v03.py
+src/asyncodebench/dataset/<repo>_v03.py
 scripts/build_<repo>_v03_data.py
 manifests/pilot/v0.3/tasks/commit0_<repo>.json
 manifests/pilot/v0.3/scenarios/commit0_<repo>.json

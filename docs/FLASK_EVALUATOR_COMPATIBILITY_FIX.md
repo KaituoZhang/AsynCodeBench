@@ -1,7 +1,7 @@
 # Flask Evaluator Compatibility Fix
 
 This note records the Flask-specific evaluator issue we hit while running
-AsyncCodeBench with `gpt-5.4-mini`, so future runs do not waste API budget on
+AsynCodeBench with `gpt-5.4-mini`, so future runs do not waste API budget on
 invalid Flask outputs.
 
 ## Scope
@@ -67,9 +67,9 @@ one unstable private export name.
 Run the Flask contract gates from the repository root:
 
 ```bash
-cd /home/kzhang42/AsyncCodeBench
-PYTHONPATH=/home/kzhang42/AsyncCodeBench/src \
-  /home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents/.venv/bin/python \
+cd /absolute/path/to/AsynCodeBench
+PYTHONPATH=/absolute/path/to/AsynCodeBench/src \
+  /absolute/path/to/AsynCodeBench/reproductions/async-swe-agents/.venv/bin/python \
   -m pytest tests/contracts/test_flask_dataset_v03.py \
   tests/contracts/test_flask_async_metrics_v03.py -q
 ```
@@ -83,9 +83,9 @@ Expected result:
 Dry-run should report `overlays=11`:
 
 ```bash
-cd /home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents
+cd /absolute/path/to/AsynCodeBench/reproductions/async-swe-agents
 source scripts/env.sh
-unset ASYNCCODEBENCH_DISABLE_CURATED_TASK_SOURCE
+unset ASYNCODEBENCH_DISABLE_CURATED_TASK_SOURCE
 
 uv run python run_static_protocol.py \
   --task commit0 \

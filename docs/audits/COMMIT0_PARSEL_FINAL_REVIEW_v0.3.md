@@ -2,7 +2,7 @@
 
 Task: `commit0:parsel`  
 Date: 2026-06-26  
-Decision: do not construct as a final AsyncCodeBench v0.3 task in the current
+Decision: do not construct as a final AsynCodeBench v0.3 task in the current
 release pass.
 
 ## Reason
@@ -45,4 +45,4 @@ import/class-definition prerequisites. This case does not meet that standard.
 
 Keep `commit0:parsel` in backlog. It may become usable later if the benchmark
 explicitly supports answer-free bootstrap overlays for substantive import
-blockers, but it should not be treated as final AsyncCodeBench data now.
+blockers, but it should not be treated as final AsynCodeBench data now.

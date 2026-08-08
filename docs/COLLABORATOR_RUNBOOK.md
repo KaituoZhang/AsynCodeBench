@@ -1,12 +1,12 @@
-# AsyncCodeBench Collaborator Runbook
+# AsynCodeBench Collaborator Runbook
 
 This document explains what to upload to GitHub and how collaborators can run
-AsyncCodeBench agent experiments from a fresh machine.
+AsynCodeBench agent experiments from a fresh machine.
 
 Repository target:
 
 ```text
-https://github.com/KaituoZhang/Asynccodebench
+https://github.com/KaituoZhang/AsynCodeBench
 ```
 
 If a collaborator uses Codex or another coding agent, ask that agent to read
@@ -16,12 +16,12 @@ which files to inspect first, and where LLM/API configuration lives.
 For copy-paste commands to run a new model across the current official task
 set, use `docs/MODEL_EXPERIMENT_RUNBOOK.md`. For lower-level runner details,
 use `docs/AGENT_EXPERIMENT_RUNBOOK.md`. These documents explain how to verify
-that the runner is using AsyncCodeBench curated inputs rather than raw Commit0
+that the runner is using AsynCodeBench curated inputs rather than raw Commit0
 fallbacks.
 
 For evaluation metrics and post-run analysis, ask collaborators to read
 `docs/EVALUATION_METRICS.md`. That document defines the current first-round
-AsyncCodeBench metrics, the required run artifacts, and the analysis commands.
+AsynCodeBench metrics, the required run artifacts, and the analysis commands.
 
 ## What Should Be Versioned
 
@@ -65,7 +65,7 @@ checksum-pinned non-solution bootstrap patches required by some tasks.
 ## Important Git Warning
 
 `reproductions/async-swe-agents/` is currently a cloned repository with its own
-`.git` directory. If you run `git add .` from the AsyncCodeBench root while that
+`.git` directory. If you run `git add .` from the AsynCodeBench root while that
 nested `.git` directory still exists, Git may record it as an embedded repo or
 submodule instead of uploading the actual source files.
 
@@ -73,7 +73,7 @@ For a simple single-repository release, back up and remove the nested git
 metadata before the first top-level commit:
 
 ```bash
-export REPO_ROOT="${REPO_ROOT:-$HOME/AsyncCodeBench}"
+export REPO_ROOT="${REPO_ROOT:-$HOME/AsynCodeBench}"
 cd "$REPO_ROOT"
 tar -C reproductions/async-swe-agents -czf ~/async-swe-agents-local-git-backup.tgz .git
 rm -rf reproductions/async-swe-agents/.git
@@ -88,14 +88,14 @@ For this project, the simple one-repo release is easier for collaborators.
 From the server:
 
 ```bash
-export REPO_ROOT="${REPO_ROOT:-$HOME/AsyncCodeBench}"
+export REPO_ROOT="${REPO_ROOT:-$HOME/AsynCodeBench}"
 cd "$REPO_ROOT"
 
 # Only if this directory is not already a git repo.
 git init
 git branch -M main
 
-git remote add origin https://github.com/KaituoZhang/Asynccodebench.git
+git remote add origin https://github.com/KaituoZhang/AsynCodeBench.git
 
 git status --short
 git add .gitignore README SPECIFICATION_v0.3.md pyproject.toml environment.yml
@@ -103,14 +103,14 @@ git add configs data/overlays docs manifests pipelines schemas scripts skills sr
 git add reproductions/README.md reproductions/async-swe-agents
 
 git status --short
-git commit -m "Release AsyncCodeBench data and agent runners"
+git commit -m "Release AsynCodeBench data and agent runners"
 git push -u origin main
 ```
 
 If `origin` already exists:
 
 ```bash
-git remote set-url origin https://github.com/KaituoZhang/Asynccodebench.git
+git remote set-url origin https://github.com/KaituoZhang/AsynCodeBench.git
 ```
 
 If Git warns about an embedded repository under
@@ -121,17 +121,17 @@ If Git warns about an embedded repository under
 On a collaborator machine:
 
 ```bash
-git clone https://github.com/KaituoZhang/Asynccodebench.git
-cd Asynccodebench
+git clone https://github.com/KaituoZhang/AsynCodeBench.git
+cd AsynCodeBench
 ```
 
-Install the AsyncCodeBench validation environment:
+Install the AsynCodeBench validation environment:
 
 Option A: conda:
 
 ```bash
-conda create -n asynccodebench python=3.10 -y
-conda activate asynccodebench
+conda create -n asyncodebench python=3.10 -y
+conda activate asyncodebench
 python -m pip install -U pip
 python -m pip install -e ".[dev]"
 ```
@@ -170,7 +170,7 @@ reproductions/async-swe-agents/
 
 It uses `uv`, Docker, OpenHands, and provider-compatible LLM APIs.
 
-This is separate from the top-level AsyncCodeBench conda environment. The
+This is separate from the top-level AsynCodeBench conda environment. The
 `async-swe-agents` reproduction repository has its own `pyproject.toml` and
 `uv.lock`, so `uv sync` is the most reproducible way to install the exact agent
 runner dependencies.
@@ -222,7 +222,7 @@ LLM_API_KEY=YOUR_OPENROUTER_KEY
 LLM_MODEL=openai/gpt-5.4-mini
 LLM_SUBAGENT_MODEL=
 COMMIT0_DATASET_PATH=data/commit0/commit0_combined
-SDK_SOURCE_DIR=/absolute/path/to/Asynccodebench/reproductions/software-agent-sdk
+SDK_SOURCE_DIR=/absolute/path/to/AsynCodeBench/reproductions/software-agent-sdk
 ```
 
 Alternative OpenRouter model IDs:
@@ -262,8 +262,8 @@ Validate scenario parsing without Docker or LLM calls:
 
 ```bash
 cd reproductions/async-swe-agents
-uv run python run_static_protocol.py --protocol serial_specialists --repo cachetools --dry_run
-uv run python run_static_protocol.py --protocol async_private --repo cachetools --dry_run
+MODEL_TAG=smoke RUN_VERSION=dryrun_v01 DRY_RUN=1 \
+  scripts/run_asyncodebench_all_protocols_env.sh cachetools
 ```
 
 Expected dry-run output should include:
@@ -277,10 +277,10 @@ decorator_agent subproblem=decorator_factories
 Then run a small real smoke test with low iteration budgets:
 
 ```bash
-MAX_ITERATIONS=5 SUB_ITERATIONS=5 scripts/run_commit0_single_env.sh cachetools
-MAX_SUBAGENTS=2 SUB_ITERATIONS=5 scripts/run_commit0_serial_env.sh cachetools
-MAX_SUBAGENTS=2 SUB_ITERATIONS=5 scripts/run_commit0_async_private_env.sh cachetools
-MAX_ITERATIONS=5 MAX_SUBAGENTS=2 SUB_ITERATIONS=5 scripts/run_commit0_multi_env.sh cachetools
+MODEL_TAG=<model-tag> RUN_VERSION=smoke_v01 \
+SINGLE_ITERATIONS=5 SPECIALIST_ITERATIONS=5 \
+CAID_MANAGER_ITERATIONS=5 CAID_SUB_ITERATIONS=5 \
+  scripts/run_asyncodebench_all_protocols_env.sh cachetools
 ```
 
 ## Full Experiment Commands
@@ -290,10 +290,8 @@ Run the four protocols for one task:
 ```bash
 cd reproductions/async-swe-agents
 
-scripts/run_commit0_single_env.sh cachetools
-scripts/run_commit0_serial_env.sh cachetools
-scripts/run_commit0_async_private_env.sh cachetools
-scripts/run_commit0_multi_env.sh cachetools
+MODEL_TAG=<model-tag> RUN_VERSION=official_v01 \
+  scripts/run_asyncodebench_all_protocols_env.sh cachetools
 ```
 
 Recommended current experimental task set:
@@ -302,7 +300,6 @@ Recommended current experimental task set:
 cachetools
 cookiecutter
 deprecated
-dulwich
 filesystem_spec
 flask
 graphene
@@ -322,12 +319,13 @@ Excluded or needs-revision candidates:
 
 ```text
 chardet
+dulwich
 fastapi
 python-progressbar
 fabric
 ```
 
-Historical artifacts for `chardet` and `python-progressbar` are archived under
+Historical artifacts for `chardet`, `dulwich`, and `python-progressbar` are archived under
 `archive/non_official/commit0_v0.3/` for audit only. Do not include archived
 tasks in official v0.3 runs or aggregate reports.
 
@@ -337,22 +335,20 @@ Run all four protocols for the recommended task set:
 cd reproductions/async-swe-agents
 
 for repo in \
-  cachetools cookiecutter deprecated dulwich filesystem_spec flask \
+  cachetools cookiecutter deprecated filesystem_spec flask \
   graphene imapclient marshmallow parsel pexpect portalocker python-rsa \
   requests simpy tinydb wcwidth
 do
-  scripts/run_commit0_single_env.sh "$repo"
-  scripts/run_commit0_serial_env.sh "$repo"
-  scripts/run_commit0_async_private_env.sh "$repo"
-  scripts/run_commit0_multi_env.sh "$repo"
+  MODEL_TAG=<model-tag> RUN_VERSION=official_v01 \
+    scripts/run_asyncodebench_all_protocols_env.sh "$repo"
 done
 ```
 
 To run with a different model, edit `.env` or override variables inline:
 
 ```bash
-LLM_MODEL=qwen/qwen3.7-plus scripts/run_commit0_single_env.sh cachetools
-LLM_MODEL=z-ai/glm-4.5 scripts/run_commit0_multi_env.sh cachetools
+LLM_MODEL=qwen/qwen3.7-plus MODEL_TAG=qwen3.7-plus RUN_VERSION=v01 \
+  scripts/run_asyncodebench_all_protocols_env.sh cachetools
 ```
 
 ## Output Files

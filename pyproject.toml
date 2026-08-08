@@ -3,7 +3,7 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "asynccodebench"
+name = "asyncodebench"
 version = "0.0.0"
 description = "Benchmark for proactive coordination in asynchronous LLM software-agent teams"
 readme = "README"
@@ -22,7 +22,7 @@ dev = [
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["asynccodebench*"]
+include = ["asyncodebench*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -1,4 +1,4 @@
-# Predecessor infrastructure gap audit against AsyncCodeBench v0.2
+# Predecessor infrastructure gap audit against AsynCodeBench v0.2
 
 Status: initial code-level audit  
 Specification: `SPECIFICATION_v0.2.md`  
@@ -7,7 +7,7 @@ Audit scope: the local predecessor prototype as observed on 2026-06-21
 ## 1. Executive decision
 
 The predecessor contains useful deterministic infrastructure, but it is not an
-AsyncCodeBench implementation. Migration must be selective.
+AsynCodeBench implementation. Migration must be selective.
 
 The strongest reusable components are:
 
@@ -74,7 +74,7 @@ Key evidence files:
 | `experiments/commit0_qualification.py` | refs, executable baseline/reference checks | Partial | Rewrite qualification layer | Reference diff is gold-informed; no dual annotation, agreement, dependency separability, task cards or adjudication |
 | agent backends | cached OpenAI-compatible inference | Partial | Defer | Only needed for live validation; cache isolation and audit policy are missing |
 | `marl/`, compatible returns, Checkpoint-A generators | training/teacher-data code | Out of scope | Exclude | First paper does not train FreshGRPO or publish Checkpoint-A |
-| Robotouille/Collab-Overcooked code | embodied adapters and scripts | Out of scope | Exclude | Not part of AsyncCodeBench |
+| Robotouille/Collab-Overcooked code | embodied adapters and scripts | Out of scope | Exclude | Not part of AsynCodeBench |
 | controlled cachetools freshness experiments | historical mechanism experiment | Out of scope as benchmark implementation | Exclude, retain as historical evidence | Synthetic/controlled intervention cannot define release tasks |
 
 ## 4. Requirement-by-requirement gaps
@@ -228,13 +228,13 @@ Decision: rewrite metrics against the new trajectory and provenance contracts.
 
 ## 5. Migration gates
 
-A component may enter AsyncCodeBench only when:
+A component may enter AsynCodeBench only when:
 
 1. its v0.2 contract is explicit;
 2. no import points back to `freshcomm`;
 3. behavior tests are copied or rewritten;
 4. new information-boundary tests are added where relevant;
-5. the component runs in the `AsyncCodeBench` Conda environment;
+5. the component runs in the `AsynCodeBench` Conda environment;
 6. historical reward, training, and embodied assumptions are removed;
 7. the migration is documented in this report.
 
@@ -257,7 +257,7 @@ A component may enter AsyncCodeBench only when:
 
 Disposition: `adapt`.
 
-The original predecessor schema is not copied. AsyncCodeBench defines fresh
+The original predecessor schema is not copied. AsynCodeBench defines fresh
 versioned contracts for events, concrete operations, messages, artifacts,
 jobs, resources, task qualification, capability cards, and baseline semantic
 cards. Tests enforce the most important information and lifecycle invariants.
@@ -294,8 +294,8 @@ explicit benchmark operations rather than hidden workspace behavior.
 
 Files:
 
-- `src/asynccodebench/runtime/workspace.py`
-- `src/asynccodebench/runtime/patches.py`
+- `src/asyncodebench/runtime/workspace.py`
+- `src/asyncodebench/runtime/patches.py`
 - `tests/unit/test_workspace.py`
 - `tests/unit/test_patches.py`
 

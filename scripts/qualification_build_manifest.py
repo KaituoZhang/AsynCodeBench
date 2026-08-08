@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from asynccodebench.qualification.cli import main
+from asyncodebench.qualification.cli import main
 
 if __name__ == "__main__":
     raise SystemExit(main())

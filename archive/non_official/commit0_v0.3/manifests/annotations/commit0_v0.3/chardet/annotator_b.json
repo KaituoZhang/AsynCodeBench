@@ -13,7 +13,7 @@
     "Review the linked TaskQualityRecord, including the requirement to use origin/commit0_combined as the initial source ref.",
     "Do not inspect reference branches, solution patches, or diffs.",
     "Do not consult the other annotator before submitting.",
-    "Explicitly assess whether detector/prober splits are natural AsyncCodeBench dependencies rather than a forced split of encoding-model reconstruction."
+    "Explicitly assess whether detector/prober splits are natural AsynCodeBench dependencies rather than a forced split of encoding-model reconstruction."
   ],
   "parallelizability_label": null,
   "rationale": null,

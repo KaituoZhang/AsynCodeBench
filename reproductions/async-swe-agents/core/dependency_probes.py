@@ -122,15 +122,15 @@ def next_checkpoint_step(output_dir):
 
 
 def probe_timeout_seconds(timeout):
-    raw_value = os.getenv("ASYNCCODEBENCH_PROBE_TIMEOUT_SECONDS")
+    raw_value = os.getenv("ASYNCODEBENCH_PROBE_TIMEOUT_SECONDS")
     if raw_value is None:
         return timeout
     try:
         parsed = int(raw_value)
     except ValueError:
         print(
-            "[AsyncCodeBench] Warning: invalid "
-            f"ASYNCCODEBENCH_PROBE_TIMEOUT_SECONDS={raw_value!r}; "
+            "[AsynCodeBench] Warning: invalid "
+            f"ASYNCODEBENCH_PROBE_TIMEOUT_SECONDS={raw_value!r}; "
             f"using {timeout}"
         )
         return timeout
@@ -230,12 +230,12 @@ def write_dependency_probe_checkpoint(
     metrics_path=None,
     timeout=60,
 ):
-    if os.getenv("ASYNCCODEBENCH_DISABLE_PROBE_CHECKPOINTS") == "1":
+    if os.getenv("ASYNCODEBENCH_DISABLE_PROBE_CHECKPOINTS") == "1":
         return None
 
     metrics, resolved_metrics_path = load_metrics_manifest(repo_name, metrics_path)
     if not metrics:
-        print(f"[AsyncCodeBench] No metrics manifest found at {resolved_metrics_path}; skipping probe checkpoint")
+        print(f"[AsynCodeBench] No metrics manifest found at {resolved_metrics_path}; skipping probe checkpoint")
         return None
 
     selectors = _all_probe_selectors(metrics)
@@ -244,7 +244,7 @@ def write_dependency_probe_checkpoint(
     checkpoints_path = output_dir / "dependency_probe_checkpoints.jsonl"
 
     if not selectors:
-        print("[AsyncCodeBench] Metrics manifest has no probe selectors; skipping probe checkpoint")
+        print("[AsynCodeBench] Metrics manifest has no probe selectors; skipping probe checkpoint")
         return None
 
     safe_id = re.sub(r"[^A-Za-z0-9_.-]+", "_", checkpoint_id)
@@ -256,8 +256,8 @@ def write_dependency_probe_checkpoint(
     output_chunks = []
     for index, selector in enumerate(selectors):
         selector_safe_id = re.sub(r"[^A-Za-z0-9_.-]+", "_", f"{safe_id}_{index}")
-        selector_report_path = f"/tmp/asynccodebench_probe_{selector_safe_id}.json"
-        selector_output_path = f"/tmp/asynccodebench_probe_{selector_safe_id}.txt"
+        selector_report_path = f"/tmp/asyncodebench_probe_{selector_safe_id}.json"
+        selector_output_path = f"/tmp/asyncodebench_probe_{selector_safe_id}.txt"
         selector_run = _run_one_selector_probe(
             workspace,
             selector=selector,
@@ -318,7 +318,7 @@ def write_dependency_probe_checkpoint(
         if row["groups"]["integrated"]["passed"]
     )
     print(
-        "[AsyncCodeBench] Probe checkpoint "
+        "[AsynCodeBench] Probe checkpoint "
         f"{checkpoint_id}: integrated {passed_dependencies}/{len(dependency_results)} "
         f"dependencies passed"
     )

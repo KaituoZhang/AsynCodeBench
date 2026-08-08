@@ -16,7 +16,7 @@
     "Complete include, label, rationale, and exclusion reason if needed."
   ],
   "parallelizability_label": "partially_parallelizable",
-  "rationale": "Cachetools is suitable for AsyncCodeBench because it has separable but dependent implementation surfaces: cache key construction and decorator/cache behavior.",
+  "rationale": "Cachetools is suitable for AsynCodeBench because it has separable but dependent implementation surfaces: cache key construction and decorator/cache behavior.",
   "schema_version": "0.3",
   "task_id": "commit0:cachetools",
   "task_record_file": "manifests/pilot/v0.3/tasks/commit0_cachetools.json"

@@ -137,7 +137,7 @@ unicode_version_catalog -> width_algorithm
 ascending strings, how versions are formatted, and what the lowest/latest
 supported values are.
 
-This makes the task useful for AsyncCodeBench because an asynchronous
+This makes the task useful for AsynCodeBench because an asynchronous
 `width_agent` can proceed with a stale or incorrect assumption about the
 version catalog while the `version_agent` is still working privately.
 
@@ -171,7 +171,7 @@ width_agent   -> wcwidth/wcwidth.py
 ## Generated assets
 
 ```text
-src/asynccodebench/dataset/wcwidth_v03.py
+src/asyncodebench/dataset/wcwidth_v03.py
 scripts/build_wcwidth_v03_data.py
 manifests/pilot/v0.3/tasks/commit0_wcwidth.json
 manifests/pilot/v0.3/scenarios/commit0_wcwidth.json

@@ -1,7 +1,7 @@
 # Commit0 Candidate Review: more-itertools / moviepy / loguru
 
 Date: 2026-06-24  
-Protocol: AsyncCodeBench v0.3, following `docs/protocols/COMMIT0_DATA_EXAMPLE_GUIDE_v0.3.md`
+Protocol: AsynCodeBench v0.3, following `docs/protocols/COMMIT0_DATA_EXAMPLE_GUIDE_v0.3.md`
 
 This audit reviews the next Commit0 repositories after `click / python-rsa / statsmodels`:
 
@@ -9,11 +9,11 @@ This audit reviews the next Commit0 repositories after `click / python-rsa / sta
 - `commit0:moviepy`
 - `commit0:loguru`
 
-The goal is to find repositories that can become AsyncCodeBench tasks: feasible for a strong single coding agent, but naturally vulnerable to asynchronous multi-agent failures through stale interfaces, stale shared abstractions, or partially synchronized implementation work.
+The goal is to find repositories that can become AsynCodeBench tasks: feasible for a strong single coding agent, but naturally vulnerable to asynchronous multi-agent failures through stale interfaces, stale shared abstractions, or partially synchronized implementation work.
 
 ## Decision summary
 
-| Repository | Decision | AsyncCodeBench fit | Main reason |
+| Repository | Decision | AsynCodeBench fit | Main reason |
 |---|---:|---:|---|
 | `more-itertools` | Reject/defer for v0.3 main set | Not suitable as raw Commit0 task | Raw Commit0 already passes the visible test suite. Remaining markers are not substantive missing implementation. |
 | `moviepy` | Defer / environment-heavy backlog | Weak candidate | It has a natural media pipeline, but visible blockers are dependency/media/ffmpeg related and the precise missing-code surface is weak. |
@@ -196,7 +196,7 @@ Local collection is blocked by missing test dependency `freezegun`, which is an 
 
 ### Why it looks tempting
 
-`loguru` has a better architectural shape than `moviepy` for AsyncCodeBench. A plausible split would be:
+`loguru` has a better architectural shape than `moviepy` for AsynCodeBench. A plausible split would be:
 
 - Agent A: logger core, levels, filters, add/remove/configure.
 - Agent B: sink wrappers, async/callable/standard stream handling.

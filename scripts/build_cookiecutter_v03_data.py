@@ -745,7 +745,7 @@ def annotation_form(annotator_id: str) -> dict:
             "Review the linked TaskQualityRecord, especially the weak_or_unclear screening label and scoped evaluator exclusions.",
             "Do not inspect reference branches, solution patches, or diffs.",
             "Do not consult the other annotator before submitting.",
-            "Explicitly assess whether the config/prompt + repository source + generation/hooks + orchestration split is a natural AsyncCodeBench dependency rather than artificial file partitioning.",
+            "Explicitly assess whether the config/prompt + repository source + generation/hooks + orchestration split is a natural AsynCodeBench dependency rather than artificial file partitioning.",
             "Explicitly assess whether excluding the three Click-version-sensitive prompt tests is appropriate for this scoped workflow task.",
         ],
         "parallelizability_label": None,

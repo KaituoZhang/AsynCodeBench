@@ -1,24 +1,24 @@
 # Cookiecutter Runner And Evaluator Notes
 
 This document records the runner/evaluator fixes needed for the
-AsyncCodeBench `commit0:cookiecutter` task. It is intended to prevent repeated
+AsynCodeBench `commit0:cookiecutter` task. It is intended to prevent repeated
 API-costly debugging by collaborators.
 
 ## Context
 
-`cookiecutter` is an official AsyncCodeBench v0.3 task. The runner command
+`cookiecutter` is an official AsynCodeBench v0.3 task. The runner command
 still uses `--task commit0`, but the intended input is the curated
-AsyncCodeBench task source, not the raw Commit0 task.
+AsynCodeBench task source, not the raw Commit0 task.
 
 Required environment convention:
 
 ```bash
-cd /home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents
+cd /absolute/path/to/AsynCodeBench/reproductions/async-swe-agents
 source scripts/env.sh
 
-unset ASYNCCODEBENCH_DISABLE_CURATED_TASK_SOURCE
-unset ASYNCCODEBENCH_DISABLE_CURATED_TASK_CONFIG
-unset ASYNCCODEBENCH_DISABLE_MANIFEST_EVALUATOR
+unset ASYNCODEBENCH_DISABLE_CURATED_TASK_SOURCE
+unset ASYNCODEBENCH_DISABLE_CURATED_TASK_CONFIG
+unset ASYNCODEBENCH_DISABLE_MANIFEST_EVALUATOR
 ```
 
 The official evaluator comes from:
@@ -47,7 +47,7 @@ ImportError: Error importing plugin "pytest_mock": No module named 'pytest_mock'
 Root cause:
 
 The runner was using a generic Commit0 pytest command instead of the
-AsyncCodeBench task manifest evaluator command. For `cookiecutter`, the correct
+AsynCodeBench task manifest evaluator command. For `cookiecutter`, the correct
 command includes `pytest_mock` and disables inherited addopts:
 
 ```bash
@@ -72,12 +72,12 @@ Expected final report metadata:
 
 ```json
 {
-  "final_evaluator_source": "asynccodebench_manifest",
+  "final_evaluator_source": "asyncodebench_manifest",
   "final_test_cmd": "python -m pytest -q -p pytest_mock -o addopts="
 }
 ```
 
-If `final_evaluator_source` is not `asynccodebench_manifest`, do not treat the
+If `final_evaluator_source` is not `asyncodebench_manifest`, do not treat the
 run as official.
 
 ### 2. Missing curated Python dependencies
@@ -89,7 +89,7 @@ Symptom:
 Root cause:
 
 The curated task config did not list all Python dependencies needed by
-`cookiecutter`'s AsyncCodeBench evaluator.
+`cookiecutter`'s AsynCodeBench evaluator.
 
 Fix location:
 
@@ -231,14 +231,14 @@ for the same GPU scheduler and OpenHands host port. See
 First load the runner environment:
 
 ```bash
-cd /home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents
+cd /absolute/path/to/AsynCodeBench/reproductions/async-swe-agents
 
 export ENV_FILE="$PWD/.env.qwen36-27"
 source scripts/env.sh
 
-unset ASYNCCODEBENCH_DISABLE_CURATED_TASK_SOURCE
-unset ASYNCCODEBENCH_DISABLE_CURATED_TASK_CONFIG
-unset ASYNCCODEBENCH_DISABLE_MANIFEST_EVALUATOR
+unset ASYNCODEBENCH_DISABLE_CURATED_TASK_SOURCE
+unset ASYNCODEBENCH_DISABLE_CURATED_TASK_CONFIG
+unset ASYNCODEBENCH_DISABLE_MANIFEST_EVALUATOR
 
 export LLM_BASE_URL=http://127.0.0.1:8006/v1
 export LLM_MODEL=openai/Qwen/Qwen3.6-27B
@@ -267,8 +267,8 @@ reason about.
 ### Single agent
 
 ```bash
-ASYNCCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
-ASYNCCODEBENCH_WORKSPACE_HOST_PORT=8020 \
+ASYNCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
+ASYNCODEBENCH_WORKSPACE_HOST_PORT=8020 \
 MAX_ITERATIONS=30 \
 OUTPUT_DIR="${BASE_OUT}/${MODEL_TAG}_single_i30_${RUN_VERSION}" \
 scripts/run_commit0_single_env.sh "$TASK"
@@ -277,8 +277,8 @@ scripts/run_commit0_single_env.sh "$TASK"
 ### Serial specialists
 
 ```bash
-ASYNCCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
-ASYNCCODEBENCH_WORKSPACE_HOST_PORT=8021 \
+ASYNCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
+ASYNCODEBENCH_WORKSPACE_HOST_PORT=8021 \
 MAX_SUBAGENTS=$MAX_SUBAGENTS \
 SUB_ITERATIONS=30 \
 OUTPUT_DIR="${BASE_OUT}/${MODEL_TAG}_serial_4agents_s30_${RUN_VERSION}" \
@@ -288,8 +288,8 @@ scripts/run_commit0_serial_env.sh "$TASK"
 ### Async private
 
 ```bash
-ASYNCCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
-ASYNCCODEBENCH_WORKSPACE_HOST_PORT=8022 \
+ASYNCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
+ASYNCODEBENCH_WORKSPACE_HOST_PORT=8022 \
 MAX_SUBAGENTS=$MAX_SUBAGENTS \
 SUB_ITERATIONS=30 \
 OUTPUT_DIR="${BASE_OUT}/${MODEL_TAG}_async_private_4agents_s30_${RUN_VERSION}" \
@@ -299,8 +299,8 @@ scripts/run_commit0_async_private_env.sh "$TASK"
 ### CAID multi-agent
 
 ```bash
-ASYNCCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
-ASYNCCODEBENCH_WORKSPACE_HOST_PORT=8023 \
+ASYNCODEBENCH_WORKSPACE_DOCKER_NETWORK=host \
+ASYNCODEBENCH_WORKSPACE_HOST_PORT=8023 \
 MAX_ITERATIONS=30 \
 MAX_SUBAGENTS=$MAX_SUBAGENTS \
 SUB_ITERATIONS=30 \
@@ -314,7 +314,7 @@ scripts/run_commit0_multi_env.sh "$TASK"
 Run from the repository root:
 
 ```bash
-cd /home/kzhang42/AsyncCodeBench
+cd /absolute/path/to/AsynCodeBench
 
 METRICS=manifests/pilot/v0.3/metrics/commit0_cookiecutter_async_metrics.json
 MODEL_TAG=qwen36-27
@@ -363,7 +363,7 @@ Before using a `cookiecutter` run in the paper table, check:
 
 - The run directory has exactly one `run_*.log`.
 - `report.json` contains `final_evaluator_source:
-  asynccodebench_manifest`.
+  asyncodebench_manifest`.
 - `report.json` contains `final_test_cmd:
   python -m pytest -q -p pytest_mock -o addopts=`.
 - `process_metrics_summary.json` exists.
@@ -388,6 +388,6 @@ Summary:
 Interpretation:
 
 Traditional final tests show that all multi-agent protocols fail. The
-AsyncCodeBench dependency metrics explain the failure more precisely: all three
+AsynCodeBench dependency metrics explain the failure more precisely: all three
 annotated cross-agent dependency contracts remain unresolved in the integrated
 workspace, while the single-agent baseline resolves all three.

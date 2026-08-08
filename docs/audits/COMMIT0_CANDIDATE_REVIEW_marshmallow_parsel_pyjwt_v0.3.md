@@ -2,7 +2,7 @@
 
 Date: 2026-06-24
 
-Scope: sequential candidate review after `minitorch`, `simpy`, and `bitstring`. This review inspects whether each repository can become an AsyncCodeBench v0.3 task: a strong single-agent coding task with natural multi-agent decomposition and measurable async coordination risk.
+Scope: sequential candidate review after `minitorch`, `simpy`, and `bitstring`. This review inspects whether each repository can become an AsynCodeBench v0.3 task: a strong single-agent coding task with natural multi-agent decomposition and measurable async coordination risk.
 
 Reviewed repositories:
 
@@ -39,7 +39,7 @@ Important ref note:
 - Diff size from stripped to complete/default:
   - 5 files
   - about 710 insertions, 93 deletions
-- Stripped-state collection in the current AsyncCodeBench env fails due missing dependencies:
+- Stripped-state collection in the current AsynCodeBench env fails due missing dependencies:
   - `lxml`
   - `cssselect`
   - `psutil`
@@ -48,7 +48,7 @@ Important ref note:
 
 ### Quality assessment
 
-`parsel` is a strong AsyncCodeBench candidate.
+`parsel` is a strong AsynCodeBench candidate.
 
 It has a compact and natural interface dependency:
 
@@ -57,7 +57,7 @@ It has a compact and natural interface dependency:
 - `parsel/utils.py` supplies helper behavior used by selectors, such as flattening and regex extraction.
 - `parsel/xpathfuncs.py` registers custom XPath functions.
 
-This is exactly the kind of decomposition AsyncCodeBench wants:
+This is exactly the kind of decomposition AsynCodeBench wants:
 
 - Agent A can own selector translation and utility primitives.
 - Agent B can own high-level selector/list behavior.
@@ -120,7 +120,7 @@ Admission status:
 - Diff size from stripped to complete/default:
   - 20 files
   - about 3019 insertions, 389 deletions
-- Stripped-state collection in the current AsyncCodeBench env fails first due missing `simplejson`.
+- Stripped-state collection in the current AsynCodeBench env fails first due missing `simplejson`.
 - Declared test dependencies are modest:
   - `pytest`
   - `pytz`

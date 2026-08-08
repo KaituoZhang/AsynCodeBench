@@ -469,7 +469,7 @@ def annotation_form(annotator_id: str) -> dict:
             "Review the linked TaskQualityRecord, including the dependency environment and checksum-recorded bootstrap overlays.",
             "Do not inspect reference branches, solution patches, or diffs.",
             "Do not consult the other annotator before submitting.",
-            "Explicitly assess whether the scaffold/app -> dispatch/context -> session/JSON -> templating/testing split is a natural AsyncCodeBench dependency rather than artificial file partitioning.",
+            "Explicitly assess whether the scaffold/app -> dispatch/context -> session/JSON -> templating/testing split is a natural AsynCodeBench dependency rather than artificial file partitioning.",
             "Explicitly assess whether excluding CLI, async extra, dev-server behavior, and full blueprint edge cases is appropriate for this scoped Flask task.",
         ],
         "parallelizability_label": None,

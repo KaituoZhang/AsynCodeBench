@@ -1,11 +1,31 @@
-# Centralized Asynchronous Isolated Delegation (CAID)
+# AsynCodeBench Agent Harness
 
-> AsyncCodeBench note: this directory is vendored as the agent runner for
-> AsyncCodeBench experiments. For official AsyncCodeBench model runs, start
-> from `../../docs/MODEL_EXPERIMENT_RUNBOOK.md` instead of the generic CAID
-> commands below. The official runs use curated AsyncCodeBench task manifests,
-> four protocol modes, strict dependency checkpoints, and post-run metric
-> aggregation.
+This directory contains the **OpenHands-powered AsynCodeBench-native harness**.
+OpenHands provides the agent loop, coding tools, private worktrees, remote agent
+server, and Docker workspace. AsynCodeBench provides the released task
+contracts, four protocol conditions, dependency labels and probes, scope and
+integration gates, evaluator, and reproducible output records.
+
+For a configured model, run all four protocols with:
+
+```bash
+export ENV_FILE="$PWD/.env.<model-tag>"
+MODEL_TAG=<model-tag> \
+RUN_VERSION=official_v01 \
+WORKSPACE_PORT_STRATEGY=auto \
+scripts/run_asyncodebench_all_protocols_env.sh cachetools
+```
+
+The wrapper accepts only official `asyncodebench:<task>` records, obtains the
+agent count from the scenario manifest, and invokes `run_asyncodebench.py` for
+`single`, `serial_specialists`, `async_private`, and `caid_manager`. Read
+`../../docs/EVALUATION_BRANCH_QUICKSTART.md` for setup and
+`../../docs/ASYNCODEBENCH_HARNESS_V2.md` for execution guarantees.
+
+The Commit0-named scripts documented later in this file are retained only for
+historical v1 reproduction. They are not the public interface for new runs.
+
+## Upstream CAID Lineage
 
 This repo contains the code for CAID, a multi-agent workflow where a central manager agent delegates tasks to multiple engineer agents to execute asynchronously in isolated git worktrees.
 

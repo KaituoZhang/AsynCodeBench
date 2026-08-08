@@ -1,4 +1,4 @@
-from asynccodebench.qualification.commit0_async_screening import (
+from asyncodebench.qualification.commit0_async_screening import (
     parse_pytest_summary,
 )
 

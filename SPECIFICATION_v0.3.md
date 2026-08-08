@@ -1,4 +1,4 @@
-# AsyncCodeBench Specification v0.3
+# AsynCodeBench Specification v0.3
 
 **Status:** Active first-paper specification  
 **Date:** 2026-06-22  
@@ -15,7 +15,7 @@ this document, v0.3 takes precedence for the first paper.
 
 ## 1. Project decision
 
-The first AsyncCodeBench paper will release:
+The first AsynCodeBench paper will release:
 
 1. a curated benchmark dataset of naturally decomposable coding tasks;
 2. a reproducible asynchronous multi-agent execution framework;
@@ -26,7 +26,7 @@ The first AsyncCodeBench paper will release:
 The first paper will not train FreshGRPO or another learned coordination
 policy.
 
-AsyncCodeBench is not a new collection of synthetic coding problems. It
+AsynCodeBench is not a new collection of synthetic coding problems. It
 extends official or existing repository-level tasks with:
 
 - qualification metadata;
@@ -43,7 +43,7 @@ produce a correct final patch. Existing multi-agent benchmarks primarily study
 communication and collaboration in simulated, general, or embodied
 environments.
 
-AsyncCodeBench targets the missing intersection:
+AsynCodeBench targets the missing intersection:
 
 ```text
 real repository-level coding tasks
@@ -119,7 +119,7 @@ failures, not a claim that every failure is proactive coordination failure.
 
 ## 3.1 Experimental principle: strong agents, weak asynchrony
 
-AsyncCodeBench must not obtain a negative asynchronous result by weakening the
+AsynCodeBench must not obtain a negative asynchronous result by weakening the
 worker agents.
 
 The same iterative coding scaffold must be used for:
@@ -207,7 +207,7 @@ The first paper must not claim:
 - that one communication policy is universally optimal;
 - that every team failure is caused by asynchronous coordination.
 
-These questions may be studied in later AsyncCodeBench releases.
+These questions may be studied in later AsynCodeBench releases.
 
 ## 6. First-release benchmark assets
 
@@ -271,7 +271,7 @@ Commit0 must not be the only reported task source.
 
 Qualified SWE-bench is the primary external task source.
 
-AsyncCodeBench must:
+AsynCodeBench must:
 
 - preserve official repository snapshots;
 - preserve official problem statements;
@@ -288,7 +288,7 @@ requirements.
 
 ## 8. Dataset unit
 
-AsyncCodeBench distinguishes three records.
+AsynCodeBench distinguishes three records.
 
 ### 8.1 Task record
 
@@ -390,7 +390,7 @@ Gold patches and reference diffs must not define the primary label.
 
 ### 9.1 Natural decomposition requirement
 
-AsyncCodeBench must not create coordination difficulty by arbitrary file
+AsynCodeBench must not create coordination difficulty by arbitrary file
 splitting. A scenario decomposition is valid only when annotators can explain:
 
 - why each subproblem is meaningful;
@@ -963,5 +963,5 @@ framework are stable.
 10. complete a small qualified SWE-bench subset;
 11. run the repeated two-model by four-condition pilot.
 
-FreshGRPO remains deferred until AsyncCodeBench establishes a useful and
+FreshGRPO remains deferred until AsynCodeBench establishes a useful and
 reproducible benchmark.

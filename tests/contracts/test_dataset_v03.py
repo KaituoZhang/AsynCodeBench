@@ -5,15 +5,15 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from asynccodebench.dataset.annotation import finalize_task_record
-from asynccodebench.dataset.cachetools_v03 import (
+from asyncodebench.dataset.annotation import finalize_task_record
+from asyncodebench.dataset.cachetools_v03 import (
     build_adjudication_form,
     build_annotation_forms,
     build_quality_record,
     build_scenarios,
     build_task_record,
 )
-from asynccodebench.dataset.models import (
+from asyncodebench.dataset.models import (
     AnnotationForm,
     ExecutionMode,
     QualificationStatus,

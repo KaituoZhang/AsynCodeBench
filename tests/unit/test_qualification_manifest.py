@@ -5,8 +5,8 @@ import json
 
 import pytest
 
-from asynccodebench.contracts import ParallelizabilityLabel
-from asynccodebench.qualification import (
+from asyncodebench.contracts import ParallelizabilityLabel
+from asyncodebench.qualification import (
     AdjudicationDecision,
     AnnotatorDecision,
     CandidateRecord,

@@ -46,7 +46,7 @@ Important ref note:
   - 49 source files in stripped commit summary
   - about 253 insertions, 3438 deletions in stripped commit
   - about 2785 insertions, 1190 deletions from stripped to complete/default across repo state
-- Current AsyncCodeBench env collection blocker:
+- Current AsynCodeBench env collection blocker:
   - missing `graphql`
 - Declared runtime dependencies:
   - `graphql-core>=3.1,<3.3`
@@ -55,7 +55,7 @@ Important ref note:
 
 ### Quality assessment
 
-`graphene` is a plausible AsyncCodeBench candidate, but not as a full stripped task.
+`graphene` is a plausible AsynCodeBench candidate, but not as a full stripped task.
 
 It has a natural dependency structure:
 
@@ -146,7 +146,7 @@ The full stripped task violates the guide's anti-pattern warnings:
 - A role split would be arbitrary unless we manually carve out a very small subtask.
 - The stripped tree breaks at low-level import/decorator behavior, so many targeted tests cannot even collect without a substantive bootstrap.
 
-There are real dependency structures inside NetworkX, but the raw Commit0 task is too broad to support a clean AsyncCodeBench story. Using it directly would measure "large-library reconstruction" more than asynchronous coordination.
+There are real dependency structures inside NetworkX, but the raw Commit0 task is too broad to support a clean AsynCodeBench story. Using it directly would measure "large-library reconstruction" more than asynchronous coordination.
 
 ### Possible future use
 

@@ -1,12 +1,12 @@
 #!/usr/bin/env python
-"""Materialize pinned Commit0 repositories into AsyncCodeBench local data."""
+"""Materialize pinned Commit0 repositories into AsynCodeBench local data."""
 
 from __future__ import annotations
 
 import argparse
 from pathlib import Path
 
-from asynccodebench.qualification.commit0_repositories import (
+from asyncodebench.qualification.commit0_repositories import (
     load_commit0_repositories,
     materialize_commit0_repositories,
 )

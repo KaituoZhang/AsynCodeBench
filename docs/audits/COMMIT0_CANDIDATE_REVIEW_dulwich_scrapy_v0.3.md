@@ -3,7 +3,7 @@
 Date: 2026-06-24
 
 This note reviews whether `commit0:dulwich` and `commit0:scrapy` should enter
-the AsyncCodeBench v0.3 candidate pool. The decision standard here is candidate
+the AsynCodeBench v0.3 candidate pool. The decision standard here is candidate
 admission, not release readiness.
 
 ## Decision Summary
@@ -55,7 +55,7 @@ Natural dependency patterns:
 - `refs.py` and `config.py` are shared state abstractions used by repo
   creation and mutation flows.
 
-These patterns fit both AsyncCodeBench task categories:
+These patterns fit both AsynCodeBench task categories:
 
 - Interface Dependency
 - Shared State / Shared Abstraction
@@ -124,7 +124,7 @@ network/resource issue.
 
 ### Candidate decision
 
-Admit `commit0:dulwich` as a strong AsyncCodeBench candidate. It can count
+Admit `commit0:dulwich` as a strong AsynCodeBench candidate. It can count
 toward the 20-task target after task construction and quality records are
 created.
 
@@ -195,7 +195,7 @@ Natural dependency patterns:
 - Downloader and spider middleware depend on shared request/response and stats
   contracts.
 
-These are conceptually strong AsyncCodeBench targets, especially for Shared
+These are conceptually strong AsynCodeBench targets, especially for Shared
 State / Shared Abstraction and delayed/asynchronous behavior.
 
 ### Environment / bootstrap findings
@@ -206,7 +206,7 @@ Current collection is blocked at `conftest.py` by a missing core dependency:
 ModuleNotFoundError: No module named 'twisted'
 ```
 
-The current AsyncCodeBench environment is missing most Scrapy runtime
+The current AsynCodeBench environment is missing most Scrapy runtime
 dependencies:
 
 ```text

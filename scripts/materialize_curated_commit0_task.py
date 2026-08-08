@@ -7,7 +7,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from asynccodebench.qualification.curated_commit0 import (
+from asyncodebench.qualification.curated_commit0 import (
     load_curated_tasks,
     materialize_curated_task,
 )

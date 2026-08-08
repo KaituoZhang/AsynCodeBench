@@ -5,7 +5,7 @@ Status: qualification-ready candidate pending independent annotation
 Task: `commit0:deprecated`
 
 This document records the public evidence and reasoning used to turn the
-Deprecated Commit0 repository into the second AsyncCodeBench dataset example.
+Deprecated Commit0 repository into the second AsynCodeBench dataset example.
 It follows `COMMIT0_DATA_EXAMPLE_GUIDE_v0.3.md`.
 
 It does not contain a gold solution, reference diff, final human label, or
@@ -19,7 +19,7 @@ public origin: https://github.com/commit-0/deprecated.git
 commit0 SHA: b7e2114c046abb489e4e23ab9f829778b076650d
 ```
 
-AsyncCodeBench does not modify the upstream implementation or tests. Scenario
+AsynCodeBench does not modify the upstream implementation or tests. Scenario
 records only define agent organization, visibility, execution order,
 communication, integration, and budgets.
 

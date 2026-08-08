@@ -13,7 +13,7 @@
     "Review the linked TaskQualityRecord, especially the weak_or_unclear screening label and bootstrap-width risk.",
     "Do not inspect reference branches, solution patches, or diffs.",
     "Do not consult the other annotator before submitting.",
-    "Explicitly assess whether the terminal/stream -> ProgressBar -> widget split is a natural AsyncCodeBench dependency rather than artificial file partitioning.",
+    "Explicitly assess whether the terminal/stream -> ProgressBar -> widget split is a natural AsynCodeBench dependency rather than artificial file partitioning.",
     "Explicitly decide whether a future bootstrap overlay for syntax/import/class construction blockers would be answer-free enough for inclusion."
   ],
   "parallelizability_label": null,

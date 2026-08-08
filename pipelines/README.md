@@ -8,5 +8,5 @@ Reproducible multi-stage workflows belong here. Planned groups are:
 - `pilot/`: smoke, phenomenon, and locked Go/No-Go runs;
 - `release/`: final benchmark materialization and evaluation.
 
-Pipeline logic should call `asynccodebench` library APIs. It should not define
+Pipeline logic should call `asyncodebench` library APIs. It should not define
 new event or evaluation semantics.

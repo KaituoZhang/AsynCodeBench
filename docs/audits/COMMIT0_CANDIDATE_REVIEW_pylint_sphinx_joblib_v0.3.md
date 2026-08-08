@@ -1,7 +1,7 @@
 # Commit0 Candidate Review: pylint / sphinx / joblib
 
 Date: 2026-06-24  
-Protocol: AsyncCodeBench v0.3, following `docs/protocols/COMMIT0_DATA_EXAMPLE_GUIDE_v0.3.md`
+Protocol: AsynCodeBench v0.3, following `docs/protocols/COMMIT0_DATA_EXAMPLE_GUIDE_v0.3.md`
 
 This audit reviews the next Commit0 repositories after `tornado / imbalanced-learn / python-progressbar`:
 
@@ -13,7 +13,7 @@ The selection standard is strict: a repository should expose a natural incomplet
 
 ## Decision summary
 
-| Repository | Decision | AsyncCodeBench fit | Main reason |
+| Repository | Decision | AsynCodeBench fit | Main reason |
 |---|---:|---:|---|
 | `pylint` | Reject/defer for v0.3 main set | Weak for current construction | Strong analyzer architecture, but local blockers are dependency/environment issues and most incomplete markers are abstract checker hooks or normal no-op hooks, not a clean public missing-code task. |
 | `sphinx` | Backlog only | Structurally strong but too large | Strong build pipeline and domain/builder interfaces, but the task surface is very broad, dependency-heavy, and dominated by abstract extension points. |
@@ -289,7 +289,7 @@ Natural stale-work failures would be meaningful:
 - Agent C changes memory/store-backend atomic write behavior while parallel workers assume old cache semantics;
 - generator return modes and result retrieval disagree with dispatch lifecycle.
 
-This is conceptually aligned with AsyncCodeBench.
+This is conceptually aligned with AsynCodeBench.
 
 ### Why it should not enter the main set now
 
@@ -302,7 +302,7 @@ Current evidence suggests the repository is mostly implemented:
 - many risky areas involve multiprocessing, shared memory, file-system races, or OS-specific cleanup;
 - failures may be expensive or flaky rather than cleanly tied to stale multi-agent assumptions.
 
-To turn `joblib` into a high-quality AsyncCodeBench item, we would need either:
+To turn `joblib` into a high-quality AsynCodeBench item, we would need either:
 
 - a clearly identified public failing subset with a compact implementation target; or
 - a curated hidden task that modifies/removes behavior.

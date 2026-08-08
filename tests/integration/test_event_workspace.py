@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from asynccodebench.contracts import EventRecord, EventType
-from asynccodebench.runtime import DeterministicEventQueue, WorkspaceStore
+from asyncodebench.contracts import EventRecord, EventType
+from asyncodebench.runtime import DeterministicEventQueue, WorkspaceStore
 
 
 def test_workspace_versions_reference_causal_events() -> None:

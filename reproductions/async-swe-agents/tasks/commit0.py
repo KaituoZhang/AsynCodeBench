@@ -51,7 +51,7 @@ class Commit0Task(TaskModule):
         if curated_data is not None:
             self.task_data = curated_data
             print(
-                "[AsyncCodeBench] Loaded curated v0.3 task record for "
+                "[AsynCodeBench] Loaded curated v0.3 task record for "
                 f"{self.config.repo_name}"
             )
             return self.task_data
@@ -120,7 +120,7 @@ class Commit0Task(TaskModule):
             "repo": self._curated_repo_url(repository),
             "repo_name": repository,
             "task_id": self.curated_task.get("task_id", f"commit0:{repository}"),
-            "source": "asynccodebench_curated_v0.3",
+            "source": "asyncodebench_curated_v0.3",
             "base_ref": self.curated_task.get("base_ref"),
             "base_sha": self.curated_task.get("base_sha"),
             "overlays": self.curated_task.get("overlays", []),
@@ -138,7 +138,7 @@ class Commit0Task(TaskModule):
 
     @staticmethod
     def _curated_task_source_disabled():
-        raw_value = os.getenv("ASYNCCODEBENCH_DISABLE_CURATED_TASK_SOURCE", "")
+        raw_value = os.getenv("ASYNCODEBENCH_DISABLE_CURATED_TASK_SOURCE", "")
         return raw_value.strip().lower() in {"1", "true", "yes", "on"}
 
     def setup_workspace(self, workspace):
@@ -300,7 +300,7 @@ class Commit0Task(TaskModule):
     def _curated_config_path(self):
         raw_path = (
             self.config.curated_config_path
-            or os.getenv("ASYNCCODEBENCH_CURATED_TASKS_CONFIG", "")
+            or os.getenv("ASYNCODEBENCH_CURATED_TASKS_CONFIG", "")
         )
         if raw_path:
             path = Path(raw_path)
@@ -338,7 +338,7 @@ class Commit0Task(TaskModule):
         actual_sha = result.stdout.strip() if result.exit_code == 0 else ""
         if actual_sha != expected_sha:
             raise RuntimeError(
-                "AsyncCodeBench curated base SHA mismatch for "
+                "AsynCodeBench curated base SHA mismatch for "
                 f"{self.config.repo_name}: expected {expected_sha}, found "
                 f"{actual_sha or result.stderr.strip()}"
             )
@@ -350,14 +350,14 @@ class Commit0Task(TaskModule):
 
         overlays = self.curated_task.get("overlays", []) or []
         if not overlays:
-            print("[Commit0] No AsyncCodeBench bootstrap overlays configured")
+            print("[Commit0] No AsynCodeBench bootstrap overlays configured")
             return
 
-        print(f"[Commit0] Applying {len(overlays)} AsyncCodeBench bootstrap overlays")
+        print(f"[Commit0] Applying {len(overlays)} AsynCodeBench bootstrap overlays")
         for index, overlay in enumerate(overlays, start=1):
             overlay_path = self._resolve_overlay_path(str(overlay["path"]))
             self._verify_overlay_checksum(overlay_path, str(overlay["sha256"]))
-            remote_path = f"/tmp/asynccodebench_overlay_{index:03d}.patch"
+            remote_path = f"/tmp/asyncodebench_overlay_{index:03d}.patch"
             self._write_overlay_to_workspace(workspace, overlay_path, remote_path)
 
             check = workspace.execute_command(
@@ -366,7 +366,7 @@ class Commit0Task(TaskModule):
             )
             if check.exit_code != 0:
                 raise RuntimeError(
-                    f"AsyncCodeBench overlay failed --check: {overlay_path}\n"
+                    f"AsynCodeBench overlay failed --check: {overlay_path}\n"
                     f"{check.stderr}"
                 )
 
@@ -376,17 +376,17 @@ class Commit0Task(TaskModule):
             )
             if apply.exit_code != 0:
                 raise RuntimeError(
-                    f"AsyncCodeBench overlay failed to apply: {overlay_path}\n"
+                    f"AsynCodeBench overlay failed to apply: {overlay_path}\n"
                     f"{apply.stderr}"
                 )
             print(f"[Commit0] Applied overlay: {overlay_path}")
 
         workspace.execute_command(
             f"cd {work_dir} && "
-            'git config user.email "asynccodebench@example.com" && '
-            'git config user.name "AsyncCodeBench Bootstrap" && '
+            'git config user.email "asyncodebench@example.com" && '
+            'git config user.name "AsynCodeBench Bootstrap" && '
             "git add -f . && "
-            'git commit -m "Apply AsyncCodeBench bootstrap overlays"',
+            'git commit -m "Apply AsynCodeBench bootstrap overlays"',
             timeout=120,
         )
 
@@ -399,7 +399,7 @@ class Commit0Task(TaskModule):
         digest = hashlib.sha256(path.read_bytes()).hexdigest()
         if digest != expected_sha256:
             raise RuntimeError(
-                f"AsyncCodeBench overlay checksum mismatch for {path}: "
+                f"AsynCodeBench overlay checksum mismatch for {path}: "
                 f"expected {expected_sha256}, found {digest}"
             )
 
@@ -423,7 +423,7 @@ class Commit0Task(TaskModule):
 
     @staticmethod
     def _curated_config_disabled():
-        raw_value = os.getenv("ASYNCCODEBENCH_DISABLE_CURATED_TASK_CONFIG", "")
+        raw_value = os.getenv("ASYNCODEBENCH_DISABLE_CURATED_TASK_CONFIG", "")
         return raw_value.strip().lower() in {"1", "true", "yes", "on"}
 
     def _install_curated_python_dependencies(self, workspace, work_dir):
@@ -442,7 +442,7 @@ class Commit0Task(TaskModule):
 
         dependency_args = " ".join(shlex.quote(dep) for dep in dependencies)
         print(
-            "[Commit0] Installing AsyncCodeBench curated Python dependencies: "
+            "[Commit0] Installing AsynCodeBench curated Python dependencies: "
             f"{dependency_args}"
         )
         result = workspace.execute_command(
@@ -451,7 +451,7 @@ class Commit0Task(TaskModule):
         )
         if result.exit_code != 0:
             raise RuntimeError(
-                "Failed to install AsyncCodeBench curated Python dependencies "
+                "Failed to install AsynCodeBench curated Python dependencies "
                 f"for {self.config.repo_name}: {result.stderr or result.stdout}"
             )
 
@@ -540,7 +540,7 @@ class Commit0Task(TaskModule):
             )
         self._canonical_test_ref = result.stdout.strip()
         print(
-            "[AsyncCodeBench] Captured canonical test ref: "
+            "[AsynCodeBench] Captured canonical test ref: "
             f"{self._canonical_test_ref}"
         )
 
@@ -630,7 +630,7 @@ class Commit0Task(TaskModule):
 
         if restored_paths or untracked_paths:
             print(
-                "[AsyncCodeBench] Restored canonical evaluator paths; "
+                "[AsynCodeBench] Restored canonical evaluator paths; "
                 f"tracked={len(restored_paths)} untracked={len(untracked_paths)}"
             )
 
@@ -683,7 +683,7 @@ class Commit0Task(TaskModule):
         timed_out = str(pytest_result.exit_code) == "124"
         if timed_out:
             timeout_message = (
-                f"\n[AsyncCodeBench] Final pytest timed out after "
+                f"\n[AsynCodeBench] Final pytest timed out after "
                 f"{eval_timeout} seconds.\n"
             )
             if timeout_message not in test_output:
@@ -726,7 +726,7 @@ class Commit0Task(TaskModule):
                 "collectors": [],
                 "tests": [],
                 "warnings": [],
-                "asynccodebench": {
+                "asyncodebench": {
                     "final_pytest_timeout_seconds": eval_timeout,
                     "final_evaluator_source": evaluator_source,
                     "final_test_cmd": test_cmd,
@@ -755,11 +755,11 @@ class Commit0Task(TaskModule):
         manifest_command = self._manifest_evaluator_command()
         if manifest_command:
             manifest_test_cmd, manifest_targets = manifest_command
-            return manifest_test_cmd, manifest_targets, "asynccodebench_manifest"
+            return manifest_test_cmd, manifest_targets, "asyncodebench_manifest"
 
         manifest_targets = self._manifest_evaluator_targets()
         if manifest_targets:
-            return test_cmd, manifest_targets, "asynccodebench_manifest"
+            return test_cmd, manifest_targets, "asyncodebench_manifest"
         return test_cmd, dataset_targets, "commit0_dataset"
 
     def _dataset_evaluator(self):
@@ -800,7 +800,7 @@ class Commit0Task(TaskModule):
             return None
 
         print(
-            "[Commit0] Using AsyncCodeBench scenario evaluator targets from "
+            "[Commit0] Using AsynCodeBench scenario evaluator targets from "
             f"{scenario_path}"
         )
         return targets
@@ -850,7 +850,7 @@ class Commit0Task(TaskModule):
             return None
 
         print(
-            "[Commit0] Using AsyncCodeBench task evaluator command from "
+            "[Commit0] Using AsynCodeBench task evaluator command from "
             f"{task_path}"
         )
         return test_cmd, targets
@@ -868,7 +868,7 @@ class Commit0Task(TaskModule):
 
     @staticmethod
     def _manifest_evaluator_disabled():
-        raw_value = os.getenv("ASYNCCODEBENCH_DISABLE_MANIFEST_EVALUATOR", "")
+        raw_value = os.getenv("ASYNCODEBENCH_DISABLE_MANIFEST_EVALUATOR", "")
         return raw_value.strip().lower() in {"1", "true", "yes", "on"}
 
     @classmethod
@@ -943,7 +943,7 @@ class Commit0Task(TaskModule):
             target = str(target).strip()
             if not target:
                 continue
-            # Several AsyncCodeBench manifests record the original pytest command
+            # Several AsynCodeBench manifests record the original pytest command
             # as ["python", "-m", "pytest", "-q", "-o", "addopts=", ...].
             # The runner already supplies its own pytest flags, so this token is
             # an option value, not a filesystem test target.
@@ -975,7 +975,7 @@ class Commit0Task(TaskModule):
         timed_out,
         canonical_test_restore=None,
     ):
-        report_data.setdefault("asynccodebench", {}).update(
+        report_data.setdefault("asyncodebench", {}).update(
             {
                 "final_evaluator_source": evaluator_source,
                 "final_test_cmd": test_cmd,
@@ -988,13 +988,13 @@ class Commit0Task(TaskModule):
 
     @staticmethod
     def _final_pytest_timeout_seconds():
-        raw_value = os.getenv("ASYNCCODEBENCH_FINAL_PYTEST_TIMEOUT_SECONDS", "900")
+        raw_value = os.getenv("ASYNCODEBENCH_FINAL_PYTEST_TIMEOUT_SECONDS", "900")
         try:
             timeout = int(raw_value)
         except ValueError:
             print(
                 "[Commit0] Warning: invalid "
-                f"ASYNCCODEBENCH_FINAL_PYTEST_TIMEOUT_SECONDS={raw_value!r}; "
+                f"ASYNCODEBENCH_FINAL_PYTEST_TIMEOUT_SECONDS={raw_value!r}; "
                 "using 900"
             )
             timeout = 900

@@ -1,2 +1,2 @@
-"""Static execution protocols for AsyncCodeBench experiments."""
+"""Static execution protocols for AsynCodeBench experiments."""
 

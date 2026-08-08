@@ -1,12 +1,12 @@
 # Commit0 SimPy final quality check — v0.3
 
 Task: `commit0:simpy`  
-Status: final AsyncCodeBench construction, pending independent annotation  
+Status: final AsynCodeBench construction, pending independent annotation
 Date: 2026-06-26
 
 ## Decision
 
-`commit0:simpy` is suitable for AsyncCodeBench v0.3 qualification and agent
+`commit0:simpy` is suitable for AsynCodeBench v0.3 qualification and agent
 evaluation after independent annotation. All non-annotation dataset artifacts
 are in place:
 
@@ -33,7 +33,7 @@ origin/commit0_combined:25496719af798e5a276289279651873ea5b6e7d1
 Any benchmark workspace for this task must be materialized from that stripped
 ref, not from the local complete/default `commit0` branch.
 
-## Why this fits AsyncCodeBench
+## Why this fits AsynCodeBench
 
 The task contains natural cross-agent dependencies:
 

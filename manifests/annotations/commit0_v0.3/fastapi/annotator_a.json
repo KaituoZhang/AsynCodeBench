@@ -13,7 +13,7 @@
     "Review the checksum-recorded FastAPI bootstrap overlay and explicitly judge whether it is import-only or whether it implements benchmark behavior.",
     "Do not inspect reference branches, solution patches, or diffs.",
     "Do not consult the other annotator before submitting.",
-    "Explicitly assess whether the parameter marker -> dependency solving -> routing/application -> serialization/OpenAPI split is a natural AsyncCodeBench dependency rather than artificial file partitioning.",
+    "Explicitly assess whether the parameter marker -> dependency solving -> routing/application -> serialization/OpenAPI split is a natural AsynCodeBench dependency rather than artificial file partitioning.",
     "Explicitly assess whether the weak_or_unclear screening status and currently incomplete local evaluator validation should exclude this candidate from release."
   ],
   "parallelizability_label": null,

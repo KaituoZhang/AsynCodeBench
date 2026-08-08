@@ -3,8 +3,8 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
-from asynccodebench.contracts import ParallelizabilityLabel
-from asynccodebench.qualification import (
+from asyncodebench.contracts import ParallelizabilityLabel
+from asyncodebench.qualification import (
     AdjudicationDecision,
     AnnotatorDecision,
     CandidateRecord,

@@ -7,10 +7,10 @@ import argparse
 import json
 from pathlib import Path
 
-from asynccodebench.qualification.swebench_materialization import (
+from asyncodebench.qualification.swebench_materialization import (
     SWEbenchMaterializationInventory,
 )
-from asynccodebench.qualification.swebench_timing import (
+from asyncodebench.qualification.swebench_timing import (
     build_official_timing_inventory,
     write_official_timing_inventory,
 )

@@ -498,7 +498,7 @@ class Manager:
             if dependency_lines:
                 instruction_parts.extend([
                     "",
-                    "Relevant AsyncCodeBench dependency annotations:",
+                    "Relevant AsynCodeBench dependency annotations:",
                     *dependency_lines,
                 ])
 
@@ -521,7 +521,7 @@ class Manager:
                 "first_round": {
                     "num_agents": min(len(tasks), self.config.max_subagents),
                     "reasoning": (
-                        "Fallback: generated from AsyncCodeBench scenario manifest "
+                        "Fallback: generated from AsynCodeBench scenario manifest "
                         "because manager delegation JSON was not parseable."
                     ),
                     "tasks": tasks[: self.config.max_subagents],
@@ -721,7 +721,7 @@ class Manager:
                 parts = line.split(maxsplit=1)
                 if len(parts) >= 2:
                     file_path = parts[1].strip()
-                    if file_path.startswith(".asynccodebench_probe_"):
+                    if file_path.startswith(".asyncodebench_probe_"):
                         continue
                     modified_files.append(file_path)
 
@@ -780,7 +780,7 @@ class Manager:
         self.workspace.execute_command(git_config_cmd, timeout=30)
 
         self.workspace.execute_command(
-            f"cd {worktree_path} && rm -f .asynccodebench_probe_*",
+            f"cd {worktree_path} && rm -f .asyncodebench_probe_*",
             timeout=30,
         )
 

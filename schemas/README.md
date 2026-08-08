@@ -1,7 +1,7 @@
 # Public schemas
 
 Machine-readable benchmark contracts will be published here. Python models in
-`src/asynccodebench/contracts/` are the implementation, while exported schemas
+`src/asyncodebench/contracts/` are the implementation, while exported schemas
 in this directory are versioned public assets.
 
 Regenerate the current schemas with:

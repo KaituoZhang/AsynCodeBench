@@ -59,7 +59,7 @@
   "official_benchmark_result": false,
   "notes": [
     "This config is for smoke-testing agent prompts and tool contracts only.",
-    "It must not be reported as a finalized AsyncCodeBench pilot result.",
+    "It must not be reported as a finalized AsynCodeBench pilot result.",
     "Formal Phase 2 still requires independent annotation and pilot manifest freezing."
   ]
 }

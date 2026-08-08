@@ -36,9 +36,9 @@ if [[ "$workspace_port_strategy" != "increment" && "$workspace_port_strategy" !=
   exit 1
 fi
 
-unset ASYNCCODEBENCH_DISABLE_CURATED_TASK_SOURCE
-unset ASYNCCODEBENCH_DISABLE_CURATED_TASK_CONFIG
-unset ASYNCCODEBENCH_DISABLE_MANIFEST_EVALUATOR
+unset ASYNCODEBENCH_DISABLE_CURATED_TASK_SOURCE
+unset ASYNCODEBENCH_DISABLE_CURATED_TASK_CONFIG
+unset ASYNCODEBENCH_DISABLE_MANIFEST_EVALUATOR
 
 base_out="${BASE_OUTPUT_DIR:-outputs/repro_commit0/${repo}}"
 single_out="${base_out}/${model_tag}_single_i${single_iterations}_${run_version}"
@@ -65,7 +65,7 @@ for output_dir in "${enabled_outputs[@]}"; do
   fi
 done
 
-workspace_base_port="${ASYNCCODEBENCH_WORKSPACE_HOST_PORT:-}"
+workspace_base_port="${ASYNCODEBENCH_WORKSPACE_HOST_PORT:-}"
 if [[ "$workspace_port_strategy" == "auto" ]]; then
   workspace_base_port="$(
     "$REPO_ROOT/.venv/bin/python" scripts/find_free_port_block.py \
@@ -74,7 +74,7 @@ if [[ "$workspace_port_strategy" == "auto" ]]; then
       --count 4
   )"
   echo "[AllProtocols] Auto-selected workspace ports ${workspace_base_port}-$((workspace_base_port + 3))"
-elif [[ -z "$workspace_base_port" && "${ASYNCCODEBENCH_WORKSPACE_DOCKER_NETWORK:-}" == "host" ]]; then
+elif [[ -z "$workspace_base_port" && "${ASYNCODEBENCH_WORKSPACE_DOCKER_NETWORK:-}" == "host" ]]; then
   workspace_base_port=8000
 fi
 
@@ -144,7 +144,7 @@ if [[ "$run_single" == "1" ]]; then
   echo "============================================================"
   echo "Single agent (workspace port ${protocol_workspace_port:-dynamic})"
   echo "============================================================"
-  ASYNCCODEBENCH_WORKSPACE_HOST_PORT="$protocol_workspace_port" \
+  ASYNCODEBENCH_WORKSPACE_HOST_PORT="$protocol_workspace_port" \
   MAX_ITERATIONS="$single_iterations" \
   OUTPUT_DIR="$single_out" \
   scripts/run_commit0_single_env.sh "$repo"
@@ -156,7 +156,7 @@ if [[ "$run_serial" == "1" ]]; then
   echo "============================================================"
   echo "Serial specialists (workspace port ${protocol_workspace_port:-dynamic})"
   echo "============================================================"
-  ASYNCCODEBENCH_WORKSPACE_HOST_PORT="$protocol_workspace_port" \
+  ASYNCODEBENCH_WORKSPACE_HOST_PORT="$protocol_workspace_port" \
   MAX_SUBAGENTS="$max_subagents" \
   SUB_ITERATIONS="$specialist_iterations" \
   OUTPUT_DIR="$serial_out" \
@@ -169,7 +169,7 @@ if [[ "$run_async_private" == "1" ]]; then
   echo "============================================================"
   echo "Async private (workspace port ${protocol_workspace_port:-dynamic})"
   echo "============================================================"
-  ASYNCCODEBENCH_WORKSPACE_HOST_PORT="$protocol_workspace_port" \
+  ASYNCODEBENCH_WORKSPACE_HOST_PORT="$protocol_workspace_port" \
   MAX_SUBAGENTS="$max_subagents" \
   SUB_ITERATIONS="$specialist_iterations" \
   OUTPUT_DIR="$async_out" \
@@ -182,7 +182,7 @@ if [[ "$run_caid" == "1" ]]; then
   echo "============================================================"
   echo "CAID multi-agent (workspace port ${protocol_workspace_port:-dynamic})"
   echo "============================================================"
-  ASYNCCODEBENCH_WORKSPACE_HOST_PORT="$protocol_workspace_port" \
+  ASYNCODEBENCH_WORKSPACE_HOST_PORT="$protocol_workspace_port" \
   MAX_ITERATIONS="$caid_manager_iterations" \
   MAX_SUBAGENTS="$max_subagents" \
   SUB_ITERATIONS="$caid_sub_iterations" \

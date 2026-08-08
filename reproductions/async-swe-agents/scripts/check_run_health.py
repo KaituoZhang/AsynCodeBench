@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reject infrastructure-invalid AsyncCodeBench run directories."""
+"""Reject infrastructure-invalid AsynCodeBench run directories."""
 
 from __future__ import annotations
 
@@ -53,15 +53,15 @@ def inspect_run(run_dir: Path) -> dict[str, object]:
     if report_path.is_file():
         try:
             report = json.loads(read_text(report_path))
-            evaluator_source = report.get("asynccodebench", {}).get(
+            evaluator_source = report.get("asyncodebench", {}).get(
                 "final_evaluator_source"
             ) or report.get("metadata", {}).get("final_evaluator_source")
         except (json.JSONDecodeError, OSError) as exc:
             issues.append(f"invalid_report:{type(exc).__name__}")
         else:
-            if evaluator_source != "asynccodebench_manifest":
+            if evaluator_source != "asyncodebench_manifest":
                 issues.append(f"wrong_evaluator:{evaluator_source}")
-            canonical_restore = report.get("asynccodebench", {}).get(
+            canonical_restore = report.get("asyncodebench", {}).get(
                 "canonical_test_restore", {}
             )
             if canonical_restore.get("restored_paths") or canonical_restore.get(

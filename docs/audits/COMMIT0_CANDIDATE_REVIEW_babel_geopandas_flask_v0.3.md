@@ -2,14 +2,14 @@
 
 Date: 2026-06-24  
 Protocol: `docs/protocols/COMMIT0_DATA_EXAMPLE_GUIDE_v0.3.md`  
-Purpose: continue the Commit0 candidate screen for AsyncCodeBench v0.3.
+Purpose: continue the Commit0 candidate screen for AsynCodeBench v0.3.
 
 This review only decides task-construction suitability. It is not a model
 baseline, not a release annotation, and not a gold-patch analysis.
 
 ## Decision summary
 
-| Candidate | Decision | AsyncCodeBench fit | Main reason |
+| Candidate | Decision | AsynCodeBench fit | Main reason |
 | --- | --- | --- | --- |
 | `commit0:flask` | promote to conditional construction queue | `partially_parallelizable` | Strong shared-abstraction structure around `sansio.App`, `Flask`, routing/contexts/sessions/JSON. Collection blocker is dependency installation, not task structure. |
 | `commit0:babel` | secondary backlog / possible curated subset | `partially_parallelizable` after curation | Message extraction/catalog/frontend has good interface dependencies, but raw stripped state has a syntax-level bootstrap failure in `babel.core` and the full task is broad. |
@@ -124,7 +124,7 @@ tests/test_blueprints.py
 tests/test_async.py
 ```
 
-### Why it fits AsyncCodeBench
+### Why it fits AsynCodeBench
 
 `flask` is a strong candidate because many agents can independently make
 plausible local progress while depending on a shared runtime contract:
@@ -149,7 +149,7 @@ async ensure_sync behavior differs from dispatch expectations
 ```
 
 These are exactly the kind of textually clean but semantically inconsistent
-integration failures that AsyncCodeBench should expose.
+integration failures that AsynCodeBench should expose.
 
 ### Recommendation
 
@@ -371,7 +371,7 @@ plotting
 geospatial topology edge cases
 ```
 
-This is not impossible, but it is a poor fit for the first AsyncCodeBench wave
+This is not impossible, but it is a poor fit for the first AsynCodeBench wave
 because failures would be hard to attribute cleanly. They may reflect geospatial
 domain knowledge or dependency behavior rather than stale multi-agent work.
 

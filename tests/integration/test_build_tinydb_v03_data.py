@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from asynccodebench.dataset.tinydb_v03 import (
+from asyncodebench.dataset.tinydb_v03 import (
     build_quality_record,
     build_scenarios,
     build_task_record,

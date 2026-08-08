@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from asynccodebench.metrics.dependency_resolution import (
+from asyncodebench.metrics.dependency_resolution import (
     analyze_dependency_resolution,
     final_evaluator_checkpoint,
 )

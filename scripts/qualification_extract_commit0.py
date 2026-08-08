@@ -6,7 +6,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from asynccodebench.qualification.commit0_candidates import (
+from asyncodebench.qualification.commit0_candidates import (
     extract_commit0_inventory,
     write_candidate_inventory,
 )

@@ -123,8 +123,8 @@ async def run_workflow_inner(
     original_cwd = os.getcwd()
     os.chdir(sdk_source_dir)
 
-    workspace_network = os.getenv("ASYNCCODEBENCH_WORKSPACE_DOCKER_NETWORK") or None
-    workspace_host_port_env = os.getenv("ASYNCCODEBENCH_WORKSPACE_HOST_PORT")
+    workspace_network = os.getenv("ASYNCODEBENCH_WORKSPACE_DOCKER_NETWORK") or None
+    workspace_host_port_env = os.getenv("ASYNCODEBENCH_WORKSPACE_HOST_PORT")
     workspace_host_port = (
         int(workspace_host_port_env)
         if workspace_host_port_env

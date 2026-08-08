@@ -1,7 +1,7 @@
 # Commit0 Candidate Review: tornado / imbalanced-learn / python-progressbar
 
 Date: 2026-06-24  
-Protocol: AsyncCodeBench v0.3, following `docs/protocols/COMMIT0_DATA_EXAMPLE_GUIDE_v0.3.md`
+Protocol: AsynCodeBench v0.3, following `docs/protocols/COMMIT0_DATA_EXAMPLE_GUIDE_v0.3.md`
 
 This audit reviews the next Commit0 repositories after the previous candidate-screening groups:
 
@@ -13,7 +13,7 @@ The selection standard is strict: a repository should expose a natural incomplet
 
 ## Decision summary
 
-| Repository | Decision | AsyncCodeBench fit | Main reason |
+| Repository | Decision | AsynCodeBench fit | Main reason |
 |---|---:|---:|---|
 | `tornado` | Backlog / conditional candidate | Structurally strong but too broad for current v0.3 construction | Excellent async/event-loop architecture, but many raw missing markers are overloads, protocols, or abstract methods; selected core tests collect, and full task risk is high due event-loop/network breadth. |
 | `imbalanced-learn` | Reject/defer for v0.3 main set | Weak for current benchmark | Strong pipeline concept, but heavily coupled to `scikit-learn` internals and numerical/statistical behavior; local collection is dominated by missing dependency/version noise rather than a clean Commit0 gap. |
@@ -100,7 +100,7 @@ The likely useful surface includes:
 
 ### Why it is structurally attractive
 
-`tornado` has a natural asynchronous systems structure. A plausible AsyncCodeBench task could split agents across:
+`tornado` has a natural asynchronous systems structure. A plausible AsynCodeBench task could split agents across:
 
 - event-loop lifecycle and timeouts;
 - stream read/write buffering;
@@ -200,7 +200,7 @@ Async stale-work failures would be possible:
 
 ### Why it should not be selected now
 
-For AsyncCodeBench v0.3, this is not a clean candidate.
+For AsynCodeBench v0.3, this is not a clean candidate.
 
 Main issues:
 
@@ -232,7 +232,7 @@ The automated screening reported collection/import error, but the direct blocker
 ModuleNotFoundError: No module named 'freezegun'
 ```
 
-The repository parses correctly under the AsyncCodeBench Python 3.10 environment. Earlier syntax errors from `:=` were caused by running `py_compile` with an older default Python interpreter, not by broken source.
+The repository parses correctly under the AsynCodeBench Python 3.10 environment. Earlier syntax errors from `:=` were caused by running `py_compile` with an older default Python interpreter, not by broken source.
 
 Relevant source modules include:
 
@@ -258,7 +258,7 @@ Visible tests cover:
 - unknown-length progress bars;
 - data transfer bars.
 
-### Why it fits AsyncCodeBench
+### Why it fits AsynCodeBench
 
 This repository has a compact but real shared-state pipeline:
 
@@ -289,7 +289,7 @@ Example stale-work failures:
 - stream flushing expects one update/finish lifecycle, while bar lifecycle changes when `_started`, `_finished`, or `end_time` is set;
 - terminal width/color rendering assumes stale output length behavior from widget formatting.
 
-These failures are not just git conflicts. They are semantic interface and shared-state mismatches, which matches the AsyncCodeBench target.
+These failures are not just git conflicts. They are semantic interface and shared-state mismatches, which matches the AsynCodeBench target.
 
 ### Why it should be lower priority than the current main queue
 

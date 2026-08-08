@@ -470,7 +470,7 @@ def annotation_form(annotator_id: str) -> dict:
             "Review the linked TaskQualityRecord, including the requirement to use origin/commit0_combined plus checksum-recorded bootstrap overlays.",
             "Do not inspect reference branches, solution patches, or diffs.",
             "Do not consult the other annotator before submitting.",
-            "Explicitly assess whether the utility/lexer -> parser -> client split is a natural AsyncCodeBench dependency rather than artificial file partitioning.",
+            "Explicitly assess whether the utility/lexer -> parser -> client split is a natural AsynCodeBench dependency rather than artificial file partitioning.",
             "Explicitly assess whether the bootstrap overlays are acceptable as non-solution collection prerequisites for the scoped response/client task.",
         ],
         "parallelizability_label": None,

@@ -1,4 +1,4 @@
-# Codex Onboarding For AsyncCodeBench
+# Codex Onboarding For AsynCodeBench
 
 This document is for a new Codex session or collaborator-side coding agent.
 Read it before modifying files or running experiments.
@@ -17,19 +17,19 @@ Read in this order:
 8. `docs/GITHUB_COLLABORATOR_HANDOFF.md`
 9. `docs/protocols/COMMIT0_DATA_AND_METRIC_LABEL_GUIDE_v0.3.md`
 10. `docs/protocols/README.md`
-11. `skills/commit0-to-asynccodebench/SKILL.md`
+11. `skills/commit0-to-asyncodebench/SKILL.md`
 12. `reproductions/async-swe-agents/protocols/README.md`
 
 If the task is about paper writing or methodology, also read:
 
 ```text
 docs/design/paper_structure_reference.md
-docs/design/COMMIT0_TO_ASYNCCODEBENCH_PIPELINE_v0.1.md
+docs/design/COMMIT0_TO_ASYNCODEBENCH_PIPELINE_v0.1.md
 ```
 
 ## Project Summary
 
-AsyncCodeBench transforms public executable coding benchmark tasks into
+AsynCodeBench transforms public executable coding benchmark tasks into
 dependency-aware asynchronous multi-agent benchmark instances.
 
 The central transformation is:
@@ -52,10 +52,11 @@ visibility, stale assumptions, and late integration.
 
 The current v0.3 release set contains:
 
-- 17 official Commit0-derived tasks for current experiments;
+- 16 official Commit0-derived tasks for current experiments;
 - retained non-official artifacts under
   `archive/non_official/commit0_v0.3/` for audit/history;
-- excluded candidates: `fabric`, `fastapi`, and `python-progressbar`;
+- excluded candidates: `dulwich`, `fabric`, `fastapi`, and
+  `python-progressbar`;
 - non-official scratch/stress candidate retained for audit: `chardet`.
 
 The current qualification-ready experimental set is:
@@ -64,7 +65,6 @@ The current qualification-ready experimental set is:
 cachetools
 cookiecutter
 deprecated
-dulwich
 filesystem_spec
 flask
 graphene
@@ -80,7 +80,7 @@ tinydb
 wcwidth
 ```
 
-Do not treat `chardet`, `fastapi`, `python-progressbar`, or `fabric` as
+Do not treat `chardet`, `dulwich`, `fastapi`, `python-progressbar`, or `fabric` as
 current release tasks without explicit human approval.
 
 ## Key Directories
@@ -94,8 +94,8 @@ manifests/pilot/v0.3/scenarios/        # execution scenario manifests
 manifests/pilot/v0.3/quality/          # quality records
 manifests/pilot/v0.3/metrics/          # async metrics manifests
 manifests/annotations/commit0_v0.3/    # human annotation forms
-skills/commit0-to-asynccodebench/      # reusable construction skill
-src/asynccodebench/                    # Python library code
+skills/commit0-to-asyncodebench/      # reusable construction skill
+src/asyncodebench/                    # Python library code
 tests/contracts/                       # artifact validation tests
 reproductions/async-swe-agents/        # CAID-based agent runner
 ```
@@ -163,7 +163,7 @@ LLM_API_KEY=YOUR_KEY
 LLM_MODEL=openai/gpt-5.4-mini
 LLM_SUBAGENT_MODEL=
 COMMIT0_DATASET_PATH=/absolute/path/to/commit0_combined
-SDK_SOURCE_DIR=/absolute/path/to/Asynccodebench/reproductions/software-agent-sdk
+SDK_SOURCE_DIR=/absolute/path/to/AsynCodeBench/reproductions/software-agent-sdk
 ```
 
 To change the base model, change:
@@ -201,11 +201,11 @@ reproductions/async-swe-agents/run_static_protocol.py
 
 ## Environment Setup
 
-Top-level AsyncCodeBench validation can use conda:
+Top-level AsynCodeBench validation can use conda:
 
 ```bash
-conda create -n asynccodebench python=3.10 -y
-conda activate asynccodebench
+conda create -n asyncodebench python=3.10 -y
+conda activate asyncodebench
 python -m pip install -U pip
 python -m pip install -e ".[dev]"
 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest -q tests/contracts
@@ -235,17 +235,17 @@ See `docs/COLLABORATOR_RUNBOOK.md` for full installation commands.
 From `reproductions/async-swe-agents/`:
 
 ```bash
-uv run python run_static_protocol.py --protocol serial_specialists --repo cachetools --dry_run
-uv run python run_static_protocol.py --protocol async_private --repo cachetools --dry_run
+MODEL_TAG=smoke RUN_VERSION=dryrun_v01 DRY_RUN=1 \
+  scripts/run_asyncodebench_all_protocols_env.sh cachetools
 ```
 
 Then run low-budget real tests:
 
 ```bash
-MAX_ITERATIONS=5 SUB_ITERATIONS=5 scripts/run_commit0_single_env.sh cachetools
-MAX_SUBAGENTS=2 SUB_ITERATIONS=5 scripts/run_commit0_serial_env.sh cachetools
-MAX_SUBAGENTS=2 SUB_ITERATIONS=5 scripts/run_commit0_async_private_env.sh cachetools
-MAX_ITERATIONS=5 MAX_SUBAGENTS=2 SUB_ITERATIONS=5 scripts/run_commit0_multi_env.sh cachetools
+MODEL_TAG=<model-tag> RUN_VERSION=smoke_v01 \
+SINGLE_ITERATIONS=5 SPECIALIST_ITERATIONS=5 \
+CAID_MANAGER_ITERATIONS=5 CAID_SUB_ITERATIONS=5 \
+  scripts/run_asyncodebench_all_protocols_env.sh cachetools
 ```
 
 ## Output Files
@@ -296,7 +296,7 @@ python3 -m py_compile reproductions/async-swe-agents/run_static_protocol.py \
 If asked to process a new task, use:
 
 ```text
-skills/commit0-to-asynccodebench/SKILL.md
+skills/commit0-to-asyncodebench/SKILL.md
 ```
 
 If asked to run or debug experiments, start from:

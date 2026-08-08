@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import pytest
 
-from asynccodebench.contracts import WorkspaceKind
-from asynccodebench.runtime import (
+from asyncodebench.contracts import WorkspaceKind
+from asyncodebench.runtime import (
     WorkspaceConflictError,
     WorkspaceStore,
     content_digest,

@@ -39,7 +39,7 @@
       "evidence_scope": "public_initial_state",
       "failed": 64,
       "notes": [
-        "Verified in the AsyncCodeBench conda environment with PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 and PYTHONPATH=.",
+        "Verified in the AsynCodeBench conda environment with PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 and PYTHONPATH=.",
         "The command uses -o addopts= to disable the upstream pytest-cov addopts requirement in this minimal benchmark environment.",
         "Failures are substantive unfinished implementation failures across arithmetic, key generation, serialization, and PKCS#1 behavior."
       ],

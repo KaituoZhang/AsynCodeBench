@@ -4,8 +4,8 @@ from dataclasses import replace
 
 import pytest
 
-from asynccodebench.contracts import EventRecord, EventType
-from asynccodebench.runtime.events import (
+from asyncodebench.contracts import EventRecord, EventType
+from asyncodebench.runtime.events import (
     CausalOrderError,
     DeterministicEventQueue,
     DuplicateEventError,

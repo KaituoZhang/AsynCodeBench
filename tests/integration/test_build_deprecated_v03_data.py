@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from asynccodebench.dataset.deprecated_v03 import (
+from asyncodebench.dataset.deprecated_v03 import (
     build_annotation_forms,
     build_quality_record,
     build_scenarios,

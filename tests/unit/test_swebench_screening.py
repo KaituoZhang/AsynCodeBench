@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from asynccodebench.qualification.swebench_screening import (
+from asyncodebench.qualification.swebench_screening import (
     build_sanitized_snapshot,
     sanitize_official_row,
     screen_candidates,

@@ -65,8 +65,8 @@
       "type": "number"
     },
     "schema_version": {
-      "const": "asynccodebench-v0.2",
-      "default": "asynccodebench-v0.2",
+      "const": "asyncodebench-v0.2",
+      "default": "asyncodebench-v0.2",
       "title": "Schema Version",
       "type": "string"
     },

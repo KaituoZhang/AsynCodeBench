@@ -3,7 +3,7 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
-from asynccodebench.qualification.commit0_async_screening import (
+from asyncodebench.qualification.commit0_async_screening import (
     screen_commit0_repository,
 )
 

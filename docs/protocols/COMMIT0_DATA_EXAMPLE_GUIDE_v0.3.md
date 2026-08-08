@@ -5,7 +5,7 @@ Status: qualification-ready example and Phase A operating guide
 Example task: `commit0:cachetools`
 
 This document records how a Commit0 candidate is turned into an
-AsyncCodeBench task example for qualification. It is not a final annotation
+AsynCodeBench task example for qualification. It is not a final annotation
 decision, not a gold label, and not an official benchmark result. Its purpose
 is to keep future task reviews consistent.
 
@@ -13,7 +13,7 @@ is to keep future task reviews consistent.
 
 ### 1.1 Preserve the benchmark objective
 
-The first AsyncCodeBench paper builds a benchmark/protocol for asynchronous
+The first AsynCodeBench paper builds a benchmark/protocol for asynchronous
 LLM-based software-engineering agents. Commit0 tasks are used for cheap,
 deterministic development and early validation. They must not become synthetic
 role-playing examples whose difficulty is created by us.
@@ -62,7 +62,7 @@ git -C data/repos/commit0/<repo> \
 Before inspection, materialize the pinned public repositories:
 
 ```bash
-cd /path/to/AsyncCodeBench
+cd /path/to/AsynCodeBench
 PYTHONPATH=src python scripts/materialize_commit0_repositories.py
 ```
 
@@ -457,7 +457,7 @@ construction in func.py. The key layer can be implemented and tested
 separately, but func.py depends on the exact typed/untyped key semantics and on
 existing cache/cached wrapper APIs. This creates realistic stale-assumption and
 semantic integration risks under asynchronous private workspaces. The task is
-therefore suitable for AsyncCodeBench, but the central decorator API contract
+therefore suitable for AsynCodeBench, but the central decorator API contract
 makes it partially parallelizable rather than fully parallelizable.
 ```
 
@@ -468,7 +468,7 @@ This is a guide-level example, not the final adjudicated label.
 ### 4.1 Purpose
 
 The dry-run was used to test whether the candidate exposes useful
-AsyncCodeBench-style structure. It is not an official benchmark result.
+AsynCodeBench-style structure. It is not an official benchmark result.
 
 Harness:
 

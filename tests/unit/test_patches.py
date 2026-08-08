@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import pytest
 
-from asynccodebench.contracts import ArtifactValidity
-from asynccodebench.runtime import PatchApplicationError, apply_unified_diff
+from asyncodebench.contracts import ArtifactValidity
+from asyncodebench.runtime import PatchApplicationError, apply_unified_diff
 
 PATCH = """\
 --- a/src/a.py

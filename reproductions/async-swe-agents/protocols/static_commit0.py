@@ -94,9 +94,9 @@ class StaticCommit0ProtocolRunner:
         os.chdir(sdk_source_dir)
         try:
             workspace_network = (
-                os.getenv("ASYNCCODEBENCH_WORKSPACE_DOCKER_NETWORK") or None
+                os.getenv("ASYNCODEBENCH_WORKSPACE_DOCKER_NETWORK") or None
             )
-            workspace_host_port_env = os.getenv("ASYNCCODEBENCH_WORKSPACE_HOST_PORT")
+            workspace_host_port_env = os.getenv("ASYNCODEBENCH_WORKSPACE_HOST_PORT")
             workspace_host_port = (
                 int(workspace_host_port_env)
                 if workspace_host_port_env
@@ -192,7 +192,7 @@ print(json.dumps(out))
             f"Role: {assignment.get('role', assignment.get('subproblem_id', 'specialist'))}.",
             f"Subproblem ID: {assignment.get('subproblem_id', '')}.",
             "",
-            "You are running in a controlled AsyncCodeBench specialist protocol. "
+            "You are running in a controlled AsynCodeBench specialist protocol. "
             "Only modify your assigned writable paths. Do not edit files outside this scope.",
             "",
             "Assigned writable paths:",
@@ -336,7 +336,7 @@ print(json.dumps(out))
                 "first_round": {
                     "num_agents": len(subagents),
                     "reasoning": (
-                        "Static AsyncCodeBench manifest-defined specialist assignment; "
+                        "Static AsynCodeBench manifest-defined specialist assignment; "
                         "no manager scan or dynamic delegation was used."
                     ),
                     "tasks": [

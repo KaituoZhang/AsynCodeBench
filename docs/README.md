@@ -1,4 +1,4 @@
-# AsyncCodeBench Docs
+# AsynCodeBench Docs
 
 Start here when onboarding a collaborator or a new Codex session.
 
@@ -6,11 +6,11 @@ Start here when onboarding a collaborator or a new Codex session.
 
 | Document | Use |
 | --- | --- |
-| `ASYNCCODEBENCH_HARNESS_V2.md` | Native `task_id`-based runner, protocol guarantees, dry-run, and four-protocol commands. |
+| `ASYNCODEBENCH_HARNESS_V2.md` | Native `task_id`-based runner, protocol guarantees, dry-run, and four-protocol commands. |
 | `EVALUATION_BRANCH_QUICKSTART.md` | Short clone-to-four-protocol guide for the reproducible evaluation branch. |
 | `CODEX_ONBOARDING.md` | First-read guide for a new coding-agent session. |
 | `GITHUB_COLLABORATOR_HANDOFF.md` | What to commit, what not to commit, and how collaborators should clone/setup. |
-| `MODEL_EXPERIMENT_RUNBOOK.md` | Main guide for running another model across the official 17 tasks. |
+| `MODEL_EXPERIMENT_RUNBOOK.md` | Main guide for running another model across the official 16 tasks. |
 | `LOCAL_VLLM_EXPERIMENT_RUNBOOK.md` | Main local-vLLM guide: capacity, networking, environment, smoke gates, and failure diagnosis. |
 | `VLLM_QWEN_LOCAL_RUNBOOK.md` | Local vLLM/Qwen setup, Docker networking, tool calling, and smoke tests. |
 | `GEMMA4_CAID_HARNESS_FIX.md` | Gemma 4 parser/version gate, CAID remote-lifecycle fix, and result-validity rules. |
@@ -24,7 +24,7 @@ Start here when onboarding a collaborator or a new Codex session.
 | --- | --- |
 | `protocols/COMMIT0_DATA_AND_METRIC_LABEL_GUIDE_v0.3.md` | How task and dependency labels are defined. |
 | `protocols/README.md` | Protocol documents for v0.3 construction. |
-| `design/COMMIT0_TO_ASYNCCODEBENCH_PIPELINE_v0.1.md` | Pipeline framing for converting public coding tasks. |
+| `design/COMMIT0_TO_ASYNCODEBENCH_PIPELINE_v0.1.md` | Pipeline framing for converting public coding tasks. |
 | `design/paper_structure_reference.md` | Paper-structure reference and evaluation framing. |
 
 ## Task-specific Runner Notes
@@ -36,7 +36,7 @@ Start here when onboarding a collaborator or a new Codex session.
 
 ## Official Experiment Set
 
-The current official model-comparison set contains 17 tasks:
+The current official model-comparison set contains 16 tasks:
 
 ```text
 cachetools
@@ -46,7 +46,6 @@ tinydb
 wcwidth
 requests
 simpy
-dulwich
 parsel
 filesystem_spec
 marshmallow
@@ -65,4 +64,5 @@ fastapi
 python-progressbar
 fabric
 chardet
+dulwich
 ```

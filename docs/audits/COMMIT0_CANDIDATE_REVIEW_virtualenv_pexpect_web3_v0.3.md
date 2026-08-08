@@ -2,14 +2,14 @@
 
 Date: 2026-06-24  
 Protocol: `docs/protocols/COMMIT0_DATA_EXAMPLE_GUIDE_v0.3.md`  
-Purpose: continue the Commit0 candidate screen for AsyncCodeBench v0.3.
+Purpose: continue the Commit0 candidate screen for AsynCodeBench v0.3.
 
 This review only decides task-construction suitability. It is not a model
 baseline, not a release annotation, and not a gold-patch analysis.
 
 ## Decision summary
 
-| Candidate | Decision | AsyncCodeBench fit | Main reason |
+| Candidate | Decision | AsynCodeBench fit | Main reason |
 | --- | --- | --- | --- |
 | `commit0:pexpect` | promote to conditional construction queue | `partially_parallelizable` | Strong interface dependency between core expect/search semantics and process transport implementations. Needs POSIX/dependency environment freeze and scoped evaluator selection. |
 | `commit0:virtualenv` | backlog only | possible but high-cost | Real layered architecture, but raw task is broad, filesystem/interpreter/platform-heavy, and collection fails on low-level bootstrap helpers. |
@@ -72,7 +72,7 @@ pexpect/screen.py
 pexpect/pxssh.py
 ```
 
-The core AsyncCodeBench-relevant structure is:
+The core AsynCodeBench-relevant structure is:
 
 ```text
 expect.py
@@ -128,7 +128,7 @@ If selected, the benchmark task must freeze a POSIX Python environment with
 interactive terminal, and visual-screen tests unless those are explicitly in
 scope.
 
-### Why it fits AsyncCodeBench
+### Why it fits AsynCodeBench
 
 `pexpect` is a good candidate for stale teammate work because the task exposes
 a narrow but consequential contract:
@@ -258,7 +258,7 @@ temporary directories and app-data caches
 ```
 
 Those are valid software-engineering problems, but for the first
-AsyncCodeBench paper they would make failure attribution noisy. An async
+AsynCodeBench paper they would make failure attribution noisy. An async
 failure could be caused by platform setup, filesystem behavior, seed package
 handling, shell template differences, or actual stale teammate work.
 

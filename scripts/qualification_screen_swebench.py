@@ -7,7 +7,7 @@ import argparse
 import json
 from pathlib import Path
 
-from asynccodebench.qualification.swebench_screening import (
+from asyncodebench.qualification.swebench_screening import (
     build_sanitized_snapshot,
     load_dataset_server_pages,
     screen_candidates,

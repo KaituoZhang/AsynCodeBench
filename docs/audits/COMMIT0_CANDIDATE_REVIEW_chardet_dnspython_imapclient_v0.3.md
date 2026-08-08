@@ -2,14 +2,14 @@
 
 Date: 2026-06-24  
 Protocol: `docs/protocols/COMMIT0_DATA_EXAMPLE_GUIDE_v0.3.md`  
-Purpose: continue the Commit0 candidate screen for AsyncCodeBench v0.3.
+Purpose: continue the Commit0 candidate screen for AsynCodeBench v0.3.
 
 This review only decides task-construction suitability. It is not a model
 baseline, not a release annotation, and not a gold-patch analysis.
 
 ## Decision summary
 
-| Candidate | Decision | AsyncCodeBench fit | Main reason |
+| Candidate | Decision | AsynCodeBench fit | Main reason |
 | --- | --- | --- | --- |
 | `commit0:imapclient` | promote to conditional construction queue | `partially_parallelizable` | Natural parser/typed-response contract consumed by high-level IMAP client APIs, with plausible stale interface assumptions. Needs a small import-bootstrap decision before release. |
 | `commit0:chardet` | defer raw task; keep as conditional backlog subset | `partially_parallelizable` only after curation | There is a real prober/detector dependency chain, but the raw stripped task is dominated by charset model tables and detector/prober reconstruction. |
@@ -99,7 +99,7 @@ Address
 BodyData
 ```
 
-### Why it fits AsyncCodeBench
+### Why it fits AsynCodeBench
 
 This task can test stale teammate work directly:
 
@@ -293,7 +293,7 @@ ImportError: cannot import name 'immutable' from 'dns._immutable_ctx'
 ### Why it is weak for v0.3
 
 `dnspython` has real layered architecture, but the candidate is too broad for
-the first AsyncCodeBench slice. It mixes:
+the first AsynCodeBench slice. It mixes:
 
 ```text
 DNS wire-format parsing

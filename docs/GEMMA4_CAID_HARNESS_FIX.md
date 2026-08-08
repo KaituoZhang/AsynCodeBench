@@ -1,7 +1,7 @@
 # Gemma 4 CAID Harness Diagnosis And Fix
 
 This note records why Gemma 4 produced remote-conversation failures in
-AsyncCodeBench and the conditions required before its results are considered
+AsynCodeBench and the conditions required before its results are considered
 formal benchmark evidence.
 
 ## Root Cause Summary
@@ -17,7 +17,7 @@ different meanings.
 2. **Raw `<|tool_call>` text was a parser compatibility failure.** The server
    used vLLM 0.19.1, which has separate Gemma reasoning and tool parsers. The
    unified `vllm.parser.gemma4` state machine, including post-tool-response
-   reasoning initialization, is present from vLLM 0.24.0. AsyncCodeBench feeds
+   reasoning initialization, is present from vLLM 0.24.0. AsynCodeBench feeds
    tool results back repeatedly, so this matters more than in one-turn chat.
 3. **`Remote conversation got stuck` is a model trajectory outcome.** The
    OpenHands server emits `STUCK` after detecting repeated actions, repeated
@@ -58,7 +58,7 @@ CUDA 13 wheel while the PyTorch index supplies CUDA 12.9, producing a mixed
 environment that fails on `libcudart.so.13`.
 
 ```bash
-cd /home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents
+cd /absolute/path/to/AsynCodeBench/reproductions/async-swe-agents
 
 uv venv --clear --python 3.12 .venv-vllm-gemma4
 
@@ -75,7 +75,7 @@ PYTHONNOUSERSITE=1 .venv-vllm-gemma4/bin/python -c \
   'import torch, vllm; print(torch.__version__, torch.version.cuda, vllm.__version__)'
 ```
 
-AsyncCodeBench requires vLLM 0.24.0 or newer for a formal Gemma run. The pinned
+AsynCodeBench requires vLLM 0.24.0 or newer for a formal Gemma run. The pinned
 CUDA 12.9 release above or the official `vllm/vllm-openai:gemma4` image is
 preferred on the current A100 host. The server
 wrapper rejects older versions unless `GEMMA_ALLOW_LEGACY_VLLM=1` is explicitly
@@ -86,7 +86,7 @@ set for diagnostic reproduction.
 For a two-specialist task on GPU 0 and port 8006:
 
 ```bash
-cd /home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents
+cd /absolute/path/to/AsynCodeBench/reproductions/async-swe-agents
 
 VLLM_BIN="$PWD/.venv-vllm-gemma4/bin/vllm" \
 scripts/serve_gemma4_26b_a4b.sh 0 8006 2
@@ -112,7 +112,7 @@ not the model, decoding parameters, context window, or benchmark protocol.
 In another terminal:
 
 ```bash
-cd /home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents
+cd /absolute/path/to/AsynCodeBench/reproductions/async-swe-agents
 
 curl -fsS http://127.0.0.1:8006/version
 
@@ -131,10 +131,10 @@ Endpoint env files must contain the Gemma model profile and matching port.
 stale endpoint copy cannot restore the old one-hour timeout.
 
 ```bash
-cd /home/kzhang42/AsyncCodeBench/reproductions/async-swe-agents
+cd /absolute/path/to/AsynCodeBench/reproductions/async-swe-agents
 
 ENV_FILE="$PWD/.env.gemma4-26b-a4b.8006" \
-ASYNCCODEBENCH_WORKSPACE_HOST_PORT=18000 \
+ASYNCODEBENCH_WORKSPACE_HOST_PORT=18000 \
 RUN_VERSION=vllm024plus_remotev2_v01 \
 scripts/run_gemma4_task_env.sh cachetools
 ```
@@ -168,7 +168,7 @@ Treat these as infrastructure-invalid and rerun after fixing the harness:
 Treat `Remote conversation got stuck` as a valid failed model trajectory when
 all preflight gates passed. It may produce unresolved dependencies, zero patch
 progress, high token use, or failed subagent attempts. Those are coordination
-failures AsyncCodeBench is designed to expose.
+failures AsynCodeBench is designed to expose.
 
 The health checker now reports this as the non-blocking observation
 `model_trajectory_stuck`; it no longer labels it a transport failure.

@@ -1,7 +1,7 @@
-# AsyncCodeBench Agent Experiment Runbook
+# AsynCodeBench Agent Experiment Runbook
 
-This document is the operational guide for running AsyncCodeBench agent
-experiments. It explains how the runner uses AsyncCodeBench curated tasks rather
+This document is the operational guide for running AsynCodeBench agent
+experiments. It explains how the runner uses AsynCodeBench curated tasks rather
 than raw Commit0 records, how to run the four protocol conditions, and what to
 check before using a run in paper tables.
 
@@ -16,7 +16,7 @@ Use this with:
 
 The executable runner still uses names such as `--task commit0` and
 `run_commit0_*` because it reuses the Commit0 task interface. For official
-AsyncCodeBench runs, the actual task input must come from AsyncCodeBench v0.3
+AsynCodeBench runs, the actual task input must come from AsynCodeBench v0.3
 curated artifacts:
 
 ```text
@@ -31,10 +31,10 @@ data/overlays/commit0/
 The runner should print:
 
 ```text
-[AsyncCodeBench] Loaded curated v0.3 task record for <task>
+[AsynCodeBench] Loaded curated v0.3 task record for <task>
 [Commit0] Verified curated base SHA: <sha>
-[Commit0] Applying <n> AsyncCodeBench bootstrap overlays
-[Commit0] Using AsyncCodeBench scenario evaluator targets ...
+[Commit0] Applying <n> AsynCodeBench bootstrap overlays
+[Commit0] Using AsynCodeBench scenario evaluator targets ...
 ```
 
 If those lines are missing, stop the run before spending more API budget.
@@ -44,7 +44,7 @@ If those lines are missing, stop the run before spending more API budget.
 Start from the agent runner directory:
 
 ```bash
-export REPO_ROOT="${REPO_ROOT:-$HOME/AsyncCodeBench}"
+export REPO_ROOT="${REPO_ROOT:-$HOME/AsynCodeBench}"
 cd "$REPO_ROOT/reproductions/async-swe-agents"
 ```
 
@@ -76,18 +76,18 @@ Load the env:
 ```bash
 export ENV_FILE="$PWD/.env.gpt54mini"
 source scripts/env.sh
-unset ASYNCCODEBENCH_DISABLE_CURATED_TASK_SOURCE
+unset ASYNCODEBENCH_DISABLE_CURATED_TASK_SOURCE
 ```
 
 The `COMMIT0_DATASET_PATH` variable is still required by the inherited runner
-API. For curated tasks, the runner should use the AsyncCodeBench curated record
+API. For curated tasks, the runner should use the AsynCodeBench curated record
 first. The raw Commit0 dataset is only a fallback when curated loading is
 disabled or no curated record exists.
 
 Do not set this for official runs:
 
 ```bash
-ASYNCCODEBENCH_DISABLE_CURATED_TASK_SOURCE=1
+ASYNCODEBENCH_DISABLE_CURATED_TASK_SOURCE=1
 ```
 
 ## Quick Task Dry Run
@@ -137,12 +137,12 @@ core.
 Set these variables once per task/model/run version:
 
 ```bash
-export REPO_ROOT="${REPO_ROOT:-$HOME/AsyncCodeBench}"
+export REPO_ROOT="${REPO_ROOT:-$HOME/AsynCodeBench}"
 cd "$REPO_ROOT/reproductions/async-swe-agents"
 
 export ENV_FILE="$PWD/.env.gpt54mini"
 source scripts/env.sh
-unset ASYNCCODEBENCH_DISABLE_CURATED_TASK_SOURCE
+unset ASYNCODEBENCH_DISABLE_CURATED_TASK_SOURCE
 
 TASK=filesystem_spec
 MODEL_TAG=gpt-5.4-mini
@@ -261,10 +261,10 @@ export RUN_DIR="outputs/repro_commit0/filesystem_spec/gpt-5.4-mini_single_i30_cu
 export TASK=filesystem_spec
 ```
 
-Check the runner used AsyncCodeBench curated inputs:
+Check the runner used AsynCodeBench curated inputs:
 
 ```bash
-rg -n "Loaded curated|Verified curated|Applying .*AsyncCodeBench|Using AsyncCodeBench|Installing AsyncCodeBench curated" "$RUN_DIR"/run_*.log
+rg -n "Loaded curated|Verified curated|Applying .*AsynCodeBench|Using AsynCodeBench|Installing AsynCodeBench curated" "$RUN_DIR"/run_*.log
 ```
 
 Check final evaluator:
@@ -308,7 +308,7 @@ excerpt before interpreting metrics. `not_collected` can mean either:
 From the repository root:
 
 ```bash
-export REPO_ROOT="${REPO_ROOT:-$HOME/AsyncCodeBench}"
+export REPO_ROOT="${REPO_ROOT:-$HOME/AsynCodeBench}"
 cd "$REPO_ROOT"
 ```
 
@@ -385,10 +385,10 @@ reproductions/async-swe-agents/outputs/<model_tag>/<task>_<model_tag>_artifact_i
 
 ## Important Tensions And Resolutions
 
-### The command says Commit0, but the data must be AsyncCodeBench.
+### The command says Commit0, but the data must be AsynCodeBench.
 
 This is expected. `commit0` is the inherited runner task adapter. Official
-AsyncCodeBench runs are identified by curated source logs, pinned SHA checks,
+AsynCodeBench runs are identified by curated source logs, pinned SHA checks,
 bootstrap overlays, scenario evaluator targets, and metrics manifests.
 
 ### `COMMIT0_DATASET_PATH` is still required.

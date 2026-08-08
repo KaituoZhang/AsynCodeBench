@@ -344,13 +344,6 @@
       "overlays": []
     },
     {
-      "task_id": "commit0:dulwich",
-      "repository": "dulwich",
-      "base_ref": "commit0",
-      "base_sha": "be5d53457f7ea6d8b71c3b3d276ea45a70b33a6a",
-      "overlays": []
-    },
-    {
       "task_id": "commit0:python-rsa",
       "repository": "python-rsa",
       "base_ref": "origin/commit0_combined",

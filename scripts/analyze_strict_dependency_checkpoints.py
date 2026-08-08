@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Compute strict DRS and CAIL from AsyncCodeBench probe checkpoints."""
+"""Compute strict DRS and CAIL from AsynCodeBench probe checkpoints."""
 
 from __future__ import annotations
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Aggregate per-task AsyncCodeBench records for one model."""
+"""Aggregate per-task AsynCodeBench records for one model."""
 
 from __future__ import annotations
 
@@ -19,7 +19,6 @@ OFFICIAL_TASKS = [
     "wcwidth",
     "requests",
     "simpy",
-    "dulwich",
     "parsel",
     "filesystem_spec",
     "marshmallow",

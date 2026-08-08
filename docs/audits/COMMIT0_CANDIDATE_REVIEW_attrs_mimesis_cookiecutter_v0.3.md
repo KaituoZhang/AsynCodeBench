@@ -1,7 +1,7 @@
 # Commit0 Candidate Review: attrs / mimesis / cookiecutter
 
 Date: 2026-06-24  
-Protocol: AsyncCodeBench v0.3, following `docs/protocols/COMMIT0_DATA_EXAMPLE_GUIDE_v0.3.md`
+Protocol: AsynCodeBench v0.3, following `docs/protocols/COMMIT0_DATA_EXAMPLE_GUIDE_v0.3.md`
 
 This audit reviews the next Commit0 repositories after `more-itertools / moviepy / loguru`:
 
@@ -13,7 +13,7 @@ The selection standard is strict: a repository should expose a natural incomplet
 
 ## Decision summary
 
-| Repository | Decision | AsyncCodeBench fit | Main reason |
+| Repository | Decision | AsynCodeBench fit | Main reason |
 |---|---:|---:|---|
 | `attrs` | Reject/defer for v0.3 main set | Weak | Collection is blocked only by missing test dependency `hypothesis`; precise source inspection finds no substantive raw missing implementation. |
 | `mimesis` | Reject/defer for v0.3 main set | Weak | The screened unit is basically `payment.py`, which already passes its visible tests locally. The task is too narrow and not naturally async. |
@@ -134,7 +134,7 @@ The broader selected schema/payment collection also succeeds when optional facto
 
 ### Why it should not be selected
 
-This is too narrow for AsyncCodeBench:
+This is too narrow for AsynCodeBench:
 
 - The implicated source surface is basically one provider module.
 - The visible payment task already passes.
@@ -207,7 +207,7 @@ Natural stale-work failures would be easy to explain:
 - replay data and generated context disagree;
 - zip/VCS cleanup expectations conflict with main cleanup logic.
 
-This is exactly the kind of shared workflow state AsyncCodeBench wants to test.
+This is exactly the kind of shared workflow state AsynCodeBench wants to test.
 
 ### Why it should not enter the main set now
 

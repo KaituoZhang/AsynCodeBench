@@ -7,11 +7,11 @@ import argparse
 import json
 from pathlib import Path
 
-from asynccodebench.qualification.annotation_packets import (
+from asyncodebench.qualification.annotation_packets import (
     build_annotation_packet,
     write_annotation_packet,
 )
-from asynccodebench.qualification.models import CandidateInventory
+from asyncodebench.qualification.models import CandidateInventory
 
 
 def parse_args() -> argparse.Namespace:

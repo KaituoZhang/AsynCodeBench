@@ -13,7 +13,7 @@
     "Review the linked TaskQualityRecord, including the requirement to use origin/commit0_combined plus checksum-recorded bootstrap overlays.",
     "Do not inspect reference branches, solution patches, or diffs.",
     "Do not consult the other annotator before submitting.",
-    "Explicitly assess whether the registry/field/decorator->schema splits are natural AsyncCodeBench dependencies rather than artificial file partitioning."
+    "Explicitly assess whether the registry/field/decorator->schema splits are natural AsynCodeBench dependencies rather than artificial file partitioning."
   ],
   "parallelizability_label": null,
   "rationale": null,

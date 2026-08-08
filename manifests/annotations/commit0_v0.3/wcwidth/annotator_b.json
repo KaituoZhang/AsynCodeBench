@@ -13,7 +13,7 @@
     "Review the linked TaskQualityRecord, including the excluded package metadata test and specialist-test limitations.",
     "Do not inspect reference branches, solution patches, or diffs.",
     "Do not consult the other annotator before submitting.",
-    "Explicitly assess whether the version-catalog to width-algorithm split is natural enough for AsyncCodeBench."
+    "Explicitly assess whether the version-catalog to width-algorithm split is natural enough for AsynCodeBench."
   ],
   "parallelizability_label": null,
   "rationale": null,

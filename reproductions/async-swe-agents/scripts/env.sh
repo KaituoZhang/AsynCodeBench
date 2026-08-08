@@ -34,6 +34,22 @@ set -a
 source "$ENV_FILE"
 set +a
 
+# Keep existing private env files usable after the project rename. New examples
+# and all runtime code use ASYNCODEBENCH_*; the old prefix is read-only
+# compatibility and should not be used in new configurations.
+_legacy_asyncodebench_vars=( $(compgen -A variable ASYNCCODEBENCH_ || true) )
+if [[ "${#_legacy_asyncodebench_vars[@]}" -gt 0 ]]; then
+  for _legacy_name in "${_legacy_asyncodebench_vars[@]}"; do
+    _canonical_name="ASYNCODEBENCH_${_legacy_name#ASYNCCODEBENCH_}"
+    if [[ -z "${!_canonical_name+x}" ]]; then
+      printf -v "$_canonical_name" '%s' "${!_legacy_name}"
+      export "$_canonical_name"
+    fi
+  done
+  echo "Warning: $ENV_FILE uses legacy ASYNCCODEBENCH_* variables; rename them to ASYNCODEBENCH_*." >&2
+fi
+unset _legacy_asyncodebench_vars _legacy_name _canonical_name
+
 if [[ -z "${LLM_BASE_URL:-}" ]]; then
   _env_fail "LLM_BASE_URL is required in $ENV_FILE"
 fi

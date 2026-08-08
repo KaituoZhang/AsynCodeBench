@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from asynccodebench.dataset.deprecated_v03 import (
+from asyncodebench.dataset.deprecated_v03 import (
     build_annotation_forms,
     build_quality_record,
     build_scenarios,
     build_task_record,
 )
-from asynccodebench.dataset.models import (
+from asyncodebench.dataset.models import (
     ExecutionMode,
     QualificationStatus,
 )

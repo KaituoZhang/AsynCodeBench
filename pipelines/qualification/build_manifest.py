@@ -1,6 +1,6 @@
 """Build a validated pilot qualification manifest from JSON inputs."""
 
-from asynccodebench.qualification.cli import (
+from asyncodebench.qualification.cli import (
     load_batch,
     main,
     parse_args,

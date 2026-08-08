@@ -9,8 +9,8 @@ def create_run(tmp_path, log_text):
     (run_dir / "report.json").write_text(
         json.dumps(
             {
-                "asynccodebench": {
-                    "final_evaluator_source": "asynccodebench_manifest"
+                "asyncodebench": {
+                    "final_evaluator_source": "asyncodebench_manifest"
                 }
             }
         ),
@@ -82,7 +82,7 @@ def test_canonical_test_restore_is_recorded_as_model_behavior(tmp_path):
     run_dir = create_run(tmp_path, "normal run\n")
     report_path = run_dir / "report.json"
     report = json.loads(report_path.read_text(encoding="utf-8"))
-    report["asynccodebench"]["canonical_test_restore"] = {
+    report["asyncodebench"]["canonical_test_restore"] = {
         "canonical_ref": "abc123",
         "restored_paths": ["tests/test_utils.py"],
         "untracked_paths_removed": [],

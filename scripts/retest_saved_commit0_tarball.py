@@ -118,8 +118,8 @@ def main() -> int:
             )
 
         report = json.loads(report_path.read_text(encoding="utf-8"))
-        report["asynccodebench"] = {
-            "final_evaluator_source": "asynccodebench_manifest",
+        report["asyncodebench"] = {
+            "final_evaluator_source": "asyncodebench_manifest",
             "final_test_command": command,
             "manifest": str(manifest),
             "offline_saved_tarball_retest": True,

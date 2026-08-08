@@ -1,4 +1,4 @@
-# AsyncCodeBench Paper Structure Reference
+# AsynCodeBench Paper Structure Reference
 
 This note summarizes the paper organization style we want to borrow from:
 
@@ -13,9 +13,9 @@ The goal is not to copy their content, but to adopt their benchmark-paper struct
 4. Define evaluation metrics.
 5. Present results with figures, tables, traces, and case studies.
 
-For AsyncCodeBench, the central story should be:
+For AsynCodeBench, the central story should be:
 
-> AsyncCodeBench transforms public executable coding benchmarks into dependency-aware asynchronous multi-agent benchmark instances. It evaluates whether agent teams can resolve cross-agent software dependencies under delayed visibility, private workspaces, and late integration.
+> AsynCodeBench transforms public executable coding benchmarks into dependency-aware asynchronous multi-agent benchmark instances. It evaluates whether agent teams can resolve cross-agent software dependencies under delayed visibility, private workspaces, and late integration.
 
 ## What We Like From The Reference Papers
 
@@ -31,9 +31,9 @@ Key structural ideas to borrow:
 - It evaluates not only final success, but also efficiency and qualitative process behavior.
 - It uses figures to show the agent loop and tables to define the action space.
 
-How this maps to AsyncCodeBench:
+How this maps to AsynCodeBench:
 
-- We should define each AsyncCodeBench task using standardized artifacts:
+- We should define each AsynCodeBench task using standardized artifacts:
   - source public coding task;
   - dependency labels;
   - scenario manifest;
@@ -62,7 +62,7 @@ Key structural ideas to borrow:
 - It evaluates several agent methods under a shared benchmark.
 - It uses many figures beyond tables: construction pipeline, dataset statistics, complexity analysis, and performance breakdowns.
 
-How this maps to AsyncCodeBench:
+How this maps to AsynCodeBench:
 
 - We should emphasize the transformation pipeline:
   - public coding task selection;
@@ -101,12 +101,12 @@ Main points:
   - late integration failures;
   - duplicated or conflicting work;
   - insufficient manager recovery.
-- AsyncCodeBench exposes these failures using public-test-observable dependency points.
+- AsynCodeBench exposes these failures using public-test-observable dependency points.
 
 Suggested contribution bullets:
 
 - A benchmark transformation methodology that converts public coding tasks into dependency-aware asynchronous multi-agent tasks.
-- A curated set of human-reviewed AsyncCodeBench instances.
+- A curated set of human-reviewed AsynCodeBench instances.
 - Standardized task, scenario, quality, and metric manifests.
 - Execution protocols that isolate synchronous vs asynchronous coordination effects.
 - Async-specific metrics that go beyond final success.
@@ -116,18 +116,18 @@ Suggested contribution bullets:
 Purpose:
 
 - Explain the gap between existing coding benchmarks and asynchronous multi-agent coding.
-- Position AsyncCodeBench relative to SWE-bench, Commit0, Multi-SWE-bench, and agent benchmarks.
+- Position AsynCodeBench relative to SWE-bench, Commit0, Multi-SWE-bench, and agent benchmarks.
 
 Main points:
 
 - Public coding benchmarks provide executable tasks and final tests.
 - They usually do not encode cross-agent dependencies.
 - Multi-agent evaluation is often reduced to "more agents solve the same task", which does not isolate async coordination.
-- AsyncCodeBench focuses on dependency resolution under delayed visibility and late integration.
+- AsynCodeBench focuses on dependency resolution under delayed visibility and late integration.
 
 This section should be short. The main technical content should start in Section 3.
 
-### 3. AsyncCodeBench
+### 3. AsynCodeBench
 
 This should be the main benchmark-construction section, similar in role to the benchmark sections in MLAgentBench and Multi-SWE-bench.
 
@@ -144,7 +144,7 @@ Explain the input requirements:
 
 Important phrasing:
 
-> We do not synthesize toy tasks from scratch. AsyncCodeBench transforms public executable coding tasks into asynchronous multi-agent scenarios while preserving the original coding objective.
+> We do not synthesize toy tasks from scratch. AsynCodeBench transforms public executable coding tasks into asynchronous multi-agent scenarios while preserving the original coding objective.
 
 #### 3.2 Dependency-Aware Transformation Pipeline
 
@@ -335,7 +335,7 @@ cross-agent dependency, and the core question is:
 > When did the run resolve the dependency that makes asynchronous coordination
 > hard, and what coordination cost was required to get there?
 
-The first-round AsyncCodeBench metrics are the main evaluation metrics:
+The first-round AsynCodeBench metrics are the main evaluation metrics:
 
 1. Traditional coding metrics: final tests, cost, tokens, and runtime.
 2. Dependency-level metrics: `ADPR`, `DRS`, strict/composed `DRS`, upstream
@@ -368,7 +368,7 @@ Efficiency:
 - `Runtime`: agent runtime and end-to-end wall-clock time.
 
 These metrics are necessary anchors because they let readers compare
-AsyncCodeBench runs to traditional coding-agent benchmarks. Their limitation is
+AsynCodeBench runs to traditional coding-agent benchmarks. Their limitation is
 that they do not explain asynchronous dependency behavior. For example,
 single-agent and multi-agent runs may both pass all final tests while resolving
 cross-agent dependencies at very different times and costs.
@@ -403,7 +403,7 @@ For dependency point `d`:
 DRS_d = first checkpoint or logical iteration where integrated_probe_tests(d) pass
 ```
 
-`DRS` is one of the central AsyncCodeBench metrics. It answers when a critical
+`DRS` is one of the central AsynCodeBench metrics. It answers when a critical
 cross-agent dependency was first observed to be resolved.
 
 Report two variants when possible:
@@ -527,7 +527,7 @@ failed workers, conflicting artifacts, boundary drift, and recovery dependence.
 
 #### 5.8 Evidence Support In Current Labels
 
-Current AsyncCodeBench v0.3 labels already support several core metrics, but
+Current AsynCodeBench v0.3 labels already support several core metrics, but
 some async-specific measurements require improved execution traces.
 
 | Metric | Current label support | What is already present | Extra trace needed |
@@ -687,7 +687,7 @@ Suggested organization:
 
 Key distinction:
 
-> AsyncCodeBench is not primarily a new collection of coding tasks. It is a dependency-aware transformation and evaluation protocol for asynchronous multi-agent coding.
+> AsynCodeBench is not primarily a new collection of coding tasks. It is a dependency-aware transformation and evaluation protocol for asynchronous multi-agent coding.
 
 ### 9. Limitations
 
@@ -709,13 +709,13 @@ Frame these as benchmark limitations, not fatal weaknesses.
 Restate:
 
 - existing final-test coding benchmarks miss async coordination failures;
-- AsyncCodeBench creates dependency-aware async instances from public coding tasks;
+- AsynCodeBench creates dependency-aware async instances from public coding tasks;
 - execution protocols isolate synchronous vs asynchronous visibility conditions;
 - metrics expose stale assumptions, integration failures, and manager recovery.
 
 ## Recommended Figures
 
-### Figure 1: AsyncCodeBench Transformation Pipeline
+### Figure 1: AsynCodeBench Transformation Pipeline
 
 Purpose:
 
@@ -733,7 +733,7 @@ Public Coding Benchmark
   -> Metrics Manifest Generation
   -> Automatic Validation Gates
   -> Human Annotation
-  -> AsyncCodeBench Instance
+  -> AsynCodeBench Instance
 ```
 
 ### Figure 2: Execution Protocol Timeline
@@ -852,7 +852,7 @@ Plot:
 
 ## Recommended Tables
 
-### Table 1: AsyncCodeBench Task Overview
+### Table 1: AsynCodeBench Task Overview
 
 Columns:
 
@@ -948,12 +948,12 @@ Use stronger framing:
 
 ## Relation To The Two Reference Papers
 
-| Paper | What It Does Well | What AsyncCodeBench Should Borrow |
+| Paper | What It Does Well | What AsynCodeBench Should Borrow |
 | --- | --- | --- |
 | MLAgentBench | Defines environment, actions, traces, evaluator, and agent loop | Define async execution protocols, trace evidence, and process metrics |
 | Multi-SWE-bench | Presents systematic benchmark construction and validation | Present dependency-aware transformation pipeline and human validation |
-| AsyncCodeBench | Converts public coding tasks into async dependency scenarios | Combine construction pipeline, execution protocols, and async metrics |
+| AsynCodeBench | Converts public coding tasks into async dependency scenarios | Combine construction pipeline, execution protocols, and async metrics |
 
 ## One-Sentence Paper Thesis
 
-> AsyncCodeBench is a dependency-aware transformation framework and benchmark for evaluating whether asynchronous software-agent teams can resolve cross-agent implementation contracts under delayed visibility, private workspaces, and late integration.
+> AsynCodeBench is a dependency-aware transformation framework and benchmark for evaluating whether asynchronous software-agent teams can resolve cross-agent implementation contracts under delayed visibility, private workspaces, and late integration.

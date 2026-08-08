@@ -1,12 +1,12 @@
 #!/usr/bin/env python
-"""Export the versioned public AsyncCodeBench JSON Schemas."""
+"""Export the versioned public AsynCodeBench JSON Schemas."""
 
 from __future__ import annotations
 
 import argparse
 from pathlib import Path
 
-from asynccodebench.contracts.export import export_public_schemas
+from asyncodebench.contracts.export import export_public_schemas
 
 
 def parse_args() -> argparse.Namespace:

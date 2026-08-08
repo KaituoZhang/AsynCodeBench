@@ -782,7 +782,7 @@ def _annotation_form(annotator_id: str) -> dict:
             "Review the linked TaskQualityRecord, including the requirement to use origin/commit0_combined plus checksum-recorded bootstrap overlays.",
             "Do not inspect reference branches, solution patches, or diffs.",
             "Do not consult the other annotator before submitting.",
-            "Explicitly assess whether the mounting/object-input/schema splits are natural AsyncCodeBench dependencies rather than artificial file partitioning.",
+            "Explicitly assess whether the mounting/object-input/schema splits are natural AsynCodeBench dependencies rather than artificial file partitioning.",
             "Explicitly assess whether the props bootstrap overlay is acceptable as a non-solution collection prerequisite for the scoped type/schema task.",
         ],
         "parallelizability_label": None,
