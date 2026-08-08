@@ -271,7 +271,7 @@ def main() -> int:
     rows = load_rows(args)
     summaries = summary_rows(rows)
     pivots = pivot_rows(rows, args.tasks)
-    prefix = f"{args.model_tag}_17task"
+    prefix = f"{args.model_tag}_{len(args.tasks)}task"
 
     preferred = [
         "model", "task", "mode", "final_success", "final_tests_passed",
