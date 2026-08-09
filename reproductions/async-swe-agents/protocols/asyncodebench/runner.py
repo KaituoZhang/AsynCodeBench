@@ -180,6 +180,10 @@ class AsynCodeBenchProtocolRunner(StaticCommit0ProtocolRunner):
         self.base_commit_by_agent[subagent.engineer_id] = base_commit
 
     def changed_paths(self, workspace, result):
+        if result.worktree_path:
+            self.task_module._clean_transient_test_artifacts(
+                workspace, result.worktree_path
+            )
         paths = set(result.files_modified or [])
         if result.branch_name and result.worktree_path:
             base_commit = self.base_commit_by_agent.get(result.engineer_id)

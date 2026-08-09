@@ -456,13 +456,14 @@ class Commit0Task(TaskModule):
             )
 
     def _clean_transient_test_artifacts(self, workspace, work_dir):
-        # Package imports and pytest can create bytecode caches before the
-        # native pre-model cleanliness gate. They are generated artifacts, not
-        # agent edits, so remove them before checking git status.
+        # Package imports, pytest, and coverage plugins create these files as a
+        # side effect of validation. They are runtime evidence, not model edits.
         workspace.execute_command(
             f"cd {work_dir} && "
-            "find . -type d -name __pycache__ -prune -exec rm -rf {} + && "
-            "find . -type f \\( -name '*.pyc' -o -name '*.pyo' \\) -delete",
+            "find . -type d \\( -name __pycache__ -o -name .pytest_cache "
+            "-o -name htmlcov \\) -prune -exec rm -rf {} + && "
+            "find . -type f \\( -name '*.pyc' -o -name '*.pyo' "
+            "-o -name '.coverage' -o -name '.coverage.*' \\) -delete",
             timeout=60,
         )
 
@@ -477,6 +478,30 @@ class Commit0Task(TaskModule):
             "git rm -r -f --ignore-unmatch tests/test-hooks >/dev/null 2>&1 || true && "
             "rm -rf tests/test-hooks",
             timeout=60,
+        )
+
+    def _install_transient_test_artifact_excludes(self, workspace, work_dir):
+        """Prevent generated test artifacts from entering agent commits."""
+        marker = "# AsynCodeBench transient test artifacts"
+        patterns = "\n".join(
+            [
+                marker,
+                ".coverage",
+                ".coverage.*",
+                "htmlcov/",
+                ".pytest_cache/",
+                "__pycache__/",
+                "*.pyc",
+                "*.pyo",
+            ]
+        )
+        workspace.execute_command(
+            f"cd {work_dir} && "
+            "exclude_file=$(git rev-parse --git-path info/exclude) && "
+            'mkdir -p "$(dirname "$exclude_file")" && touch "$exclude_file" && '
+            f"grep -qxF {shlex.quote(marker)} \"$exclude_file\" || "
+            f"printf '%s\\n' {shlex.quote(patterns)} >> \"$exclude_file\"",
+            timeout=30,
         )
 
     def _read_workspace_text(self, workspace, remote_path, chunk_size=1024 * 1024):

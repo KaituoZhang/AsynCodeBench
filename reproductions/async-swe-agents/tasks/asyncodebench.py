@@ -156,6 +156,7 @@ class AsynCodeBenchTask(Commit0Task):
     def setup_workspace(self, workspace):
         super().setup_workspace(workspace)
         work_dir = self.get_work_dir()
+        self._install_transient_test_artifact_excludes(workspace, work_dir)
         self._clean_transient_test_artifacts(workspace, work_dir)
         if self.config.repo_name == "filesystem_spec":
             # pip install -e rewrites the overlay-provided version module.

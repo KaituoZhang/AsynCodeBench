@@ -194,6 +194,29 @@ def test_transient_cleanup_removes_python_bytecode_artifacts():
 
     assert any("-name __pycache__" in command for command in workspace.commands)
     assert any("-name '*.pyc'" in command for command in workspace.commands)
+    assert any("-name '.coverage'" in command for command in workspace.commands)
+    assert any("-name .pytest_cache" in command for command in workspace.commands)
+    assert any("-name htmlcov" in command for command in workspace.commands)
+
+
+def test_transient_excludes_apply_to_linked_worktrees(tmp_path):
+    repo, worktree, _, _ = make_git_worktree(
+        tmp_path, ["src/cachetools/keys.py"]
+    )
+    task = make_task()
+    task._install_transient_test_artifact_excludes(LocalWorkspace(), str(repo))
+
+    generated_paths = [
+        worktree / ".coverage",
+        worktree / ".pytest_cache" / "state",
+        worktree / "htmlcov" / "index.html",
+        worktree / "src" / "cachetools" / "__pycache__" / "keys.pyc",
+    ]
+    for path in generated_paths:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("generated\n", encoding="utf-8")
+
+    assert git(worktree, "status", "--porcelain") == ""
 
 
 def test_workspace_file_reader_uses_chunked_base64_transfer():
@@ -418,6 +441,85 @@ def test_caid_merges_in_scope_committed_patch(tmp_path):
     assert review["merged"] is True
     assert git(repo, "rev-parse", "HEAD") != base_head
     assert (repo / "src/cachetools/keys.py").read_text() == "VALUE = 1\n"
+
+
+def test_caid_cleans_untracked_test_artifacts_before_scope_gate(tmp_path):
+    repo, worktree, _, commit = make_git_worktree(
+        tmp_path, ["src/cachetools/keys.py"]
+    )
+    (repo / ".coverage").write_text("generated\n", encoding="utf-8")
+    generated = [
+        worktree / ".coverage",
+        worktree / ".pytest_cache" / "state",
+        worktree / "htmlcov" / "index.html",
+        worktree / "src" / "cachetools" / "__pycache__" / "keys.pyc",
+    ]
+    for path in generated:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("generated\n", encoding="utf-8")
+
+    task = make_task()
+    manager = make_manager(task, LocalWorkspace(), tmp_path / "output", repo)
+    Path(manager.config.output_dir).mkdir()
+    result = SubAgentResult(
+        engineer_id="key_agent",
+        task_id="key_construction",
+        branch_name="agent_key",
+        worktree_path=str(worktree),
+        success=True,
+        commit_hash=commit,
+        files_modified=["src/cachetools/keys.py"],
+        round_num=1,
+    )
+
+    review = manager.collect_and_merge(result)
+
+    assert review["merged"] is True
+    assert not (repo / ".coverage").exists()
+    assert all(not path.exists() for path in generated)
+    scope = json.loads(
+        (Path(manager.config.output_dir) / "scope_validation.jsonl")
+        .read_text()
+        .splitlines()[0]
+    )
+    assert scope["violations"] == []
+    assert scope["main_workspace_status_before_merge"] == []
+
+
+def test_caid_still_rejects_committed_test_artifacts(tmp_path):
+    repo, worktree, base_head, commit = make_git_worktree(
+        tmp_path,
+        [
+            "src/cachetools/keys.py",
+            ".coverage",
+            "src/cachetools/__pycache__/keys.pyc",
+        ],
+    )
+    task = make_task()
+    manager = make_manager(task, LocalWorkspace(), tmp_path / "output", repo)
+    Path(manager.config.output_dir).mkdir()
+    result = SubAgentResult(
+        engineer_id="key_agent",
+        task_id="key_construction",
+        branch_name="agent_key",
+        worktree_path=str(worktree),
+        success=True,
+        commit_hash=commit,
+        round_num=1,
+    )
+
+    review = manager.collect_and_merge(result)
+
+    assert review["merged"] is False
+    assert review["merge_method"] == "scope_rejected"
+    assert git(repo, "rev-parse", "HEAD") == base_head
+    scope = json.loads(
+        (Path(manager.config.output_dir) / "scope_validation.jsonl")
+        .read_text()
+        .splitlines()[0]
+    )
+    assert ".coverage" in scope["violations"]
+    assert "src/cachetools/__pycache__/keys.pyc" in scope["violations"]
 
 
 def test_caid_merges_committed_patch_after_iteration_limit(tmp_path):

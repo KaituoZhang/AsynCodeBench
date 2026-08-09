@@ -157,6 +157,10 @@ class AsynCodeBenchManager(Manager):
         return paths
 
     def committed_and_uncommitted_paths(self, result):
+        if result.worktree_path:
+            self.task._clean_transient_test_artifacts(
+                self.workspace, result.worktree_path
+            )
         paths = set(result.files_modified or [])
         branch = result.branch_name or result.commit_hash
         if branch:
