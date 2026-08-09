@@ -17,7 +17,7 @@ from asyncodebench.dataset.models import (
 TASK = Path("manifests/pilot/v0.3/tasks/commit0_fastapi.json")
 SCENARIOS = Path("manifests/pilot/v0.3/scenarios/commit0_fastapi.json")
 QUALITY = Path("manifests/pilot/v0.3/quality/commit0_fastapi.json")
-ANNOTATION_DIR = Path("manifests/annotations/asyncodebench_v0.3/fastapi")
+ANNOTATION_DIR = Path("archive/non_official/commit0_v0.3/manifests/annotations/commit0_v0.3/fastapi")
 
 
 def _read_json(path: Path) -> dict:
