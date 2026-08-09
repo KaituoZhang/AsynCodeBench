@@ -1,0 +1,25 @@
+{
+  "allowed_labels": [
+    "parallelizable",
+    "partially_parallelizable",
+    "effectively_serial"
+  ],
+  "annotator_id": "annotator_a",
+  "candidate_evidence_file": "manifests/candidates/commit0_async_screening_v0.3.json",
+  "exclusion_reason": null,
+  "include": null,
+  "independence_instructions": [
+    "Use only public Commit0 evidence, the draft task record, the quality record, and the metrics manifest.",
+    "Review the checksum-recorded FastAPI bootstrap overlay and explicitly judge whether it is import-only or whether it implements benchmark behavior.",
+    "Do not inspect reference branches, solution patches, or diffs.",
+    "Do not consult the other annotator before submitting.",
+    "Explicitly assess whether the parameter marker -> dependency solving -> routing/application -> serialization/OpenAPI split is a natural AsynCodeBench dependency rather than artificial file partitioning.",
+    "Explicitly assess whether the weak_or_unclear screening status and currently incomplete local evaluator validation should exclude this candidate from release."
+  ],
+  "parallelizability_label": null,
+  "rationale": null,
+  "schema_version": "0.3",
+  "source_task_id": "commit0:fastapi",
+  "task_id": "asyncodebench:fastapi",
+  "task_record_file": "manifests/pilot/v0.3/tasks/commit0_fastapi.json"
+}

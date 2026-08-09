@@ -107,9 +107,9 @@ manifests/pilot/v0.3/tasks/commit0_python_rsa.json
 manifests/pilot/v0.3/scenarios/commit0_python_rsa.json
 manifests/pilot/v0.3/quality/commit0_python_rsa.json
 manifests/pilot/v0.3/metrics/commit0_python_rsa_async_metrics.json
-manifests/annotations/commit0_v0.3/python_rsa/annotator_a.json
-manifests/annotations/commit0_v0.3/python_rsa/annotator_b.json
-manifests/annotations/commit0_v0.3/python_rsa/adjudication.template.json
+manifests/annotations/asyncodebench_v0.3/python_rsa/annotator_a.json
+manifests/annotations/asyncodebench_v0.3/python_rsa/annotator_b.json
+manifests/annotations/asyncodebench_v0.3/python_rsa/adjudication.template.json
 tests/contracts/test_python_rsa_dataset_v03.py
 tests/contracts/test_python_rsa_async_metrics_v03.py
 ```

@@ -243,7 +243,7 @@ data/overlays/commit0/tinydb/0001-import-bootstrap.patch
 manifests/pilot/v0.3/tasks/commit0_tinydb.json
 manifests/pilot/v0.3/scenarios/commit0_tinydb.json
 manifests/pilot/v0.3/quality/commit0_tinydb.json
-manifests/annotations/commit0_v0.3/tinydb/
+manifests/annotations/asyncodebench_v0.3/tinydb/
 scripts/build_tinydb_v03_data.py
 scripts/materialize_curated_commit0_task.py
 ```

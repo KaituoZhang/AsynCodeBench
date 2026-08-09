@@ -93,7 +93,7 @@ manifests/pilot/v0.3/tasks/            # task manifests
 manifests/pilot/v0.3/scenarios/        # execution scenario manifests
 manifests/pilot/v0.3/quality/          # quality records
 manifests/pilot/v0.3/metrics/          # async metrics manifests
-manifests/annotations/commit0_v0.3/    # human annotation forms
+manifests/annotations/asyncodebench_v0.3/    # human annotation forms
 skills/commit0-to-asyncodebench/      # reusable construction skill
 src/asyncodebench/                    # Python library code
 tests/contracts/                       # artifact validation tests

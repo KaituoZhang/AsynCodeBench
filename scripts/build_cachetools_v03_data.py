@@ -54,7 +54,7 @@ def parse_args() -> argparse.Namespace:
         "--annotation-dir",
         type=Path,
         default=Path(
-            "manifests/annotations/commit0_v0.3/cachetools"
+            "manifests/annotations/asyncodebench_v0.3/cachetools"
         ),
     )
     parser.add_argument(

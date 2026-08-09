@@ -239,7 +239,7 @@ data/overlays/commit0/portalocker/0001-import-bootstrap.patch
 manifests/pilot/v0.3/tasks/commit0_portalocker.json
 manifests/pilot/v0.3/scenarios/commit0_portalocker.json
 manifests/pilot/v0.3/quality/commit0_portalocker.json
-manifests/annotations/commit0_v0.3/portalocker/
+manifests/annotations/asyncodebench_v0.3/portalocker/
 scripts/build_portalocker_v03_data.py
 scripts/materialize_curated_commit0_task.py
 ```

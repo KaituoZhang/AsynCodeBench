@@ -118,9 +118,9 @@ manifests/pilot/v0.3/tasks/commit0_chardet.json
 manifests/pilot/v0.3/scenarios/commit0_chardet.json
 manifests/pilot/v0.3/quality/commit0_chardet.json
 manifests/pilot/v0.3/metrics/commit0_chardet_async_metrics.json
-manifests/annotations/commit0_v0.3/chardet/annotator_a.json
-manifests/annotations/commit0_v0.3/chardet/annotator_b.json
-manifests/annotations/commit0_v0.3/chardet/adjudication.template.json
+archive/non_official/commit0_v0.3/manifests/annotations/commit0_v0.3/chardet/annotator_a.json
+archive/non_official/commit0_v0.3/manifests/annotations/commit0_v0.3/chardet/annotator_b.json
+archive/non_official/commit0_v0.3/manifests/annotations/commit0_v0.3/chardet/adjudication.template.json
 tests/contracts/test_chardet_dataset_v03.py
 tests/contracts/test_chardet_async_metrics_v03.py
 ```

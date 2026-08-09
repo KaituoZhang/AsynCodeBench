@@ -1,0 +1,22 @@
+{
+  "allowed_labels": [
+    "parallelizable",
+    "partially_parallelizable",
+    "effectively_serial"
+  ],
+  "annotator_id": "codex_ai_assisted_audit_20260809",
+  "candidate_evidence_file": "docs/audits/COMMIT0_CANDIDATE_REVIEW_babel_geopandas_flask_v0.3.md",
+  "exclusion_reason": null,
+  "include": true,
+  "independence_instructions": [
+    "This is an AI-assisted audit and does not satisfy the independent-human annotation requirement.",
+    "Use only public task, quality, scenario, metric, overlay, source, and test evidence.",
+    "Do not inspect reference branches, solution patches, or model-generated answers."
+  ],
+  "parallelizability_label": "partially_parallelizable",
+  "rationale": "Flask has natural dependencies from sansio route and callback registration into dispatch and context lifecycle, then into session/JSON and templating/testing consumers. These shared registries and context states can fail after clean textual integration. The scoped evaluator is meaningful, but the eleven overlays include identity decorators and small helper behavior in addition to syntax and import repair, so their non-solution status requires explicit human acceptance and disclosure.",
+  "schema_version": "0.3",
+  "source_task_id": "commit0:flask",
+  "task_id": "asyncodebench:flask",
+  "task_record_file": "manifests/pilot/v0.3/tasks/commit0_flask.json"
+}

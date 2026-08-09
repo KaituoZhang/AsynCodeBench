@@ -56,7 +56,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--annotation-dir",
         type=Path,
-        default=Path("manifests/annotations/commit0_v0.3/simpy"),
+        default=Path("manifests/annotations/asyncodebench_v0.3/simpy"),
     )
     parser.add_argument(
         "--schema-dir",

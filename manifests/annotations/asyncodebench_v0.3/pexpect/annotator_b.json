@@ -1,0 +1,25 @@
+{
+  "allowed_labels": [
+    "parallelizable",
+    "partially_parallelizable",
+    "effectively_serial"
+  ],
+  "annotator_id": "annotator_b",
+  "candidate_evidence_file": "docs/audits/COMMIT0_CANDIDATE_REVIEW_virtualenv_pexpect_web3_v0.3.md",
+  "exclusion_reason": null,
+  "include": null,
+  "independence_instructions": [
+    "Use only public Commit0 evidence, the audit note, and the draft task record.",
+    "Review the linked TaskQualityRecord, including the POSIX/ptyprocess environment requirement and checksum-recorded bootstrap overlay.",
+    "Do not inspect reference branches, solution patches, or diffs.",
+    "Do not consult the other annotator before submitting.",
+    "Explicitly assess whether the expect/search -> SpawnBase -> transport/wrapper split is a natural AsynCodeBench dependency rather than artificial file partitioning.",
+    "Explicitly assess whether excluding pxssh, ANSI, screen, socket_pexpect, and terminal-emulation tests is appropriate for this scoped expect/transport task."
+  ],
+  "parallelizability_label": null,
+  "rationale": null,
+  "schema_version": "0.3",
+  "source_task_id": "commit0:pexpect",
+  "task_id": "asyncodebench:pexpect",
+  "task_record_file": "manifests/pilot/v0.3/tasks/commit0_pexpect.json"
+}

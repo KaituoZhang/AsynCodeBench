@@ -163,7 +163,7 @@ AsynCodeBench/
 │   │   ├── scenarios/
 │   │   ├── quality/
 │   │   └── metrics/
-│   └── annotations/commit0_v0.3/
+│   └── annotations/asyncodebench_v0.3/
 ├── schemas/v0.3/               # machine-readable contracts
 ├── scripts/                    # generation and validation entry points
 ├── skills/
@@ -233,12 +233,15 @@ manifests/pilot/v0.3/tasks/commit0_<repo>.json
 manifests/pilot/v0.3/scenarios/commit0_<repo>.json
 manifests/pilot/v0.3/quality/commit0_<repo>.json
 manifests/pilot/v0.3/metrics/commit0_<repo>_async_metrics.json
-manifests/annotations/commit0_v0.3/<repo>/annotator_a.json
-manifests/annotations/commit0_v0.3/<repo>/annotator_b.json
-manifests/annotations/commit0_v0.3/<repo>/adjudication.template.json
+manifests/annotations/asyncodebench_v0.3/<repo>/annotator_a.json
+manifests/annotations/asyncodebench_v0.3/<repo>/annotator_b.json
+manifests/annotations/asyncodebench_v0.3/<repo>/adjudication.template.json
 tests/contracts/test_<repo>_dataset_v03.py
 tests/contracts/test_<repo>_async_metrics_v03.py
 ```
+
+Annotation records use the public `asyncodebench:<repo>` task namespace. Their
+`source_task_id` field preserves the corresponding `commit0:<repo>` provenance.
 
 The task record describes the public task, natural subproblems, evaluator, and
 source materialization. The scenario record defines the four benchmark
@@ -383,9 +386,9 @@ For each task, annotators review:
 Annotation files live at:
 
 ```text
-manifests/annotations/commit0_v0.3/<repo>/annotator_a.json
-manifests/annotations/commit0_v0.3/<repo>/annotator_b.json
-manifests/annotations/commit0_v0.3/<repo>/adjudication.template.json
+manifests/annotations/asyncodebench_v0.3/<repo>/annotator_a.json
+manifests/annotations/asyncodebench_v0.3/<repo>/annotator_b.json
+manifests/annotations/asyncodebench_v0.3/<repo>/adjudication.template.json
 ```
 
 `qualification_ready` means the records are internally consistent and ready for

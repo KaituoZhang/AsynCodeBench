@@ -4,7 +4,7 @@ This document explains how a human annotator should complete the v0.3
 annotation templates under:
 
 ```text
-manifests/annotations/commit0_v0.3/<task_name>/
+manifests/annotations/asyncodebench_v0.3/<task_name>/
 ```
 
 The goal of annotation is not to solve the coding task. The goal is to decide
@@ -34,13 +34,16 @@ In particular, a useful task should have:
 
 ## 2. Files to read before filling the template
 
-For a task such as `commit0:cachetools`, read these files:
+For an annotation task such as `asyncodebench:cachetools`, read these files.
+The linked task, quality, and scenario filenames retain `commit0_` because they
+record the source dataset provenance; the annotation JSON records that origin
+separately as `source_task_id: commit0:cachetools`:
 
 ```text
 manifests/pilot/v0.3/tasks/commit0_cachetools.json
 manifests/pilot/v0.3/quality/commit0_cachetools.json
 manifests/pilot/v0.3/scenarios/commit0_cachetools.json
-manifests/annotations/commit0_v0.3/cachetools/annotator_a.json
+manifests/annotations/asyncodebench_v0.3/cachetools/annotator_a.json
 ```
 
 If available, also read the worked example document:
@@ -293,8 +296,8 @@ After both annotation files are complete, run:
 cd /absolute/path/to/AsynCodeBench
 PYTHONPATH=src python scripts/finalize_v03_task_annotation.py \
   --task manifests/pilot/v0.3/tasks/commit0_cachetools.json \
-  --annotation-a manifests/annotations/commit0_v0.3/cachetools/annotator_a.json \
-  --annotation-b manifests/annotations/commit0_v0.3/cachetools/annotator_b.json \
+  --annotation-a manifests/annotations/asyncodebench_v0.3/cachetools/annotator_a.json \
+  --annotation-b manifests/annotations/asyncodebench_v0.3/cachetools/annotator_b.json \
   --output manifests/pilot/v0.3/tasks/commit0_cachetools.finalized.json
 ```
 
@@ -304,9 +307,9 @@ If adjudication is needed:
 cd /absolute/path/to/AsynCodeBench
 PYTHONPATH=src python scripts/finalize_v03_task_annotation.py \
   --task manifests/pilot/v0.3/tasks/commit0_cachetools.json \
-  --annotation-a manifests/annotations/commit0_v0.3/cachetools/annotator_a.json \
-  --annotation-b manifests/annotations/commit0_v0.3/cachetools/annotator_b.json \
-  --adjudication manifests/annotations/commit0_v0.3/cachetools/adjudication.template.json \
+  --annotation-a manifests/annotations/asyncodebench_v0.3/cachetools/annotator_a.json \
+  --annotation-b manifests/annotations/asyncodebench_v0.3/cachetools/annotator_b.json \
+  --adjudication manifests/annotations/asyncodebench_v0.3/cachetools/adjudication.template.json \
   --output manifests/pilot/v0.3/tasks/commit0_cachetools.finalized.json
 ```
 
@@ -327,4 +330,3 @@ Before marking `include: true`, confirm:
 - [ ] The task still has a strong single-agent baseline path.
 - [ ] The rationale explains the dependency, not only that the task is
       difficult.
-

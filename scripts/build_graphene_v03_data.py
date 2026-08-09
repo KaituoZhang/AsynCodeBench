@@ -788,7 +788,8 @@ def _annotation_form(annotator_id: str) -> dict:
         "parallelizability_label": None,
         "rationale": None,
         "schema_version": "0.3",
-        "task_id": TASK_ID,
+        "source_task_id": TASK_ID,
+        "task_id": TASK_ID.replace("commit0:", "asyncodebench:", 1),
         "task_record_file": "manifests/pilot/v0.3/tasks/commit0_graphene.json",
     }
 
@@ -802,7 +803,8 @@ def _adjudication_template() -> dict:
         "parallelizability_label": None,
         "rationale": None,
         "schema_version": "0.3",
-        "task_id": TASK_ID,
+        "source_task_id": TASK_ID,
+        "task_id": TASK_ID.replace("commit0:", "asyncodebench:", 1),
     }
 
 
@@ -834,9 +836,9 @@ def main() -> None:
         Path("manifests/pilot/v0.3/scenarios/commit0_graphene.json"): _scenario_record(),
         Path("manifests/pilot/v0.3/quality/commit0_graphene.json"): _quality_record(),
         Path("manifests/pilot/v0.3/metrics/commit0_graphene_async_metrics.json"): _metrics_record(),
-        Path("manifests/annotations/commit0_v0.3/graphene/annotator_a.json"): _annotation_form("annotator_a"),
-        Path("manifests/annotations/commit0_v0.3/graphene/annotator_b.json"): _annotation_form("annotator_b"),
-        Path("manifests/annotations/commit0_v0.3/graphene/adjudication.template.json"): _adjudication_template(),
+        Path("manifests/annotations/asyncodebench_v0.3/graphene/annotator_a.json"): _annotation_form("annotator_a"),
+        Path("manifests/annotations/asyncodebench_v0.3/graphene/annotator_b.json"): _annotation_form("annotator_b"),
+        Path("manifests/annotations/asyncodebench_v0.3/graphene/adjudication.template.json"): _adjudication_template(),
     }
     for path, payload in files.items():
         _write_json(path, payload)

@@ -7,7 +7,7 @@ from pathlib import Path
 TASK_FILE = Path("manifests/pilot/v0.3/tasks/commit0_cookiecutter.json")
 SCENARIO_FILE = Path("manifests/pilot/v0.3/scenarios/commit0_cookiecutter.json")
 QUALITY_FILE = Path("manifests/pilot/v0.3/quality/commit0_cookiecutter.json")
-ANNOTATION_DIR = Path("manifests/annotations/commit0_v0.3/cookiecutter")
+ANNOTATION_DIR = Path("manifests/annotations/asyncodebench_v0.3/cookiecutter")
 CURATED_CONFIG = Path("configs/tasks/commit0_curated_tasks.v0.3.json")
 
 

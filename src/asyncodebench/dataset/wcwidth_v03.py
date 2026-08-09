@@ -511,7 +511,8 @@ def build_annotation_forms(
     task_record_file: Path,
 ) -> tuple[AnnotationForm, AnnotationForm]:
     common = {
-        "task_id": WCWIDTH_TASK_ID,
+        "task_id": WCWIDTH_TASK_ID.replace("commit0:", "asyncodebench:", 1),
+        "source_task_id": WCWIDTH_TASK_ID,
         "candidate_evidence_file": str(candidate_file),
         "task_record_file": str(task_record_file),
         "allowed_labels": tuple(ParallelizabilityLabel),
@@ -537,7 +538,8 @@ def build_annotation_forms(
 
 def build_adjudication_form() -> AdjudicationForm:
     return AdjudicationForm(
-        task_id=WCWIDTH_TASK_ID,
+        task_id=WCWIDTH_TASK_ID.replace("commit0:", "asyncodebench:", 1),
+        source_task_id=WCWIDTH_TASK_ID,
         adjudicator_id="independent_adjudicator",
         annotator_ids=("annotator_a", "annotator_b"),
     )

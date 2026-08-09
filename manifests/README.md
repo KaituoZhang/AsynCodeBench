@@ -44,9 +44,9 @@ AsynCodeBench v0.3 Commit0 draft assets:
 - `pilot/v0.3/quality/commit0_cachetools.json`: statement provenance, exact
   evaluator environment, initial and completed sanity snapshots, asymmetric
   test groups, limitations, and remaining release gates;
-- `annotations/commit0_v0.3/cachetools/annotator_a.json` and
+- `annotations/asyncodebench_v0.3/cachetools/annotator_a.json` and
   `annotator_b.json`: blank independent human decision forms;
-- `annotations/commit0_v0.3/cachetools/adjudication.template.json`: blank
+- `annotations/asyncodebench_v0.3/cachetools/adjudication.template.json`: blank
   independent adjudication form, used only when annotators disagree.
 - `pilot/v0.3/tasks/commit0_deprecated.json`: second portable task record,
   pending independent human annotation;
@@ -55,11 +55,11 @@ AsynCodeBench v0.3 Commit0 draft assets:
 - `pilot/v0.3/quality/commit0_deprecated.json`: task-statement provenance,
   frozen dependency versions, test-group boundaries, evaluator snapshots,
   limitations, and remaining release gates;
-- `annotations/commit0_v0.3/deprecated/`: two blank independent annotation
+- `annotations/asyncodebench_v0.3/deprecated/`: two blank independent annotation
   forms and one adjudication template.
 - `pilot/v0.3/{tasks,scenarios,quality}/commit0_portalocker.json`: audited
   Interface Dependency candidate whose quality status is `needs_revision`;
-- `annotations/commit0_v0.3/portalocker/`: independent inclusion/exclusion
+- `annotations/asyncodebench_v0.3/portalocker/`: independent inclusion/exclusion
   forms and adjudication template for the unresolved candidate.
 
 Rebuild these assets and the public v0.3 schemas with:

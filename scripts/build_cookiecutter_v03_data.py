@@ -751,7 +751,8 @@ def annotation_form(annotator_id: str) -> dict:
         "parallelizability_label": None,
         "rationale": None,
         "schema_version": "0.3",
-        "task_id": TASK_ID,
+        "source_task_id": TASK_ID,
+        "task_id": TASK_ID.replace("commit0:", "asyncodebench:", 1),
         "task_record_file": "manifests/pilot/v0.3/tasks/commit0_cookiecutter.json",
     }
 
@@ -765,7 +766,8 @@ def adjudication_template() -> dict:
         "parallelizability_label": None,
         "rationale": None,
         "schema_version": "0.3",
-        "task_id": TASK_ID,
+        "source_task_id": TASK_ID,
+        "task_id": TASK_ID.replace("commit0:", "asyncodebench:", 1),
     }
 
 
@@ -796,9 +798,9 @@ def main() -> int:
         Path("manifests/pilot/v0.3/scenarios/commit0_cookiecutter.json"): scenario_record(),
         Path("manifests/pilot/v0.3/quality/commit0_cookiecutter.json"): quality_record(),
         Path("manifests/pilot/v0.3/metrics/commit0_cookiecutter_async_metrics.json"): metrics_record(),
-        Path("manifests/annotations/commit0_v0.3/cookiecutter/annotator_a.json"): annotation_form("annotator_a"),
-        Path("manifests/annotations/commit0_v0.3/cookiecutter/annotator_b.json"): annotation_form("annotator_b"),
-        Path("manifests/annotations/commit0_v0.3/cookiecutter/adjudication.template.json"): adjudication_template(),
+        Path("manifests/annotations/asyncodebench_v0.3/cookiecutter/annotator_a.json"): annotation_form("annotator_a"),
+        Path("manifests/annotations/asyncodebench_v0.3/cookiecutter/annotator_b.json"): annotation_form("annotator_b"),
+        Path("manifests/annotations/asyncodebench_v0.3/cookiecutter/adjudication.template.json"): adjudication_template(),
     }
     for path, payload in files.items():
         write_json(path, payload)

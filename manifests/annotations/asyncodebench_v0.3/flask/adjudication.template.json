@@ -1,0 +1,14 @@
+{
+  "adjudicator_id": "independent_adjudicator",
+  "annotator_ids": [
+    "annotator_a",
+    "annotator_b"
+  ],
+  "exclusion_reason": null,
+  "include": null,
+  "parallelizability_label": null,
+  "rationale": null,
+  "schema_version": "0.3",
+  "source_task_id": "commit0:flask",
+  "task_id": "asyncodebench:flask"
+}

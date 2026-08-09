@@ -53,7 +53,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--annotation-dir",
         type=Path,
-        default=Path("manifests/annotations/commit0_v0.3/portalocker"),
+        default=Path("manifests/annotations/asyncodebench_v0.3/portalocker"),
     )
     parser.add_argument(
         "--schema-dir",

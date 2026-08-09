@@ -85,6 +85,19 @@
       "title": "Schema Version",
       "type": "string"
     },
+    "source_task_id": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Task Id"
+    },
     "task_id": {
       "minLength": 1,
       "title": "Task Id",

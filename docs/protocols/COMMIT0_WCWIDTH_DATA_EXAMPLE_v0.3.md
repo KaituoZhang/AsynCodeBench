@@ -176,5 +176,5 @@ scripts/build_wcwidth_v03_data.py
 manifests/pilot/v0.3/tasks/commit0_wcwidth.json
 manifests/pilot/v0.3/scenarios/commit0_wcwidth.json
 manifests/pilot/v0.3/quality/commit0_wcwidth.json
-manifests/annotations/commit0_v0.3/wcwidth/
+manifests/annotations/asyncodebench_v0.3/wcwidth/
 ```

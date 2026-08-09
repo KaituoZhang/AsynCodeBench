@@ -112,6 +112,8 @@ def test_annotation_forms_are_blank_and_independent() -> None:
     assert all(form.include is None for form in forms)
     assert all(form.parallelizability_label is None for form in forms)
     assert all(form.rationale is None for form in forms)
+    assert all(form.task_id == "asyncodebench:cachetools" for form in forms)
+    assert all(form.source_task_id == "commit0:cachetools" for form in forms)
 
 
 def test_consistent_human_annotations_finalize_task() -> None:

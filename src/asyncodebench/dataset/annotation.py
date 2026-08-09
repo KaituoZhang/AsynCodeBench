@@ -17,11 +17,27 @@ def finalize_task_record(
 ) -> TaskRecord:
     """Return a finalized task after validating independent decisions."""
 
+    source_namespace, separator, repository = task.task_id.partition(":")
+    public_task_id = (
+        f"asyncodebench:{repository}"
+        if separator == ":" and source_namespace == "commit0"
+        else task.task_id
+    )
+
+    def annotation_matches_task(form: AnnotationForm | AdjudicationForm) -> bool:
+        if form.source_task_id is None:
+            # Backward compatibility for in-memory v0.3 qualification tests.
+            return form.task_id == task.task_id
+        return (
+            form.task_id == public_task_id
+            and form.source_task_id == task.task_id
+        )
+
     if task.qualification_status is QualificationStatus.FINALIZED:
         raise ValueError("task is already finalized")
     if len({form.annotator_id for form in annotations}) != 2:
         raise ValueError("two distinct annotators are required")
-    if any(form.task_id != task.task_id for form in annotations):
+    if any(not annotation_matches_task(form) for form in annotations):
         raise ValueError("annotation task_id does not match task")
     if any(
         form.include is None
@@ -46,7 +62,7 @@ def finalize_task_record(
     else:
         if adjudication is None:
             raise ValueError("annotation disagreement requires adjudication")
-        if adjudication.task_id != task.task_id:
+        if not annotation_matches_task(adjudication):
             raise ValueError("adjudication task_id does not match task")
         if set(adjudication.annotator_ids) != {
             first.annotator_id,

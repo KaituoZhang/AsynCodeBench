@@ -191,9 +191,9 @@ setuptools 78.1.1
 manifests/pilot/v0.3/tasks/commit0_deprecated.json
 manifests/pilot/v0.3/scenarios/commit0_deprecated.json
 manifests/pilot/v0.3/quality/commit0_deprecated.json
-manifests/annotations/commit0_v0.3/deprecated/annotator_a.json
-manifests/annotations/commit0_v0.3/deprecated/annotator_b.json
-manifests/annotations/commit0_v0.3/deprecated/adjudication.template.json
+manifests/annotations/asyncodebench_v0.3/deprecated/annotator_a.json
+manifests/annotations/asyncodebench_v0.3/deprecated/annotator_b.json
+manifests/annotations/asyncodebench_v0.3/deprecated/adjudication.template.json
 ```
 
 Regenerate deterministically with:

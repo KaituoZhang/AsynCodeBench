@@ -9,7 +9,7 @@ TASK_FILE = Path("manifests/pilot/v0.3/tasks/commit0_marshmallow.json")
 SCENARIO_FILE = Path("manifests/pilot/v0.3/scenarios/commit0_marshmallow.json")
 QUALITY_FILE = Path("manifests/pilot/v0.3/quality/commit0_marshmallow.json")
 METRICS_FILE = Path("manifests/pilot/v0.3/metrics/commit0_marshmallow_async_metrics.json")
-ANNOTATION_DIR = Path("manifests/annotations/commit0_v0.3/marshmallow")
+ANNOTATION_DIR = Path("manifests/annotations/asyncodebench_v0.3/marshmallow")
 CURATED_CONFIG = Path("configs/tasks/commit0_curated_tasks.v0.3.json")
 
 

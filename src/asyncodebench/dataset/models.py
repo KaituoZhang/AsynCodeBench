@@ -12,6 +12,29 @@ from asyncodebench.contracts import ParallelizabilityLabel
 DATASET_SCHEMA_VERSION = "0.3"
 
 
+def _validate_benchmark_task_identity(
+    task_id: str,
+    source_task_id: str | None,
+    record_type: str,
+) -> None:
+    if not task_id.startswith("asyncodebench:"):
+        return
+    if not source_task_id:
+        raise ValueError(
+            f"Asyncodebench {record_type} require source_task_id provenance"
+        )
+    public_repo = task_id.partition(":")[2]
+    source_namespace, separator, source_repo = source_task_id.partition(":")
+    if (
+        separator != ":"
+        or source_namespace != "commit0"
+        or source_repo != public_repo
+    ):
+        raise ValueError(
+            "source_task_id must be the matching commit0:<repository> identifier"
+        )
+
+
 class DatasetModel(BaseModel):
     """Forbid undeclared fields in released dataset records."""
 
@@ -240,6 +263,7 @@ class AnnotationForm(DatasetModel):
     """Answer-free form assigned to one genuinely independent human."""
 
     task_id: str = Field(min_length=1)
+    source_task_id: str | None = Field(default=None, min_length=1)
     annotator_id: str = Field(min_length=1)
     candidate_evidence_file: str = Field(min_length=1)
     task_record_file: str = Field(min_length=1)
@@ -252,6 +276,11 @@ class AnnotationForm(DatasetModel):
 
     @model_validator(mode="after")
     def validate_blank_or_complete(self) -> AnnotationForm:
+        _validate_benchmark_task_identity(
+            self.task_id,
+            self.source_task_id,
+            "annotations",
+        )
         decision_fields = (
             self.include,
             self.parallelizability_label,
@@ -272,6 +301,7 @@ class AdjudicationForm(DatasetModel):
     """Independent resolution used only when two annotators disagree."""
 
     task_id: str = Field(min_length=1)
+    source_task_id: str | None = Field(default=None, min_length=1)
     adjudicator_id: str = Field(min_length=1)
     annotator_ids: tuple[str, str]
     include: bool | None = None
@@ -281,6 +311,11 @@ class AdjudicationForm(DatasetModel):
 
     @model_validator(mode="after")
     def validate_adjudication(self) -> AdjudicationForm:
+        _validate_benchmark_task_identity(
+            self.task_id,
+            self.source_task_id,
+            "adjudications",
+        )
         if len(set(self.annotator_ids)) != 2:
             raise ValueError("adjudication requires two distinct annotators")
         decision_fields = (

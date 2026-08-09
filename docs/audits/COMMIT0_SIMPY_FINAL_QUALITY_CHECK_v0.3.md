@@ -15,7 +15,7 @@ manifests/pilot/v0.3/tasks/commit0_simpy.json
 manifests/pilot/v0.3/scenarios/commit0_simpy.json
 manifests/pilot/v0.3/quality/commit0_simpy.json
 manifests/pilot/v0.3/metrics/commit0_simpy_async_metrics.json
-manifests/annotations/commit0_v0.3/simpy/
+manifests/annotations/asyncodebench_v0.3/simpy/
 ```
 
 The task should remain `qualification_ready`, not `release_ready`, until the

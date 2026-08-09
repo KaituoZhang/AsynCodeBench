@@ -122,9 +122,9 @@ manifests/pilot/v0.3/tasks/commit0_<repo>.json
 manifests/pilot/v0.3/scenarios/commit0_<repo>.json
 manifests/pilot/v0.3/quality/commit0_<repo>.json
 manifests/pilot/v0.3/metrics/commit0_<repo>_async_metrics.json
-manifests/annotations/commit0_v0.3/<repo>/annotator_a.json
-manifests/annotations/commit0_v0.3/<repo>/annotator_b.json
-manifests/annotations/commit0_v0.3/<repo>/adjudication.template.json
+manifests/annotations/asyncodebench_v0.3/<repo>/annotator_a.json
+manifests/annotations/asyncodebench_v0.3/<repo>/annotator_b.json
+manifests/annotations/asyncodebench_v0.3/<repo>/adjudication.template.json
 tests/contracts/test_<repo>_dataset_v03.py
 tests/contracts/test_<repo>_async_metrics_v03.py
 configs/tasks/commit0_curated_tasks.v0.3.json

@@ -1,0 +1,24 @@
+{
+  "allowed_labels": [
+    "parallelizable",
+    "partially_parallelizable",
+    "effectively_serial"
+  ],
+  "annotator_id": "annotator_a",
+  "candidate_evidence_file": "manifests/candidates/commit0_public_candidates_v0.2.json",
+  "exclusion_reason": null,
+  "include": null,
+  "independence_instructions": [
+    "Use only public Commit0 evidence and the draft task record.",
+    "Review the linked TaskQualityRecord, including the excluded package metadata test and specialist-test limitations.",
+    "Do not inspect reference branches, solution patches, or diffs.",
+    "Do not consult the other annotator before submitting.",
+    "Explicitly assess whether the version-catalog to width-algorithm split is natural enough for AsynCodeBench."
+  ],
+  "parallelizability_label": null,
+  "rationale": null,
+  "schema_version": "0.3",
+  "source_task_id": "commit0:wcwidth",
+  "task_id": "asyncodebench:wcwidth",
+  "task_record_file": "manifests/pilot/v0.3/tasks/commit0_wcwidth.json"
+}

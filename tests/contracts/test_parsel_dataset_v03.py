@@ -8,7 +8,7 @@ from pathlib import Path
 TASK_FILE = Path("manifests/pilot/v0.3/tasks/commit0_parsel.json")
 SCENARIO_FILE = Path("manifests/pilot/v0.3/scenarios/commit0_parsel.json")
 QUALITY_FILE = Path("manifests/pilot/v0.3/quality/commit0_parsel.json")
-ANNOTATION_DIR = Path("manifests/annotations/commit0_v0.3/parsel")
+ANNOTATION_DIR = Path("manifests/annotations/asyncodebench_v0.3/parsel")
 CURATED_CONFIG = Path("configs/tasks/commit0_curated_tasks.v0.3.json")
 
 

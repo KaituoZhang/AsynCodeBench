@@ -8,7 +8,7 @@ from pathlib import Path
 TASK_FILE = Path("manifests/pilot/v0.3/tasks/commit0_graphene.json")
 SCENARIO_FILE = Path("manifests/pilot/v0.3/scenarios/commit0_graphene.json")
 QUALITY_FILE = Path("manifests/pilot/v0.3/quality/commit0_graphene.json")
-ANNOTATION_DIR = Path("manifests/annotations/commit0_v0.3/graphene")
+ANNOTATION_DIR = Path("manifests/annotations/asyncodebench_v0.3/graphene")
 CURATED_CONFIG = Path("configs/tasks/commit0_curated_tasks.v0.3.json")
 
 
