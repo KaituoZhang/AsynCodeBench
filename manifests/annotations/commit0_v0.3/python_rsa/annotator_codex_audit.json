@@ -1,0 +1,21 @@
+{
+  "allowed_labels": [
+    "parallelizable",
+    "partially_parallelizable",
+    "effectively_serial"
+  ],
+  "annotator_id": "codex_ai_assisted_audit_20260809",
+  "candidate_evidence_file": "manifests/candidates/commit0_async_screening_v0.3.json",
+  "exclusion_reason": null,
+  "include": true,
+  "independence_instructions": [
+    "This is an AI-assisted audit and does not satisfy the independent-human annotation requirement.",
+    "Use only public task, quality, scenario, metric, overlay, source, and test evidence.",
+    "Do not inspect reference branches, solution patches, or model-generated answers."
+  ],
+  "parallelizability_label": "partially_parallelizable",
+  "rationale": "Python-rsa exposes real contracts from arithmetic and codecs to key generation, from key models to DER/PEM serialization, and from codec/key behavior to PKCS#1 operations. The modules and public tests form natural ownership boundaries despite the compact task size. The crypto API metric currently lists key.py under the arithmetic producer, so that composite dependency must be split or represented with multiple producers before strict CAIL attribution.",
+  "schema_version": "0.3",
+  "task_id": "commit0:python-rsa",
+  "task_record_file": "manifests/pilot/v0.3/tasks/commit0_python_rsa.json"
+}

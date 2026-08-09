@@ -1,0 +1,21 @@
+{
+  "allowed_labels": [
+    "parallelizable",
+    "partially_parallelizable",
+    "effectively_serial"
+  ],
+  "annotator_id": "codex_ai_assisted_audit_20260809",
+  "candidate_evidence_file": "manifests/candidates/commit0_async_screening_v0.3.json",
+  "exclusion_reason": null,
+  "include": true,
+  "independence_instructions": [
+    "This is an AI-assisted audit and does not satisfy the independent-human annotation requirement.",
+    "Use only public task, quality, scenario, metric, overlay, source, and test evidence.",
+    "Do not inspect reference branches, solution patches, or model-generated answers."
+  ],
+  "parallelizability_label": "partially_parallelizable",
+  "rationale": "Requests has a natural preparation-to-transport dependency: sessions and adapters consume PreparedRequest, Response, cookie, hook, authentication, URL, proxy, and body-length contracts. Package exports provide a narrow integration surface. The scoped evaluator avoids unavailable network fixtures, and the bootstrap mostly restores imports, although its small status-code and path passthrough behavior should remain documented as pre-supplied behavior.",
+  "schema_version": "0.3",
+  "task_id": "commit0:requests",
+  "task_record_file": "manifests/pilot/v0.3/tasks/commit0_requests.json"
+}

@@ -1,0 +1,21 @@
+{
+  "allowed_labels": [
+    "parallelizable",
+    "partially_parallelizable",
+    "effectively_serial"
+  ],
+  "annotator_id": "codex_ai_assisted_audit_20260809",
+  "candidate_evidence_file": "docs/audits/COMMIT0_CANDIDATE_REVIEW_virtualenv_pexpect_web3_v0.3.md",
+  "exclusion_reason": null,
+  "include": true,
+  "independence_instructions": [
+    "This is an AI-assisted audit and does not satisfy the independent-human annotation requirement.",
+    "Use only public task, quality, scenario, metric, overlay, source, and test evidence.",
+    "Do not inspect reference branches, solution patches, or model-generated answers."
+  ],
+  "parallelizability_label": "partially_parallelizable",
+  "rationale": "Pexpect naturally separates search matching, SpawnBase state, transport behavior, and high-level wrappers. EOF, TIMEOUT, bytes/text, buffer, before/after, and match contracts can become stale across workers and are covered by a frozen POSIX evaluator. The writable scopes are suitable, but the spawn-to-wrapper metric currently attributes transport files to the spawn producer and should be split or corrected before cross-agent CAIL attribution.",
+  "schema_version": "0.3",
+  "task_id": "commit0:pexpect",
+  "task_record_file": "manifests/pilot/v0.3/tasks/commit0_pexpect.json"
+}

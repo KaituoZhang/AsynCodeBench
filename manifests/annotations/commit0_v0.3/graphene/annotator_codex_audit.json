@@ -1,0 +1,21 @@
+{
+  "allowed_labels": [
+    "parallelizable",
+    "partially_parallelizable",
+    "effectively_serial"
+  ],
+  "annotator_id": "codex_ai_assisted_audit_20260809",
+  "candidate_evidence_file": "docs/audits/COMMIT0_CANDIDATE_REVIEW_networkx_graphene_tlslite_v0.3.md",
+  "exclusion_reason": null,
+  "include": true,
+  "independence_instructions": [
+    "This is an AI-assisted audit and does not satisfy the independent-human annotation requirement.",
+    "Use only public task, quality, scenario, metric, overlay, source, and test evidence.",
+    "Do not inspect reference branches, solution patches, or model-generated answers."
+  ],
+  "parallelizability_label": "partially_parallelizable",
+  "rationale": "Graphene separates type mounting and scalar behavior, object/input metadata, and schema/TypeMap conversion along existing module boundaries. Downstream schema construction consumes mounted field shapes and metadata contracts, so asynchronous stale assumptions are plausible and test observable. The many import overlays leave the selected behavior largely unfinished, but the props implementation is more than an empty symbol and requires explicit human confirmation as an acceptable collection prerequisite.",
+  "schema_version": "0.3",
+  "task_id": "commit0:graphene",
+  "task_record_file": "manifests/pilot/v0.3/tasks/commit0_graphene.json"
+}

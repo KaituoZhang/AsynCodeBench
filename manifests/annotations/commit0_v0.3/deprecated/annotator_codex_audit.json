@@ -1,0 +1,21 @@
+{
+  "allowed_labels": [
+    "parallelizable",
+    "partially_parallelizable",
+    "effectively_serial"
+  ],
+  "annotator_id": "codex_ai_assisted_audit_20260809",
+  "candidate_evidence_file": "manifests/candidates/commit0_public_candidates_v0.2.json",
+  "exclusion_reason": null,
+  "include": true,
+  "independence_instructions": [
+    "This is an AI-assisted audit and does not satisfy the independent-human annotation requirement.",
+    "Use only public task, quality, scenario, metric, overlay, source, and test evidence.",
+    "Do not inspect reference branches, solution patches, or model-generated answers."
+  ],
+  "parallelizability_label": "partially_parallelizable",
+  "rationale": "Deprecated naturally separates classic warning and decorator behavior from the Sphinx directive adapter. The Sphinx layer inherits and consumes ClassicAdapter warning, constructor, class-wrapping, and message contracts, creating realistic stale-interface risk while preserving distinct writable modules and public test groups.",
+  "schema_version": "0.3",
+  "task_id": "commit0:deprecated",
+  "task_record_file": "manifests/pilot/v0.3/tasks/commit0_deprecated.json"
+}
