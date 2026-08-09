@@ -146,6 +146,16 @@ def test_native_task_rejects_non_official_task():
         make_task("asyncodebench:fastapi")
 
 
+def test_native_task_rejects_commit0_namespace():
+    with pytest.raises(ValueError, match="Commit0 IDs are source provenance only"):
+        make_task("commit0:cachetools")
+
+
+def test_native_task_rejects_nested_namespace():
+    with pytest.raises(ValueError, match="asyncodebench:<repository>"):
+        make_task("asyncodebench:commit0:cachetools")
+
+
 def test_all_official_tasks_have_native_v2_contracts():
     official_tasks = make_task().official_tasks
 
@@ -638,3 +648,22 @@ def test_public_all_protocol_wrapper_uses_native_harness_only():
         "caid_manager",
     ):
         assert protocol in script
+
+
+def test_public_all_protocol_wrapper_rejects_commit0_namespace():
+    script = (
+        Path(__file__).resolve().parents[1]
+        / "scripts"
+        / "run_asyncodebench_all_protocols_env.sh"
+    )
+
+    result = subprocess.run(
+        [str(script), "commit0:cachetools"],
+        cwd=script.parents[1],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 2
+    assert "Commit0 IDs are provenance only" in result.stderr

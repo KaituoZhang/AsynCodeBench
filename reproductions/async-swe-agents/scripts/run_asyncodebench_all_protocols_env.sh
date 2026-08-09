@@ -4,12 +4,28 @@ set -euo pipefail
 RUNNER_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$RUNNER_ROOT"
 
+task_input="${1:?Usage: scripts/run_asyncodebench_all_protocols_env.sh <task-or-asyncodebench:task>}"
+case "$task_input" in
+  asyncodebench:*)
+    task="${task_input#asyncodebench:}"
+    ;;
+  *:*)
+    echo "Unsupported task namespace in '$task_input'. Use asyncodebench:<task>; Commit0 IDs are provenance only." >&2
+    exit 2
+    ;;
+  *)
+    task="$task_input"
+    ;;
+esac
+if [[ -z "$task" || "$task" == *:* ]]; then
+  echo "Invalid task '$task_input'. Use a task name or asyncodebench:<task>." >&2
+  exit 2
+fi
+task_id="asyncodebench:${task}"
+
 # shellcheck source=scripts/env.sh
 source scripts/env.sh
 
-task_input="${1:?Usage: scripts/run_asyncodebench_all_protocols_env.sh <task-or-asyncodebench:task>}"
-task="${task_input#asyncodebench:}"
-task_id="asyncodebench:${task}"
 model_tag="${MODEL_TAG:?MODEL_TAG is required}"
 run_version="${RUN_VERSION:?RUN_VERSION is required}"
 

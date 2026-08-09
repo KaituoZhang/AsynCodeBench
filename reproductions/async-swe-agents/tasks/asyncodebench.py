@@ -25,7 +25,6 @@ class AsynCodeBenchTask(Commit0Task):
     """Materialize and evaluate one manifest-defined AsynCodeBench task."""
 
     PUBLIC_NAMESPACE = "asyncodebench"
-    PROVENANCE_NAMESPACE = "commit0"
 
     def __init__(self, config: AsynCodeBenchConfig):
         self.asyncodebench_config = config
@@ -35,10 +34,11 @@ class AsynCodeBenchTask(Commit0Task):
                 "this harness currently supports v0.3"
             )
         source, repo_name = self._parse_task_id(config.task_id)
-        if source not in {self.PUBLIC_NAMESPACE, self.PROVENANCE_NAMESPACE}:
+        if source != self.PUBLIC_NAMESPACE:
             raise ValueError(
-                f"Unsupported AsynCodeBench task namespace {source!r}; "
-                f"use {self.PUBLIC_NAMESPACE}:<repository>"
+                "Native AsynCodeBench task IDs must use the "
+                f"{self.PUBLIC_NAMESPACE!r} namespace; received {config.task_id!r}. "
+                "Commit0 IDs are source provenance only."
             )
         self.repository_name = repo_name
         self.public_task_id = f"{self.PUBLIC_NAMESPACE}:{repo_name}"
@@ -84,12 +84,12 @@ class AsynCodeBenchTask(Commit0Task):
 
     @staticmethod
     def _parse_task_id(task_id):
-        source, separator, repo_name = str(task_id).partition(":")
-        if not separator or not source or not repo_name:
+        parts = str(task_id).split(":")
+        if len(parts) != 2 or not all(parts):
             raise ValueError(
                 "task_id must use the form 'asyncodebench:<repository>'"
             )
-        return source, repo_name
+        return parts
 
     @staticmethod
     def _read_json(path):
