@@ -10,7 +10,7 @@ case "$task_input" in
     task="${task_input#asyncodebench:}"
     ;;
   *:*)
-    echo "Unsupported task namespace in '$task_input'. Use asyncodebench:<task>; Commit0 IDs are provenance only." >&2
+    echo "Unsupported task namespace in '$task_input'. Use asyncodebench:<task>; legacy source-task IDs are provenance only." >&2
     exit 2
     ;;
   *)

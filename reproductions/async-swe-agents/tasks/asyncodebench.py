@@ -38,7 +38,7 @@ class AsynCodeBenchTask(Commit0Task):
             raise ValueError(
                 "Native AsynCodeBench task IDs must use the "
                 f"{self.PUBLIC_NAMESPACE!r} namespace; received {config.task_id!r}. "
-                "Commit0 IDs are source provenance only."
+                "Legacy source-task IDs are provenance only."
             )
         self.repository_name = repo_name
         self.public_task_id = f"{self.PUBLIC_NAMESPACE}:{repo_name}"

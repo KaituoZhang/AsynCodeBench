@@ -603,10 +603,16 @@ print(json.dumps(out))
         self.load_scenario()
 
         print("=" * 70)
-        print(f"Static Commit0 Protocol: {self.protocol} ({self.repo_name})")
+        print(f"AsynCodeBench Protocol: {self.protocol} ({self.repo_name})")
         print("=" * 70)
-        print(f"- Scenario: {self.scenario.get('scenario_id')}")
-        print(f"- Scenario file: {self.scenario_path}")
+        scenario_id = str(self.scenario.get("scenario_id", ""))
+        if self.task_name == "asyncodebench" and scenario_id.startswith("commit0-"):
+            scenario_id = "asyncodebench-" + scenario_id.removeprefix("commit0-")
+        print(f"- Scenario: {scenario_id}")
+        if self.task_name == "asyncodebench":
+            print("- Scenario contract: loaded from release manifest")
+        else:
+            print(f"- Scenario file: {self.scenario_path}")
         print(f"- Output dir: {self.workflow_config.output_dir}")
 
         litellm.set_verbose = False

@@ -147,7 +147,7 @@ def test_native_task_rejects_non_official_task():
 
 
 def test_native_task_rejects_commit0_namespace():
-    with pytest.raises(ValueError, match="Commit0 IDs are source provenance only"):
+    with pytest.raises(ValueError, match="Legacy source-task IDs are provenance only"):
         make_task("commit0:cachetools")
 
 
@@ -719,7 +719,9 @@ def test_contract_snapshots_freeze_active_inputs(tmp_path):
     assert protocol["scope_policy"] == "reject_artifact_before_merge"
 
 
-def test_dry_run_does_not_create_output_directory(tmp_path):
+def test_dry_run_does_not_create_output_directory_or_print_source_brand(
+    tmp_path, capsys
+):
     output_dir = tmp_path / "dry-run-output"
 
     run_asyncodebench(
@@ -731,6 +733,7 @@ def test_dry_run_does_not_create_output_directory(tmp_path):
     )
 
     assert not output_dir.exists()
+    assert "commit0" not in capsys.readouterr().out.lower()
 
 
 def test_public_all_protocol_wrapper_uses_native_harness_only():
@@ -768,4 +771,4 @@ def test_public_all_protocol_wrapper_rejects_commit0_namespace():
     )
 
     assert result.returncode == 2
-    assert "Commit0 IDs are provenance only" in result.stderr
+    assert "legacy source-task IDs are provenance only" in result.stderr

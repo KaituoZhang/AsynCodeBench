@@ -33,6 +33,10 @@ def _safe_component(value):
     return re.sub(r"[^A-Za-z0-9_.-]+", "_", str(value)).strip("_")
 
 
+def _public_scenario_id(value):
+    return re.sub(r"^commit0(?=[-_])", "asyncodebench", str(value), count=1)
+
+
 def _default_output_dir(task, model, protocol, run_id=None):
     run_id = run_id or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     return (
@@ -116,8 +120,7 @@ def _print_dry_run(task, protocol, workflow_config, output_dir):
     print(f"[DryRun] task_id={task.task_id}")
     print(f"[DryRun] official=True release={task.asyncodebench_config.release}")
     print(f"[DryRun] protocol={protocol}")
-    print(f"[DryRun] scenario_id={scenario.get('scenario_id')}")
-    print(f"[DryRun] curated_base_ref={task._effective_base_ref()}")
+    print(f"[DryRun] scenario_id={_public_scenario_id(scenario.get('scenario_id'))}")
     print(f"[DryRun] curated_base_sha={task.curated_task.get('base_sha')}")
     print(f"[DryRun] overlays={len(task.curated_task.get('overlays', []) or [])}")
     print(f"[DryRun] output_dir={output_dir}")

@@ -13,6 +13,116 @@ from typing import Optional
 from .base import TaskModule
 
 
+def normalize_evaluator_report(
+    report_json,
+    *,
+    exit_code,
+    test_output="",
+    work_dir,
+    test_cmd,
+    test_targets,
+    evaluator_source,
+    timeout_seconds,
+    canonical_test_restore=None,
+):
+    """Return a report whose summary never hides evaluator failures as 0/0/0."""
+    report_was_missing = not bool(report_json and report_json.strip())
+    report_was_invalid = False
+    try:
+        report_data = json.loads(report_json) if not report_was_missing else {}
+        if not isinstance(report_data, dict):
+            report_data = {}
+            report_was_invalid = True
+    except (json.JSONDecodeError, TypeError):
+        report_data = {}
+        report_was_invalid = True
+
+    exit_code_text = str(exit_code)
+    try:
+        normalized_exit_code = int(exit_code_text)
+    except ValueError:
+        normalized_exit_code = exit_code_text
+
+    timed_out = exit_code_text == "124"
+    summary = report_data.get("summary")
+    summary_is_valid = isinstance(summary, dict) and any(
+        key in summary for key in ("passed", "failed", "error", "total")
+    )
+    synthetic_summary = not summary_is_valid
+
+    if synthetic_summary:
+        normalized_test_output = test_output.lower()
+        collection_markers = (
+            "error collecting",
+            "errors during collection",
+            "error during collection",
+            "importerror while loading conftest",
+            "importerror while importing test module",
+        )
+        if timed_out:
+            failure_kind = "timeout"
+        elif any(marker in normalized_test_output for marker in collection_markers):
+            failure_kind = "collection_failed"
+        elif exit_code_text == "5":
+            failure_kind = "no_tests_collected"
+        elif exit_code_text == "4":
+            failure_kind = "pytest_usage_error"
+        elif exit_code_text == "3":
+            failure_kind = "pytest_internal_error"
+        elif exit_code_text == "2":
+            failure_kind = "pytest_interrupted"
+        elif exit_code_text == "0":
+            failure_kind = "missing_report"
+        else:
+            failure_kind = "evaluator_failed"
+
+        report_data.setdefault("created", 0)
+        report_data.setdefault("duration", timeout_seconds if timed_out else 0)
+        report_data["exitcode"] = normalized_exit_code
+        report_data.setdefault("root", work_dir)
+        report_data["summary"] = {
+            "passed": 0,
+            "failed": 0,
+            "error": 1,
+            "total": 1,
+        }
+        report_data.setdefault("collectors", [])
+        report_data.setdefault("tests", [])
+        report_data.setdefault("warnings", [])
+    else:
+        failure_kind = None
+
+    metadata = report_data.setdefault("asyncodebench", {})
+    metadata.update(
+        {
+            "final_evaluator_source": evaluator_source,
+            "final_test_cmd": test_cmd,
+            "final_test_targets": test_targets,
+            "final_pytest_timeout_seconds": timeout_seconds,
+            "timed_out": timed_out,
+            "canonical_test_restore": canonical_test_restore or {},
+            "synthetic_summary": synthetic_summary,
+        }
+    )
+    if synthetic_summary:
+        metadata.update(
+            {
+                "evaluation_failure_kind": failure_kind,
+                "collection_failed": failure_kind == "collection_failed",
+                "report_was_missing": report_was_missing,
+                "report_was_invalid": report_was_invalid,
+            }
+        )
+
+    summary = report_data["summary"]
+    counts = {
+        "passed": summary.get("passed", 0),
+        "failed": summary.get("failed", 0),
+        "error": summary.get("error", 0),
+    }
+    return report_data, counts
+
+
 @dataclass
 class Commit0Config:
     repo_name: str = "minitorch"
@@ -73,7 +183,7 @@ class Commit0Task(TaskModule):
                     f"No dataset split found at {self.config.dataset_path}"
                 )
             print(
-                f"[Commit0] Loaded DatasetDict split '{split_name}' "
+                f"[AsynCodeBench] Loaded source dataset split '{split_name}' "
                 f"from {self.config.dataset_path}"
             )
             df = dataset[split_name].to_pandas()
@@ -85,7 +195,7 @@ class Commit0Task(TaskModule):
 
         if "repo" not in df.columns:
             raise ValueError(
-                f"Commit0 dataset at {self.config.dataset_path} does not contain "
+                f"Source dataset at {self.config.dataset_path} does not contain "
                 "a 'repo' column"
             )
 
@@ -155,7 +265,7 @@ class Commit0Task(TaskModule):
         print("-" * 60)
         base_ref = self._effective_base_ref()
         clone_branch = self._clone_branch_name(base_ref)
-        print(f"[Commit0] Cloning {repo} at {base_ref}...")
+        print("[AsynCodeBench] Materializing curated source repository...")
         self._clone_repository(workspace, repo_url, clone_branch, work_dir)
 
         # Create a working branch (matches official OpenHands benchmark)
@@ -172,7 +282,7 @@ class Commit0Task(TaskModule):
         print("\n" + "-" * 60)
         print("Step 2: Setup Repository")
         print("-" * 60)
-        print(f"[Commit0] Installing {self.config.repo_name} in dev mode...")
+        print(f"[AsynCodeBench] Installing {self.config.repo_name} in dev mode...")
         workspace.execute_command(
             f"python -m pip uninstall -y {self.config.repo_name} 2>&1 | tail -3",
             timeout=60,
@@ -181,7 +291,7 @@ class Commit0Task(TaskModule):
             f"cd {work_dir} && python -m pip install -e . 2>&1", timeout=300
         )
         if result.exit_code != 0:
-            print(f"[Commit0] Warning: pip install -e . failed: {result.stderr}")
+            print(f"[AsynCodeBench] Warning: pip install -e . failed: {result.stderr}")
 
         # Verify package import
         verify_cmd = (
@@ -191,12 +301,15 @@ class Commit0Task(TaskModule):
         )
         verify_result = workspace.execute_command(verify_cmd, timeout=30)
         if verify_result.exit_code == 0:
-            print(f"[Commit0] Package verification: {verify_result.stdout.strip()}")
+            print(
+                f"[AsynCodeBench] Package verification: "
+                f"{verify_result.stdout.strip()}"
+            )
         else:
-            print("[Commit0] Warning: Package import verification failed")
+            print("[AsynCodeBench] Warning: Package import verification failed")
 
         # Install commit0 + pytest plugins
-        print("[Commit0] Installing commit0 and pytest plugins...")
+        print("[AsynCodeBench] Installing evaluator support and pytest plugins...")
         uv = workspace.execute_command(
             f"cd {work_dir} && /root/.cargo/bin/uv pip install commit0 2>&1 | tail -5",
             timeout=300,
@@ -211,7 +324,7 @@ class Commit0Task(TaskModule):
             timeout=300,
         )
         self._install_curated_python_dependencies(workspace, work_dir)
-        print("[Commit0] Workspace setup complete")
+        print("[AsynCodeBench] Workspace setup complete")
 
     def _clone_repository(self, workspace, repo_url, clone_branch, work_dir):
         target_dir = f"{self.config.repo_name}_repo"
@@ -233,7 +346,7 @@ class Commit0Task(TaskModule):
             raise RuntimeError(f"Failed to clone repo: {result.stderr}")
 
         print(
-            "[Commit0] Branch clone failed; falling back to default branch "
+            "[AsynCodeBench] Branch clone failed; falling back to default branch "
             f"and curated SHA {expected_sha}"
         )
         workspace.execute_command(f"rm -rf /workspace/{shlex.quote(target_dir)}", timeout=60)
@@ -254,7 +367,7 @@ class Commit0Task(TaskModule):
             timeout=60,
         )
         if head.exit_code == 0 and head.stdout.strip() == expected_sha:
-            print("[Commit0] Default branch matches curated base SHA")
+            print("[AsynCodeBench] Default branch matches curated base SHA")
             return
 
         checkout = workspace.execute_command(
@@ -270,7 +383,7 @@ class Commit0Task(TaskModule):
                 f"default HEAD: {head.stdout.strip() if head.exit_code == 0 else head.stderr.strip()}\n"
                 f"fetch/checkout stderr:\n{checkout.stderr}"
             )
-        print("[Commit0] Checked out curated base SHA after fallback clone")
+        print("[AsynCodeBench] Checked out curated base SHA after fallback clone")
 
     def _load_curated_task_record(self):
         if self._curated_config_disabled():
@@ -283,7 +396,9 @@ class Commit0Task(TaskModule):
         try:
             payload = json.loads(config_path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as exc:
-            print(f"[Commit0] Warning: could not read curated task config: {exc}")
+            print(
+                f"[AsynCodeBench] Warning: could not read curated task config: {exc}"
+            )
             return None
 
         repo_name = self.config.repo_name
@@ -342,7 +457,7 @@ class Commit0Task(TaskModule):
                 f"{self.config.repo_name}: expected {expected_sha}, found "
                 f"{actual_sha or result.stderr.strip()}"
             )
-        print(f"[Commit0] Verified curated base SHA: {actual_sha}")
+        print(f"[AsynCodeBench] Verified curated base SHA: {actual_sha}")
 
     def _apply_curated_overlays(self, workspace, work_dir):
         if not self.curated_task:
@@ -350,10 +465,10 @@ class Commit0Task(TaskModule):
 
         overlays = self.curated_task.get("overlays", []) or []
         if not overlays:
-            print("[Commit0] No AsynCodeBench bootstrap overlays configured")
+            print("[AsynCodeBench] No bootstrap overlays configured")
             return
 
-        print(f"[Commit0] Applying {len(overlays)} AsynCodeBench bootstrap overlays")
+        print(f"[AsynCodeBench] Applying {len(overlays)} bootstrap overlays")
         for index, overlay in enumerate(overlays, start=1):
             overlay_path = self._resolve_overlay_path(str(overlay["path"]))
             self._verify_overlay_checksum(overlay_path, str(overlay["sha256"]))
@@ -366,7 +481,7 @@ class Commit0Task(TaskModule):
             )
             if check.exit_code != 0:
                 raise RuntimeError(
-                    f"AsynCodeBench overlay failed --check: {overlay_path}\n"
+                    f"AsynCodeBench overlay {index} failed validation\n"
                     f"{check.stderr}"
                 )
 
@@ -376,10 +491,13 @@ class Commit0Task(TaskModule):
             )
             if apply.exit_code != 0:
                 raise RuntimeError(
-                    f"AsynCodeBench overlay failed to apply: {overlay_path}\n"
+                    f"AsynCodeBench overlay {index} failed to apply\n"
                     f"{apply.stderr}"
                 )
-            print(f"[Commit0] Applied overlay: {overlay_path}")
+            print(
+                f"[AsynCodeBench] Applied bootstrap overlay "
+                f"{index}/{len(overlays)}"
+            )
 
         workspace.execute_command(
             f"cd {work_dir} && "
@@ -442,7 +560,7 @@ class Commit0Task(TaskModule):
 
         dependency_args = " ".join(shlex.quote(dep) for dep in dependencies)
         print(
-            "[Commit0] Installing AsynCodeBench curated Python dependencies: "
+            "[AsynCodeBench] Installing curated Python dependencies: "
             f"{dependency_args}"
         )
         result = workspace.execute_command(
@@ -512,7 +630,7 @@ class Commit0Task(TaskModule):
         )
         if size_result.exit_code != 0:
             print(
-                "[Commit0] Warning: could not stat workspace file "
+                "[AsynCodeBench] Warning: could not stat workspace file "
                 f"{remote_path}: {size_result.stderr or size_result.stdout}"
             )
             return ""
@@ -520,7 +638,10 @@ class Commit0Task(TaskModule):
         try:
             file_size = int(size_result.stdout.strip())
         except ValueError:
-            print(f"[Commit0] Warning: invalid workspace file size for {remote_path}")
+            print(
+                f"[AsynCodeBench] Warning: invalid workspace file size for "
+                f"{remote_path}"
+            )
             return ""
 
         chunks = []
@@ -533,7 +654,7 @@ class Commit0Task(TaskModule):
             )
             if result.exit_code != 0:
                 print(
-                    "[Commit0] Warning: could not read workspace file "
+                    "[AsynCodeBench] Warning: could not read workspace file "
                     f"{remote_path} at offset {offset}: "
                     f"{result.stderr or result.stdout}"
                 )
@@ -542,7 +663,7 @@ class Commit0Task(TaskModule):
                 chunk = base64.b64decode(result.stdout)
             except (ValueError, TypeError) as exc:
                 print(
-                    "[Commit0] Warning: could not decode workspace file "
+                    "[AsynCodeBench] Warning: could not decode workspace file "
                     f"{remote_path} at offset {offset}: {exc}"
                 )
                 return ""
@@ -667,7 +788,7 @@ class Commit0Task(TaskModule):
         test_cmd, test_targets, evaluator_source = self._resolve_evaluator()
 
         # Commit any remaining changes
-        print("[Commit0] Committing any remaining changes...")
+        print("[AsynCodeBench] Committing any remaining changes...")
         self._clean_transient_test_artifacts(workspace, work_dir)
         self._restore_canonical_test_targets(workspace, work_dir, test_targets)
         workspace.execute_command(f"cd {work_dir} && git add .", timeout=600)
@@ -692,7 +813,7 @@ class Commit0Task(TaskModule):
             f"{test_target_args} > test_output.txt 2>&1"
         )
         print(
-            f"[Commit0] Running: {test_cmd} {test_target_args} "
+            f"[AsynCodeBench] Running: {test_cmd} {test_target_args} "
             f"(source={evaluator_source}, timeout={eval_timeout}s)"
         )
         pytest_result = workspace.execute_command(full_cmd, timeout=eval_timeout + 60)
@@ -702,8 +823,6 @@ class Commit0Task(TaskModule):
             workspace, f"{work_dir}/test_output.txt"
         )
         report_json = self._read_workspace_text(workspace, f"{work_dir}/report.json")
-        if not report_json:
-            report_json = "{}"
 
         timed_out = str(pytest_result.exit_code) == "124"
         if timed_out:
@@ -714,54 +833,36 @@ class Commit0Task(TaskModule):
             if timeout_message not in test_output:
                 test_output += timeout_message
 
-        passed = failed = error = 0
-        try:
-            report_data = json.loads(report_json)
-            summary = report_data.get("summary", {})
-            passed = summary.get("passed", 0)
-            failed = summary.get("failed", 0)
-            error = summary.get("error", 0)
-            self._annotate_report_evaluator(
-                report_data,
-                test_cmd=test_cmd,
-                test_targets=test_targets,
-                evaluator_source=evaluator_source,
-                timeout_seconds=eval_timeout,
-                timed_out=timed_out,
-                canonical_test_restore=self._canonical_test_restore,
+        report_data, counts = normalize_evaluator_report(
+            report_json,
+            exit_code=pytest_result.exit_code,
+            test_output=test_output,
+            work_dir=work_dir,
+            test_cmd=test_cmd,
+            test_targets=test_targets,
+            evaluator_source=evaluator_source,
+            timeout_seconds=eval_timeout,
+            canonical_test_restore=self._canonical_test_restore,
+        )
+        passed = counts["passed"]
+        failed = counts["failed"]
+        error = counts["error"]
+        report_json = json.dumps(report_data, indent=2)
+
+        if report_data["asyncodebench"]["synthetic_summary"] and not timed_out:
+            failure_kind = report_data["asyncodebench"]["evaluation_failure_kind"]
+            evaluator_message = (
+                "\n[AsynCodeBench] Final pytest did not produce a valid JSON "
+                f"summary (exit_code={pytest_result.exit_code}, "
+                f"failure_kind={failure_kind}).\n"
             )
-            report_json = json.dumps(report_data, indent=2)
-        except (json.JSONDecodeError, Exception) as e:
-            print(f"[Commit0] Warning: could not parse report.json: {e}")
-            report_data = {}
+            if evaluator_message not in test_output:
+                test_output += evaluator_message
 
-        if timed_out and not report_data.get("summary"):
-            error = 1
-            report_data = {
-                "created": 0,
-                "duration": eval_timeout,
-                "exitcode": 124,
-                "root": work_dir,
-                "summary": {
-                    "passed": 0,
-                    "failed": 0,
-                    "error": 1,
-                    "total": 1,
-                },
-                "collectors": [],
-                "tests": [],
-                "warnings": [],
-                "asyncodebench": {
-                    "final_pytest_timeout_seconds": eval_timeout,
-                    "final_evaluator_source": evaluator_source,
-                    "final_test_cmd": test_cmd,
-                    "final_test_targets": test_targets,
-                    "timed_out": True,
-                },
-            }
-            report_json = json.dumps(report_data, indent=2)
-
-        print(f"[Commit0] Pytest results: {passed} passed, {failed} failed, {error} error")
+        print(
+            f"[AsynCodeBench] Pytest results: {passed} passed, "
+            f"{failed} failed, {error} error"
+        )
 
         return {
             "exit_code": str(pytest_result.exit_code),
@@ -785,7 +886,7 @@ class Commit0Task(TaskModule):
         manifest_targets = self._manifest_evaluator_targets()
         if manifest_targets:
             return test_cmd, manifest_targets, "asyncodebench_manifest"
-        return test_cmd, dataset_targets, "commit0_dataset"
+        return test_cmd, dataset_targets, "source_dataset"
 
     def _dataset_evaluator(self):
         test_info = self.task_data.get("test", {}) if self.task_data else {}
@@ -810,7 +911,9 @@ class Commit0Task(TaskModule):
         try:
             payload = json.loads(scenario_path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as exc:
-            print(f"[Commit0] Warning: could not read {scenario_path}: {exc}")
+            print(
+                f"[AsynCodeBench] Warning: could not read scenario manifest: {exc}"
+            )
             return None
 
         scenario = self._select_evaluator_scenario(payload.get("scenarios", []))
@@ -824,10 +927,7 @@ class Commit0Task(TaskModule):
         if not targets:
             return None
 
-        print(
-            "[Commit0] Using AsynCodeBench scenario evaluator targets from "
-            f"{scenario_path}"
-        )
+        print("[AsynCodeBench] Using scenario manifest evaluator targets")
         return targets
 
     def _scenario_manifest_path(self):
@@ -863,7 +963,7 @@ class Commit0Task(TaskModule):
         try:
             payload = json.loads(task_path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as exc:
-            print(f"[Commit0] Warning: could not read {task_path}: {exc}")
+            print(f"[AsynCodeBench] Warning: could not read task manifest: {exc}")
             return None
 
         command = payload.get("evaluator_command")
@@ -874,10 +974,7 @@ class Commit0Task(TaskModule):
         if not targets:
             return None
 
-        print(
-            "[Commit0] Using AsynCodeBench task evaluator command from "
-            f"{task_path}"
-        )
+        print("[AsynCodeBench] Using task manifest evaluator command")
         return test_cmd, targets
 
     @staticmethod
@@ -990,35 +1087,13 @@ class Commit0Task(TaskModule):
         return deduped
 
     @staticmethod
-    def _annotate_report_evaluator(
-        report_data,
-        *,
-        test_cmd,
-        test_targets,
-        evaluator_source,
-        timeout_seconds,
-        timed_out,
-        canonical_test_restore=None,
-    ):
-        report_data.setdefault("asyncodebench", {}).update(
-            {
-                "final_evaluator_source": evaluator_source,
-                "final_test_cmd": test_cmd,
-                "final_test_targets": test_targets,
-                "final_pytest_timeout_seconds": timeout_seconds,
-                "timed_out": timed_out,
-                "canonical_test_restore": canonical_test_restore or {},
-            }
-        )
-
-    @staticmethod
     def _final_pytest_timeout_seconds():
         raw_value = os.getenv("ASYNCODEBENCH_FINAL_PYTEST_TIMEOUT_SECONDS", "900")
         try:
             timeout = int(raw_value)
         except ValueError:
             print(
-                "[Commit0] Warning: invalid "
+                "[AsynCodeBench] Warning: invalid "
                 f"ASYNCODEBENCH_FINAL_PYTEST_TIMEOUT_SECONDS={raw_value!r}; "
                 "using 900"
             )
@@ -1332,7 +1407,7 @@ if __name__ == "__main__":
     config = Commit0Config(repo_name="minitorch")
     task = Commit0Task(config)
 
-    print("=== Commit0 Task Prepare Test ===\n")
+    print("=== Source Task Preparation Test ===\n")
 
     # 1. Docker image
     image = task.get_docker_image()
