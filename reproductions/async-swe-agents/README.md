@@ -80,8 +80,13 @@ scope and integration decisions, dependency checkpoints, final evaluator
 results, process metrics, cost, tokens, and runtime.
 
 The runner generates `process_metrics_summary.json` and a checksum-indexed
-`run_bundle.json` automatically. Validate a completed run with
-`uv run asyncodebench validate-run <run-dir>`. See
+`run_bundle.json` automatically. The bundle records the released execution
+profile, metric-specific and provenance eligibility, infrastructure health, and
+recursive artifact hashes. Validate a completed run with
+`uv run asyncodebench validate-run <run-dir>`; use
+`uv run asyncodebench inspect-run <run-dir>` for a historical directory that
+predates bundles. See [`../../docs/RESULT_VALIDITY.md`](../../docs/RESULT_VALIDITY.md)
+for admission rules and see
 [`../../docs/EVALUATION_METRICS.md`](../../docs/EVALUATION_METRICS.md) for the
 formal metrics and unresolved-value policy.
 

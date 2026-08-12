@@ -1,5 +1,5 @@
-import json
 import base64
+import json
 import subprocess
 from pathlib import Path
 from types import SimpleNamespace
@@ -146,6 +146,18 @@ def test_native_task_loads_required_manifests_and_curated_source():
     assert task.metrics_manifest["task_id"] == task.source_task_id
     assert task.scenario_for("single")["execution_mode"] == "iterative_single"
     assert task.scenario_for("caid_manager")["execution_mode"] == "async_message"
+
+
+def test_caid_scenario_does_not_fall_back_to_async_private():
+    task = make_task()
+    task.scenario_manifest["scenarios"] = [
+        scenario
+        for scenario in task.scenario_manifest["scenarios"]
+        if scenario.get("execution_mode") != "async_message"
+    ]
+
+    with pytest.raises(ValueError, match="No scenario for protocol='caid_manager'"):
+        task.scenario_for("caid_manager")
 
 
 def test_native_task_rejects_non_official_task():
@@ -684,7 +696,9 @@ def test_run_metadata_excludes_api_keys(tmp_path, monkeypatch):
         "LLM_BASE_URL", "https://user:secret@example.com/v1?api_key=must-not-leak"
     )
     monkeypatch.setenv(
-        "LLM_EXTRA_BODY_JSON", '{"chat_template_kwargs":{"enable_thinking":true}}'
+        "LLM_EXTRA_BODY_JSON",
+        '{"chat_template_kwargs":{"enable_thinking":true},'
+        '"nested":{"api_key":"must-not-leak","token":"must-not-leak"}}',
     )
     task = make_task()
     task.set_active_protocol("single")
@@ -697,17 +711,53 @@ def test_run_metadata_excludes_api_keys(tmp_path, monkeypatch):
     encoded = json.dumps(metadata)
 
     assert metadata["harness_version"] == "asyncodebench-harness-v2.0"
+    assert metadata["task_id"] == "asyncodebench:cachetools"
+    assert metadata["source_task_id"] == "commit0:cachetools"
     assert metadata["scenario_id"].startswith("asyncodebench-")
     assert metadata["source_scenario_id"].startswith("commit0-")
     assert metadata["agent_adapter"]["name"] == "openhands"
+    assert metadata["subagent_model"] == "test/model"
     assert metadata["source"]["base_sha"]
     assert "must-not-leak" not in encoded
     assert "LLM_API_KEY" not in metadata["environment"]
     assert metadata["model_server"]["base_url"] == "https://example.com/v1"
     assert "hardware" in metadata
     assert metadata["generation_configuration"]["LLM_EXTRA_BODY_JSON"] == {
-        "chat_template_kwargs": {"enable_thinking": True}
+        "chat_template_kwargs": {"enable_thinking": True},
+        "nested": {"api_key": "[REDACTED]", "token": "[REDACTED]"},
     }
+    assert metadata["generation_configuration"]["parameters"][
+        "LLM_EXTRA_BODY_JSON"
+    ]["source"] == "environment"
+    assert metadata["generation_configuration"]["parameters"][
+        "LLM_MAX_OUTPUT_TOKENS"
+    ] == {"value": None, "source": "sdk_or_provider_default"}
+    assert metadata["generation_configuration"]["chat_template"]["source"] == (
+        "model_server_default"
+    )
+
+
+def test_run_metadata_records_explicit_subagent_model(tmp_path):
+    task = make_task()
+    task.set_active_protocol("caid_manager")
+    config = WorkflowConfig(
+        model="test/manager",
+        subagent_model="test/worker",
+        output_dir=str(tmp_path),
+    )
+    prompt_path = (
+        Path(__file__).resolve().parents[1] / "prompts" / "asyncodebench.yaml"
+    )
+
+    metadata = build_run_metadata(
+        task,
+        config,
+        "caid_manager",
+        prompt_path,
+    )
+
+    assert metadata["model"] == "test/manager"
+    assert metadata["subagent_model"] == "test/worker"
 
 
 def test_contract_snapshots_freeze_active_inputs(tmp_path):
@@ -718,16 +768,21 @@ def test_contract_snapshots_freeze_active_inputs(tmp_path):
     assert set(paths) == {
         "task_snapshot.json",
         "scenario_snapshot.json",
+        "scenario_manifest_snapshot.json",
         "metrics_snapshot.json",
         "quality_snapshot.json",
+        "execution_profile_snapshot.json",
         "protocol.json",
     }
     scenario = json.loads((tmp_path / "scenario_snapshot.json").read_text())
     protocol = json.loads((tmp_path / "protocol.json").read_text())
+    profile = json.loads((tmp_path / "execution_profile_snapshot.json").read_text())
     assert scenario["execution_mode"] == "async_message"
     assert protocol["scenario_id"] == task.public_scenario_id("caid_manager")
+    assert protocol["source_task_id"] == task.source_task_id
     assert protocol["source_scenario_id"] == scenario["scenario_id"]
     assert protocol["scope_policy"] == "reject_artifact_before_merge"
+    assert profile["profile_id"] == "asyncodebench-v0.3-standard-30"
 
 
 def test_dry_run_does_not_create_output_directory_or_print_source_brand(

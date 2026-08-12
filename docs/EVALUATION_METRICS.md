@@ -311,7 +311,8 @@ with the same final pass result can have different async coordination quality.
 
 ## Computation Pipeline
 
-Each run directory should contain artifacts like:
+New native runs compute strict dependency and process metrics automatically and
+freeze them in a validated result bundle. Each formal run directory contains:
 
 ```text
 report.json
@@ -322,77 +323,44 @@ agent_events/*.jsonl
 patch.diff
 protocol.json
 delegations.json
+run_metadata.json
+task_snapshot.json
+scenario_snapshot.json
+scenario_manifest_snapshot.json
+metrics_snapshot.json
+quality_snapshot.json
+execution_profile_snapshot.json
+dependency_probe_checkpoints.jsonl
+process_metrics_summary.json
+run_bundle.json
 <repo>_test_output.txt
 ```
 
-The metrics computation has two steps.
+Run `asyncodebench validate-run <run-dir>` before aggregation. The eligibility
+flags in `run_bundle.json` determine which metric families may be used. See
+`docs/RESULT_VALIDITY.md`.
 
-### Step 1: Compute Dependency Resolution Reports
+The per-task summarizer copies those flags into both the metrics CSV and the
+artifact index. `scripts/aggregate_model_task_results.py` rejects every row
+without `official_aggregate_eligible=true` by default. The
+`--allow-ineligible` override is reserved for clearly labeled exploratory or
+legacy analyses.
 
-Use:
+Final success additionally requires a positive collected-test count. A zero
+exit code with `0 collected` is evaluator evidence failure, not a successful
+coding result.
 
-```text
-scripts/analyze_async_dependency_resolution.py
-```
+For model-level results, the aggregator emits a campaign manifest linking each
+metric row to the corresponding run-bundle checksum. It also verifies one model
+ID, one bundle-recorded agent-adapter identity, one execution-profile ID and
+SHA256, and one per-task generation configuration across compared protocols.
+This lineage is part of result validity, not a performance metric.
 
-Example for a static protocol run:
+### Native Metric Generation
 
-```bash
-python scripts/analyze_async_dependency_resolution.py \
-  --metrics manifests/pilot/v0.3/metrics/commit0_cachetools_async_metrics.json \
-  --events reproductions/async-swe-agents/outputs/repro_commit0/cachetools/gpt54mini_async_private_iter30_metrics_v03/agent_events/decorator_agent_events.jsonl \
-  --final-test-output reproductions/async-swe-agents/outputs/repro_commit0/cachetools/gpt54mini_async_private_iter30_metrics_v03/cachetools_test_output.txt \
-  --output reproductions/async-swe-agents/outputs/repro_commit0/cachetools/gpt54mini_async_private_iter30_metrics_v03/async_dependency_resolution_decorator_agent.json
-```
-
-Run this once per relevant agent event log. For CAID, run it for each engineer
-and manager event log when available.
-
-The output contains:
-
-- `ADPR_strict`
-- per-dependency strict DRS;
-- composed DRS;
-- upstream/downstream resolution steps;
-- checkpoint counts.
-
-### Step 2: Aggregate Run-Level Process Metrics
-
-For new runs with `dependency_probe_checkpoints.jsonl`,
-`analyze_run_process_metrics.py` automatically creates and reads:
-
-```text
-strict_dependency_metrics.json
-```
-
-You can also compute it explicitly:
-
-```bash
-python scripts/analyze_strict_dependency_checkpoints.py \
-  --metrics manifests/pilot/v0.3/metrics/commit0_tinydb_async_metrics.json \
-  --checkpoints reproductions/async-swe-agents/outputs/repro_commit0/tinydb/<run>/dependency_probe_checkpoints.jsonl \
-  --output reproductions/async-swe-agents/outputs/repro_commit0/tinydb/<run>/strict_dependency_metrics.json \
-  --print-summary
-```
-
-Use:
-
-```text
-scripts/analyze_run_process_metrics.py
-```
-
-Example:
-
-```bash
-python scripts/analyze_run_process_metrics.py \
-  --run-dir reproductions/async-swe-agents/outputs/repro_commit0/cachetools/gpt54mini_async_private_iter30_metrics_v03 \
-  --baseline-run-dir reproductions/async-swe-agents/outputs/repro_commit0/cachetools/gpt54mini_serial_iter30_metrics_v03 \
-  --metrics manifests/pilot/v0.3/metrics/commit0_cachetools_async_metrics.json \
-  --output reproductions/async-swe-agents/outputs/repro_commit0/cachetools/gpt54mini_async_private_iter30_metrics_v03/process_metrics_summary.json \
-  --print-summary
-```
-
-The output file `process_metrics_summary.json` contains:
+The native runner invokes the strict dependency and process analysis before it
+freezes `run_bundle.json`. No manual metric command is required for a successful
+run. The generated `process_metrics_summary.json` contains:
 
 - `primary_outcome`: final pass/fail summary;
 - `cost_metrics`: cost, tokens, runtime, model calls, test invocations;
@@ -401,7 +369,27 @@ The output file `process_metrics_summary.json` contains:
   duplicated contract candidates, and recovery diagnostics;
 - `formal_metrics`: compatibility summary for downstream scripts.
 
-## Cachetools Pilot Interpretation
+Do not regenerate or replace this file inside a bundled run directory. Any
+post-run audit must write to a separate derived-output path, as shown in
+[`ASYNCODEBENCH_HARNESS_V2.md`](ASYNCODEBENCH_HARNESS_V2.md).
+
+### Derived Reports
+
+After all four task protocols validate, use
+`scripts/summarize_model_task_runs.py` to create the task Markdown, metrics CSV,
+and artifact index outside the immutable run directories. After all 16 task
+reports exist, use `scripts/aggregate_model_task_results.py` to create the
+model-level tables and campaign manifest. Copy-ready commands are in
+[`MODEL_EXPERIMENT_RUNBOOK.md`](MODEL_EXPERIMENT_RUNBOOK.md).
+
+Historical v1 directories without formal bundles may still be analyzed for a
+clearly labeled migration appendix. They cannot support a current official
+aggregate and must not be mixed with native bundled runs.
+
+## Historical Cachetools Pilot Interpretation
+
+The following pre-bundle pilot motivated the benchmark metrics. It is not a
+current official native-harness result table.
 
 For `cachetools + gpt-5.4-mini`, the four current modes all pass final tests:
 
@@ -410,7 +398,7 @@ For `cachetools + gpt-5.4-mini`, the four current modes all pass final tests:
 | single | 215/215 | $0.2723 | 1.38M | 1.0 |
 | serial_specialists | 215/215 | $0.2720 | 1.24M | 1.0 |
 | async_private | 215/215 | $0.2369 | 0.97M | 1.0 |
-| CAID_multi_agent | 215/215 | $1.0728 | 4.66M | 1.0 |
+| caid_manager | 215/215 | $1.0728 | 4.66M | 1.0 |
 
 The dependency and coordination metrics distinguish the protocols:
 
@@ -419,7 +407,7 @@ The dependency and coordination metrics distinguish the protocols:
 - `async_private` passes final tests but shows stale-dependency evidence:
   `SAD-proxy = 8` for the typed key dependency view, duplicated producer
   contract symbols in `func.py`, and undelivered producer-update work.
-- `CAID_multi_agent` passes final tests but requires much more recovery:
+- `caid_manager` passes final tests but requires much more recovery:
   8 subagent attempts, 5 non-merged attempts under the current accounting,
   2 merge conflicts, 1 scope violation, and manager recovery.
 

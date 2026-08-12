@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-"""Aggregate AsynCodeBench run-level process metrics.
+"""Aggregate native AsynCodeBench run-level process metrics.
 
-This script intentionally follows the metric names in SPECIFICATION_v0.3.md and
-COMMIT0_DATA_AND_METRIC_LABEL_GUIDE_v0.3.md. It consumes artifacts already
-written by async-swe-agents runs plus dependency-resolution reports produced by
-scripts/analyze_async_dependency_resolution.py.
+The script consumes evaluator, trajectory, integration, scope, and dependency
+checkpoint artifacts emitted by the harness. Source-manifest filenames may
+retain Commit0 provenance, but generated result identities are AsynCodeBench
+native.
 """
 
 from __future__ import annotations
@@ -18,7 +18,6 @@ from pathlib import Path
 from typing import Any
 
 from analyze_strict_dependency_checkpoints import compute_strict_metrics
-
 
 PYTEST_RE = re.compile(r"(pytest|test session starts|\d+\s+passed|\d+\s+failed)")
 PASSED_RE = re.compile(r"(?P<passed>\d+)\s+passed\b")
@@ -235,23 +234,43 @@ def count_test_invocations(agent_events: dict[str, list[dict[str, Any]]]) -> dic
 def summarize_primary_outcome(run_dir: Path) -> dict[str, Any]:
     report = load_json(run_dir / "report.json", {})
     summary = report.get("summary", {}) if isinstance(report, dict) else {}
+    report_metadata = report.get("asyncodebench", {}) if isinstance(report, dict) else {}
     passed = summary.get("passed", 0)
     total = summary.get("total")
+    collected = summary.get("collected", total)
     failed = summary.get("failed", 0)
     errors = summary.get("error", summary.get("errors", 0))
     exitcode = report.get("exitcode")
+    evaluator_source = report_metadata.get("final_evaluator_source")
+    synthetic_summary = bool(report_metadata.get("synthetic_summary"))
+    positive_collection = isinstance(collected, (int, float)) and collected > 0
     if exitcode is not None:
-        final_success = bool(exitcode == 0)
+        final_success = bool(
+            exitcode == 0
+            and positive_collection
+            and not failed
+            and not errors
+            and not synthetic_summary
+        )
     else:
-        final_success = bool(total is not None and passed == total and not failed and not errors)
+        final_success = bool(
+            isinstance(total, (int, float))
+            and total > 0
+            and passed == total
+            and positive_collection
+            and not failed
+            and not errors
+            and not synthetic_summary
+        )
     return {
-        "upstream_evaluator": "commit0_pytest",
+        "upstream_evaluator": evaluator_source or "unknown",
         "passed": passed,
         "failed": failed,
         "errors": errors,
         "total": total,
-        "collected": summary.get("collected"),
+        "collected": collected,
         "exitcode": exitcode,
+        "synthetic_summary": synthetic_summary,
         "final_success": final_success,
     }
 

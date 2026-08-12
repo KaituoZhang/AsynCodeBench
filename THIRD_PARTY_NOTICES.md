@@ -11,8 +11,12 @@ non-solution bootstrap overlays, except where a file states otherwise.
 AsynCodeBench v0.3 derives task metadata from the public Commit0 benchmark and
 from the public upstream repositories referenced by that benchmark. The raw
 Commit0 `load_from_disk` dataset and upstream repository checkouts are not
-redistributed in this repository. Users must obtain those inputs separately
-and comply with their applicable licenses, terms, and attribution notices.
+redistributed in this repository. Native benchmark runs do not require the raw
+Commit0 dataset: the harness uses the released AsynCodeBench records and clones
+each checksum-pinned upstream revision. Users reproducing legacy Commit0 runner
+experiments must obtain the raw source dataset separately. In all cases, users
+must comply with the applicable upstream licenses, terms, and attribution
+notices.
 
 AsynCodeBench metadata does not transfer ownership of, or supersede the
 license for, upstream source code, tests, package data, or third-party

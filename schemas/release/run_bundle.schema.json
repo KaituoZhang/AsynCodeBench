@@ -8,56 +8,233 @@
     "benchmark",
     "release",
     "task_id",
+    "source_task_id",
     "protocol",
     "scenario_id",
+    "source_scenario_id",
+    "release_index",
     "agent_adapter",
+    "created_at",
+    "status",
+    "eligibility",
+    "execution_profile",
+    "provenance",
     "instrumentation",
     "final_test",
     "artifacts"
   ],
   "properties": {
-    "schema_version": {"const": "0.1"},
+    "schema_version": {"const": "0.2"},
     "benchmark": {"const": "AsynCodeBench"},
-    "release": {"type": "string"},
-    "task_id": {"pattern": "^asyncodebench:[A-Za-z0-9_.-]+$"},
-    "source_task_id": {"type": "string"},
+    "release": {"type": "string", "minLength": 1},
+    "task_id": {"type": "string", "pattern": "^asyncodebench:[A-Za-z0-9_.-]+$"},
+    "source_task_id": {"type": "string", "minLength": 1},
     "protocol": {
       "enum": ["single", "serial_specialists", "async_private", "caid_manager"]
     },
-    "scenario_id": {"type": "string"},
-    "source_scenario_id": {"type": "string"},
+    "scenario_id": {"type": "string", "pattern": "^asyncodebench[-.]"},
+    "source_scenario_id": {"type": "string", "minLength": 1},
+    "release_index": {
+      "type": "object",
+      "required": ["path", "sha256", "release_version"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "release_version": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
     "agent_adapter": {
       "type": "object",
       "required": ["name", "class"],
       "properties": {
-        "name": {"type": "string"},
-        "class": {"type": "string"}
+        "name": {"type": "string", "minLength": 1},
+        "class": {"type": "string", "minLength": 1},
+        "package": {"type": ["string", "null"]},
+        "package_version": {"type": ["string", "null"]},
+        "source_sha256": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "config": {"type": "object"},
+        "config_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
       },
       "additionalProperties": true
     },
+    "created_at": {"type": "string", "format": "date-time"},
+    "status": {"enum": ["valid", "review_required", "invalid"]},
+    "eligibility": {
+      "type": "object",
+      "required": [
+        "functional_metrics",
+        "dependency_metrics",
+        "efficiency_metrics",
+        "official_profile",
+        "provenance_complete",
+        "official_aggregate"
+      ],
+      "properties": {
+        "functional_metrics": {"type": "boolean"},
+        "dependency_metrics": {"type": "boolean"},
+        "efficiency_metrics": {"type": "boolean"},
+        "official_profile": {"type": "boolean"},
+        "provenance_complete": {"type": "boolean"},
+        "official_aggregate": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "execution_profile": {
+      "type": "object",
+      "required": [
+        "profile_id",
+        "schema_version",
+        "path",
+        "sha256",
+        "matched",
+        "deviations",
+        "observed"
+      ],
+      "properties": {
+        "profile_id": {"type": "string", "minLength": 1},
+        "schema_version": {"type": "string", "minLength": 1},
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "matched": {"type": "boolean"},
+        "deviations": {"type": "array", "items": {"type": "object"}},
+        "observed": {"type": "object"}
+      },
+      "additionalProperties": true
+    },
+    "provenance": {
+      "type": "object",
+      "required": [
+        "model",
+        "subagent_model",
+        "benchmark_revision",
+        "runner_revision",
+        "sdk_revision",
+        "prompt_sha256",
+        "generation_configuration_recorded",
+        "generation_configuration_sha256",
+        "model_server_recorded",
+        "model_server_sha256",
+        "required_fields_complete",
+        "missing_required_fields"
+      ],
+      "properties": {
+        "model": {"type": "string", "minLength": 1},
+        "subagent_model": {"type": "string", "minLength": 1},
+        "benchmark_revision": {"type": ["string", "null"]},
+        "runner_revision": {"type": ["string", "null"]},
+        "sdk_revision": {"type": ["string", "null"]},
+        "prompt_sha256": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "generation_configuration_recorded": {"type": "boolean"},
+        "generation_configuration_sha256": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "model_server_recorded": {"type": "boolean"},
+        "model_server_sha256": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "required_fields_complete": {"type": "boolean"},
+        "missing_required_fields": {
+          "type": "array",
+          "items": {"type": "string"},
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
     "instrumentation": {
       "type": "object",
-      "required": ["valid", "issues", "evaluator_source", "dependency_checkpoint_records"],
+      "required": [
+        "valid",
+        "status",
+        "issues",
+        "hard_failures",
+        "review_flags",
+        "observations",
+        "evaluator_source",
+        "dependency_checkpoint_records",
+        "model_execution"
+      ],
       "properties": {
         "valid": {"type": "boolean"},
+        "status": {"enum": ["valid", "review_required", "invalid"]},
         "issues": {"type": "array", "items": {"type": "string"}},
+        "hard_failures": {"type": "array", "items": {"type": "string"}},
+        "review_flags": {"type": "array", "items": {"type": "string"}},
+        "observations": {"type": "array", "items": {"type": "string"}},
         "evaluator_source": {"type": ["string", "null"]},
-        "dependency_checkpoint_records": {"type": "integer", "minimum": 0}
-      }
+        "dependency_checkpoint_records": {"type": "integer", "minimum": 0},
+        "model_execution": {"type": "object"}
+      },
+      "additionalProperties": false
     },
-    "final_test": {"type": "object"},
+    "final_test": {
+      "type": "object",
+      "required": [
+        "outcome",
+        "success",
+        "exit_code",
+        "passed",
+        "failed",
+        "errors",
+        "collected",
+        "timed_out",
+        "synthetic_summary",
+        "evaluation_failure_kind"
+      ],
+      "properties": {
+        "outcome": {"type": "string"},
+        "success": {"type": "boolean"},
+        "exit_code": {"type": ["integer", "string", "null"]},
+        "passed": {"type": "integer", "minimum": 0},
+        "failed": {"type": "integer", "minimum": 0},
+        "errors": {"type": "integer", "minimum": 0},
+        "collected": {"type": "integer", "minimum": 0},
+        "timed_out": {"type": "boolean"},
+        "synthetic_summary": {"type": "boolean"},
+        "evaluation_failure_kind": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
     "artifacts": {
       "type": "object",
+      "minProperties": 1,
+      "required": [
+        "run_metadata.json",
+        "task_snapshot.json",
+        "scenario_snapshot.json",
+        "scenario_manifest_snapshot.json",
+        "metrics_snapshot.json",
+        "quality_snapshot.json",
+        "execution_profile_snapshot.json",
+        "protocol.json",
+        "report.json",
+        "dependency_probe_checkpoints.jsonl",
+        "process_metrics_summary.json",
+        "cost.json",
+        "runtime.txt"
+      ],
       "additionalProperties": {
         "type": "object",
         "required": ["sha256", "bytes"],
         "properties": {
-          "sha256": {"pattern": "^[0-9a-f]{64}$"},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
           "bytes": {"type": "integer", "minimum": 0}
-        }
+        },
+        "additionalProperties": false
       }
-    },
-    "created_at": {"type": "string"}
+    }
   },
   "additionalProperties": false
 }

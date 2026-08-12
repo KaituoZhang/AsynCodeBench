@@ -1,0 +1,347 @@
+"""Classify run evidence without confusing coding failure with infra failure."""
+
+from __future__ import annotations
+
+import json
+import re
+from pathlib import Path
+
+REQUIRED_HEALTH_FILES = (
+    "report.json",
+    "cost.json",
+    "runtime.txt",
+    "dependency_probe_checkpoints.jsonl",
+    "process_metrics_summary.json",
+)
+
+HARD_ERROR_PATTERNS = {
+    "context_window_error": re.compile(
+        r"LLMContextWindowExceed(?:ed)?Error|ContextWindowExceededError|"
+        r"This model's maximum context length is \d+ tokens.*you requested",
+        re.IGNORECASE,
+    ),
+    "provider_or_transport_error": re.compile(
+        r"LLMServiceUnavailableError|APIConnectionError|AuthenticationError|"
+        r"RateLimitError|(?:OpenAIException|InternalServerError)\s*-\s*"
+        r"Connection error|"
+        r"(?:httpx|httpcore)\.(?:Connect|Read|Write|Pool)Error",
+        re.IGNORECASE,
+    ),
+    "model_server_configuration_error": re.compile(
+        r"LLM Provider NOT provided|auto.*tool choice requires|"
+        r"tool-call-parser.*(?:required|unsupported|unknown)|"
+        r"LLMBadRequestError:.*(?:tool choice|reasoning parser|provider)",
+        re.IGNORECASE,
+    ),
+    "remote_execution_timeout": re.compile(
+        r"Run timed out after .*conversation may still be running",
+        re.IGNORECASE,
+    ),
+}
+
+MODEL_EVALUATOR_FAILURES = {"collection_failed", "timeout"}
+
+
+def _read_text(path: Path) -> str:
+    return path.read_text(encoding="utf-8", errors="replace")
+
+
+def _read_json(path: Path, hard_failures: list[str], code: str) -> dict:
+    try:
+        value = json.loads(_read_text(path))
+    except (OSError, json.JSONDecodeError):
+        hard_failures.append(code)
+        return {}
+    if not isinstance(value, dict):
+        hard_failures.append(code)
+        return {}
+    return value
+
+
+def _read_jsonl(path: Path, hard_failures: list[str], code: str) -> list[dict]:
+    records = []
+    try:
+        lines = _read_text(path).splitlines()
+    except OSError:
+        hard_failures.append(code)
+        return records
+    for line in lines:
+        if not line.strip():
+            continue
+        try:
+            record = json.loads(line)
+        except json.JSONDecodeError:
+            hard_failures.append(code)
+            return []
+        if not isinstance(record, dict):
+            hard_failures.append(code)
+            return []
+        records.append(record)
+    if not records:
+        hard_failures.append(code)
+    return records
+
+
+def _dedupe(values: list[str]) -> list[str]:
+    return list(dict.fromkeys(values))
+
+
+def _expected_probe_selectors(metrics: dict) -> set[str]:
+    selectors = set()
+    for dependency in metrics.get("dependency_points", []) or []:
+        for key in (
+            "upstream_probe_tests",
+            "downstream_probe_tests",
+            "integrated_probe_tests",
+        ):
+            selectors.update(dependency.get(key, []) or [])
+    return selectors
+
+
+def _model_execution_evidence(run_dir: Path, process_summary: dict, cost: dict) -> dict:
+    model_calls = int(
+        process_summary.get("cost_metrics", {}).get("model_calls", 0) or 0
+    )
+    total_tokens = int(cost.get("total", {}).get("total_tokens", 0) or 0)
+    iterations = []
+
+    outputs_path = run_dir / "outputs.jsonl"
+    if outputs_path.is_file():
+        try:
+            output_records = [
+                json.loads(line)
+                for line in _read_text(outputs_path).splitlines()
+                if line.strip()
+            ]
+        except json.JSONDecodeError:
+            output_records = []
+        for record in output_records:
+            value = record.get("content", {}).get("actual_iterations")
+            if isinstance(value, int):
+                iterations.append(value)
+
+    adapter_path = run_dir / "agent_adapter_executions.jsonl"
+    if adapter_path.is_file():
+        try:
+            adapter_records = [
+                json.loads(line)
+                for line in _read_text(adapter_path).splitlines()
+                if line.strip()
+            ]
+        except json.JSONDecodeError:
+            adapter_records = []
+        for record in adapter_records:
+            value = record.get("response", {}).get("iterations")
+            if isinstance(value, int):
+                iterations.append(value)
+
+    for log_path in run_dir.glob("run_*.log"):
+        iterations.extend(
+            int(value)
+            for value in re.findall(r"Iterations used:\s*(\d+)", _read_text(log_path))
+        )
+    return {
+        "model_calls": model_calls,
+        "total_tokens": total_tokens,
+        "iterations": iterations,
+        "observed": model_calls > 0 or total_tokens > 0 or any(iterations),
+    }
+
+
+def inspect_run(run_dir: Path) -> dict[str, object]:
+    """Return machine-readable health, eligibility, and evidence for one run."""
+
+    run_dir = Path(run_dir)
+    hard_failures: list[str] = []
+    review_flags: list[str] = []
+    observations: list[str] = []
+
+    missing = [name for name in REQUIRED_HEALTH_FILES if not (run_dir / name).is_file()]
+    if missing:
+        hard_failures.extend(f"missing_artifact:{name}" for name in missing)
+
+    logs = sorted(run_dir.glob("run_*.log"))
+    if len(logs) != 1:
+        hard_failures.append(f"run_log_count:{len(logs)}")
+
+    report = (
+        _read_json(run_dir / "report.json", hard_failures, "invalid_report")
+        if (run_dir / "report.json").is_file()
+        else {}
+    )
+    report_metadata = report.get("asyncodebench", {})
+    evaluator_source = report_metadata.get("final_evaluator_source")
+    evaluator_eligible = True
+    if evaluator_source != "asyncodebench_manifest":
+        hard_failures.append(f"wrong_evaluator:{evaluator_source}")
+        evaluator_eligible = False
+
+    synthetic_summary = bool(report_metadata.get("synthetic_summary"))
+    failure_kind = report_metadata.get("evaluation_failure_kind")
+    summary = report.get("summary", {})
+    collected = int(summary.get("collected", summary.get("total", 0)) or 0)
+    if synthetic_summary:
+        if failure_kind in MODEL_EVALUATOR_FAILURES:
+            observations.append(f"model_evaluator_failure:{failure_kind}")
+        elif failure_kind == "no_tests_collected":
+            review_flags.append("evaluator_no_tests_collected")
+            evaluator_eligible = False
+        else:
+            hard_failures.append(f"evaluator_instrumentation_failure:{failure_kind}")
+            evaluator_eligible = False
+    elif collected <= 0:
+        hard_failures.append("evaluator_zero_collected")
+        evaluator_eligible = False
+
+    canonical_restore = report_metadata.get("canonical_test_restore", {})
+    if canonical_restore.get("restored_paths") or canonical_restore.get(
+        "untracked_paths_removed"
+    ):
+        observations.append("canonical_test_paths_restored")
+
+    process_summary = (
+        _read_json(
+            run_dir / "process_metrics_summary.json",
+            hard_failures,
+            "invalid_process_metrics_summary",
+        )
+        if (run_dir / "process_metrics_summary.json").is_file()
+        else {}
+    )
+    cost = (
+        _read_json(run_dir / "cost.json", hard_failures, "invalid_cost")
+        if (run_dir / "cost.json").is_file()
+        else {}
+    )
+
+    efficiency_eligible = bool(process_summary) and bool(cost)
+    runtime_path = run_dir / "runtime.txt"
+    if runtime_path.is_file():
+        try:
+            runtime_seconds = float(_read_text(runtime_path).strip())
+        except ValueError:
+            hard_failures.append("invalid_runtime")
+            efficiency_eligible = False
+        else:
+            if runtime_seconds <= 0:
+                hard_failures.append("nonpositive_runtime")
+                efficiency_eligible = False
+    else:
+        runtime_seconds = None
+
+    execution_evidence = _model_execution_evidence(run_dir, process_summary, cost)
+    if not execution_evidence["observed"]:
+        hard_failures.append("no_model_execution_evidence")
+        efficiency_eligible = False
+
+    event_files = sorted((run_dir / "agent_events").glob("*.jsonl"))
+    adapter_execution = run_dir / "agent_adapter_executions.jsonl"
+    if not any(path.stat().st_size > 0 for path in event_files) and not (
+        adapter_execution.is_file() and adapter_execution.stat().st_size > 0
+    ):
+        hard_failures.append("missing_agent_execution_trace")
+
+    scan_files = logs + [run_dir / "events.jsonl", run_dir / "outputs.jsonl"]
+    scan_files += event_files
+    if adapter_execution.is_file():
+        scan_files.append(adapter_execution)
+    combined = "\n".join(_read_text(path) for path in scan_files if path.is_file())
+    for code, pattern in HARD_ERROR_PATTERNS.items():
+        if pattern.search(combined):
+            hard_failures.append(code)
+    if re.search(r"Remote conversation got stuck", combined, re.IGNORECASE):
+        observations.append("model_trajectory_stuck")
+    if "<|tool_call>" in combined:
+        observations.append("raw_tool_call_emitted")
+
+    checkpoints = (
+        _read_jsonl(
+            run_dir / "dependency_probe_checkpoints.jsonl",
+            hard_failures,
+            "invalid_dependency_checkpoints",
+        )
+        if (run_dir / "dependency_probe_checkpoints.jsonl").is_file()
+        else []
+    )
+    dependency_eligible = bool(checkpoints)
+    final_checkpoints = [
+        record
+        for record in checkpoints
+        if record.get("checkpoint_type") == "final_integrated"
+        or record.get("checkpoint_id") == "final_integrated"
+    ]
+    if checkpoints and not final_checkpoints:
+        hard_failures.append("missing_final_integrated_checkpoint")
+        dependency_eligible = False
+
+    metrics = (
+        _read_json(
+            run_dir / "metrics_snapshot.json", hard_failures, "invalid_metrics_snapshot"
+        )
+        if (run_dir / "metrics_snapshot.json").is_file()
+        else {}
+    )
+    expected_selectors = _expected_probe_selectors(metrics)
+    if final_checkpoints:
+        probe_results = final_checkpoints[-1].get("probe_test_results", {})
+        if not isinstance(probe_results, dict):
+            hard_failures.append("invalid_final_probe_results")
+            dependency_eligible = False
+        else:
+            missing_selectors = sorted(expected_selectors - set(probe_results))
+            if missing_selectors:
+                hard_failures.append(
+                    f"missing_final_probe_selectors:{len(missing_selectors)}"
+                )
+                dependency_eligible = False
+            invalid_statuses = set()
+            for result in probe_results.values():
+                if not isinstance(result, dict):
+                    invalid_statuses.add("not_an_object")
+                    continue
+                status_value = result.get("status")
+                if status_value not in {
+                    "passed",
+                    "failed",
+                    "not_collected",
+                    "timed_out",
+                }:
+                    invalid_statuses.add(status_value)
+            if invalid_statuses:
+                hard_failures.append("invalid_final_probe_status")
+                dependency_eligible = False
+
+    hard_failures = _dedupe(hard_failures)
+    review_flags = _dedupe(review_flags)
+    observations = _dedupe(observations)
+    if hard_failures:
+        status = "invalid"
+    elif review_flags:
+        status = "review_required"
+    else:
+        status = "valid"
+
+    eligibility = {
+        "functional_metrics": evaluator_eligible
+        and not any(
+            item.startswith(("wrong_evaluator", "evaluator_instrumentation_failure"))
+            for item in hard_failures
+        ),
+        "dependency_metrics": dependency_eligible,
+        "efficiency_metrics": efficiency_eligible and execution_evidence["observed"],
+    }
+    return {
+        "run_dir": str(run_dir),
+        "status": status,
+        "healthy": status == "valid",
+        "hard_failures": hard_failures,
+        "review_flags": review_flags,
+        "issues": hard_failures + review_flags,
+        "observations": observations,
+        "eligibility": eligibility,
+        "evaluator_source": evaluator_source,
+        "model_execution": execution_evidence,
+        "checkpoint_records": len(checkpoints),
+        "final_collected": collected,
+        "runtime_seconds": runtime_seconds,
+    }

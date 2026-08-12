@@ -283,7 +283,8 @@ def write_dependency_probe_checkpoint(
 
     checkpoint = {
         "schema_version": "0.1",
-        "task_id": metrics.get("task_id", f"commit0:{repo_name}"),
+        "task_id": f"asyncodebench:{repo_name}",
+        "source_task_id": metrics.get("task_id", f"commit0:{repo_name}"),
         "metric_annotation_id": metrics.get("metric_annotation_id"),
         "metrics_manifest": str(resolved_metrics_path),
         "checkpoint_id": checkpoint_id,

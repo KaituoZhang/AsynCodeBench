@@ -7,9 +7,17 @@ Versioned experimental conditions are grouped as:
 - `policies/`: baseline and oracle semantic cards;
 - `tasks/`: task-source and qualification settings;
 - `pilot/`: locked smoke and Go/No-Go matrices.
+- `evaluation/`: public execution profiles used to decide whether completed
+  runs are comparable in the official aggregate.
 
 Configuration files select semantics defined in code and schemas; they must
 not silently introduce new semantics.
+
+`evaluation/official_execution_profile.v1.json` is the authoritative public
+comparison profile. It fixes the harness budgets and instrumentation timeouts
+used by the official aggregate. Scenario-level historical budget fields remain
+construction provenance; a run's actual eligibility is decided from its
+recorded execution-profile match and post-run health gates.
 
 `tasks/commit0_repositories.v0.3.json` is the portable source inventory for
 Commit0. It records public repository URLs and pinned `commit0` SHAs; local

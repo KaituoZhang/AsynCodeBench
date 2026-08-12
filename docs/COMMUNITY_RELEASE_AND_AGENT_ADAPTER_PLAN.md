@@ -1,9 +1,12 @@
 # Community Release And Agent Adapter Implementation Record
 
-Implementation status: Stages 1-3 and the portable run-bundle portion of Stage
-4 are implemented on `agent/community-ready-release`. Remaining release work is
-limited to publishing a small validated example result and adding higher-level
-cross-run aggregation to the CLI.
+Implementation status: Stages 1-3 and strict run admission and script-level
+aggregation in Stage 4 are implemented on `agent/community-ready-release`.
+Run bundles execute their JSON Schema, record metric-specific eligibility,
+verify the official execution profile, and reject infrastructure-invalid
+evidence. Model-level aggregation is fail-closed and emits a checksum-linked
+campaign manifest. Remaining release work is publishing a real validated
+native model result; historical pre-bundle runs are not accepted as a substitute.
 
 ## Goal
 
@@ -101,6 +104,7 @@ protocol while still allowing different coding-agent implementations.
 ```text
 configs/tasks/commit0_official_tasks.v0.3.json
 configs/tasks/commit0_curated_tasks.v0.3.json
+configs/evaluation/official_execution_profile.v1.json
 manifests/pilot/v0.3/{tasks,scenarios,metrics,quality}/
 data/overlays/commit0/
 reproductions/async-swe-agents/tasks/asyncodebench.py
@@ -121,6 +125,7 @@ scripts/setup_evaluation.sh
 examples/results/cachetools/
 docs/QUICKSTART.md
 docs/AGENT_ADAPTER.md
+docs/RESULT_VALIDITY.md
 ```
 
 ### Add for custom agents
@@ -131,6 +136,7 @@ reproductions/async-swe-agents/agents/loader.py
 reproductions/async-swe-agents/agents/openhands.py
 reproductions/async-swe-agents/asyncodebench_harness/cli.py
 reproductions/async-swe-agents/asyncodebench_harness/results.py
+reproductions/async-swe-agents/asyncodebench_harness/health.py
 schemas/release/agent_request.schema.json
 schemas/release/agent_response.schema.json
 schemas/release/run_bundle.schema.json
@@ -149,18 +155,22 @@ class AgentAdapter(ABC):
         ...
 ```
 
-`AgentRequest` contains:
+`AgentRunRequest` contains:
 
 ```text
-task_id
+benchmark_task_id
+source_task_id
 protocol
+scenario_id
 agent_id
-subproblem_id
+assignment_id
+round_num
 instruction
 workspace handle
 writable_paths
-visible_handoffs
-iteration or time budget
+primary_test_targets
+dependency_annotations
+iteration budget
 output directory
 ```
 
@@ -188,8 +198,10 @@ Every formal task-protocol run must contain:
 run_metadata.json
 task_snapshot.json
 scenario_snapshot.json
+scenario_manifest_snapshot.json
 metrics_snapshot.json
 quality_snapshot.json
+execution_profile_snapshot.json
 protocol.json
 report.json
 dependency_probe_checkpoints.jsonl
@@ -208,22 +220,22 @@ Multi-agent protocols additionally contain the applicable files:
 scope_validation.jsonl
 artifact_handoffs.jsonl
 delegations.json
-delegation_validation.jsonl
+delegation_validation.json
 agent_events/
 ```
 
-`run_bundle.schema.json` defines required files, schema versions, benchmark
-revision, task ID, protocol, agent identity, model identity, budgets, serving
-configuration, and evaluator status. A run with a provider, transport,
-workspace, parser, or evaluator instrumentation failure is invalid rather than
-counted as a coding failure.
+`run_bundle.schema.json` defines identity, profile, provenance, status,
+metric-specific eligibility, evaluator outcome, and recursive artifact hashes.
+Detailed model, budget, serving, and generation configuration remains frozen in
+the checksum-indexed `run_metadata.json`. A run with provider, transport,
+workspace, context, model-server, or evaluator instrumentation failure is
+invalid rather than counted as a coding failure.
 
 ## Implementation Stages
 
-### Stage 1: Release hygiene and one-command setup (implemented)
+### Stage 1: Release hygiene and one-command setup (implemented except example publication)
 
-1. Add GitHub Actions for the current 126 dataset contracts and 90 harness
-   tests.
+1. Add GitHub Actions for the dataset contracts and harness tests.
 2. Generate a clean release index containing exactly the 16 official tasks.
 3. Pin OpenHands `software-agent-sdk` to the currently validated commit instead
    of cloning an arbitrary latest revision.
@@ -247,7 +259,7 @@ Acceptance criteria:
 
 ### Stage 2: Extract the built-in OpenHands adapter (implemented)
 
-1. Introduce `AgentRequest`, `AgentResult`, and `AgentAdapter`.
+1. Introduce `AgentRunRequest`, `AgentRunResponse`, and `AgentAdapter`.
 2. Move the existing OpenHands conversation/subagent invocation behind
    `OpenHandsAgentAdapter` without changing scheduling or evaluation behavior.
 3. Make all four native protocols call the adapter instead of constructing an
@@ -257,7 +269,7 @@ Acceptance criteria:
 Acceptance criteria:
 
 - existing OpenHands runs preserve their current prompts and output semantics;
-- all existing 198 tests remain green;
+- all benchmark-contract and native-harness tests remain green;
 - the fake adapter can exercise all four protocols without an API key;
 - scope, stale visibility, handoff, integration, and probe gates remain owned by
   the harness.
@@ -266,7 +278,7 @@ Acceptance criteria:
 
 1. Add `--agent openhands` and `--agent-import-path module:Class`.
 2. Validate that an imported class implements `AgentAdapter`.
-3. Provide `examples/agents/minimal_agent.py` and an adapter guide.
+3. Provide `examples/agents/diagnostic_adapter.py` and an adapter guide.
 4. Record adapter module, class, package version, and source revision in
    `run_metadata.json`.
 5. Reject adapters that attempt to bypass the assigned workspace or return an
@@ -279,11 +291,14 @@ Acceptance criteria:
 - an out-of-scope fake agent is rejected and recorded;
 - serial handoffs are visible and async-private in-flight handoffs are hidden.
 
-### Stage 4: Standardize validation and reporting (partially implemented)
+### Stage 4: Standardize validation and reporting (implemented; unified CLI pending)
 
-1. Define Pydantic and JSON Schema models for an agent result and run bundle.
-2. Add `validate-run` and `summarize` commands around existing analysis scripts.
-3. Generate per-instance JSONL and aggregate JSON/CSV tables.
+1. Define dataclass request/response contracts and JSON Schemas for agent and
+   run-bundle interchange.
+2. Add `inspect-run` and `validate-run`; a unified `summarize` CLI remains
+   pending while the existing analysis scripts remain available.
+3. Generate per-task Markdown/CSV/index records and model-level CSV/Markdown
+   tables with a campaign manifest.
 4. Add a submission example and a CI test that validates it.
 
 Acceptance criteria:

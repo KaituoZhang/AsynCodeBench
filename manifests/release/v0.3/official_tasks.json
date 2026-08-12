@@ -1,4 +1,11 @@
 {
+  "automated_audit_complete_task_count": 16,
+  "execution_profile": {
+    "path": "configs/evaluation/official_execution_profile.v1.json",
+    "profile_id": "asyncodebench-v0.3-standard-30",
+    "sha256": "f078cbfc97dbdc7be6147b9e84b2ddaaf50d2b58ba1f142bb9375bb78740b656"
+  },
+  "human_review_complete_task_count": 1,
   "official_task_ids": [
     "asyncodebench:cachetools",
     "asyncodebench:deprecated",

@@ -13,7 +13,20 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
 
+from .profile import execution_profile_metadata, profile_path
+
 HARNESS_VERSION = "asyncodebench-harness-v2.0"
+SENSITIVE_CONFIGURATION_KEYS = {
+    "access_token",
+    "api_key",
+    "apikey",
+    "authorization",
+    "credential",
+    "credentials",
+    "password",
+    "secret",
+    "token",
+}
 
 
 def _git_revision(path):
@@ -71,6 +84,22 @@ def _read_json_url(url):
         json.JSONDecodeError,
     ) as exc:
         return None, str(exc)
+
+
+def _redact_secrets(value):
+    if isinstance(value, dict):
+        redacted = {}
+        for key, child in value.items():
+            normalized_key = str(key).lower().replace("-", "_")
+            redacted[key] = (
+                "[REDACTED]"
+                if normalized_key in SENSITIVE_CONFIGURATION_KEYS
+                else _redact_secrets(child)
+            )
+        return redacted
+    if isinstance(value, list):
+        return [_redact_secrets(item) for item in value]
+    return value
 
 
 def _vllm_server_metadata():
@@ -131,24 +160,56 @@ def _generation_configuration():
         "LLM_TEMPERATURE",
         "LLM_TOP_P",
         "LLM_TOP_K",
+        "LLM_TIMEOUT",
+        "LLM_NUM_RETRIES",
     )
     configuration = {
-        name: os.getenv(name) for name in scalar_names if os.getenv(name) is not None
+        "schema_version": "asyncodebench-generation-configuration-v1",
+        "parameters": {
+            name: {
+                "value": os.getenv(name),
+                "source": (
+                    "environment"
+                    if os.getenv(name) is not None
+                    else "sdk_or_provider_default"
+                ),
+            }
+            for name in scalar_names
+        },
     }
+    for name in scalar_names:
+        if os.getenv(name) is not None:
+            configuration[name] = os.getenv(name)
     for name in ("LLM_EXTRA_BODY_JSON", "ASYNCODEBENCH_VLLM_CONFIG_JSON"):
         raw_value = os.getenv(name)
         if raw_value is None:
+            configuration["parameters"][name] = {
+                "value": None,
+                "source": "not_configured",
+            }
             continue
         try:
-            configuration[name] = json.loads(raw_value)
+            parsed_value = json.loads(raw_value)
         except json.JSONDecodeError:
-            configuration[name] = {"parse_error": "invalid JSON; value omitted"}
+            parsed_value = {"parse_error": "invalid JSON; value omitted"}
+        parsed_value = _redact_secrets(parsed_value)
+        configuration[name] = parsed_value
+        configuration["parameters"][name] = {
+            "value": parsed_value,
+            "source": "environment",
+        }
 
     template_path = os.getenv("ASYNCODEBENCH_CHAT_TEMPLATE_PATH")
     if template_path:
         configuration["chat_template"] = {
             "path": template_path,
             "sha256": _sha256(template_path),
+        }
+    else:
+        configuration["chat_template"] = {
+            "path": None,
+            "sha256": None,
+            "source": "model_server_default",
         }
     return configuration
 
@@ -188,12 +249,16 @@ def build_run_metadata(
         "harness_version": HARNESS_VERSION,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "task_id": task.task_id,
+        "source_task_id": task.source_task_id,
         "release": task.asyncodebench_config.release,
         "protocol": protocol,
         "scenario_id": task.public_scenario_id(protocol),
         "source_scenario_id": task.scenario_for(protocol).get("scenario_id"),
         "model": workflow_config.model,
-        "subagent_model": workflow_config.subagent_model,
+        # The runner falls back to the manager LLM when no separate subagent
+        # model is configured. Record the effective model, not the nullable
+        # user input, so campaign lineage remains unambiguous.
+        "subagent_model": workflow_config.subagent_model or workflow_config.model,
         "agent_adapter": agent_adapter
         or {
             "name": "openhands",
@@ -205,6 +270,9 @@ def build_run_metadata(
             "subagent_max_iterations": workflow_config.subagent_max_iterations,
             "max_rounds_chat": workflow_config.max_rounds_chat,
         },
+        "execution_profile": execution_profile_metadata(
+            task, workflow_config, protocol
+        ),
         "source": {
             "repository": task.curated_task.get("repository"),
             "base_ref": task.curated_task.get("base_ref"),
@@ -247,19 +315,25 @@ def write_run_metadata(output_dir, metadata):
 
 def write_contract_snapshots(output_dir, task, protocol):
     output_dir = Path(output_dir)
-    snapshots = {
-        "task_snapshot.json": task.task_manifest,
-        "scenario_snapshot.json": task.scenario_for(protocol),
-        "metrics_snapshot.json": task.metrics_manifest,
-        "quality_snapshot.json": task.quality_manifest,
+    snapshot_sources = {
+        "task_snapshot.json": task.manifest_paths["task"],
+        "scenario_manifest_snapshot.json": task.manifest_paths["scenario"],
+        "metrics_snapshot.json": task.manifest_paths["metrics"],
+        "quality_snapshot.json": task.manifest_paths["quality"],
+        "execution_profile_snapshot.json": profile_path(),
     }
     written = {}
-    for filename, payload in snapshots.items():
+    for filename, source_path in snapshot_sources.items():
         path = output_dir / filename
-        path.write_text(
-            json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-        )
+        path.write_bytes(Path(source_path).read_bytes())
         written[filename] = str(path)
+
+    active_scenario_path = output_dir / "scenario_snapshot.json"
+    active_scenario_path.write_text(
+        json.dumps(task.scenario_for(protocol), indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    written["scenario_snapshot.json"] = str(active_scenario_path)
 
     scenario = task.scenario_for(protocol)
     protocol_path = output_dir / "protocol.json"
@@ -267,6 +341,7 @@ def write_contract_snapshots(output_dir, task, protocol):
         "schema_version": "0.1",
         "harness": HARNESS_VERSION,
         "task_id": task.task_id,
+        "source_task_id": task.source_task_id,
         "protocol": protocol,
         "scenario_id": task.public_scenario_id(protocol),
         "source_scenario_id": scenario.get("scenario_id"),

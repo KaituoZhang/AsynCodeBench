@@ -153,7 +153,8 @@ Always validate a task before spending model tokens:
 
 The dry-run reports the official release status, curated base ref and SHA,
 overlay count, scenario, writable paths, targeted tests, dependency integration
-order, and any dependency cycle. It does not start Docker or call the model.
+order, any dependency cycle, and whether the requested settings match the
+official execution profile. It does not start Docker or call the model.
 
 ## Full Four-Protocol Example
 
@@ -229,8 +230,13 @@ dependency checkpoints, v2 writes:
 - `run_metadata.json`: model and budget settings, code revisions, source SHA,
   overlay records, package versions, GPU hardware, local vLLM version/model
   metadata, context limits, generation settings, and SHA-256 hashes;
-- `task_snapshot.json`, `scenario_snapshot.json`, `metrics_snapshot.json`, and
-  `quality_snapshot.json`: immutable copies of the active benchmark inputs;
+- `task_snapshot.json`, `scenario_manifest_snapshot.json`,
+  `metrics_snapshot.json`, and `quality_snapshot.json`: byte-exact copies of
+  the released benchmark inputs;
+- `scenario_snapshot.json`: the active protocol scenario selected from the
+  full scenario manifest for this run;
+- `execution_profile_snapshot.json`: exact official budget and instrumentation
+  contract used to determine aggregate eligibility;
 - `protocol.json`: resolved dependency integration order and scope policy;
 - `scope_validation.jsonl`: changed paths and any rejected scope violations;
 - `delegation_validation.json`: CAID initial-assignment validation and fallback
@@ -239,23 +245,39 @@ dependency checkpoints, v2 writes:
   dependency-probe evidence delivered to downstream specialists;
 - `process_metrics_summary.json`: automatically generated formal and process
   metrics for the completed run.
+- `run_bundle.json`: schema-validated status, per-metric and provenance
+  eligibility, and recursive checksums for every run artifact.
 
 API keys are deliberately excluded from `run_metadata.json`.
 
+Inspect any historical run and validate any new formal bundle with:
+
+```bash
+uv run asyncodebench inspect-run outputs/asyncodebench/v0.3/.../<run_id>
+uv run asyncodebench validate-run outputs/asyncodebench/v0.3/.../<run_id>
+```
+
+The exact distinction between valid coding failure and invalid infrastructure
+failure is defined in `docs/RESULT_VALIDITY.md`.
+
 ## Post-run Metrics
 
-The native runner automatically invokes the existing metric pipeline after a
-completed run. The following command is only needed to audit or regenerate a
-summary:
+The native runner automatically invokes the metric pipeline before freezing the
+run bundle. Do not regenerate a summary inside a bundled run directory. For an
+analysis-code audit, write the derivative to a separate path:
 
 ```bash
 cd /absolute/path/to/AsynCodeBench
-python3 scripts/analyze_run_process_metrics.py \
+reproductions/async-swe-agents/.venv/bin/python \
+  scripts/analyze_run_process_metrics.py \
   --run-dir reproductions/async-swe-agents/outputs/asyncodebench/v0.3/<model>/<task>/<protocol>/<run_id> \
   --metrics manifests/pilot/v0.3/metrics/commit0_<task>_async_metrics.json \
-  --output reproductions/async-swe-agents/outputs/asyncodebench/v0.3/<model>/<task>/<protocol>/<run_id>/process_metrics_summary.json \
+  --output reproductions/async-swe-agents/outputs/derived-audits/<model>/<task>/<protocol>_process_metrics_summary.json \
   --print-summary
 ```
+
+The audit output is not part of the frozen run and must be labeled as a derived
+analysis. Editing any indexed run artifact invalidates its bundle checksum.
 
 Then use `scripts/summarize_model_task_runs.py` with four `--run` arguments to
 create the task Markdown report, metrics CSV, and artifact-index JSON. Metric

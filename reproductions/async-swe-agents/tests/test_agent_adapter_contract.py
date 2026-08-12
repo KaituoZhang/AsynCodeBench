@@ -148,6 +148,27 @@ def test_loader_imports_public_adapter_contract():
     assert adapter.config == {"endpoint": "local"}
 
 
+def test_adapter_metadata_records_redacted_config_and_checksum():
+    adapter = RecordingAdapter(
+        config={
+            "endpoint": "local",
+            "api_key": "do-not-record",
+            "nested": {"access_token": "also-secret", "mode": "strict"},
+        }
+    )
+
+    metadata = adapter.public_metadata()
+
+    assert metadata["config"] == {
+        "endpoint": "local",
+        "api_key": "[REDACTED]",
+        "nested": {"access_token": "[REDACTED]", "mode": "strict"},
+    }
+    assert len(metadata["config_sha256"]) == 64
+    assert "do-not-record" not in str(metadata)
+    assert "also-secret" not in str(metadata)
+
+
 def test_loader_rejects_objects_outside_adapter_contract():
     with pytest.raises(TypeError, match="agents.AgentAdapter"):
         load_agent_adapter(

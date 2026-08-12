@@ -7,9 +7,13 @@ four-protocol task evaluation.
 
 - Linux on `x86_64`;
 - Git and Docker with permission to run containers without `sudo`;
-- Python 3.10 or newer;
+- Python 3.12 (required by the native OpenHands runner);
 - [`uv`](https://docs.astral.sh/uv/);
 - an OpenAI-compatible model endpoint.
+
+If Python 3.12 is not already visible to `uv`, install its managed build with
+`uv python install 3.12`. The setup script resolves that interpreter through
+`uv python find 3.12`, so an older system `python3` does not interfere.
 
 Local models additionally require a vLLM configuration that supports the
 model's tool-call and reasoning formats. Read
@@ -66,6 +70,7 @@ export ENV_FILE="$PWD/.env"
 source scripts/env.sh
 
 uv run asyncodebench doctor
+uv run asyncodebench release-status
 uv run asyncodebench tasks
 
 uv run asyncodebench run \
@@ -140,7 +145,10 @@ Each formal run should include:
 run_metadata.json
 task_snapshot.json
 scenario_snapshot.json
+scenario_manifest_snapshot.json
 metrics_snapshot.json
+quality_snapshot.json
+execution_profile_snapshot.json
 protocol.json
 report.json
 dependency_probe_checkpoints.jsonl
@@ -151,6 +159,15 @@ runtime.txt
 patch.diff
 ```
 
+`patch.diff` is optional for a valid run that produces no integrated patch.
+Use `inspect-run` instead of `validate-run` when triaging a historical directory
+that predates `run_bundle.json`:
+
+```bash
+uv run asyncodebench inspect-run \
+  outputs/asyncodebench/v0.3/<model>/<task>/<protocol>/<run-version>
+```
+
 Validate any completed task-protocol run without calling the model again:
 
 ```bash
@@ -159,7 +176,11 @@ uv run asyncodebench validate-run \
 ```
 
 Coding failure is valid benchmark evidence. Provider, transport, parser,
-workspace, or evaluator instrumentation failure invalidates the run. See
+workspace, or evaluator instrumentation failure invalidates the run. A valid
+run enters the official aggregate only when its execution profile matches and
+its required provenance is complete.
+See [`RESULT_VALIDITY.md`](RESULT_VALIDITY.md) for the exact machine-checked
+rules, and see
 [`EVALUATION_METRICS.md`](EVALUATION_METRICS.md) for metric definitions and
 [`MODEL_EXPERIMENT_RUNBOOK.md`](MODEL_EXPERIMENT_RUNBOOK.md) before running all
 16 tasks.

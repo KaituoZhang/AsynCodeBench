@@ -7,7 +7,7 @@ name = "async-swe-agents"
 version = "0.1.0"
 description = "Asynchronous multi-agent delegation for software engineering tasks"
 readme = "README.md"
-license = "MIT"
+license = "Apache-2.0"
 requires-python = ">=3.12"
 dependencies = [
     "openhands-sdk==1.11.0",
@@ -16,6 +16,7 @@ dependencies = [
     "openhands-agent-server==1.11.0",
     "litellm==1.81.11",
     "pydantic==2.12.5",
+    "jsonschema>=4.23,<5",
     "fire==0.7.1",
     "rich==14.2.0",
     "pyyaml==6.0.3",

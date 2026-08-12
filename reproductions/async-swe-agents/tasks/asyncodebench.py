@@ -132,10 +132,6 @@ class AsynCodeBenchTask(Commit0Task):
         for scenario in scenarios:
             if scenario.get("execution_mode") == execution_mode:
                 return scenario
-        if protocol == "caid_manager":
-            for scenario in scenarios:
-                if scenario.get("execution_mode") == "async_private":
-                    return scenario
         scenario_path = self.manifest_paths["scenario"]
         raise ValueError(f"No scenario for protocol={protocol!r} in {scenario_path}")
 

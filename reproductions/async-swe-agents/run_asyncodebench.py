@@ -8,6 +8,11 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+# LiteLLM otherwise performs a network price-map refresh during module import.
+# Dry-runs neither call nor price a model, so keep that path deterministic and quiet.
+if any(argument in {"--dry_run", "--dry-run"} for argument in sys.argv[1:]):
+    os.environ.setdefault("LITELLM_LOCAL_MODEL_COST_MAP", "True")
+
 import fire
 from agents import load_agent_adapter
 from asyncodebench_harness.results import build_run_bundle
@@ -20,6 +25,7 @@ from protocols.asyncodebench.metadata import (
     write_run_metadata,
 )
 from protocols.asyncodebench.ordering import topological_assignments
+from protocols.asyncodebench.profile import execution_profile_metadata
 from run_infer import run_workflow
 from tasks.asyncodebench import AsynCodeBenchConfig, AsynCodeBenchTask
 
@@ -112,6 +118,7 @@ def _finalize_run_bundle(task, output_dir, protocol, agent_adapter):
 
 def _print_dry_run(task, protocol, workflow_config, output_dir, agent_adapter):
     scenario = task.scenario_for(protocol)
+    profile = execution_profile_metadata(task, workflow_config, protocol)
     if protocol in {"serial_specialists", "async_private"}:
         assignments, cycle_nodes = topological_assignments(
             scenario.get("assignments", []),
@@ -138,6 +145,10 @@ def _print_dry_run(task, protocol, workflow_config, output_dir, agent_adapter):
     print(f"[DryRun] task_id={task.task_id}")
     print(f"[DryRun] official=True release={task.asyncodebench_config.release}")
     print(f"[DryRun] protocol={protocol}")
+    print(
+        f"[DryRun] execution_profile={profile['profile_id']} "
+        f"matched={profile['matched']} deviations={profile['deviations']}"
+    )
     print(f"[DryRun] agent_adapter={agent_adapter.public_metadata()}")
     print(f"[DryRun] scenario_id={_public_scenario_id(scenario.get('scenario_id'))}")
     print(f"[DryRun] curated_base_sha={task.curated_task.get('base_sha')}")
@@ -224,9 +235,7 @@ def main(
     workflow_config.output_dir = str(resolved_output)
 
     if dry_run:
-        _print_dry_run(
-            task, protocol, workflow_config, resolved_output, agent_adapter
-        )
+        _print_dry_run(task, protocol, workflow_config, resolved_output, agent_adapter)
         return
 
     _assert_fresh_output(resolved_output)
@@ -252,9 +261,7 @@ def main(
         )
         result = asyncio.run(runner.run())
         _generate_process_metrics(task, resolved_output)
-        _finalize_run_bundle(
-            task, resolved_output, protocol, agent_adapter
-        )
+        _finalize_run_bundle(task, resolved_output, protocol, agent_adapter)
         return result
 
     workflow_kwargs = {}

@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "asyncodebench"
-version = "0.0.0"
-description = "Benchmark for proactive coordination in asynchronous LLM software-agent teams"
+version = "0.3.0"
+description = "Dependency-aware benchmark for asynchronous multi-agent software engineering"
 readme = "README"
 requires-python = ">=3.10"
 dependencies = [
@@ -14,6 +14,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
+  "jsonschema>=4.23,<5",
   "pytest>=8.3,<9",
   "pytest-timeout>=2.3,<3",
   "pytest-xdist>=3.6,<4",

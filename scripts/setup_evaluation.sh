@@ -6,16 +6,29 @@ RUNNER="$ROOT/reproductions/async-swe-agents"
 SDK_DIR="$ROOT/reproductions/software-agent-sdk"
 SDK_LOCK="$ROOT/reproductions/software-agent-sdk.lock"
 BENCHMARK_VENV="${ASYNCODEBENCH_BENCHMARK_VENV:-$ROOT/.venv-benchmark}"
+cd "$ROOT"
 
-for command in git uv docker python3; do
+for command in git uv docker; do
   if ! command -v "$command" >/dev/null 2>&1; then
     echo "Missing required command: $command" >&2
     exit 1
   fi
 done
 
+if [[ -n "${ASYNCODEBENCH_PYTHON:-}" ]]; then
+  PYTHON_BIN="$ASYNCODEBENCH_PYTHON"
+elif ! PYTHON_BIN="$(uv python find 3.12 2>/dev/null)"; then
+  echo "Python 3.12 is required. Install it with: uv python install 3.12" >&2
+  exit 1
+fi
+
+if [[ ! -x "$PYTHON_BIN" ]]; then
+  echo "Python interpreter is not executable: $PYTHON_BIN" >&2
+  exit 1
+fi
+
 readarray -t sdk_values < <(
-  python3 - "$SDK_LOCK" <<'PY'
+  "$PYTHON_BIN" - "$SDK_LOCK" <<'PY'
 import json
 import sys
 
@@ -43,7 +56,7 @@ else
 fi
 
 echo "[setup] Creating benchmark validation environment"
-python3 -m venv "$BENCHMARK_VENV"
+"$PYTHON_BIN" -m venv "$BENCHMARK_VENV"
 "$BENCHMARK_VENV/bin/python" -m pip install -U pip
 "$BENCHMARK_VENV/bin/python" -m pip install -e "$ROOT[dev]"
 

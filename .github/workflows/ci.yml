@@ -24,14 +24,30 @@ jobs:
       - run: python -m pip install -e ".[dev]"
       - run: PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest -q tests/contracts
       - run: python scripts/build_release_index.py --check
+      - name: Lint public result and release tooling
+        run: >-
+          python -m ruff check
+          scripts/build_release_index.py
+          scripts/analyze_run_process_metrics.py
+          scripts/summarize_model_task_runs.py
+          scripts/aggregate_model_task_results.py
+          scripts/check_repository_hygiene.py
+          tests/contracts/test_release_bundle.py
+          tests/contracts/test_result_admission.py
+          tests/contracts/test_public_documentation.py
+          --select F,E9,I,B,UP,SIM
       - run: >-
           python scripts/check_markdown_links.py
           README
           docs/README.md
           docs/QUICKSTART.md
           docs/AGENT_ADAPTER.md
+          docs/RESULT_VALIDITY.md
+          docs/MODEL_EXPERIMENT_RUNBOOK.md
+          docs/ASYNCODEBENCH_HARNESS_V2.md
           docs/EVALUATION_BRANCH_QUICKSTART.md
           docs/COMMUNITY_RELEASE_AND_AGENT_ADAPTER_PLAN.md
+          docs/EVALUATION_METRICS.md
           reproductions/async-swe-agents/README.md
 
   native-harness:
@@ -46,7 +62,20 @@ jobs:
           enable-cache: true
       - run: uv sync --frozen --extra dev
       - run: uv run asyncodebench tasks
+      - run: uv run asyncodebench release-status
       - run: uv run pytest -q tests
+      - name: Lint native harness public surface
+        run: >-
+          uv run ruff check
+          asyncodebench_harness
+          agents
+          protocols/asyncodebench
+          run_asyncodebench.py
+          tests/test_agent_adapter_contract.py
+          tests/test_run_bundle.py
+          tests/test_check_run_health.py
+          tests/test_asyncodebench_harness_v2.py
+          --select F,E9,I
       - name: Dry-run all native protocols
         run: |
           for protocol in single serial_specialists async_private caid_manager; do
@@ -61,14 +90,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Reject private environment and generated output files
-        shell: bash
-        run: |
-          set -euo pipefail
-          bad_env="$(git ls-files | grep -E '(^|/)\.env($|\.)' | grep -vE '\.example$' || true)"
-          bad_outputs="$(git ls-files | grep -E '(^|/)outputs/.+' | grep -vE '(^|/)outputs/README\.md$' || true)"
-          if [[ -n "$bad_env" || -n "$bad_outputs" ]]; then
-            printf 'Tracked private env files:\n%s\n' "$bad_env" >&2
-            printf 'Tracked generated outputs:\n%s\n' "$bad_outputs" >&2
-            exit 1
-          fi
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Reject secrets, private environments, datasets, and run outputs
+        run: python scripts/check_repository_hygiene.py

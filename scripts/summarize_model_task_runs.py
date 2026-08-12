@@ -18,12 +18,21 @@ import csv
 import hashlib
 import json
 import re
+import sys
 from pathlib import Path
 from typing import Any
 
-
-MODE_ORDER = ["single", "serial_specialists", "async_private", "CAID_multi"]
+MODE_ORDER = ["single", "serial_specialists", "async_private", "caid_manager"]
+MODE_ALIASES = {"CAID_multi": "caid_manager"}
 INDEXED_PATTERNS = [
+    "run_metadata.json",
+    "task_snapshot.json",
+    "scenario_snapshot.json",
+    "scenario_manifest_snapshot.json",
+    "metrics_snapshot.json",
+    "quality_snapshot.json",
+    "execution_profile_snapshot.json",
+    "run_bundle.json",
     "report.json",
     "report.pre_manifest_retest.json",
     "manifest_retest_metadata.json",
@@ -33,6 +42,10 @@ INDEXED_PATTERNS = [
     "patch.diff",
     "protocol.json",
     "delegations.json",
+    "delegation_validation.json",
+    "scope_validation.jsonl",
+    "artifact_handoffs.jsonl",
+    "agent_adapter_executions.jsonl",
     "*_test_output.txt",
     "*_test_output.pre_manifest_retest.txt",
     "*_pytest_exit_code.txt",
@@ -70,7 +83,16 @@ def parse_args() -> argparse.Namespace:
         action="append",
         required=True,
         metavar="MODE=PATH",
-        help="Protocol run directory. Repeat for single/serial_specialists/async_private/CAID_multi.",
+        help="Protocol run directory. Repeat for single/serial_specialists/async_private/caid_manager.",
+    )
+    parser.add_argument(
+        "--allow-invalid-bundle",
+        action="store_true",
+        help=(
+            "Allow a schema, checksum, identity, or health-invalid bundle only "
+            "for an explicitly diagnostic report. Such rows remain ineligible "
+            "for official aggregation."
+        ),
     )
     return parser.parse_args()
 
@@ -79,6 +101,89 @@ def load_json(path: Path, default: Any = None) -> Any:
     if not path.exists():
         return default
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def run_bundle_admission(run_dir: Path) -> dict[str, Any]:
+    """Return fail-closed admission fields for one run directory."""
+
+    bundle = load_json(run_dir / "run_bundle.json", {})
+    if not isinstance(bundle, dict):
+        bundle = {}
+    eligibility = bundle.get("eligibility", {})
+    if not isinstance(eligibility, dict):
+        eligibility = {}
+    provenance = bundle.get("provenance", {})
+    if not isinstance(provenance, dict):
+        provenance = {}
+    profile = bundle.get("execution_profile", {})
+    if not isinstance(profile, dict):
+        profile = {}
+    agent_adapter = bundle.get("agent_adapter", {})
+    if not isinstance(agent_adapter, dict):
+        agent_adapter = {}
+    return {
+        "run_bundle_schema_version": bundle.get("schema_version"),
+        "run_bundle_status": bundle.get("status", "legacy_unbundled"),
+        "recorded_model": provenance.get("model"),
+        "recorded_subagent_model": provenance.get("subagent_model"),
+        "execution_profile_id": profile.get("profile_id"),
+        "execution_profile_sha256": profile.get("sha256"),
+        "generation_configuration_sha256": provenance.get(
+            "generation_configuration_sha256"
+        ),
+        "recorded_agent_adapter_name": agent_adapter.get("name"),
+        "recorded_agent_adapter_class": agent_adapter.get("class"),
+        "recorded_agent_adapter_package": agent_adapter.get("package"),
+        "recorded_agent_adapter_package_version": agent_adapter.get(
+            "package_version"
+        ),
+        "recorded_agent_adapter_source_sha256": agent_adapter.get(
+            "source_sha256"
+        ),
+        "recorded_agent_adapter_config_sha256": agent_adapter.get(
+            "config_sha256"
+        ),
+        "functional_metrics_eligible": bool(
+            eligibility.get("functional_metrics", False)
+        ),
+        "dependency_metrics_eligible": bool(
+            eligibility.get("dependency_metrics", False)
+        ),
+        "efficiency_metrics_eligible": bool(
+            eligibility.get("efficiency_metrics", False)
+        ),
+        "official_profile_matched": bool(
+            eligibility.get("official_profile", False)
+        ),
+        "provenance_complete": bool(
+            eligibility.get("provenance_complete", False)
+        ),
+        "official_aggregate_eligible": bool(
+            eligibility.get("official_aggregate", False)
+        ),
+    }
+
+
+def validate_formal_run_bundle(run_dir: Path) -> dict[str, Any] | None:
+    """Validate a native bundle before trusting its admission fields."""
+
+    if not (run_dir / "run_bundle.json").is_file():
+        return None
+    runner_root = (
+        Path(__file__).resolve().parents[1] / "reproductions" / "async-swe-agents"
+    )
+    runner_root_text = str(runner_root)
+    if runner_root_text not in sys.path:
+        sys.path.insert(0, runner_root_text)
+    try:
+        from asyncodebench_harness.results import validate_run_bundle
+    except (ImportError, ModuleNotFoundError) as exc:
+        raise RuntimeError(
+            "Cannot load the native run-bundle validator. Run this script with "
+            "reproductions/async-swe-agents/.venv/bin/python after "
+            "scripts/setup_evaluation.sh."
+        ) from exc
+    return validate_run_bundle(run_dir)
 
 
 def read_text(path: Path) -> str:
@@ -99,6 +204,9 @@ def parse_runs(values: list[str]) -> dict[str, Path]:
         if "=" not in value:
             raise ValueError(f"--run must be MODE=PATH, got {value!r}")
         mode, path = value.split("=", 1)
+        mode = MODE_ALIASES.get(mode, mode)
+        if mode in runs:
+            raise ValueError(f"Duplicate --run mode after alias normalization: {mode}")
         runs[mode] = Path(path)
     return runs
 
@@ -465,7 +573,17 @@ def normalize_expected_test_totals(rows: list[dict[str, Any]]) -> None:
             row["final_tests_total_source"] = "unavailable"
 
 
-def run_row(mode: str, run_dir: Path) -> dict[str, Any]:
+def run_row(
+    mode: str, run_dir: Path, *, allow_invalid_bundle: bool = False
+) -> dict[str, Any]:
+    validation = validate_formal_run_bundle(run_dir)
+    if (
+        validation is not None
+        and not validation.get("valid")
+        and not allow_invalid_bundle
+    ):
+        issues = "; ".join(validation.get("issues", [])) or "unknown"
+        raise ValueError(f"Invalid run bundle in {run_dir}: {issues}")
     summary = load_json(run_dir / "process_metrics_summary.json", {})
     if not summary:
         raise FileNotFoundError(f"Missing process_metrics_summary.json in {run_dir}")
@@ -499,9 +617,20 @@ def run_row(mode: str, run_dir: Path) -> dict[str, Any]:
     collection_failure, collection_error_count = final_test_collection_status(run_dir)
     test_timed_out = final_test_timeout_status(run_dir)
 
+    admission = run_bundle_admission(run_dir)
+    if validation is not None and not validation.get("valid"):
+        admission["run_bundle_status"] = "invalid"
+        admission["functional_metrics_eligible"] = False
+        admission["dependency_metrics_eligible"] = False
+        admission["efficiency_metrics_eligible"] = False
+        admission["official_profile_matched"] = False
+        admission["provenance_complete"] = False
+        admission["official_aggregate_eligible"] = False
+
     return {
         "mode": mode,
         "run_dir": str(run_dir),
+        **admission,
         "final_tests_passed": primary.get("passed"),
         "final_tests_failed": primary.get("failed"),
         "final_tests_errors": primary.get("errors"),
@@ -580,6 +709,25 @@ def write_csv(rows: list[dict[str, Any]], path: Path) -> None:
     fieldnames = [
         "mode",
         "runner_adapter",
+        "recorded_agent_adapter_name",
+        "recorded_agent_adapter_class",
+        "recorded_agent_adapter_package",
+        "recorded_agent_adapter_package_version",
+        "recorded_agent_adapter_source_sha256",
+        "recorded_agent_adapter_config_sha256",
+        "run_bundle_schema_version",
+        "run_bundle_status",
+        "recorded_model",
+        "recorded_subagent_model",
+        "execution_profile_id",
+        "execution_profile_sha256",
+        "generation_configuration_sha256",
+        "functional_metrics_eligible",
+        "dependency_metrics_eligible",
+        "efficiency_metrics_eligible",
+        "official_profile_matched",
+        "provenance_complete",
+        "official_aggregate_eligible",
         "final_tests_passed",
         "final_tests_failed",
         "final_tests_errors",
@@ -650,8 +798,10 @@ def write_csv(rows: list[dict[str, Any]], path: Path) -> None:
 
 def write_index(args: argparse.Namespace, rows: list[dict[str, Any]], runs: dict[str, Path], path: Path) -> None:
     run_payload = {}
+    rows_by_mode = {row["mode"]: row for row in rows}
     for mode, run_dir in sorted(runs.items()):
         artifacts = indexed_artifacts(run_dir)
+        row = rows_by_mode.get(mode, {})
         run_payload[mode] = {
             "run_dir": str(run_dir),
             "artifact_count": len(artifacts),
@@ -659,32 +809,70 @@ def write_index(args: argparse.Namespace, rows: list[dict[str, Any]], runs: dict
             "checksum": combined_checksum(artifacts),
             "report_json": str(run_dir / "report.json"),
             "process_metrics_summary": str(run_dir / "process_metrics_summary.json"),
-            "final_tests_total_source": next(
-                (row.get("final_tests_total_source") for row in rows if row["mode"] == mode),
-                None,
-            ),
-            "final_test_collection_failure": next(
-                (
-                    row.get("final_test_collection_failure")
-                    for row in rows
-                    if row["mode"] == mode
+            "result_admission": {
+                "run_bundle_schema_version": row.get("run_bundle_schema_version"),
+                "run_bundle_status": row.get("run_bundle_status"),
+                "recorded_model": row.get("recorded_model"),
+                "recorded_subagent_model": row.get("recorded_subagent_model"),
+                "execution_profile_id": row.get("execution_profile_id"),
+                "execution_profile_sha256": row.get(
+                    "execution_profile_sha256"
                 ),
-                None,
+                "generation_configuration_sha256": row.get(
+                    "generation_configuration_sha256"
+                ),
+                "recorded_agent_adapter_name": row.get(
+                    "recorded_agent_adapter_name"
+                ),
+                "recorded_agent_adapter_class": row.get(
+                    "recorded_agent_adapter_class"
+                ),
+                "recorded_agent_adapter_package": row.get(
+                    "recorded_agent_adapter_package"
+                ),
+                "recorded_agent_adapter_package_version": row.get(
+                    "recorded_agent_adapter_package_version"
+                ),
+                "recorded_agent_adapter_source_sha256": row.get(
+                    "recorded_agent_adapter_source_sha256"
+                ),
+                "recorded_agent_adapter_config_sha256": row.get(
+                    "recorded_agent_adapter_config_sha256"
+                ),
+                "functional_metrics_eligible": row.get(
+                    "functional_metrics_eligible"
+                ),
+                "dependency_metrics_eligible": row.get(
+                    "dependency_metrics_eligible"
+                ),
+                "efficiency_metrics_eligible": row.get(
+                    "efficiency_metrics_eligible"
+                ),
+                "official_profile_matched": row.get("official_profile_matched"),
+                "provenance_complete": row.get("provenance_complete"),
+                "official_aggregate_eligible": row.get(
+                    "official_aggregate_eligible"
+                ),
+            },
+            "final_tests_total_source": row.get("final_tests_total_source"),
+            "final_test_collection_failure": row.get(
+                "final_test_collection_failure"
             ),
-            "final_test_timed_out": next(
-                (row.get("final_test_timed_out") for row in rows if row["mode"] == mode),
-                None,
-            ),
-            "final_integrated_ADPR_source": next(
-                (row.get("final_integrated_ADPR_source") for row in rows if row["mode"] == mode),
-                None,
+            "final_test_timed_out": row.get("final_test_timed_out"),
+            "final_integrated_ADPR_source": row.get(
+                "final_integrated_ADPR_source"
             ),
         }
     payload = {
         "task": args.task,
+        "task_id": f"asyncodebench:{args.task}",
         "model": args.model,
         "model_tag": args.model_tag,
-        "runner_adapter": args.runner_adapter,
+        "runner_adapter": next(
+            (row.get("runner_adapter") for row in rows if row.get("runner_adapter")),
+            args.runner_adapter,
+        ),
+        "requested_runner_adapter_label": args.runner_adapter,
         "metrics_manifest": str(args.metrics),
         "analysis_command": "Generated by scripts/summarize_model_task_runs.py",
         "generated_files": {
@@ -696,6 +884,7 @@ def write_index(args: argparse.Namespace, rows: list[dict[str, Any]], runs: dict
             "Raw run artifact directories are ignored by git unless explicitly force-added or uploaded to shared storage.",
             "final_integrated_ADPR is canonical for paper tables; mean_per_agent_view_ADPR is diagnostic only.",
             "For model-induced collection failures, a common positive test total observed in sibling protocols is used as the expected denominator; the collection-failure flag remains explicit.",
+            "Only rows with official_aggregate_eligible=true may enter the official aggregate; legacy or exploratory rows remain available for separately labeled analysis.",
         ],
         "runs": run_payload,
     }
@@ -712,14 +901,18 @@ def fmt(value: Any) -> str:
 
 def write_markdown(args: argparse.Namespace, rows: list[dict[str, Any]], path: Path) -> None:
     any_success = any(row.get("final_success") for row in rows)
+    runner_adapter = next(
+        (row.get("runner_adapter") for row in rows if row.get("runner_adapter")),
+        args.runner_adapter,
+    )
     lines = [
         f"# {args.model_tag} {args.task} Experiment Report",
         "",
-        f"Task: `commit0:{args.task}`",
+        f"Task: `asyncodebench:{args.task}`",
         "",
         f"Model: `{args.model}`",
         "",
-        f"Runner adapter: `{args.runner_adapter}`",
+        f"Runner adapter: `{runner_adapter}`",
         "",
         "This report is an automatically generated AsynCodeBench evaluation record.",
         (
@@ -728,13 +921,37 @@ def write_markdown(args: argparse.Namespace, rows: list[dict[str, Any]], path: P
             else "No protocol reaches final success; interpret this as a failure-structure record."
         ),
         "",
+        "## Result Admission",
+        "",
+        "A coding failure can be valid benchmark evidence. `Official` is true only when instrumentation, dependency evidence, execution profile, and provenance all pass the released admission contract.",
+        "",
+        "| Mode | Bundle status | Functional | Dependency | Efficiency | Profile | Provenance | Official |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        lines.append(
+            "| {mode} | {status} | {functional} | {dependency} | {efficiency} | {profile} | {provenance} | {official} |".format(
+                mode=row["mode"],
+                status=fmt(row.get("run_bundle_status")),
+                functional=fmt(row.get("functional_metrics_eligible")),
+                dependency=fmt(row.get("dependency_metrics_eligible")),
+                efficiency=fmt(row.get("efficiency_metrics_eligible")),
+                profile=fmt(row.get("official_profile_matched")),
+                provenance=fmt(row.get("provenance_complete")),
+                official=fmt(row.get("official_aggregate_eligible")),
+            )
+        )
+    lines.extend(
+        [
+        "",
         "## Canonical Metrics Table",
         "",
         "ADPR convention: `final_integrated_ADPR` is the canonical run-level dependency score for paper tables. `mean_per_agent_view_ADPR` is diagnostic only.",
         "",
         "| Mode | Final tests | Final success | Final-integrated ADPR | Mean per-agent ADPR | Async overlap | Runtime | Tokens | Cost | Artifact failures | Non-merged attempts | Merge failures | Scope violations | SVR | Duplicated contracts | Hygiene violations |",
         "| --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
-    ]
+        ]
+    )
     for row in rows:
         lines.append(
             "| {mode} | {passed}/{total} | {success} | {adpr} | {mean_adpr} | {overlap}s | {runtime}s | {tokens} | ${cost} | {failures} | {nonmerged} | {merge} | {scope} | {svr} | {dups} | {hygiene} |".format(
@@ -898,13 +1115,33 @@ def main() -> int:
     for mode in MODE_ORDER:
         if mode not in runs:
             continue
-        row = run_row(mode, runs[mode])
-        row["runner_adapter"] = args.runner_adapter
+        row = run_row(
+            mode,
+            runs[mode],
+            allow_invalid_bundle=args.allow_invalid_bundle,
+        )
+        row["runner_adapter"] = (
+            row.get("recorded_agent_adapter_name") or args.runner_adapter
+        )
         rows.append(row)
     for mode in sorted(set(runs) - set(MODE_ORDER)):
-        row = run_row(mode, runs[mode])
-        row["runner_adapter"] = args.runner_adapter
+        row = run_row(
+            mode,
+            runs[mode],
+            allow_invalid_bundle=args.allow_invalid_bundle,
+        )
+        row["runner_adapter"] = (
+            row.get("recorded_agent_adapter_name") or args.runner_adapter
+        )
         rows.append(row)
+
+    for row in rows:
+        recorded_model = row.get("recorded_model")
+        if row.get("official_aggregate_eligible") and recorded_model != args.model:
+            raise ValueError(
+                f"{row['mode']} records model={recorded_model!r}, but "
+                f"--model={args.model!r}"
+            )
 
     normalize_expected_test_totals(rows)
 
@@ -923,4 +1160,8 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except (FileNotFoundError, RuntimeError, ValueError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        raise SystemExit(2) from None

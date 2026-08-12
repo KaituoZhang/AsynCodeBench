@@ -59,9 +59,12 @@ multiple worker threads. Stateful adapters must protect shared state or override
 The import path uses `python.module:ClassName`. The class constructor receives
 one `config` dictionary.
 
-Adapter configuration is not persisted automatically because it may contain
-credentials. Override `public_metadata()` to add only non-secret decoding,
-prompt, or controller settings required for reproduction.
+Adapter configuration is persisted automatically after recursive redaction of
+credential-like keys, together with a deterministic configuration SHA256.
+Do not rely on redaction as a secret-management system: keep credentials in the
+model environment, not in `--agent-config-json`. Override `public_metadata()`
+only when additional non-secret decoding, prompt, or controller settings are
+required for reproduction.
 
 When the runner is installed outside the repository checkout, set
 `ASYNCODEBENCH_ROOT` to the checkout root. `scripts/env.sh` exports this
@@ -126,7 +129,8 @@ produce evaluator, probe, process-metric, and `run_bundle.json` artifacts.
 - Multi-agent artifacts that change files outside `writable_paths` are rejected
   before merge and recorded in `scope_validation.jsonl` or the corresponding
   CAID validation record.
-- `run_metadata.json` records the adapter class, while
+- `run_metadata.json` records the adapter class, package/version or source SHA,
+  redacted configuration, and configuration SHA, while
   `agent_adapter_executions.jsonl` records each non-OpenHands adapter call.
 - `run_bundle.json` freezes artifact checksums and instrumentation validity.
 

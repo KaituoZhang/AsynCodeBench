@@ -8,13 +8,15 @@ import hashlib
 import json
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 RELEASE = "v0.3"
 RELEASE_VERSION = "0.3.0"
 RELEASE_DIR = ROOT / "manifests" / "release" / RELEASE
 OFFICIAL_CONFIG = ROOT / "configs" / "tasks" / "commit0_official_tasks.v0.3.json"
 CURATED_CONFIG = ROOT / "configs" / "tasks" / "commit0_curated_tasks.v0.3.json"
+EXECUTION_PROFILE = (
+    ROOT / "configs" / "evaluation" / "official_execution_profile.v1.json"
+)
 EXPECTED_MODES = {
     "iterative_single": "single",
     "serial_specialists": "serial_specialists",
@@ -38,16 +40,36 @@ def relative(path: Path) -> str:
 def artifact_paths(repository: str) -> dict[str, Path]:
     stem = repository.replace("-", "_")
     base = ROOT / "manifests" / "pilot" / "v0.3"
+    annotation_base = (
+        ROOT / "manifests" / "annotations" / "asyncodebench_v0.3" / stem
+    )
     return {
         "task": base / "tasks" / f"commit0_{stem}.json",
         "scenarios": base / "scenarios" / f"commit0_{stem}.json",
         "metrics": base / "metrics" / f"commit0_{stem}_async_metrics.json",
         "quality": base / "quality" / f"commit0_{stem}.json",
+        "annotation_a": annotation_base / "annotator_a.json",
+        "annotation_b": annotation_base / "annotator_b.json",
+        "annotation_audit": annotation_base / "annotator_codex_audit.json",
+        "adjudication_template": annotation_base / "adjudication.template.json",
     }
+
+
+def public_scenario_id(source_scenario_id: str) -> str:
+    if source_scenario_id.startswith("commit0-"):
+        return "asyncodebench-" + source_scenario_id[len("commit0-") :]
+    return source_scenario_id
+
+
+def annotation_decision_complete(document: dict) -> bool:
+    return isinstance(document.get("include"), bool) and bool(
+        document.get("parallelizability_label")
+    )
 
 
 def build_release_documents() -> tuple[dict, dict]:
     official_config = read_json(OFFICIAL_CONFIG)
+    execution_profile = read_json(EXECUTION_PROFILE)
     repositories = official_config["official_tasks"]
     if len(repositories) != 16 or len(set(repositories)) != 16:
         raise ValueError("The public release must contain exactly 16 unique tasks")
@@ -59,6 +81,8 @@ def build_release_documents() -> tuple[dict, dict]:
     tasks = []
     total_scenarios = 0
     total_dependencies = 0
+    human_review_complete_tasks = 0
+    automated_audit_complete_tasks = 0
 
     for repository in repositories:
         paths = artifact_paths(repository)
@@ -72,9 +96,34 @@ def build_release_documents() -> tuple[dict, dict]:
         scenario_document = read_json(paths["scenarios"])
         metrics = read_json(paths["metrics"])
         quality = read_json(paths["quality"])
+        annotation_a = read_json(paths["annotation_a"])
+        annotation_b = read_json(paths["annotation_b"])
+        annotation_audit = read_json(paths["annotation_audit"])
+        adjudication = read_json(paths["adjudication_template"])
         curated = curated_records.get(repository)
         if curated is None:
             raise ValueError(f"Missing curated source record for {repository}")
+
+        overlay_records = []
+        for overlay in curated.get("overlays", []) or []:
+            overlay_path = ROOT / overlay["path"]
+            if not overlay_path.is_file():
+                raise FileNotFoundError(
+                    f"Missing release overlay for {repository}: {overlay['path']}"
+                )
+            actual_sha = sha256(overlay_path)
+            if actual_sha != overlay.get("sha256"):
+                raise ValueError(
+                    f"Overlay checksum mismatch for {repository}: "
+                    f"{overlay['path']}"
+                )
+            overlay_records.append(
+                {
+                    "path": relative(overlay_path),
+                    "sha256": actual_sha,
+                    "rationale": overlay.get("rationale"),
+                }
+            )
 
         scenarios = scenario_document.get("scenarios", [])
         modes = {scenario.get("execution_mode") for scenario in scenarios}
@@ -88,7 +137,8 @@ def build_release_documents() -> tuple[dict, dict]:
             mode = scenario["execution_mode"]
             protocol = EXPECTED_MODES[mode]
             protocol_scenarios[protocol] = {
-                "scenario_id": scenario["scenario_id"],
+                "scenario_id": public_scenario_id(scenario["scenario_id"]),
+                "source_scenario_id": scenario["scenario_id"],
                 "execution_mode": mode,
                 "agent_count": scenario["agent_count"],
                 "concurrent_execution": scenario["concurrent_execution"],
@@ -96,6 +146,36 @@ def build_release_documents() -> tuple[dict, dict]:
             }
 
         dependency_points = metrics.get("dependency_points", [])
+        annotator_a_complete = annotation_decision_complete(annotation_a)
+        annotator_b_complete = annotation_decision_complete(annotation_b)
+        automated_audit_complete = annotation_decision_complete(annotation_audit)
+        human_annotations_complete = annotator_a_complete and annotator_b_complete
+        human_annotations_agree = human_annotations_complete and (
+            annotation_a.get("include"),
+            annotation_a.get("parallelizability_label"),
+        ) == (
+            annotation_b.get("include"),
+            annotation_b.get("parallelizability_label"),
+        )
+        adjudication_required = human_annotations_complete and not human_annotations_agree
+        adjudication_complete = annotation_decision_complete(adjudication)
+        human_review_complete = human_annotations_complete and (
+            human_annotations_agree or adjudication_complete
+        )
+        if human_review_complete:
+            human_review_complete_tasks += 1
+        if automated_audit_complete:
+            automated_audit_complete_tasks += 1
+
+        if not human_annotations_complete:
+            human_review_status = "pending_independent_annotations"
+        elif human_annotations_agree:
+            human_review_status = "complete_agreement"
+        elif adjudication_complete:
+            human_review_status = "complete_adjudicated"
+        else:
+            human_review_status = "pending_adjudication"
+
         total_scenarios += len(scenarios)
         total_dependencies += len(dependency_points)
         tasks.append(
@@ -108,18 +188,30 @@ def build_release_documents() -> tuple[dict, dict]:
                     "repository": curated["repository"],
                     "base_ref": curated["base_ref"],
                     "base_sha": curated["base_sha"],
-                    "overlay_count": len(curated.get("overlays", [])),
+                    "overlay_count": len(overlay_records),
+                    "overlays": overlay_records,
                 },
                 "parallelizability": task.get(
                     "proposed_parallelizability_label"
                 ),
+                "annotation_status": {
+                    "annotator_a_complete": annotator_a_complete,
+                    "annotator_b_complete": annotator_b_complete,
+                    "automated_audit_complete": automated_audit_complete,
+                    "human_annotations_agree": human_annotations_agree,
+                    "adjudication_required": adjudication_required,
+                    "adjudication_complete": adjudication_complete,
+                    "human_review_complete": human_review_complete,
+                    "status": human_review_status,
+                },
                 "protocols": protocol_scenarios,
                 "dependency_point_count": len(dependency_points),
                 "artifacts": {
                     name: {"path": relative(path), "sha256": sha256(path)}
                     for name, path in paths.items()
                 },
-                "quality_status": quality.get("status")
+                "quality_status": quality.get("quality_status")
+                or quality.get("status")
                 or quality.get("qualification_status"),
             }
         )
@@ -130,7 +222,14 @@ def build_release_documents() -> tuple[dict, dict]:
         "release_version": RELEASE_VERSION,
         "task_namespace": "asyncodebench",
         "task_count": len(tasks),
+        "human_review_complete_task_count": human_review_complete_tasks,
+        "automated_audit_complete_task_count": automated_audit_complete_tasks,
         "official_task_ids": [task["task_id"] for task in tasks],
+        "execution_profile": {
+            "profile_id": execution_profile["profile_id"],
+            "path": relative(EXECUTION_PROFILE),
+            "sha256": sha256(EXECUTION_PROFILE),
+        },
     }
     index = {
         "schema_version": "asyncodebench-task-index-v1",
@@ -139,7 +238,14 @@ def build_release_documents() -> tuple[dict, dict]:
         "task_count": len(tasks),
         "scenario_count": total_scenarios,
         "dependency_point_count": total_dependencies,
+        "human_review_complete_task_count": human_review_complete_tasks,
+        "automated_audit_complete_task_count": automated_audit_complete_tasks,
         "protocols": list(EXPECTED_MODES.values()),
+        "execution_profile": {
+            "profile_id": execution_profile["profile_id"],
+            "path": relative(EXECUTION_PROFILE),
+            "sha256": sha256(EXECUTION_PROFILE),
+        },
         "tasks": tasks,
     }
     return official, index

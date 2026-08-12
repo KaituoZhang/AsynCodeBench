@@ -8,6 +8,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+from .health import inspect_run
 from .results import validate_run_bundle
 
 PROTOCOL_ORDER = (
@@ -51,7 +52,58 @@ def _tasks(args):
     return 0
 
 
+def _release_status(args):
+    index = _release_index()
+    tasks = index.get("tasks", [])
+    pending_human_review = [
+        task.get("task_id")
+        for task in tasks
+        if not task.get("annotation_status", {}).get("human_review_complete")
+    ]
+    payload = {
+        "benchmark": "AsynCodeBench",
+        "release": index.get("release"),
+        "release_version": index.get("release_version"),
+        "task_count": index.get("task_count", 0),
+        "scenario_count": index.get("scenario_count", 0),
+        "dependency_point_count": index.get("dependency_point_count", 0),
+        "bootstrap_overlay_count": sum(
+            task.get("source", {}).get("overlay_count", 0) for task in tasks
+        ),
+        "automated_audit_complete_task_count": index.get(
+            "automated_audit_complete_task_count", 0
+        ),
+        "human_review_complete_task_count": index.get(
+            "human_review_complete_task_count", 0
+        ),
+        "pending_human_review_task_ids": pending_human_review,
+        "executable_release_complete": len(tasks) == 16
+        and all(task.get("quality_status") == "qualification_ready" for task in tasks),
+        "human_validation_complete": not pending_human_review,
+    }
+    if args.json:
+        print(json.dumps(payload, indent=2, sort_keys=True))
+        return 0
+    print(f"AsynCodeBench {payload['release']} ({payload['release_version']})")
+    print(
+        f"tasks={payload['task_count']} scenarios={payload['scenario_count']} "
+        f"dependencies={payload['dependency_point_count']} "
+        f"overlays={payload['bootstrap_overlay_count']}"
+    )
+    print(
+        "automated_audit="
+        f"{payload['automated_audit_complete_task_count']}/{payload['task_count']} "
+        "human_review="
+        f"{payload['human_review_complete_task_count']}/{payload['task_count']}"
+    )
+    if pending_human_review:
+        print("pending_human_review=" + ",".join(pending_human_review))
+    return 0
+
+
 def _run_one(args, protocol, output_dir, run_id):
+    if args.dry_run:
+        os.environ.setdefault("LITELLM_LOCAL_MODEL_COST_MAP", "True")
     from run_asyncodebench import main as run_benchmark
 
     return run_benchmark(
@@ -86,11 +138,19 @@ def _run(args):
 
 
 def _validate(args):
-    result = validate_run_bundle(
-        args.run_dir, verify_checksums=not args.skip_checksums
-    )
+    result = validate_run_bundle(args.run_dir, verify_checksums=not args.skip_checksums)
     print(json.dumps(result, indent=2, sort_keys=True))
     return 0 if result["valid"] else 1
+
+
+def _inspect(args):
+    results = [inspect_run(Path(run_dir)) for run_dir in args.run_dirs]
+    payload = {
+        "valid": all(result["status"] == "valid" for result in results),
+        "runs": results,
+    }
+    print(json.dumps(payload, indent=2, sort_keys=True))
+    return 0 if payload["valid"] else 1
 
 
 def _doctor(args):
@@ -100,6 +160,20 @@ def _doctor(args):
         {
             "name": "release_index",
             "ok": (_repo_root() / "manifests/release/v0.3/task_index.json").is_file(),
+        }
+    )
+    checks.append(
+        {
+            "name": "official_execution_profile",
+            "ok": (
+                _repo_root() / "configs/evaluation/official_execution_profile.v1.json"
+            ).is_file(),
+        }
+    )
+    checks.append(
+        {
+            "name": "run_bundle_schema",
+            "ok": (_repo_root() / "schemas/release/run_bundle.schema.json").is_file(),
         }
     )
     checks.append(
@@ -141,11 +215,15 @@ def build_parser():
     tasks.add_argument("--json", action="store_true")
     tasks.set_defaults(handler=_tasks)
 
+    release_status = commands.add_parser(
+        "release-status", help="Show executable and human-review release status"
+    )
+    release_status.add_argument("--json", action="store_true")
+    release_status.set_defaults(handler=_release_status)
+
     run = commands.add_parser("run", help="Run one task and protocol")
     run.add_argument("--task", required=True, help="asyncodebench:<repository>")
-    run.add_argument(
-        "--protocol", choices=[*PROTOCOL_ORDER, "all"], required=True
-    )
+    run.add_argument("--protocol", choices=[*PROTOCOL_ORDER, "all"], required=True)
     run.add_argument("--model", default=os.getenv("LLM_MODEL"))
     run.add_argument("--subagent-model", default=os.getenv("LLM_SUBAGENT_MODEL"))
     run.add_argument("--max-iterations", type=int, default=30)
@@ -164,6 +242,13 @@ def build_parser():
     validate.add_argument("run_dir")
     validate.add_argument("--skip-checksums", action="store_true")
     validate.set_defaults(handler=_validate)
+
+    inspect = commands.add_parser(
+        "inspect-run",
+        help="Classify old or new run directories without requiring a bundle",
+    )
+    inspect.add_argument("run_dirs", nargs="+")
+    inspect.set_defaults(handler=_inspect)
 
     doctor = commands.add_parser("doctor", help="Check the local runtime")
     doctor.set_defaults(handler=_doctor)

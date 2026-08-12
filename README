@@ -19,7 +19,8 @@ process metrics.
 - **16 official repository-level tasks** derived from public Commit0 tasks;
 - **4 controlled agent protocols** per task;
 - **64 task-protocol scenarios**;
-- **47 labeled cross-agent dependency points**;
+- **47 executable producer/consumer dependency points** across the official
+  tasks;
 - an **AsynCodeBench-native harness** with a built-in OpenHands agent and a
   public bring-your-own-agent adapter;
 - final-test, dependency-resolution, coordination, cost, token, and runtime
@@ -103,13 +104,39 @@ For each official task, AsynCodeBench supplies:
 - a quality record documenting evaluator and bootstrap constraints;
 - checksum-pinned non-solution overlays when the stripped source otherwise
   cannot import or collect public tests;
-- annotation and adjudication records for auditing labels;
+- two independent-annotator forms, an automated audit record, and an
+  adjudication template for auditing labels;
 - contract tests validating cross-file consistency.
 
 The active artifacts are under `manifests/pilot/v0.3/`. The directory name is
 retained for artifact compatibility; the official 16-task set is selected by
 the release config above, not by enumerating every historical JSON file in that
 directory.
+
+[`manifests/release/v0.3/task_index.json`](manifests/release/v0.3/task_index.json)
+is the machine-readable release inventory. It checksum-pins every runtime
+manifest, annotation/audit/template file, source SHA, and bootstrap overlay for
+all 16 tasks.
+
+Human-review completion is reported separately from automatic qualification.
+At the current checkout, the automated audit is complete for 16/16 tasks, while
+both independent annotation forms are complete for 1/16 tasks. The remaining
+15 tasks are executable benchmark candidates but must not be described as
+fully human-validated until those forms and any required adjudication are
+completed. The exact status is machine-readable under each task's
+`annotation_status` in the release index.
+
+No current native model result bundle is committed as a public baseline yet.
+Historical local runs predate the formal bundle contract and are not relabeled
+as current results. The first published baseline must pass `validate-run` and
+include its checksum-linked campaign manifest.
+
+Check both executable and review status from the CLI:
+
+```bash
+cd reproductions/async-swe-agents
+uv run asyncodebench release-status
+```
 
 ## Runtime Architecture
 
@@ -145,10 +172,13 @@ cd AsynCodeBench
 bash scripts/setup_evaluation.sh
 ```
 
-Prerequisites: Python 3.10 or newer, [`uv`](https://docs.astral.sh/uv/), Docker,
-and enough disk space for task images and outputs. The setup script installs the
+Prerequisites: Python 3.12, [`uv`](https://docs.astral.sh/uv/), Docker, and
+enough disk space for task images and outputs. The setup script installs the
 benchmark contracts and runner, checks out the pinned OpenHands SDK, verifies
 Docker, and runs the no-API tests.
+
+`uv python install 3.12` provides a managed interpreter when the system Python
+is older; the setup script resolves Python through `uv`.
 
 ### 2. Configure a model
 
@@ -224,8 +254,10 @@ A formal run includes:
 run_metadata.json
 task_snapshot.json
 scenario_snapshot.json
+scenario_manifest_snapshot.json
 metrics_snapshot.json
 quality_snapshot.json
+execution_profile_snapshot.json
 protocol.json
 report.json
 cost.json
@@ -233,23 +265,32 @@ runtime.txt
 dependency_probe_checkpoints.jsonl
 process_metrics_summary.json
 run_bundle.json
-patch.diff
-final_repo/
 ```
 
+`patch.diff` and `final_repo/` are indexed when present, but an unchanged or
+rejected model attempt may be a valid failure without either artifact.
+
 The native runner generates `process_metrics_summary.json` automatically.
-`run_bundle.json` records the adapter, evaluator source, instrumentation
-validity, final test summary, and checksums of portable run artifacts. Validate
-a run without rerunning the model:
+`run_bundle.json` records the adapter, official-profile match, metric-specific
+eligibility, evaluator source, final test summary, provenance, and recursive
+artifact checksums. Validate a run without rerunning the model:
 
 ```bash
 cd reproductions/async-swe-agents
 uv run asyncodebench validate-run outputs/asyncodebench/v0.3/.../run-id
 ```
 
-Per-task Markdown, CSV, and artifact-index reports can be regenerated with
+Per-task Markdown, CSV, and artifact-index reports can be generated outside
+the immutable run directories with
 `scripts/summarize_model_task_runs.py`; model-level tables are produced with
-`scripts/aggregate_model_task_results.py`.
+`scripts/aggregate_model_task_results.py`. The aggregator rejects ineligible
+run bundles and cross-protocol configuration drift by default, and emits a
+checksum-linked campaign manifest alongside every table set.
+
+The default aggregate is one run per task-protocol cell and is descriptive.
+Public reports must disclose repetition count and may rerun only
+instrumentation-invalid executions, not valid coding failures selected for a
+better score.
 
 ## Run Acceptance
 
@@ -257,25 +298,30 @@ Coding failure is valid benchmark evidence. Infrastructure failure is not. A
 formal run must have:
 
 - a fresh output directory and one run log;
-- nonzero model iterations;
+- verifiable nonzero model execution evidence;
 - an `asyncodebench_manifest` evaluator report;
 - dependency checkpoints and process metrics;
+- complete model, code-revision, source-SHA, and manifest-checksum provenance;
 - no provider, transport, parser, context-window, or instrumentation failure;
-- the same serving profile across the four compared protocols.
+- the same serving profile across the four compared protocols;
+- a matching
+  [`official_execution_profile.v1.json`](configs/evaluation/official_execution_profile.v1.json)
+  for inclusion in the official aggregate.
 
 Detailed validity rules are in
-[`docs/EVALUATION_BRANCH_QUICKSTART.md`](docs/EVALUATION_BRANCH_QUICKSTART.md).
+[`docs/RESULT_VALIDITY.md`](docs/RESULT_VALIDITY.md).
 
 ## Documentation
 
 | Document | Purpose |
 | --- | --- |
 | [`docs/QUICKSTART.md`](docs/QUICKSTART.md) | Canonical fresh-clone installation and first task |
-| [`docs/EVALUATION_BRANCH_QUICKSTART.md`](docs/EVALUATION_BRANCH_QUICKSTART.md) | Shortest clone-to-evaluation workflow |
+| [`docs/EVALUATION_BRANCH_QUICKSTART.md`](docs/EVALUATION_BRANCH_QUICKSTART.md) | Historical evaluation-branch workflow; not for new official runs |
 | [`docs/ASYNCODEBENCH_HARNESS_V2.md`](docs/ASYNCODEBENCH_HARNESS_V2.md) | Native harness guarantees and protocol semantics |
 | [`docs/MODEL_EXPERIMENT_RUNBOOK.md`](docs/MODEL_EXPERIMENT_RUNBOOK.md) | Running a new model across all official tasks |
 | [`docs/LOCAL_VLLM_EXPERIMENT_RUNBOOK.md`](docs/LOCAL_VLLM_EXPERIMENT_RUNBOOK.md) | Local model serving, networking, capacity, and failure diagnosis |
 | [`docs/EVALUATION_METRICS.md`](docs/EVALUATION_METRICS.md) | Metric formulas and aggregation policy |
+| [`docs/RESULT_VALIDITY.md`](docs/RESULT_VALIDITY.md) | Machine-checked result status, metric eligibility, profiles, and migration rules |
 | [`docs/AGENT_ADAPTER.md`](docs/AGENT_ADAPTER.md) | Integrating a third-party coding agent without changing benchmark semantics |
 | [`docs/CODEX_ONBOARDING.md`](docs/CODEX_ONBOARDING.md) | Context for a new collaborator or coding-agent session |
 
@@ -293,7 +339,9 @@ skills/commit0-to-asyncodebench/SKILL.md
 ```
 
 The skill and generated manifests make benchmark construction auditable; they
-do not replace the contract tests or label review.
+do not replace the contract tests, independent human review, or completed
+adjudication. Empty annotator forms are retained as explicit pending work, and
+adjudication templates are available where reviewers disagree.
 
 ## Bring Your Own Agent
 

@@ -43,6 +43,10 @@ workspace_port_strategy="${WORKSPACE_PORT_STRATEGY:-auto}"
 workspace_port_wait_seconds="${WORKSPACE_PORT_WAIT_SECONDS:-120}"
 python_bin="${PYTHON_BIN:-$RUNNER_ROOT/.venv/bin/python}"
 
+if [[ "$dry_run" == "1" ]]; then
+  export LITELLM_LOCAL_MODEL_COST_MAP="${LITELLM_LOCAL_MODEL_COST_MAP:-True}"
+fi
+
 for value in "$model_tag" "$run_version"; do
   if [[ ! "$value" =~ ^[A-Za-z0-9_.-]+$ ]]; then
     echo "MODEL_TAG and RUN_VERSION may contain only letters, digits, '.', '_', and '-'." >&2

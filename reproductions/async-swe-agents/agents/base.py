@@ -8,9 +8,37 @@ only one model-facing assignment execution inside the workspace supplied here.
 import hashlib
 import importlib.metadata
 import inspect
+import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any
+
+SENSITIVE_CONFIG_KEYS = {
+    "access_token",
+    "api_key",
+    "apikey",
+    "authorization",
+    "credential",
+    "credentials",
+    "password",
+    "secret",
+    "token",
+}
+
+
+def _redact_config(value):
+    if isinstance(value, dict):
+        redacted = {}
+        for key, child in value.items():
+            normalized = str(key).lower().replace("-", "_")
+            sensitive = normalized in SENSITIVE_CONFIG_KEYS or normalized.endswith(
+                ("_key", "_password", "_secret", "_token")
+            )
+            redacted[key] = "[REDACTED]" if sensitive else _redact_config(child)
+        return redacted
+    if isinstance(value, list):
+        return [_redact_config(item) for item in value]
+    return value
 
 
 @dataclass(frozen=True)
@@ -131,10 +159,19 @@ class AgentAdapter(ABC):
                     source_sha256 = hashlib.sha256(stream.read()).hexdigest()
         except OSError:
             pass
+        public_config = _redact_config(self.config)
+        encoded_config = json.dumps(
+            public_config,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=True,
+        ).encode("utf-8")
         return {
             "name": self.name,
             "class": f"{module_name}:{cls.__qualname__}",
             "package": package_name,
             "package_version": package_version,
             "source_sha256": source_sha256,
+            "config": public_config,
+            "config_sha256": hashlib.sha256(encoded_config).hexdigest(),
         }
