@@ -1,208 +1,85 @@
-# AsynCodeBench Agent Harness
+# AsynCodeBench Native Agent Harness
 
-This directory contains the **OpenHands-powered AsynCodeBench-native harness**.
-OpenHands provides the agent loop, coding tools, private worktrees, remote agent
-server, and Docker workspace. AsynCodeBench provides the released task
-contracts, four protocol conditions, dependency labels and probes, scope and
-integration gates, evaluator, and reproducible output records.
+This directory contains the OpenHands-powered execution harness for
+AsynCodeBench.
 
-For a configured model, run all four protocols with:
+AsynCodeBench owns the released task contracts, protocol scheduling, private
+workspace visibility, writable scope, integration order, dependency probes,
+evaluation, and result provenance. OpenHands supplies the coding-agent loop,
+tools, remote agent server, and Docker workspace runtime.
+
+## Install
+
+From the repository root:
 
 ```bash
-export ENV_FILE="$PWD/.env.<model-tag>"
-MODEL_TAG=<model-tag> \
-RUN_VERSION=official_v01 \
+bash scripts/setup_evaluation.sh
+```
+
+The script creates this runner's `.venv`, checks out the exact OpenHands SDK
+revision recorded in `../software-agent-sdk.lock`, checks Docker, and runs the
+harness tests.
+
+Then edit the untracked `.env` in this directory with an OpenAI-compatible
+endpoint, API key, LiteLLM model identifier, and `SDK_SOURCE_DIR`.
+
+## Run
+
+Run all four official protocols for one task:
+
+```bash
+ENV_FILE="$PWD/.env" \
+MODEL_TAG=my-model \
+RUN_VERSION=official-v01 \
 WORKSPACE_PORT_STRATEGY=auto \
 scripts/run_asyncodebench_all_protocols_env.sh cachetools
 ```
 
-The wrapper accepts only official `asyncodebench:<task>` records, obtains the
-agent count from the scenario manifest, and invokes `run_asyncodebench.py` for
-`single`, `serial_specialists`, `async_private`, and `caid_manager`. Read
-`../../docs/EVALUATION_BRANCH_QUICKSTART.md` for setup and
-`../../docs/ASYNCODEBENCH_HARNESS_V2.md` for execution guarantees.
+The public task ID is `asyncodebench:<task>`. The wrapper accepts a short task
+name for convenience, resolves the official release record, reads the agent
+count from the scenario manifest, and calls `run_asyncodebench.py`.
 
-The Commit0-named scripts documented later in this file are retained only for
-historical v1 reproduction. They are not the public interface for new runs.
+Supported protocols:
 
-## Upstream CAID Lineage
-
-This repo contains the code for CAID, a multi-agent workflow where a central manager agent delegates tasks to multiple engineer agents to execute asynchronously in isolated git worktrees.
-
-<p align="center">
-  <img src="teaser/multi-agent-teaser.png" alt="CAID Overview" width="80%">
-</p>
-
-## Setup
-
-### Prerequisites
-
-- Python >= 3.12
-- [uv](https://docs.astral.sh/uv/) (Python package manager)
-- [Docker](https://docs.docker.com/get-docker/) (required by OpenHands)
-
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/<your-org>/async-swe-agents.git
-cd async-swe-agents
-
-# Install dependencies
-uv sync
-
-# (Optional) Install visualization dependencies
-uv sync --extra viz
-
-# (Optional) Install development dependencies
-uv sync --extra dev
-
-# (Optional) Install PaperBench judge dependencies (see PaperBench Judge section below)
+```text
+single
+serial_specialists
+async_private
+caid_manager
 ```
 
-### Environment Variables
+Use `DRY_RUN=1` to verify task selection, assignments, integration order, and
+workspace configuration without calling a model.
 
-```bash
-export LLM_BASE_URL=<your-proxy-url>
-export LLM_API_KEY=<your-api-key>
-```
+## Outputs
 
-## Prepare Data
+Native output directories contain frozen task/scenario/metric snapshots,
+protocol metadata, model and environment provenance, agent events, patches,
+scope and integration decisions, dependency checkpoints, final evaluator
+results, process metrics, cost, tokens, and runtime.
 
-Each task requires its own dataset under the `data/` directory.
+The runner generates `process_metrics_summary.json` automatically. See
+[`../../docs/EVALUATION_METRICS.md`](../../docs/EVALUATION_METRICS.md) for the
+formal metrics and unresolved-value policy.
 
-### Commit0
+## Public Documentation
 
-Download the [commit0_combined](https://huggingface.co/datasets/wentingzhao/commit0_combined) dataset and place it at:
+- [`../../docs/QUICKSTART.md`](../../docs/QUICKSTART.md)
+- [`../../docs/ASYNCODEBENCH_HARNESS_V2.md`](../../docs/ASYNCODEBENCH_HARNESS_V2.md)
+- [`../../docs/MODEL_EXPERIMENT_RUNBOOK.md`](../../docs/MODEL_EXPERIMENT_RUNBOOK.md)
+- [`../../docs/LOCAL_VLLM_EXPERIMENT_RUNBOOK.md`](../../docs/LOCAL_VLLM_EXPERIMENT_RUNBOOK.md)
 
-```
-data/commit0/commit0_combined/
-```
+## Lineage And Legacy Reproduction
 
-### PaperBench
+The manager-mediated protocol derives from CAID's centralized asynchronous
+isolated delegation design. AsynCodeBench adds released task manifests,
+controlled protocol baselines, dependency labels and probes, scope and
+delegation gates, deterministic integration, evaluator contracts, and standard
+run provenance.
 
-Place the PaperBench [data](https://github.com/openai/frontier-evals/tree/main/project/paperbench/data) at:
+The `run_commit0_*` scripts, `tasks/commit0.py`, PaperBench adapter, and older
+prompt files remain for historical result reproduction. They are not the public
+interface for new AsynCodeBench runs.
 
-```
-data/paperbench/
-├── papers/
-│   ├── rice/
-│   │   ├── config.yaml
-│   │   ├── paper.pdf
-│   │   ├── paper.md
-│   │   ├── rubric.json
-│   │   ├── addendum.md
-│   │   ├── blacklist.txt
-│   │   └── assets/
-│   └── ...
-└── src/
-    └── paperbench/
-        └── instructions/
-            └── instructions.txt
-```
-
-#### PaperBench Judge
-
-PaperBench evaluation requires the `paperbench` and `preparedness-turn-completer` packages from OpenAI's [frontier-evals](https://github.com/openai/frontier-evals) repo. These packages are not on PyPI, so install them directly:
-
-```bash
-git clone https://github.com/openai/frontier-evals.git
-cd frontier-evals
-uv pip install -e "project/paperbench"
-uv pip install -e "project/preparedness_turn_completer"
-```
-
-## Running Experiments
-
-Two shell scripts are provided under `scripts/` for running experiments. Edit the parameters at the top of each script (model, task, paper_id/repo, iterations, etc.) before running.
-
-### Single-Agent Mode
-
-```bash
-bash scripts/run_single.sh
-```
-
-Runs a single agent that performs the entire task (implement all functions for Commit0, or reproduce the paper for PaperBench). Key parameters:
-
-| Parameter | Description |
-|-----------|-------------|
-| `task` | `"commit0"` or `"paperbench"` |
-| `model` | LiteLLM model identifier |
-| `max_iterations` | Maximum LLM iterations for the agent |
-| `repo` | (Commit0) Repository name |
-| `paper_id` | (PaperBench) Paper identifier |
-
-### Multi-Agent Mode
-
-```bash
-bash scripts/run_multi.sh
-```
-
-Runs the CAID (Centralized Asynchronous Isolated Delegation) multi-agent workflow: a manager agent delegates tasks to multiple engineer subagents working in parallel. Key parameters:
-
-| Parameter | Description |
-|-----------|-------------|
-| `task` | `"commit0"` or `"paperbench"` |
-| `model` | LiteLLM model identifier for the manager |
-| `subagent_model` | Model for subagents (leave empty to use the same model) |
-| `max_iterations` | Maximum LLM iterations for the manager |
-| `max_subagents` | Number of parallel engineer subagents |
-| `sub_iterations` | Maximum LLM iterations per subagent |
-| `rounds_of_chat` | Maximum rounds of task assignment per engineer |
-
-### Output
-
-Results are saved to `outputs/<task>/<model>/<identifier>/<mode>/<params>/`, including:
-- `cost.json` — token usage and cost breakdown
-- `runtime.txt` — wall-clock runtime in seconds
-- `outputs.jsonl` — structured event log
-- `grade.json` — (PaperBench) judge evaluation results
-- `report.json` — (Commit0) pytest results
-
-
-## Adding a New Task
-
-Each task is a self-contained file under `tasks/` that defines a config dataclass and a class that implements the `TaskModule` interface. See `tasks/commit0.py` or `tasks/paperbench.py` as examples.
-
-### Steps
-
-1. Create `tasks/my_task.py` with a `MyTaskConfig` dataclass for task-specific parameters (docker image, data paths, etc.) and a `MyTask` class that extends `TaskModule`.
-
-2. Implement the six abstract methods defined in `tasks/base.py`:
-
-   | Method | Purpose |
-   |--------|---------|
-   | `get_docker_image()` | Return the Docker image for the workspace container |
-   | `get_work_dir()` | Return the working directory inside the container |
-   | `get_workspace_config()` | Return a dict of parameters for workspace construction |
-   | `load_task_data()` | Load task data from disk or dataset, store internally |
-   | `setup_workspace(workspace)` | Prepare the container (clone repos, install deps, upload files) |
-   | `evaluate(workspace)` | Run evaluation after the agent finishes, return a results dict |
-
-3. Register in `tasks/__init__.py` by adding the import.
-
-### Existing tasks
-
-| Task | Description |
-|------|-------------|
-| `Commit0Task` | Implement functions in Python repos, evaluated via pytest |
-| `PaperbenchTask` | Reproduce research papers, evaluated via reproduce.sh + LLM judge |
-
-
-## Question and Issue
-Please contact Jiayi Geng and Graham Neubig at `{ogeng,gneubig}cs.cmu.edu` for any questions or issues.
-
-
-## Acknowledgements
-This paper was supported by grants from Fujitsu. We thank Apurva Gandhi, Lintang Sutawika, Emmy Liu, and Howard Chen for their valuable feedback and discussion.
-Special thanks to [OpenHands](https://docs.openhands.dev/sdk) for their open-source agent sdk framework, [Commit0](https://commit-0.github.io/) and [PaperBench](https://arxiv.org/pdf/2504.01848) for their benchmarks.
-
-## Citation
-```bibtex
-@article{geng2026effective,
-  title={Effective Strategies for Asynchronous Software Engineering Agents},
-  author={Geng, Jiayi and Neubig, Graham},
-  journal={arXiv preprint arXiv:2603.21489},
-  year={2026}
-}
-```
+See the repository-level `LICENSE`, `THIRD_PARTY_NOTICES.md`, and `CITATION.cff`
+for licensing, attribution, and citation information.

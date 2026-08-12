@@ -28,8 +28,10 @@ jobs:
           python scripts/check_markdown_links.py
           README
           docs/README.md
+          docs/QUICKSTART.md
           docs/EVALUATION_BRANCH_QUICKSTART.md
           docs/COMMUNITY_RELEASE_AND_AGENT_ADAPTER_PLAN.md
+          reproductions/async-swe-agents/README.md
 
   native-harness:
     runs-on: ubuntu-latest

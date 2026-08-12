@@ -135,42 +135,26 @@ experiments. New runs should use the native entry point or wrapper below.
 
 ## Quick Start
 
-### 1. Clone and validate the benchmark contracts
+### 1. Install
 
 ```bash
-git clone --branch agent/reproducible-model-evaluation --single-branch \
-  https://github.com/KaituoZhang/Asynccodebench.git AsynCodeBench
+git clone https://github.com/KaituoZhang/Asynccodebench.git AsynCodeBench
 cd AsynCodeBench
-
-python -m venv .venv-benchmark
-source .venv-benchmark/bin/activate
-python -m pip install -U pip
-python -m pip install -e ".[dev]"
-PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest -q tests/contracts
+bash scripts/setup_evaluation.sh
 ```
 
-### 2. Install the agent runner
+Prerequisites: Python 3.10 or newer, [`uv`](https://docs.astral.sh/uv/), Docker,
+and enough disk space for task images and outputs. The setup script installs the
+benchmark contracts and runner, checks out the pinned OpenHands SDK, verifies
+Docker, and runs the no-API tests.
 
-Prerequisites: Python 3.12, [`uv`](https://docs.astral.sh/uv/), Docker, and
-enough disk space for task images and outputs.
-
-```bash
-git clone https://github.com/OpenHands/software-agent-sdk.git \
-  reproductions/software-agent-sdk
-git -C reproductions/software-agent-sdk checkout \
-  944284310d9a5f1ccad0ef8c2d7c4c38342b9952
-
-cd reproductions/async-swe-agents
-uv sync
-docker run --rm hello-world
-```
-
-### 3. Configure a model and task source
+### 2. Configure a model
 
 The harness accepts LiteLLM/OpenAI-compatible model endpoints, including hosted
 APIs and local vLLM servers.
 
 ```bash
+cd reproductions/async-swe-agents
 cp .env.example .env.my-model
 ```
 
@@ -190,7 +174,7 @@ verifies its SHA, applies only checksum-pinned bootstrap overlays, and executes
 the AsynCodeBench task, protocol, scope, probe, and evaluator contracts.
 `COMMIT0_DATASET_PATH` is retained only for legacy reproduction scripts.
 
-### 4. Dry-run all four protocols
+### 3. Dry-run all four protocols
 
 ```bash
 ENV_FILE="$PWD/.env.my-model" \
@@ -204,7 +188,7 @@ The dry-run must report `task_id=asyncodebench:cachetools`, the curated base
 SHA, four protocol scenarios, manifest-defined agent counts, writable paths,
 and integration order.
 
-### 5. Run one complete task
+### 4. Run one complete task
 
 ```bash
 ENV_FILE="$PWD/.env.my-model" \
@@ -274,6 +258,7 @@ Detailed validity rules are in
 
 | Document | Purpose |
 | --- | --- |
+| [`docs/QUICKSTART.md`](docs/QUICKSTART.md) | Canonical fresh-clone installation and first task |
 | [`docs/EVALUATION_BRANCH_QUICKSTART.md`](docs/EVALUATION_BRANCH_QUICKSTART.md) | Shortest clone-to-evaluation workflow |
 | [`docs/ASYNCODEBENCH_HARNESS_V2.md`](docs/ASYNCODEBENCH_HARNESS_V2.md) | Native harness guarantees and protocol semantics |
 | [`docs/MODEL_EXPERIMENT_RUNBOOK.md`](docs/MODEL_EXPERIMENT_RUNBOOK.md) | Running a new model across all official tasks |

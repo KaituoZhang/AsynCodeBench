@@ -6,8 +6,9 @@ Start here when onboarding a collaborator or a new Codex session.
 
 | Document | Use |
 | --- | --- |
+| `QUICKSTART.md` | Canonical fresh-clone installation, model configuration, dry-run, and first task. |
 | `ASYNCODEBENCH_HARNESS_V2.md` | Native `task_id`-based runner, protocol guarantees, dry-run, and four-protocol commands. |
-| `EVALUATION_BRANCH_QUICKSTART.md` | Short clone-to-four-protocol guide for the reproducible evaluation branch. |
+| `EVALUATION_BRANCH_QUICKSTART.md` | Historical evaluation-branch setup reference; use `QUICKSTART.md` for new users. |
 | `CODEX_ONBOARDING.md` | First-read guide for a new coding-agent session. |
 | `GITHUB_COLLABORATOR_HANDOFF.md` | What to commit, what not to commit, and the native harness setup for collaborators. |
 | `MODEL_EXPERIMENT_RUNBOOK.md` | Main guide for running another model across the official 16 tasks. |
