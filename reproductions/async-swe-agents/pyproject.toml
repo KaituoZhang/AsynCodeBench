@@ -38,5 +38,14 @@ dev = [
     "ruff>=0.14",
 ]
 
+[project.scripts]
+asyncodebench = "asyncodebench_harness.cli:main"
+
+[tool.setuptools]
+py-modules = ["config", "run_asyncodebench", "run_infer"]
+
+[tool.setuptools.package-data]
+prompts = ["*.yaml"]
+
 [tool.setuptools.packages.find]
-include = ["core*", "tasks*", "judge*", "config*"]
+include = ["agents*", "asyncodebench_harness*", "core*", "examples*", "tasks*", "judge*", "config*", "prompts*", "protocols*"]

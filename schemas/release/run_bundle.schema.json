@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/KaituoZhang/Asynccodebench/schemas/release/run_bundle.schema.json",
+  "title": "AsynCodeBench Run Bundle",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "benchmark",
+    "release",
+    "task_id",
+    "protocol",
+    "scenario_id",
+    "agent_adapter",
+    "instrumentation",
+    "final_test",
+    "artifacts"
+  ],
+  "properties": {
+    "schema_version": {"const": "0.1"},
+    "benchmark": {"const": "AsynCodeBench"},
+    "release": {"type": "string"},
+    "task_id": {"pattern": "^asyncodebench:[A-Za-z0-9_.-]+$"},
+    "source_task_id": {"type": "string"},
+    "protocol": {
+      "enum": ["single", "serial_specialists", "async_private", "caid_manager"]
+    },
+    "scenario_id": {"type": "string"},
+    "source_scenario_id": {"type": "string"},
+    "agent_adapter": {
+      "type": "object",
+      "required": ["name", "class"],
+      "properties": {
+        "name": {"type": "string"},
+        "class": {"type": "string"}
+      },
+      "additionalProperties": true
+    },
+    "instrumentation": {
+      "type": "object",
+      "required": ["valid", "issues", "evaluator_source", "dependency_checkpoint_records"],
+      "properties": {
+        "valid": {"type": "boolean"},
+        "issues": {"type": "array", "items": {"type": "string"}},
+        "evaluator_source": {"type": ["string", "null"]},
+        "dependency_checkpoint_records": {"type": "integer", "minimum": 0}
+      }
+    },
+    "final_test": {"type": "object"},
+    "artifacts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["sha256", "bytes"],
+        "properties": {
+          "sha256": {"pattern": "^[0-9a-f]{64}$"},
+          "bytes": {"type": "integer", "minimum": 0}
+        }
+      }
+    },
+    "created_at": {"type": "string"}
+  },
+  "additionalProperties": false
+}

@@ -53,3 +53,18 @@ def test_release_artifact_checksums_match():
             path = ROOT / artifact["path"]
             assert path.is_file()
             assert hashlib.sha256(path.read_bytes()).hexdigest() == artifact["sha256"]
+
+
+def test_public_execution_schemas_are_valid_json_schema_documents():
+    schema_dir = ROOT / "schemas" / "release"
+    expected = {
+        "agent_request.schema.json",
+        "agent_response.schema.json",
+        "run_bundle.schema.json",
+    }
+    assert expected <= {path.name for path in schema_dir.glob("*.json")}
+    for name in expected:
+        schema = read_json(schema_dir / name)
+        assert schema["$schema"].endswith("2020-12/schema")
+        assert schema["type"] == "object"
+        assert schema["title"].startswith("AsynCodeBench")

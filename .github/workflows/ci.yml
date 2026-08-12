@@ -29,6 +29,7 @@ jobs:
           README
           docs/README.md
           docs/QUICKSTART.md
+          docs/AGENT_ADAPTER.md
           docs/EVALUATION_BRANCH_QUICKSTART.md
           docs/COMMUNITY_RELEASE_AND_AGENT_ADAPTER_PLAN.md
           reproductions/async-swe-agents/README.md
@@ -43,7 +44,8 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
-      - run: uv sync --frozen
+      - run: uv sync --frozen --extra dev
+      - run: uv run asyncodebench tasks
       - run: uv run pytest -q tests
       - name: Dry-run all native protocols
         run: |

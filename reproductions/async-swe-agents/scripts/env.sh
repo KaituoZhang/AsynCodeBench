@@ -50,6 +50,8 @@ if [[ "${#_legacy_asyncodebench_vars[@]}" -gt 0 ]]; then
 fi
 unset _legacy_asyncodebench_vars _legacy_name _canonical_name
 
+export ASYNCODEBENCH_ROOT="${ASYNCODEBENCH_ROOT:-$(cd "$REPO_ROOT/../.." && pwd)}"
+
 if [[ -z "${LLM_BASE_URL:-}" ]]; then
   _env_fail "LLM_BASE_URL is required in $ENV_FILE"
 fi

@@ -5,6 +5,7 @@ from datetime import datetime
 from pathlib import Path
 
 import litellm
+from agents import create_agent_runner
 from openhands.sdk import LLM
 from openhands.workspace import DockerDevWorkspace, DockerWorkspace
 
@@ -12,7 +13,7 @@ import core.patches
 from config import SubAgent
 from core.manager import Manager
 from core.dependency_probes import write_dependency_probe_checkpoint
-from core.subagent import SubAgentRunner, run_subagents_parallel
+from core.subagent import run_subagents_parallel
 from core.utils import (
     OutputLogger,
     TeeLogger,
@@ -40,6 +41,7 @@ class StaticCommit0ProtocolRunner:
         protocol,
         scenario_path=None,
         task_name="commit0",
+        agent_adapter=None,
     ):
         if not isinstance(task_module, Commit0Task):
             raise TypeError("StaticCommit0ProtocolRunner currently supports Commit0Task only")
@@ -55,6 +57,7 @@ class StaticCommit0ProtocolRunner:
         self.task_name = task_name
         self.repo_name = task_module.config.repo_name
         self.scenario_path = Path(scenario_path) if scenario_path else self.default_scenario_path()
+        self.agent_adapter = agent_adapter
 
         self.scenario = None
         self.output_logger = OutputLogger(workflow_config.output_dir)
@@ -293,16 +296,21 @@ print(json.dumps(out))
         subagent.status = "ready"
 
     def setup_runner(self, subagent_llm, workspace, subagent):
-        runner = SubAgentRunner(
-            llm=subagent_llm,
-            workspace=workspace,
-            subagent=subagent,
-            prompts=self.prompts,
-            task_module=self.task_module,
-            max_iterations=self.workflow_config.subagent_max_iterations,
-            max_rounds_chat=1,
-            output_dir=self.workflow_config.output_dir,
-            output_logger=self.output_logger,
+        runner_kwargs = {
+            "llm": subagent_llm,
+            "workspace": workspace,
+            "subagent": subagent,
+            "prompts": self.prompts,
+            "task_module": self.task_module,
+            "max_iterations": self.workflow_config.subagent_max_iterations,
+            "max_rounds_chat": 1,
+            "output_dir": self.workflow_config.output_dir,
+            "output_logger": self.output_logger,
+        }
+        runner = create_agent_runner(
+            self.agent_adapter,
+            protocol=self.protocol,
+            **runner_kwargs,
         )
         runner.setup()
 

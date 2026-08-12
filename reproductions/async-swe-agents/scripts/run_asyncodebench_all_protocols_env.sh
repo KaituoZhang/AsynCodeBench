@@ -161,6 +161,15 @@ run_protocol() {
   if [[ -n "${LLM_SUBAGENT_MODEL:-}" ]]; then
     args+=(--subagent_model "$LLM_SUBAGENT_MODEL")
   fi
+  if [[ -n "${ASYNCODEBENCH_AGENT:-}" ]]; then
+    args+=(--agent "$ASYNCODEBENCH_AGENT")
+  fi
+  if [[ -n "${ASYNCODEBENCH_AGENT_IMPORT_PATH:-}" ]]; then
+    args+=(--agent_import_path "$ASYNCODEBENCH_AGENT_IMPORT_PATH")
+  fi
+  if [[ -n "${ASYNCODEBENCH_AGENT_CONFIG_JSON:-}" ]]; then
+    args+=(--agent_config_json "$ASYNCODEBENCH_AGENT_CONFIG_JSON")
+  fi
   [[ "$dry_run" == "1" ]] && args+=(--dry_run)
 
   echo "============================================================"

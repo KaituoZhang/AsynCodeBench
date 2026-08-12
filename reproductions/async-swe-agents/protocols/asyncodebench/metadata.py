@@ -153,7 +153,13 @@ def _generation_configuration():
     return configuration
 
 
-def build_run_metadata(task, workflow_config, protocol, prompt_path):
+def build_run_metadata(
+    task,
+    workflow_config,
+    protocol,
+    prompt_path,
+    agent_adapter=None,
+):
     repo_root = task._repo_root()
     runner_root = Path(__file__).resolve().parents[2]
     package_versions = {}
@@ -184,9 +190,15 @@ def build_run_metadata(task, workflow_config, protocol, prompt_path):
         "task_id": task.task_id,
         "release": task.asyncodebench_config.release,
         "protocol": protocol,
-        "scenario_id": task.scenario_for(protocol).get("scenario_id"),
+        "scenario_id": task.public_scenario_id(protocol),
+        "source_scenario_id": task.scenario_for(protocol).get("scenario_id"),
         "model": workflow_config.model,
         "subagent_model": workflow_config.subagent_model,
+        "agent_adapter": agent_adapter
+        or {
+            "name": "openhands",
+            "class": "agents.openhands:OpenHandsAgentAdapter",
+        },
         "budgets": {
             "manager_max_iterations": workflow_config.manager_max_iterations,
             "max_subagents": workflow_config.max_subagents,
@@ -256,7 +268,8 @@ def write_contract_snapshots(output_dir, task, protocol):
         "harness": HARNESS_VERSION,
         "task_id": task.task_id,
         "protocol": protocol,
-        "scenario_id": scenario.get("scenario_id"),
+        "scenario_id": task.public_scenario_id(protocol),
+        "source_scenario_id": scenario.get("scenario_id"),
         "execution_mode": scenario.get("execution_mode"),
         "information_profile": scenario.get("information_profile"),
         "communication_condition": scenario.get("communication_condition"),

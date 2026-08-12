@@ -6,17 +6,18 @@ from pathlib import Path
 
 import fire
 import litellm
+from agents import create_agent_runner
 from openhands.sdk import LLM
 from openhands.workspace import DockerDevWorkspace, DockerWorkspace
 
 import core.patches  
-from config import WorkflowConfig
+from config import SubAgent, WorkflowConfig
 from core.dependency_probes import (
     next_checkpoint_step,
     write_dependency_probe_checkpoint,
 )
 from core.manager import Manager
-from core.subagent import SubAgentRunner, run_subagents_parallel
+from core.subagent import run_subagents_parallel
 from core.utils import (
     OutputLogger,
     TeeLogger,
@@ -72,6 +73,7 @@ async def run_workflow_inner(
     task_module,
     multi_agent=True,
     manager_class=Manager,
+    agent_adapter=None,
     **kwargs,
 ):
     start_time = datetime.now()
@@ -179,7 +181,14 @@ async def run_workflow_inner(
                 print("\n" + "-" * 60)
                 print("Step 3: Initialize Single Agent")
                 print("-" * 60)
-                manager.setup(mode="single_agent")
+                use_native_single = (
+                    agent_adapter is None
+                    or getattr(agent_adapter, "uses_native_single_agent", False)
+                )
+                custom_single_runner = None
+                custom_single_result = None
+                if use_native_single:
+                    manager.setup(mode="single_agent")
 
                 print("\n" + "-" * 60)
                 if is_commit0:
@@ -188,7 +197,79 @@ async def run_workflow_inner(
                     print("Step 4: Run Single Agent (Reproduce Paper)")
                 print("-" * 60)
                 runtime_start = datetime.now()
-                single_agent_result = manager.run_single_agent()
+                if use_native_single:
+                    single_agent_result = manager.run_single_agent()
+                else:
+                    header, instruction, log_content = task_module.get_single_agent_info(
+                        workspace, workflow_config, prompts
+                    )
+                    print(f"[Manager] {header}")
+                    output_logger.log_event(
+                        event_type="single_agent_start",
+                        source="manager",
+                        content=log_content,
+                    )
+                    repo_dir = task_module.get_work_dir()
+                    head = workspace.execute_command(
+                        f"cd {repo_dir} && git rev-parse HEAD", timeout=30
+                    )
+                    if head.exit_code != 0:
+                        raise RuntimeError(
+                            f"Failed to read single-agent base commit: {head.stderr}"
+                        )
+                    task_manifest = getattr(task_module, "task_manifest", {})
+                    subagent = SubAgent(
+                        engineer_id="single_agent",
+                        task_id=getattr(task_module, "task_id", task),
+                        instruction=instruction,
+                        file_path=", ".join(
+                            task_manifest.get("publicly_implicated_modules", [])
+                        ),
+                        functions_to_implement=["complete task implementation"],
+                        submission_path=repo_dir,
+                        worktree_path=repo_dir,
+                        branch_name="single_agent",
+                        base_commit=head.stdout.strip(),
+                        status="ready",
+                        current_round=1,
+                    )
+                    prompt_args = task_module.get_prompt_format_args(workflow_config)
+                    subagent.test_cmd = prompt_args.get("test_cmd", "python -m pytest")
+                    subagent.test_dir = prompt_args.get("test_dir", "tests/")
+                    custom_single_runner = agent_adapter.create_runner(
+                        protocol="single",
+                        llm=llm,
+                        workspace=workspace,
+                        subagent=subagent,
+                        prompts=prompts,
+                        task_module=task_module,
+                        max_iterations=workflow_config.manager_max_iterations,
+                        max_rounds_chat=1,
+                        output_dir=workflow_config.output_dir,
+                        output_logger=output_logger,
+                    )
+                    custom_single_runner.setup()
+                    custom_single_result = custom_single_runner.run()
+                    single_agent_result = {
+                        "duration": custom_single_result.duration_seconds,
+                        "iterations": custom_single_result.actual_iterations,
+                    }
+                    output_logger.log_agent_response(
+                        **task_module.get_log_agent_response_kwargs(
+                            custom_single_result
+                        )
+                    )
+                    output_logger.log_event(
+                        event_type="single_agent_complete",
+                        source="single_agent",
+                        content={
+                            "duration": custom_single_result.duration_seconds,
+                            "iterations": custom_single_result.actual_iterations,
+                            "max_iterations": custom_single_result.max_iterations,
+                            "success": custom_single_result.success,
+                            "error": custom_single_result.error,
+                        },
+                    )
 
                 runtime_end = datetime.now()
                 runtime_seconds = (runtime_end - runtime_start).total_seconds()
@@ -245,8 +326,19 @@ async def run_workflow_inner(
 
                     # Save costs
                     total_time = (datetime.now() - start_time).total_seconds()
-                    manager_metrics = extract_conversation_metrics(manager.conversation)
-                    manager_metrics["duration"] = single_agent_result["duration"]
+                    if custom_single_result is None:
+                        manager_metrics = extract_conversation_metrics(
+                            manager.conversation
+                        )
+                        manager_metrics["duration"] = single_agent_result["duration"]
+                    else:
+                        manager_metrics = {
+                            "cost": custom_single_result.cost,
+                            "prompt_tokens": custom_single_result.prompt_tokens,
+                            "completion_tokens": custom_single_result.completion_tokens,
+                            "total_tokens": custom_single_result.total_tokens,
+                            "duration": custom_single_result.duration_seconds,
+                        }
                     save_all_costs(workflow_config.output_dir, manager_metrics, [], wall_clock_duration=total_time, model=workflow_config.model)
                 else:
                     # Paperbench single-agent: run test
@@ -318,6 +410,8 @@ async def run_workflow_inner(
                 print("=" * 70)
                 print(f"Total time: {(datetime.now() - start_time).total_seconds():.1f}s")
                 print(f"Iterations used: {single_agent_result['iterations']}")
+                if custom_single_runner is not None:
+                    custom_single_runner.cleanup()
                 return
 
             # Multi-agent workflow continues below
@@ -389,16 +483,21 @@ async def run_workflow_inner(
 
             runners = []
             for subagent in ready_subagents:
-                runner = SubAgentRunner(
-                    llm=subagent_llm,
-                    workspace=workspace,
-                    subagent=subagent,
-                    prompts=prompts,
-                    task_module=task_module,
-                    max_iterations=workflow_config.subagent_max_iterations,
-                    max_rounds_chat=workflow_config.max_rounds_chat,
-                    output_dir=workflow_config.output_dir,
-                    output_logger=output_logger,
+                runner_kwargs = {
+                    "llm": subagent_llm,
+                    "workspace": workspace,
+                    "subagent": subagent,
+                    "prompts": prompts,
+                    "task_module": task_module,
+                    "max_iterations": workflow_config.subagent_max_iterations,
+                    "max_rounds_chat": workflow_config.max_rounds_chat,
+                    "output_dir": workflow_config.output_dir,
+                    "output_logger": output_logger,
+                }
+                runner = create_agent_runner(
+                    agent_adapter,
+                    protocol="caid_manager",
+                    **runner_kwargs,
                 )
                 runner.setup()
                 runners.append(runner)
@@ -783,6 +882,7 @@ async def run_workflow(
     task_module,
     multi_agent=True,
     manager_class=Manager,
+    agent_adapter=None,
     **kwargs,
 ):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -793,6 +893,7 @@ async def run_workflow(
             task, workflow_config, task_module,
             multi_agent=multi_agent,
             manager_class=manager_class,
+            agent_adapter=agent_adapter,
             **kwargs,
         )
 

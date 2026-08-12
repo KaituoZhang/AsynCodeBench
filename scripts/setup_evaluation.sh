@@ -48,7 +48,8 @@ python3 -m venv "$BENCHMARK_VENV"
 "$BENCHMARK_VENV/bin/python" -m pip install -e "$ROOT[dev]"
 
 echo "[setup] Creating agent runner environment"
-uv sync --frozen --project "$RUNNER"
+uv sync --frozen --extra dev --project "$RUNNER"
+"$RUNNER/.venv/bin/asyncodebench" tasks >/dev/null
 
 echo "[setup] Checking Docker"
 docker info >/dev/null

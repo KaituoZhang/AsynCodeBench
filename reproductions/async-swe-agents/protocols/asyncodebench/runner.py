@@ -153,6 +153,8 @@ class AsynCodeBenchProtocolRunner(StaticCommit0ProtocolRunner):
             {
                 "harness": "asyncodebench-v2",
                 "task_id": self.task_module.task_id,
+                "scenario_id": self.task_module.public_scenario_id(self.protocol),
+                "source_scenario_id": self.scenario.get("scenario_id"),
                 "dependency_ordered_integration": True,
                 "resolved_integration_order": self.integration_order,
                 "dependency_cycle_nodes": self.dependency_cycle_nodes,

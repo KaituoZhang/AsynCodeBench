@@ -979,6 +979,15 @@ class Commit0Task(TaskModule):
 
     @staticmethod
     def _repo_root():
+        configured = os.getenv("ASYNCODEBENCH_ROOT")
+        if configured:
+            root = Path(configured).expanduser().resolve()
+            if not (root / "manifests").is_dir():
+                raise RuntimeError(
+                    "ASYNCODEBENCH_ROOT does not contain the benchmark manifests: "
+                    f"{root}"
+                )
+            return root
         return Path(__file__).resolve().parents[3]
 
     @staticmethod

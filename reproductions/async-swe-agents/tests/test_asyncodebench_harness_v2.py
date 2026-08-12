@@ -23,6 +23,13 @@ def make_task(task_id="asyncodebench:cachetools"):
     return AsynCodeBenchTask(AsynCodeBenchConfig(task_id=task_id))
 
 
+def test_benchmark_root_can_be_explicitly_configured(monkeypatch, tmp_path):
+    (tmp_path / "manifests").mkdir()
+    monkeypatch.setenv("ASYNCODEBENCH_ROOT", str(tmp_path))
+
+    assert Commit0Task._repo_root() == tmp_path
+
+
 class LocalWorkspace:
     def execute_command(self, command, timeout=30):
         del timeout
@@ -690,6 +697,9 @@ def test_run_metadata_excludes_api_keys(tmp_path, monkeypatch):
     encoded = json.dumps(metadata)
 
     assert metadata["harness_version"] == "asyncodebench-harness-v2.0"
+    assert metadata["scenario_id"].startswith("asyncodebench-")
+    assert metadata["source_scenario_id"].startswith("commit0-")
+    assert metadata["agent_adapter"]["name"] == "openhands"
     assert metadata["source"]["base_sha"]
     assert "must-not-leak" not in encoded
     assert "LLM_API_KEY" not in metadata["environment"]
@@ -715,7 +725,8 @@ def test_contract_snapshots_freeze_active_inputs(tmp_path):
     scenario = json.loads((tmp_path / "scenario_snapshot.json").read_text())
     protocol = json.loads((tmp_path / "protocol.json").read_text())
     assert scenario["execution_mode"] == "async_message"
-    assert protocol["scenario_id"] == scenario["scenario_id"]
+    assert protocol["scenario_id"] == task.public_scenario_id("caid_manager")
+    assert protocol["source_scenario_id"] == scenario["scenario_id"]
     assert protocol["scope_policy"] == "reject_artifact_before_merge"
 
 

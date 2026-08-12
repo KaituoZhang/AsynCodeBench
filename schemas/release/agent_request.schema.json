@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/KaituoZhang/Asynccodebench/schemas/release/agent_request.schema.json",
+  "title": "AsynCodeBench Agent Run Request",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "benchmark_task_id",
+    "protocol",
+    "scenario_id",
+    "agent_id",
+    "assignment_id",
+    "round_num",
+    "instruction",
+    "workspace_path",
+    "writable_paths",
+    "primary_test_targets",
+    "max_iterations"
+  ],
+  "properties": {
+    "schema_version": {"const": "0.1"},
+    "benchmark_task_id": {"pattern": "^asyncodebench:[A-Za-z0-9_.-]+$"},
+    "source_task_id": {"type": "string"},
+    "protocol": {
+      "enum": ["single", "serial_specialists", "async_private", "caid_manager"]
+    },
+    "scenario_id": {"type": "string", "minLength": 1},
+    "agent_id": {"type": "string", "minLength": 1},
+    "assignment_id": {"type": "string", "minLength": 1},
+    "round_num": {"type": "integer", "minimum": 1},
+    "instruction": {"type": "string"},
+    "workspace_path": {"type": "string", "minLength": 1},
+    "writable_paths": {"type": "array", "items": {"type": "string"}},
+    "primary_test_targets": {"type": "array", "items": {"type": "string"}},
+    "dependency_annotations": {"type": "array", "items": {"type": "object"}},
+    "model": {"type": ["string", "null"]},
+    "max_iterations": {"type": "integer", "minimum": 1},
+    "output_dir": {"type": "string"}
+  },
+  "additionalProperties": false
+}

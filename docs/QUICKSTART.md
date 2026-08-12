@@ -62,6 +62,23 @@ use a non-secret dummy API key when their server requires a non-empty value.
 ```bash
 cd reproductions/async-swe-agents
 
+export ENV_FILE="$PWD/.env"
+source scripts/env.sh
+
+uv run asyncodebench doctor
+uv run asyncodebench tasks
+
+uv run asyncodebench run \
+  --task asyncodebench:cachetools \
+  --protocol all \
+  --model "$LLM_MODEL" \
+  --dry-run
+```
+
+To dry-run all four protocols with the campaign wrapper:
+
+```bash
+
 ENV_FILE="$PWD/.env" \
 MODEL_TAG=my-model \
 RUN_VERSION=smoke-v01 \
@@ -128,9 +145,17 @@ protocol.json
 report.json
 dependency_probe_checkpoints.jsonl
 process_metrics_summary.json
+run_bundle.json
 cost.json
 runtime.txt
 patch.diff
+```
+
+Validate any completed task-protocol run without calling the model again:
+
+```bash
+uv run asyncodebench validate-run \
+  outputs/asyncodebench/v0.3/<model>/<task>/<protocol>/<run-version>
 ```
 
 Coding failure is valid benchmark evidence. Provider, transport, parser,
@@ -138,3 +163,20 @@ workspace, or evaluator instrumentation failure invalidates the run. See
 [`EVALUATION_METRICS.md`](EVALUATION_METRICS.md) for metric definitions and
 [`MODEL_EXPERIMENT_RUNBOOK.md`](MODEL_EXPERIMENT_RUNBOOK.md) before running all
 16 tasks.
+
+## Use A Custom Agent
+
+The built-in agent is `openhands`. A third-party adapter can replace coding
+assignment execution while the harness retains protocol and evaluation control:
+
+```bash
+uv run asyncodebench run \
+  --task asyncodebench:cachetools \
+  --protocol serial_specialists \
+  --model "$LLM_MODEL" \
+  --agent-import-path my_agents.cache_agent:CacheAgent \
+  --run-id custom-agent-v01
+```
+
+Read [`AGENT_ADAPTER.md`](AGENT_ADAPTER.md) before reporting custom-agent
+results.

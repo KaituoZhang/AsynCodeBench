@@ -1,7 +1,7 @@
 # AsynCodeBench Native Agent Harness
 
-This directory contains the OpenHands-powered execution harness for
-AsynCodeBench.
+This directory contains the native execution harness for AsynCodeBench. It
+ships an OpenHands coding agent and a public adapter for third-party agents.
 
 AsynCodeBench owns the released task contracts, protocol scheduling, private
 workspace visibility, writable scope, integration order, dependency probes,
@@ -22,6 +22,13 @@ harness tests.
 
 Then edit the untracked `.env` in this directory with an OpenAI-compatible
 endpoint, API key, LiteLLM model identifier, and `SDK_SOURCE_DIR`.
+
+Verify the installation:
+
+```bash
+uv run asyncodebench doctor
+uv run asyncodebench tasks
+```
 
 ## Run
 
@@ -51,6 +58,20 @@ caid_manager
 Use `DRY_RUN=1` to verify task selection, assignments, integration order, and
 workspace configuration without calling a model.
 
+Run one protocol directly:
+
+```bash
+uv run asyncodebench run \
+  --task asyncodebench:cachetools \
+  --protocol async_private \
+  --model "$LLM_MODEL" \
+  --run-id smoke-v01
+```
+
+Load a third-party agent with `--agent-import-path module:Class`. The class must
+implement `agents.AgentAdapter`; see
+[`../../docs/AGENT_ADAPTER.md`](../../docs/AGENT_ADAPTER.md).
+
 ## Outputs
 
 Native output directories contain frozen task/scenario/metric snapshots,
@@ -58,7 +79,9 @@ protocol metadata, model and environment provenance, agent events, patches,
 scope and integration decisions, dependency checkpoints, final evaluator
 results, process metrics, cost, tokens, and runtime.
 
-The runner generates `process_metrics_summary.json` automatically. See
+The runner generates `process_metrics_summary.json` and a checksum-indexed
+`run_bundle.json` automatically. Validate a completed run with
+`uv run asyncodebench validate-run <run-dir>`. See
 [`../../docs/EVALUATION_METRICS.md`](../../docs/EVALUATION_METRICS.md) for the
 formal metrics and unresolved-value policy.
 
@@ -68,6 +91,7 @@ formal metrics and unresolved-value policy.
 - [`../../docs/ASYNCODEBENCH_HARNESS_V2.md`](../../docs/ASYNCODEBENCH_HARNESS_V2.md)
 - [`../../docs/MODEL_EXPERIMENT_RUNBOOK.md`](../../docs/MODEL_EXPERIMENT_RUNBOOK.md)
 - [`../../docs/LOCAL_VLLM_EXPERIMENT_RUNBOOK.md`](../../docs/LOCAL_VLLM_EXPERIMENT_RUNBOOK.md)
+- [`../../docs/AGENT_ADAPTER.md`](../../docs/AGENT_ADAPTER.md)
 
 ## Lineage And Legacy Reproduction
 

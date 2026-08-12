@@ -139,6 +139,14 @@ class AsynCodeBenchTask(Commit0Task):
         scenario_path = self.manifest_paths["scenario"]
         raise ValueError(f"No scenario for protocol={protocol!r} in {scenario_path}")
 
+    def public_scenario_id(self, protocol=None):
+        """Return the public scenario ID while retaining source IDs in manifests."""
+
+        source_id = str(self.scenario_for(protocol).get("scenario_id", ""))
+        if source_id.startswith("commit0-"):
+            return "asyncodebench-" + source_id.removeprefix("commit0-")
+        return source_id
+
     def load_task_data(self):
         if self._curated_task_source_disabled():
             raise RuntimeError(

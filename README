@@ -20,7 +20,8 @@ process metrics.
 - **4 controlled agent protocols** per task;
 - **64 task-protocol scenarios**;
 - **47 labeled cross-agent dependency points**;
-- an **OpenHands-powered, AsynCodeBench-native harness**;
+- an **AsynCodeBench-native harness** with a built-in OpenHands agent and a
+  public bring-your-own-agent adapter;
 - final-test, dependency-resolution, coordination, cost, token, and runtime
   metrics;
 - versioned task, scenario, quality, metric, and annotation artifacts;
@@ -122,9 +123,10 @@ AsynCodeBench owns the benchmark contract:
 - dependency checkpoints and process metrics;
 - evaluator selection and result provenance.
 
-OpenHands SDK provides the underlying conversation loop, coding tools, private
-git worktrees, remote agent server, and Docker workspace. The native entry point
-is:
+The harness uses OpenHands SDK for Docker workspaces and provides OpenHands as
+the default coding-agent implementation. A public `AgentAdapter` interface can
+replace assignment execution without replacing task, protocol, scope, probe,
+integration, or evaluator logic. The native entry point is:
 
 ```text
 reproductions/async-swe-agents/run_asyncodebench.py
@@ -186,7 +188,7 @@ scripts/run_asyncodebench_all_protocols_env.sh cachetools
 
 The dry-run must report `task_id=asyncodebench:cachetools`, the curated base
 SHA, four protocol scenarios, manifest-defined agent counts, writable paths,
-and integration order.
+integration order, and the selected agent adapter.
 
 ### 4. Run one complete task
 
@@ -230,11 +232,21 @@ cost.json
 runtime.txt
 dependency_probe_checkpoints.jsonl
 process_metrics_summary.json
+run_bundle.json
 patch.diff
 final_repo/
 ```
 
 The native runner generates `process_metrics_summary.json` automatically.
+`run_bundle.json` records the adapter, evaluator source, instrumentation
+validity, final test summary, and checksums of portable run artifacts. Validate
+a run without rerunning the model:
+
+```bash
+cd reproductions/async-swe-agents
+uv run asyncodebench validate-run outputs/asyncodebench/v0.3/.../run-id
+```
+
 Per-task Markdown, CSV, and artifact-index reports can be regenerated with
 `scripts/summarize_model_task_runs.py`; model-level tables are produced with
 `scripts/aggregate_model_task_results.py`.
@@ -264,6 +276,7 @@ Detailed validity rules are in
 | [`docs/MODEL_EXPERIMENT_RUNBOOK.md`](docs/MODEL_EXPERIMENT_RUNBOOK.md) | Running a new model across all official tasks |
 | [`docs/LOCAL_VLLM_EXPERIMENT_RUNBOOK.md`](docs/LOCAL_VLLM_EXPERIMENT_RUNBOOK.md) | Local model serving, networking, capacity, and failure diagnosis |
 | [`docs/EVALUATION_METRICS.md`](docs/EVALUATION_METRICS.md) | Metric formulas and aggregation policy |
+| [`docs/AGENT_ADAPTER.md`](docs/AGENT_ADAPTER.md) | Integrating a third-party coding agent without changing benchmark semantics |
 | [`docs/CODEX_ONBOARDING.md`](docs/CODEX_ONBOARDING.md) | Context for a new collaborator or coding-agent session |
 
 ## Extending the Benchmark
@@ -282,13 +295,25 @@ skills/commit0-to-asyncodebench/SKILL.md
 The skill and generated manifests make benchmark construction auditable; they
 do not replace the contract tests or label review.
 
-## Current Interface Boundary
+## Bring Your Own Agent
 
-The current release is optimized for **bring your own model** through an
-OpenAI-compatible endpoint while holding the OpenHands coding scaffold fixed.
-It is not yet a general bring-your-own-agent platform. Supporting unrelated
-agent runtimes requires an adapter that preserves AsynCodeBench workspace,
-visibility, checkpoint, scope, and provenance contracts.
+The default `openhands` adapter preserves the validated experiments. A
+third-party agent can be loaded without editing the benchmark:
+
+```bash
+cd reproductions/async-swe-agents
+uv run asyncodebench run \
+  --task asyncodebench:cachetools \
+  --protocol all \
+  --model "$LLM_MODEL" \
+  --agent-import-path my_agents.cache_agent:CacheAgent \
+  --run-id custom-agent-v01
+```
+
+The adapter receives only the active assignment, workspace handle, writable
+paths, targeted tests, dependency labels, and budget. The harness independently
+checks its artifact and computes the official result. See
+[`docs/AGENT_ADAPTER.md`](docs/AGENT_ADAPTER.md).
 
 ## License, Provenance, and Citation
 

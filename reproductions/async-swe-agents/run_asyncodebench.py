@@ -9,6 +9,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import fire
+from agents import load_agent_adapter
+from asyncodebench_harness.results import build_run_bundle
 from config import WorkflowConfig
 from core.asyncodebench_manager import AsynCodeBenchManager
 from protocols.asyncodebench import AsynCodeBenchProtocolRunner
@@ -92,7 +94,23 @@ def _generate_process_metrics(task, output_dir):
     return output_path
 
 
-def _print_dry_run(task, protocol, workflow_config, output_dir):
+def _finalize_run_bundle(task, output_dir, protocol, agent_adapter):
+    path, payload = build_run_bundle(
+        task=task,
+        output_dir=output_dir,
+        protocol=protocol,
+        agent_adapter=agent_adapter,
+    )
+    print(f"[AsynCodeBench] Result bundle: {path}")
+    if not payload["instrumentation"]["valid"]:
+        issues = "; ".join(payload["instrumentation"]["issues"])
+        raise RuntimeError(
+            "Run completed, but its instrumentation bundle is invalid: " + issues
+        )
+    return path
+
+
+def _print_dry_run(task, protocol, workflow_config, output_dir, agent_adapter):
     scenario = task.scenario_for(protocol)
     if protocol in {"serial_specialists", "async_private"}:
         assignments, cycle_nodes = topological_assignments(
@@ -120,6 +138,7 @@ def _print_dry_run(task, protocol, workflow_config, output_dir):
     print(f"[DryRun] task_id={task.task_id}")
     print(f"[DryRun] official=True release={task.asyncodebench_config.release}")
     print(f"[DryRun] protocol={protocol}")
+    print(f"[DryRun] agent_adapter={agent_adapter.public_metadata()}")
     print(f"[DryRun] scenario_id={_public_scenario_id(scenario.get('scenario_id'))}")
     print(f"[DryRun] curated_base_sha={task.curated_task.get('base_sha')}")
     print(f"[DryRun] overlays={len(task.curated_task.get('overlays', []) or [])}")
@@ -151,6 +170,9 @@ def main(
     release="v0.3",
     docker_image_prefix="docker.io/wentingzhao/",
     curated_config_path="",
+    agent="openhands",
+    agent_import_path=None,
+    agent_config_json=None,
     dry_run=False,
 ):
     if protocol not in SUPPORTED_PROTOCOLS:
@@ -160,6 +182,11 @@ def main(
     if not model:
         raise ValueError("A model is required via --model or LLM_MODEL")
     subagent_model = subagent_model or os.getenv("LLM_SUBAGENT_MODEL")
+    agent_adapter = load_agent_adapter(
+        agent=agent,
+        agent_import_path=agent_import_path,
+        agent_config_json=agent_config_json,
+    )
 
     task = AsynCodeBenchTask(
         AsynCodeBenchConfig(
@@ -197,12 +224,20 @@ def main(
     workflow_config.output_dir = str(resolved_output)
 
     if dry_run:
-        _print_dry_run(task, protocol, workflow_config, resolved_output)
+        _print_dry_run(
+            task, protocol, workflow_config, resolved_output, agent_adapter
+        )
         return
 
     _assert_fresh_output(resolved_output)
     prompt_path = Path(__file__).resolve().parent / "prompts" / "asyncodebench.yaml"
-    metadata = build_run_metadata(task, workflow_config, protocol, prompt_path)
+    metadata = build_run_metadata(
+        task,
+        workflow_config,
+        protocol,
+        prompt_path,
+        agent_adapter=agent_adapter.public_metadata(),
+    )
     metadata_path = write_run_metadata(resolved_output, metadata)
     snapshot_paths = write_contract_snapshots(resolved_output, task, protocol)
     print(f"[AsynCodeBench] Run metadata: {metadata_path}")
@@ -213,9 +248,13 @@ def main(
             task_module=task,
             workflow_config=workflow_config,
             protocol=protocol,
+            agent_adapter=agent_adapter,
         )
         result = asyncio.run(runner.run())
         _generate_process_metrics(task, resolved_output)
+        _finalize_run_bundle(
+            task, resolved_output, protocol, agent_adapter
+        )
         return result
 
     workflow_kwargs = {}
@@ -227,10 +266,12 @@ def main(
             workflow_config,
             task,
             multi_agent=protocol == "caid_manager",
+            agent_adapter=agent_adapter,
             **workflow_kwargs,
         )
     )
     _generate_process_metrics(task, resolved_output)
+    _finalize_run_bundle(task, resolved_output, protocol, agent_adapter)
     return result
 
 

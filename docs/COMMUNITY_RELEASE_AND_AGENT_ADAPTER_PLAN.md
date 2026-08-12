@@ -1,4 +1,9 @@
-# Community Release And Agent Adapter Plan
+# Community Release And Agent Adapter Implementation Record
+
+Implementation status: Stages 1-3 and the portable run-bundle portion of Stage
+4 are implemented on `agent/community-ready-release`. Remaining release work is
+limited to publishing a small validated example result and adding higher-level
+cross-run aggregation to the CLI.
 
 ## Goal
 
@@ -36,8 +41,8 @@ process-metric results.
 ### Built-in OpenHands agent
 
 ```bash
-asyncodebench run \
-  --task cachetools \
+uv run asyncodebench run \
+  --task asyncodebench:cachetools \
   --agent openhands \
   --model openai/my-model \
   --protocol all \
@@ -47,8 +52,8 @@ asyncodebench run \
 ### Custom agent
 
 ```bash
-asyncodebench run \
-  --task cachetools \
+uv run asyncodebench run \
+  --task asyncodebench:cachetools \
   --agent-import-path my_agents.codex_agent:CodexAgent \
   --model my-model \
   --protocol all \
@@ -58,12 +63,11 @@ asyncodebench run \
 ### Validate and summarize
 
 ```bash
-asyncodebench validate-run outputs/.../run-id
-asyncodebench summarize outputs/.../run-id
+uv run asyncodebench validate-run outputs/.../run-id
 ```
 
-The existing shell wrapper remains available for compatibility. The commands
-above become the documented public interface after the adapter work is complete.
+The shell wrapper remains the supported way to run all four protocols in one
+campaign. It accepts the same adapter through `ASYNCODEBENCH_AGENT_IMPORT_PATH`.
 
 ## Benchmark Boundary
 
@@ -110,8 +114,8 @@ scripts/aggregate_model_task_results.py
 
 ```text
 .github/workflows/ci.yml
-manifests/release/1.0/official_tasks.json
-manifests/release/1.0/task_index.json
+manifests/release/v0.3/official_tasks.json
+manifests/release/v0.3/task_index.json
 reproductions/software-agent-sdk.lock
 scripts/setup_evaluation.sh
 examples/results/cachetools/
@@ -122,20 +126,17 @@ docs/AGENT_ADAPTER.md
 ### Add for custom agents
 
 ```text
-src/asyncodebench/agents/base.py
-src/asyncodebench/agents/loader.py
-src/asyncodebench/agents/openhands.py
-src/asyncodebench/cli.py
-src/asyncodebench/results/models.py
-src/asyncodebench/results/validation.py
+reproductions/async-swe-agents/agents/base.py
+reproductions/async-swe-agents/agents/loader.py
+reproductions/async-swe-agents/agents/openhands.py
+reproductions/async-swe-agents/asyncodebench_harness/cli.py
+reproductions/async-swe-agents/asyncodebench_harness/results.py
 schemas/release/agent_request.schema.json
-schemas/release/agent_result.schema.json
+schemas/release/agent_response.schema.json
 schemas/release/run_bundle.schema.json
-examples/agents/minimal_agent.py
-tests/agents/test_agent_loader.py
-tests/agents/test_agent_contract.py
-tests/integration/test_custom_agent_protocols.py
-tests/results/test_run_bundle_validation.py
+reproductions/async-swe-agents/examples/agents/diagnostic_adapter.py
+reproductions/async-swe-agents/tests/test_agent_adapter_contract.py
+reproductions/async-swe-agents/tests/test_run_bundle.py
 ```
 
 ## Agent Contract
@@ -144,7 +145,7 @@ Keep the adapter interface deliberately small:
 
 ```python
 class AgentAdapter(ABC):
-    async def run(self, request: AgentRequest) -> AgentResult:
+    def execute(self, request: AgentRunRequest) -> AgentRunResponse:
         ...
 ```
 
@@ -163,24 +164,21 @@ iteration or time budget
 output directory
 ```
 
-`AgentResult` contains:
+`AgentRunResponse` contains only execution telemetry:
 
 ```text
-status
-commit_hash or patch
-changed_paths
-messages
 iterations
 input_tokens
 output_tokens
 cost
-runtime
 error
+events
+adapter metadata
 ```
 
-The adapter does not merge its own patch and does not run the official final
-evaluator. The harness validates scope, integrates the artifact, runs probes,
-and writes the formal result.
+The harness derives commit, changed paths, patch success, runtime, merge status,
+and final score independently. The adapter does not merge its own patch and does
+not run the official final evaluator.
 
 ## Standard Result Bundle
 
@@ -193,14 +191,16 @@ scenario_snapshot.json
 metrics_snapshot.json
 quality_snapshot.json
 protocol.json
-agent_result.json
-patch.diff
 report.json
 dependency_probe_checkpoints.jsonl
 process_metrics_summary.json
 cost.json
 runtime.txt
+run_bundle.json
 ```
+
+`patch.diff` is emitted when the protocol has an integrated patch. It is not a
+required artifact for a valid unchanged single-agent failure.
 
 Multi-agent protocols additionally contain the applicable files:
 
@@ -220,9 +220,9 @@ counted as a coding failure.
 
 ## Implementation Stages
 
-### Stage 1: Release hygiene and one-command setup
+### Stage 1: Release hygiene and one-command setup (implemented)
 
-1. Add GitHub Actions for the existing 122 dataset contracts and 76 harness
+1. Add GitHub Actions for the current 126 dataset contracts and 90 harness
    tests.
 2. Generate a clean release index containing exactly the 16 official tasks.
 3. Pin OpenHands `software-agent-sdk` to the currently validated commit instead
@@ -245,7 +245,7 @@ Acceptance criteria:
 - no native quickstart requires the legacy Commit0 dataset;
 - the SDK revision recorded in run metadata matches the lock file.
 
-### Stage 2: Extract the built-in OpenHands adapter
+### Stage 2: Extract the built-in OpenHands adapter (implemented)
 
 1. Introduce `AgentRequest`, `AgentResult`, and `AgentAdapter`.
 2. Move the existing OpenHands conversation/subagent invocation behind
@@ -262,7 +262,7 @@ Acceptance criteria:
 - scope, stale visibility, handoff, integration, and probe gates remain owned by
   the harness.
 
-### Stage 3: Add Harbor-style custom agent loading
+### Stage 3: Add Harbor-style custom agent loading (implemented)
 
 1. Add `--agent openhands` and `--agent-import-path module:Class`.
 2. Validate that an imported class implements `AgentAdapter`.
@@ -279,7 +279,7 @@ Acceptance criteria:
 - an out-of-scope fake agent is rejected and recorded;
 - serial handoffs are visible and async-private in-flight handoffs are hidden.
 
-### Stage 4: Standardize validation and reporting
+### Stage 4: Standardize validation and reporting (partially implemented)
 
 1. Define Pydantic and JSON Schema models for an agent result and run bundle.
 2. Add `validate-run` and `summarize` commands around existing analysis scripts.

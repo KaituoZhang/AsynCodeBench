@@ -457,6 +457,23 @@ class SubAgentRunner:
         self.conversation_round = self.subagent.current_round
         self.log("Subagent ready")
 
+    def clone_for_subagent(self, subagent):
+        """Create another runner with the same implementation and settings."""
+
+        runner = type(self)(
+            llm=self.llm,
+            workspace=self.workspace,
+            subagent=subagent,
+            prompts=self.prompts,
+            task_module=self.task_module,
+            max_iterations=self.max_iterations,
+            max_rounds_chat=self.max_rounds_chat,
+            output_dir=self.output_dir,
+            output_logger=self.output_logger,
+        )
+        runner.setup()
+        return runner
+
     def create_result(self):
         if self.result is None:
             self.result = self.task_module.create_subagent_result(self.subagent)
@@ -943,18 +960,7 @@ async def run_subagents_parallel(runners, manager=None, task_module=None, output
                     new_subagent.current_round = 1
 
                     template_runner = trigger_runner
-                    new_runner = SubAgentRunner(
-                        llm=template_runner.llm,
-                        workspace=template_runner.workspace,
-                        subagent=new_subagent,
-                        prompts=template_runner.prompts,
-                        task_module=task_module,
-                        max_iterations=template_runner.max_iterations,
-                        max_rounds_chat=template_runner.max_rounds_chat,
-                        output_dir=template_runner.output_dir,
-                        output_logger=template_runner.output_logger,
-                    )
-                    new_runner.setup()
+                    new_runner = template_runner.clone_for_subagent(new_subagent)
 
                     print(f"- Worktree: {worktree_path}")
                     print(f"- Branch: {branch_name}")
@@ -1207,18 +1213,9 @@ async def run_subagents_parallel(runners, manager=None, task_module=None, output
                                 new_subagent.current_round = 1
 
                                 template_runner = runner
-                                new_runner = SubAgentRunner(
-                                    llm=template_runner.llm,
-                                    workspace=template_runner.workspace,
-                                    subagent=new_subagent,
-                                    prompts=template_runner.prompts,
-                                    task_module=task_module,
-                                    max_iterations=template_runner.max_iterations,
-                                    max_rounds_chat=template_runner.max_rounds_chat,
-                                    output_dir=template_runner.output_dir,
-                                    output_logger=template_runner.output_logger,
+                                new_runner = template_runner.clone_for_subagent(
+                                    new_subagent
                                 )
-                                new_runner.setup()
 
                                 print(f"- Worktree: {worktree_path}")
                                 print(f"- Branch: {branch_name}")
