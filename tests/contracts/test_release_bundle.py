@@ -24,6 +24,19 @@ def test_release_index_is_current():
     assert result.returncode == 0, result.stdout + result.stderr
 
 
+def test_contract_source_inventory_covers_release_and_historical_regression():
+    official = read_json(RELEASE_DIR / "official_tasks.json")
+    inventory = read_json(
+        ROOT / "configs" / "tasks" / "commit0_repositories_full.v0.3.json"
+    )
+    available = {repository["name"] for repository in inventory["repositories"]}
+    required = {
+        task_id.split(":", 1)[1] for task_id in official["official_task_ids"]
+    }
+    required.add("fastapi")
+    assert required <= available
+
+
 def test_release_contains_only_the_16_official_tasks():
     official = read_json(RELEASE_DIR / "official_tasks.json")
     index = read_json(RELEASE_DIR / "task_index.json")
@@ -35,6 +48,17 @@ def test_release_contains_only_the_16_official_tasks():
     assert index["human_review_complete_task_count"] == 1
     assert official["automated_audit_complete_task_count"] == 16
     assert index["automated_audit_complete_task_count"] == 16
+    assert official["release_stage"] == "community_preview"
+    assert index["release_stage"] == "community_preview"
+    assert official["community_preview_ready"] is True
+    assert index["community_preview_ready"] is True
+    assert official["stable_release_ready"] is False
+    assert index["stable_release_ready"] is False
+    assert official["validated_baseline_bundle_count"] == 0
+    assert index["validated_baseline_bundle_count"] == 0
+    assert official["validated_baseline_registry"] == index[
+        "validated_baseline_registry"
+    ]
     assert len(set(official["official_task_ids"])) == 16
     assert all(
         task_id.startswith("asyncodebench:")

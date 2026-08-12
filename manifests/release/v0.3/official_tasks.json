@@ -1,5 +1,6 @@
 {
   "automated_audit_complete_task_count": 16,
+  "community_preview_ready": true,
   "execution_profile": {
     "path": "configs/evaluation/official_execution_profile.v1.json",
     "profile_id": "asyncodebench-v0.3-standard-30",
@@ -25,8 +26,15 @@
     "asyncodebench:cookiecutter"
   ],
   "release": "v0.3",
+  "release_stage": "community_preview",
   "release_version": "0.3.0",
   "schema_version": "asyncodebench-release-tasks-v1",
+  "stable_release_ready": false,
   "task_count": 16,
-  "task_namespace": "asyncodebench"
+  "task_namespace": "asyncodebench",
+  "validated_baseline_bundle_count": 0,
+  "validated_baseline_registry": {
+    "path": "manifests/release/v0.3/validated_baselines.json",
+    "sha256": "674ad31e14301f7ae329936a10055dbe19875c39aed850427e5b1de6c6f264ff"
+  }
 }

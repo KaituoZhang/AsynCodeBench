@@ -124,7 +124,8 @@ If Git warns about an embedded repository under
 On a collaborator machine:
 
 ```bash
-git clone https://github.com/KaituoZhang/Asynccodebench.git AsynCodeBench
+git clone --branch agent/community-ready-release --single-branch \
+  https://github.com/KaituoZhang/Asynccodebench.git AsynCodeBench
 cd AsynCodeBench
 ```
 

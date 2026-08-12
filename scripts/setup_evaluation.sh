@@ -27,6 +27,11 @@ if [[ ! -x "$PYTHON_BIN" ]]; then
   exit 1
 fi
 
+if ! "$PYTHON_BIN" -c 'import sys; raise SystemExit(sys.version_info[:2] != (3, 12))'; then
+  echo "The native runner requires Python 3.12 exactly: $PYTHON_BIN" >&2
+  exit 1
+fi
+
 readarray -t sdk_values < <(
   "$PYTHON_BIN" - "$SDK_LOCK" <<'PY'
 import json
@@ -61,13 +66,16 @@ echo "[setup] Creating benchmark validation environment"
 "$BENCHMARK_VENV/bin/python" -m pip install -e "$ROOT[dev]"
 
 echo "[setup] Creating agent runner environment"
-uv sync --frozen --extra dev --project "$RUNNER"
+uv sync --frozen --extra dev --python "$PYTHON_BIN" --project "$RUNNER"
 "$RUNNER/.venv/bin/asyncodebench" tasks >/dev/null
 
 echo "[setup] Checking Docker"
 docker info >/dev/null
 
 if [[ "${ASYNCODEBENCH_SETUP_SKIP_TESTS:-0}" != "1" ]]; then
+  echo "[setup] Materializing pinned contract-test repositories"
+  "$BENCHMARK_VENV/bin/python" \
+    "$ROOT/scripts/materialize_contract_test_repositories.py"
   echo "[setup] Validating benchmark contracts"
   PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 \
     "$BENCHMARK_VENV/bin/python" -m pytest -q "$ROOT/tests/contracts"

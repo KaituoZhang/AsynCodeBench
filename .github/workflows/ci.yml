@@ -22,6 +22,8 @@ jobs:
           cache: pip
       - run: python -m pip install -U pip
       - run: python -m pip install -e ".[dev]"
+      - name: Materialize pinned contract-test repositories
+        run: python scripts/materialize_contract_test_repositories.py
       - run: PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest -q tests/contracts
       - run: python scripts/build_release_index.py --check
       - name: Lint public result and release tooling
@@ -32,6 +34,7 @@ jobs:
           scripts/summarize_model_task_runs.py
           scripts/aggregate_model_task_results.py
           scripts/check_repository_hygiene.py
+          scripts/materialize_contract_test_repositories.py
           tests/contracts/test_release_bundle.py
           tests/contracts/test_result_admission.py
           tests/contracts/test_public_documentation.py
@@ -60,6 +63,7 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
+          python-version: "3.12"
       - run: uv sync --frozen --extra dev
       - run: uv run asyncodebench tasks
       - run: uv run asyncodebench release-status
@@ -74,6 +78,7 @@ jobs:
           tests/test_agent_adapter_contract.py
           tests/test_run_bundle.py
           tests/test_check_run_health.py
+          tests/test_cli_doctor.py
           tests/test_asyncodebench_harness_v2.py
           --select F,E9,I
       - name: Dry-run all native protocols

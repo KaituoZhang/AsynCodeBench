@@ -96,7 +96,8 @@ Requirements: Linux `x86_64`, Git, Docker without `sudo`, `uv`, Python 3.12,
 and an OpenAI-compatible model endpoint.
 
 ```bash
-git clone https://github.com/KaituoZhang/Asynccodebench.git AsynCodeBench
+git clone --branch agent/community-ready-release --single-branch \
+  https://github.com/KaituoZhang/Asynccodebench.git AsynCodeBench
 cd AsynCodeBench
 bash scripts/setup_evaluation.sh
 ```

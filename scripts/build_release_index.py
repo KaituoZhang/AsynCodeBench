@@ -17,6 +17,7 @@ CURATED_CONFIG = ROOT / "configs" / "tasks" / "commit0_curated_tasks.v0.3.json"
 EXECUTION_PROFILE = (
     ROOT / "configs" / "evaluation" / "official_execution_profile.v1.json"
 )
+VALIDATED_BASELINES = RELEASE_DIR / "validated_baselines.json"
 EXPECTED_MODES = {
     "iterative_single": "single",
     "serial_specialists": "serial_specialists",
@@ -70,6 +71,14 @@ def annotation_decision_complete(document: dict) -> bool:
 def build_release_documents() -> tuple[dict, dict]:
     official_config = read_json(OFFICIAL_CONFIG)
     execution_profile = read_json(EXECUTION_PROFILE)
+    validated_baselines = read_json(VALIDATED_BASELINES)
+    baseline_bundles = validated_baselines.get("bundles", [])
+    if validated_baselines.get("release") != RELEASE:
+        raise ValueError("validated baseline registry targets the wrong release")
+    for baseline in baseline_bundles:
+        bundle_path = ROOT / baseline["path"]
+        if not bundle_path.is_file() or sha256(bundle_path) != baseline["sha256"]:
+            raise ValueError(f"invalid validated baseline bundle: {baseline['path']}")
     repositories = official_config["official_tasks"]
     if len(repositories) != 16 or len(set(repositories)) != 16:
         raise ValueError("The public release must contain exactly 16 unique tasks")
@@ -216,6 +225,26 @@ def build_release_documents() -> tuple[dict, dict]:
             }
         )
 
+    community_preview_ready = automated_audit_complete_tasks == len(tasks) and all(
+        task["quality_status"] == "qualification_ready" for task in tasks
+    )
+    stable_release_ready = (
+        community_preview_ready
+        and human_review_complete_tasks == len(tasks)
+        and bool(baseline_bundles)
+    )
+    release_stage = "stable" if stable_release_ready else "community_preview"
+
+    common_status = {
+        "release_stage": release_stage,
+        "community_preview_ready": community_preview_ready,
+        "stable_release_ready": stable_release_ready,
+        "validated_baseline_bundle_count": len(baseline_bundles),
+        "validated_baseline_registry": {
+            "path": relative(VALIDATED_BASELINES),
+            "sha256": sha256(VALIDATED_BASELINES),
+        },
+    }
     official = {
         "schema_version": "asyncodebench-release-tasks-v1",
         "release": RELEASE,
@@ -230,6 +259,7 @@ def build_release_documents() -> tuple[dict, dict]:
             "path": relative(EXECUTION_PROFILE),
             "sha256": sha256(EXECUTION_PROFILE),
         },
+        **common_status,
     }
     index = {
         "schema_version": "asyncodebench-task-index-v1",
@@ -246,6 +276,7 @@ def build_release_documents() -> tuple[dict, dict]:
             "path": relative(EXECUTION_PROFILE),
             "sha256": sha256(EXECUTION_PROFILE),
         },
+        **common_status,
         "tasks": tasks,
     }
     return official, index

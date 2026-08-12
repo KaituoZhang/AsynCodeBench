@@ -23,7 +23,8 @@ starting a local campaign.
 ## 1. Install
 
 ```bash
-git clone https://github.com/KaituoZhang/Asynccodebench.git AsynCodeBench
+git clone --branch agent/community-ready-release --single-branch \
+  https://github.com/KaituoZhang/Asynccodebench.git AsynCodeBench
 cd AsynCodeBench
 bash scripts/setup_evaluation.sh
 ```
@@ -34,8 +35,9 @@ The setup script:
 2. checks out the validated OpenHands SDK revision;
 3. creates the native runner environment;
 4. checks Docker;
-5. runs the dataset and harness tests;
-6. creates an untracked runner `.env` from the example when needed.
+5. materializes pinned repositories used by source contract tests;
+6. runs the dataset and harness tests;
+7. creates an untracked runner `.env` from the example when needed.
 
 Native runs clone and verify their pinned public source repositories directly.
 They do not require a local Commit0 dataset.
@@ -70,7 +72,7 @@ export ENV_FILE="$PWD/.env"
 source scripts/env.sh
 
 uv run asyncodebench doctor
-uv run asyncodebench release-status
+uv run asyncodebench release-status --require preview
 uv run asyncodebench tasks
 
 uv run asyncodebench run \
@@ -101,6 +103,11 @@ curated_base_sha=<sha>
 ```
 
 Dry-run does not call the model or start a task container.
+
+`doctor` does make one small authenticated completion request with a forced
+function call. This catches invalid API keys, unreachable endpoints, incorrect
+model IDs, and missing tool-call support before a paid run. Use `doctor
+--offline` only when checking installation without a configured endpoint.
 
 ## 4. Run One Task
 

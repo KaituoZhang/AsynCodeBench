@@ -91,3 +91,21 @@ def test_result_validity_uses_canonical_derived_report_directory():
     assert "--input-dir outputs/reports/<model-tag>" in document
     assert "--output-dir outputs/reports/<model-tag>" in document
     assert "reproductions/async-swe-agents/outputs/<model-tag>" not in document
+
+
+def test_preview_installation_and_clean_checkout_validation_are_explicit():
+    clone_command = (
+        "git clone --branch agent/community-ready-release --single-branch"
+    )
+    assert clone_command in read(ROOT / "README")
+    assert clone_command in read(ROOT / "docs" / "QUICKSTART.md")
+
+    setup = read(ROOT / "scripts" / "setup_evaluation.sh")
+    assert 'uv sync --frozen --extra dev --python "$PYTHON_BIN"' in setup
+    assert "materialize_contract_test_repositories.py" in setup
+
+    workflow = read(ROOT / ".github" / "workflows" / "ci.yml")
+    materialize = "python scripts/materialize_contract_test_repositories.py"
+    contracts = "python -m pytest -q tests/contracts"
+    assert materialize in workflow
+    assert workflow.index(materialize) < workflow.index(contracts)

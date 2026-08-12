@@ -1,5 +1,6 @@
 {
   "automated_audit_complete_task_count": 16,
+  "community_preview_ready": true,
   "dependency_point_count": 47,
   "execution_profile": {
     "path": "configs/evaluation/official_execution_profile.v1.json",
@@ -14,9 +15,11 @@
     "caid_manager"
   ],
   "release": "v0.3",
+  "release_stage": "community_preview",
   "release_version": "0.3.0",
   "scenario_count": 64,
   "schema_version": "asyncodebench-task-index-v1",
+  "stable_release_ready": false,
   "task_count": 16,
   "tasks": [
     {
@@ -1743,5 +1746,10 @@
       "source_task_id": "commit0:cookiecutter",
       "task_id": "asyncodebench:cookiecutter"
     }
-  ]
+  ],
+  "validated_baseline_bundle_count": 0,
+  "validated_baseline_registry": {
+    "path": "manifests/release/v0.3/validated_baselines.json",
+    "sha256": "674ad31e14301f7ae329936a10055dbe19875c39aed850427e5b1de6c6f264ff"
+  }
 }

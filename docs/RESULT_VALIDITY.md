@@ -234,6 +234,18 @@ human review are distinct states. The release index reports each separately;
 an executable run bundle does not by itself certify that human annotation and
 adjudication are complete.
 
+The machine-readable release stage is exposed by:
+
+```bash
+uv run asyncodebench release-status --require preview
+uv run asyncodebench release-status --require stable
+```
+
+The preview gate requires all released tasks to pass automatic qualification.
+The stable gate additionally requires 16/16 independent human reviews and at
+least one checksum-registered public baseline bundle. Missing evidence remains
+an explicit nonzero gate rather than being inferred from prose.
+
 ## Existing Results
 
 Do not rerun an old campaign blindly. First run `inspect-run` over every

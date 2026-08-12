@@ -7,6 +7,7 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib import error, request
 
 from .health import inspect_run
 from .results import validate_run_bundle
@@ -17,6 +18,19 @@ PROTOCOL_ORDER = (
     "async_private",
     "caid_manager",
 )
+LITELLM_PROVIDER_PREFIXES = {
+    "anthropic",
+    "azure",
+    "bedrock",
+    "gemini",
+    "huggingface",
+    "ollama",
+    "openai",
+    "openrouter",
+    "together_ai",
+    "vertex_ai",
+    "vllm",
+}
 
 
 def _repo_root():
@@ -76,6 +90,12 @@ def _release_status(args):
         "human_review_complete_task_count": index.get(
             "human_review_complete_task_count", 0
         ),
+        "release_stage": index.get("release_stage", "unknown"),
+        "community_preview_ready": index.get("community_preview_ready", False),
+        "stable_release_ready": index.get("stable_release_ready", False),
+        "validated_baseline_bundle_count": index.get(
+            "validated_baseline_bundle_count", 0
+        ),
         "pending_human_review_task_ids": pending_human_review,
         "executable_release_complete": len(tasks) == 16
         and all(task.get("quality_status") == "qualification_ready" for task in tasks),
@@ -83,22 +103,36 @@ def _release_status(args):
     }
     if args.json:
         print(json.dumps(payload, indent=2, sort_keys=True))
-        return 0
-    print(f"AsynCodeBench {payload['release']} ({payload['release_version']})")
-    print(
-        f"tasks={payload['task_count']} scenarios={payload['scenario_count']} "
-        f"dependencies={payload['dependency_point_count']} "
-        f"overlays={payload['bootstrap_overlay_count']}"
-    )
-    print(
-        "automated_audit="
-        f"{payload['automated_audit_complete_task_count']}/{payload['task_count']} "
-        "human_review="
-        f"{payload['human_review_complete_task_count']}/{payload['task_count']}"
-    )
-    if pending_human_review:
-        print("pending_human_review=" + ",".join(pending_human_review))
-    return 0
+    else:
+        print(f"AsynCodeBench {payload['release']} ({payload['release_version']})")
+        print(
+            f"stage={payload['release_stage']} "
+            f"community_preview_ready={payload['community_preview_ready']} "
+            f"stable_release_ready={payload['stable_release_ready']}"
+        )
+        print(
+            f"tasks={payload['task_count']} scenarios={payload['scenario_count']} "
+            f"dependencies={payload['dependency_point_count']} "
+            f"overlays={payload['bootstrap_overlay_count']}"
+        )
+        print(
+            "automated_audit="
+            f"{payload['automated_audit_complete_task_count']}/{payload['task_count']} "
+            "human_review="
+            f"{payload['human_review_complete_task_count']}/{payload['task_count']}"
+        )
+        if pending_human_review:
+            print("pending_human_review=" + ",".join(pending_human_review))
+        print(
+            "validated_baseline_bundles="
+            f"{payload['validated_baseline_bundle_count']}"
+        )
+    required_ready = {
+        None: True,
+        "preview": payload["community_preview_ready"],
+        "stable": payload["stable_release_ready"],
+    }[args.require]
+    return 0 if required_ready else 2
 
 
 def _run_one(args, protocol, output_dir, run_id):
@@ -153,8 +187,127 @@ def _inspect(args):
     return 0 if payload["valid"] else 1
 
 
+def _http_json(url, *, api_key, timeout, payload=None):
+    body = None if payload is None else json.dumps(payload).encode("utf-8")
+    headers = {"Accept": "application/json", "User-Agent": "AsynCodeBench-doctor"}
+    if body is not None:
+        headers["Content-Type"] = "application/json"
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
+    http_request = request.Request(url, data=body, headers=headers)
+    try:
+        with request.urlopen(http_request, timeout=timeout) as response:
+            return json.loads(response.read().decode("utf-8"))
+    except error.HTTPError as exc:
+        detail = exc.read(500).decode("utf-8", errors="replace").strip()
+        suffix = f": {detail}" if detail else ""
+        raise RuntimeError(f"HTTP {exc.code}{suffix}") from exc
+    except (error.URLError, TimeoutError, json.JSONDecodeError) as exc:
+        raise RuntimeError(str(exc)) from exc
+
+
+def _api_model_id(configured_model, model_response):
+    available = {
+        item.get("id")
+        for item in model_response.get("data", [])
+        if isinstance(item, dict) and item.get("id")
+    }
+    candidates = [configured_model]
+    if "/" in configured_model:
+        candidates.append(configured_model.split("/", 1)[1])
+    for candidate in candidates:
+        if candidate in available:
+            return candidate
+    if len(available) == 1:
+        return next(iter(available))
+    return candidates[-1]
+
+
+def _has_litellm_provider_prefix(model):
+    prefix, separator, remainder = model.partition("/")
+    return bool(separator and remainder and prefix in LITELLM_PROVIDER_PREFIXES)
+
+
+def _online_doctor_checks(*, base_url, api_key, model, timeout):
+    checks = []
+    try:
+        models = _http_json(
+            f"{base_url.rstrip('/')}/models",
+            api_key=api_key,
+            timeout=timeout,
+        )
+        checks.append({"name": "model_api_auth", "ok": True})
+    except RuntimeError as exc:
+        detail = str(exc)
+        return [
+            {"name": "model_api_auth", "ok": False, "detail": detail},
+            {"name": "model_completion", "ok": False, "detail": "blocked"},
+            {"name": "model_tool_call", "ok": False, "detail": "blocked"},
+        ]
+
+    tool_name = "asyncodebench_healthcheck"
+    payload = {
+        "model": _api_model_id(model, models),
+        "messages": [
+            {
+                "role": "user",
+                "content": "Call the healthcheck tool once with status ready.",
+            }
+        ],
+        "tools": [
+            {
+                "type": "function",
+                "function": {
+                    "name": tool_name,
+                    "description": "Confirm that model tool calling is available.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {"status": {"type": "string"}},
+                        "required": ["status"],
+                    },
+                },
+            }
+        ],
+        "tool_choice": {"type": "function", "function": {"name": tool_name}},
+        "temperature": 0,
+        "max_tokens": 512,
+    }
+    try:
+        completion = _http_json(
+            f"{base_url.rstrip('/')}/chat/completions",
+            api_key=api_key,
+            timeout=timeout,
+            payload=payload,
+        )
+    except RuntimeError as exc:
+        detail = str(exc)
+        return [
+            *checks,
+            {"name": "model_completion", "ok": False, "detail": detail},
+            {"name": "model_tool_call", "ok": False, "detail": "blocked"},
+        ]
+
+    choices = completion.get("choices", [])
+    message = choices[0].get("message", {}) if choices else {}
+    checks.append({"name": "model_completion", "ok": bool(choices)})
+    tool_calls = message.get("tool_calls") or []
+    tool_call_ok = any(
+        call.get("type") == "function"
+        and call.get("function", {}).get("name") == tool_name
+        for call in tool_calls
+        if isinstance(call, dict)
+    )
+    checks.append(
+        {
+            "name": "model_tool_call",
+            "ok": tool_call_ok,
+            **({} if tool_call_ok else {"detail": "expected forced tool call missing"}),
+        }
+    )
+    return checks
+
+
 def _doctor(args):
-    del args
     checks = []
     checks.append(
         {
@@ -198,8 +351,24 @@ def _doctor(args):
     except OSError:
         docker_ok = False
     checks.append({"name": "docker", "ok": docker_ok})
-    checks.append({"name": "model", "ok": bool(os.getenv("LLM_MODEL"))})
-    checks.append({"name": "model_base_url", "ok": bool(os.getenv("LLM_BASE_URL"))})
+    model = os.getenv("LLM_MODEL", "")
+    base_url = os.getenv("LLM_BASE_URL", "")
+    api_key = os.getenv("LLM_API_KEY", "")
+    checks.append({"name": "model", "ok": bool(model)})
+    checks.append(
+        {"name": "model_provider_prefix", "ok": _has_litellm_provider_prefix(model)}
+    )
+    checks.append({"name": "model_base_url", "ok": bool(base_url)})
+    checks.append({"name": "model_api_key", "ok": bool(api_key)})
+    if not args.offline and model and base_url and api_key:
+        checks.extend(
+            _online_doctor_checks(
+                base_url=base_url,
+                api_key=api_key,
+                model=model,
+                timeout=args.timeout,
+            )
+        )
     print(json.dumps({"checks": checks}, indent=2, sort_keys=True))
     return 0 if all(item["ok"] for item in checks) else 1
 
@@ -219,6 +388,7 @@ def build_parser():
         "release-status", help="Show executable and human-review release status"
     )
     release_status.add_argument("--json", action="store_true")
+    release_status.add_argument("--require", choices=("preview", "stable"))
     release_status.set_defaults(handler=_release_status)
 
     run = commands.add_parser("run", help="Run one task and protocol")
@@ -251,6 +421,12 @@ def build_parser():
     inspect.set_defaults(handler=_inspect)
 
     doctor = commands.add_parser("doctor", help="Check the local runtime")
+    doctor.add_argument(
+        "--offline",
+        action="store_true",
+        help="Skip the authenticated model completion and tool-call smoke test.",
+    )
+    doctor.add_argument("--timeout", type=float, default=60.0)
     doctor.set_defaults(handler=_doctor)
     return parser
 

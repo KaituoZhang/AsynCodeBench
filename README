@@ -3,6 +3,10 @@
 AsynCodeBench is a dependency-aware benchmark for evaluating asynchronous
 multi-agent software-engineering systems on real Python repositories.
 
+**Release status:** `v0.3` Community Preview. The executable release is ready
+for community evaluation; stable-release gates remain open for independent
+human review and a validated public baseline bundle.
+
 Traditional coding benchmarks primarily ask whether the final patch passes the
 tests. AsynCodeBench asks an additional question:
 
@@ -135,8 +139,12 @@ Check both executable and review status from the CLI:
 
 ```bash
 cd reproductions/async-swe-agents
-uv run asyncodebench release-status
+uv run asyncodebench release-status --require preview
 ```
+
+`--require stable` intentionally exits nonzero until all 16 tasks complete
+independent human review and at least one checksum-validated baseline bundle is
+registered in `manifests/release/v0.3/validated_baselines.json`.
 
 ## Runtime Architecture
 
@@ -167,7 +175,8 @@ experiments. New runs should use the native entry point or wrapper below.
 ### 1. Install
 
 ```bash
-git clone https://github.com/KaituoZhang/Asynccodebench.git AsynCodeBench
+git clone --branch agent/community-ready-release --single-branch \
+  https://github.com/KaituoZhang/Asynccodebench.git AsynCodeBench
 cd AsynCodeBench
 bash scripts/setup_evaluation.sh
 ```
@@ -175,7 +184,8 @@ bash scripts/setup_evaluation.sh
 Prerequisites: Python 3.12, [`uv`](https://docs.astral.sh/uv/), Docker, and
 enough disk space for task images and outputs. The setup script installs the
 benchmark contracts and runner, checks out the pinned OpenHands SDK, verifies
-Docker, and runs the no-API tests.
+Docker, materializes checksum-pinned contract-test sources, and runs the no-API
+tests.
 
 `uv python install 3.12` provides a managed interpreter when the system Python
 is older; the setup script resolves Python through `uv`.
