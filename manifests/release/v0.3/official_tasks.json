@@ -1,0 +1,25 @@
+{
+  "official_task_ids": [
+    "asyncodebench:cachetools",
+    "asyncodebench:deprecated",
+    "asyncodebench:portalocker",
+    "asyncodebench:tinydb",
+    "asyncodebench:wcwidth",
+    "asyncodebench:requests",
+    "asyncodebench:simpy",
+    "asyncodebench:parsel",
+    "asyncodebench:filesystem_spec",
+    "asyncodebench:marshmallow",
+    "asyncodebench:graphene",
+    "asyncodebench:imapclient",
+    "asyncodebench:pexpect",
+    "asyncodebench:flask",
+    "asyncodebench:python-rsa",
+    "asyncodebench:cookiecutter"
+  ],
+  "release": "v0.3",
+  "release_version": "0.3.0",
+  "schema_version": "asyncodebench-release-tasks-v1",
+  "task_count": 16,
+  "task_namespace": "asyncodebench"
+}

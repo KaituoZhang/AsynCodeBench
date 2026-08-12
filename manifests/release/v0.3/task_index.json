@@ -1,0 +1,1024 @@
+{
+  "dependency_point_count": 47,
+  "protocols": [
+    "single",
+    "serial_specialists",
+    "async_private",
+    "caid_manager"
+  ],
+  "release": "v0.3",
+  "release_version": "0.3.0",
+  "scenario_count": 64,
+  "schema_version": "asyncodebench-task-index-v1",
+  "task_count": 16,
+  "tasks": [
+    {
+      "artifacts": {
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_cachetools_async_metrics.json",
+          "sha256": "00a744020f4bc919310fc35bcb49c07dc5e99212d561d4de7c16adbeb25e1075"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_cachetools.json",
+          "sha256": "2c145f118eb2372f8062fd80112207e87bd9c1cebf3bfdc13dc6e7a5297955de"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_cachetools.json",
+          "sha256": "00a85f9ddfbb1d783c5dd13455a0927e83029ccc76e33c270431118e81997879"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_cachetools.json",
+          "sha256": "f7a842f0b90085ea7364a84f03da117872674fcfa86c978199e8d3663127408d"
+        }
+      },
+      "dependency_point_count": 5,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 2,
+          "communication_condition": "none_in_flight",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "commit0-cachetools.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 2,
+          "communication_condition": "structured_message_and_artifact",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "commit0-cachetools.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 2,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "commit0-cachetools.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "commit0-cachetools.iterative-single.v0.3"
+        }
+      },
+      "quality_status": null,
+      "repository": "cachetools",
+      "source": {
+        "base_ref": "commit0",
+        "base_sha": "a0a7e2b73f9e146b8a8f2912948b17a918e5fe83",
+        "benchmark": "Commit0",
+        "overlay_count": 0,
+        "repository": "cachetools"
+      },
+      "source_task_id": "commit0:cachetools",
+      "task_id": "asyncodebench:cachetools"
+    },
+    {
+      "artifacts": {
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_deprecated_async_metrics.json",
+          "sha256": "1c0e0d2465b05edacb6375a8b27aac249f9a677df2d182c9adc4862b2cb2f86a"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_deprecated.json",
+          "sha256": "dc156e4ce4c997d33df548b0732d17f154682a0f53631dbe12febfc6f1e0346d"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_deprecated.json",
+          "sha256": "b76901c8dddbe5f441ad241463b82a73a563f21f78cc057d0c0907b24a9eef1d"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_deprecated.json",
+          "sha256": "5137b46f15ce6bf40bee27f1e4d7722e434a2387e205e36d92adfc37a06d0e23"
+        }
+      },
+      "dependency_point_count": 3,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 2,
+          "communication_condition": "none_in_flight",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "commit0-deprecated.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 2,
+          "communication_condition": "structured_message_and_artifact",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "commit0-deprecated.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 2,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "commit0-deprecated.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "commit0-deprecated.iterative-single.v0.3"
+        }
+      },
+      "quality_status": null,
+      "repository": "deprecated",
+      "source": {
+        "base_ref": "commit0",
+        "base_sha": "b7e2114c046abb489e4e23ab9f829778b076650d",
+        "benchmark": "Commit0",
+        "overlay_count": 0,
+        "repository": "deprecated"
+      },
+      "source_task_id": "commit0:deprecated",
+      "task_id": "asyncodebench:deprecated"
+    },
+    {
+      "artifacts": {
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_portalocker_async_metrics.json",
+          "sha256": "983fb18a3e450236e31859ffb9dde5f2b4d7fb0cfc8875a4d69f1686cfd69ff1"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_portalocker.json",
+          "sha256": "1aed52fc8127ea30b089ef0f2b131417bf2babdf0d63e4248c0f55c2e6eea90c"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_portalocker.json",
+          "sha256": "7c2bfac6b45d33a75668ff299d419366f939ae37c31a21d2dd6f1fffbaf01769"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_portalocker.json",
+          "sha256": "a57a8825fc374a3791a0ba100e6fba5104bade50f896a83309de7224e917acde"
+        }
+      },
+      "dependency_point_count": 3,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 2,
+          "communication_condition": "none_in_flight",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "commit0-portalocker.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 2,
+          "communication_condition": "structured_message_and_artifact",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "commit0-portalocker.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 2,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "commit0-portalocker.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "commit0-portalocker.iterative-single.v0.3"
+        }
+      },
+      "quality_status": null,
+      "repository": "portalocker",
+      "source": {
+        "base_ref": "commit0",
+        "base_sha": "300136afca11ea23c79ecfd110ed0d2819322f11",
+        "benchmark": "Commit0",
+        "overlay_count": 1,
+        "repository": "portalocker"
+      },
+      "source_task_id": "commit0:portalocker",
+      "task_id": "asyncodebench:portalocker"
+    },
+    {
+      "artifacts": {
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_tinydb_async_metrics.json",
+          "sha256": "9a5cfef074c231dfb652762421d2ce2e3493c6370bbccbfbc0492c11cadd570c"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_tinydb.json",
+          "sha256": "bfe0302c6f054fbec0f164b233da4bb9305aef531b893f5cc4df1eed2bcf2813"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_tinydb.json",
+          "sha256": "ffea0dd040d78cc0f6ccdb5fe37d2968ae6c4a343570175d13575f3a5ae18e1a"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_tinydb.json",
+          "sha256": "26a16db0b781593dad0dbeb1253a2b12d70173c097ff1473c08c9cd34bd92afe"
+        }
+      },
+      "dependency_point_count": 3,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 2,
+          "communication_condition": "none_in_flight",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "commit0-tinydb.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 2,
+          "communication_condition": "structured_message_and_artifact",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "commit0-tinydb.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 2,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "commit0-tinydb.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "commit0-tinydb.iterative-single.v0.3"
+        }
+      },
+      "quality_status": null,
+      "repository": "tinydb",
+      "source": {
+        "base_ref": "commit0",
+        "base_sha": "ed761a72c8c1e1cb24ca4dbcc089f35c5264d357",
+        "benchmark": "Commit0",
+        "overlay_count": 1,
+        "repository": "tinydb"
+      },
+      "source_task_id": "commit0:tinydb",
+      "task_id": "asyncodebench:tinydb"
+    },
+    {
+      "artifacts": {
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_wcwidth_async_metrics.json",
+          "sha256": "f8388c8ac1cd188f834926716015a49dfaeeeaf36651e2cadd0b032cd4dfc52a"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_wcwidth.json",
+          "sha256": "837b4b956d5865960f0e1623ca94745c3b2051f8a11d942d26d95b18888b6e60"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_wcwidth.json",
+          "sha256": "1745a4c31a80729491e402e9170af543bf7e4f4b24aa0fa0253f513861f9afb7"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_wcwidth.json",
+          "sha256": "f97c73ea0f21f1dad850cede184f99c9ebd17de5d000d9d1b83ed4354a66cad6"
+        }
+      },
+      "dependency_point_count": 2,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 2,
+          "communication_condition": "none_in_flight",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "commit0-wcwidth.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 2,
+          "communication_condition": "structured_message_and_artifact",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "commit0-wcwidth.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 2,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "commit0-wcwidth.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "commit0-wcwidth.iterative-single.v0.3"
+        }
+      },
+      "quality_status": null,
+      "repository": "wcwidth",
+      "source": {
+        "base_ref": "commit0",
+        "base_sha": "0d0054189bdb0fc7b9de0456fc3cee2b67a6ceba",
+        "benchmark": "Commit0",
+        "overlay_count": 0,
+        "repository": "wcwidth"
+      },
+      "source_task_id": "commit0:wcwidth",
+      "task_id": "asyncodebench:wcwidth"
+    },
+    {
+      "artifacts": {
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_requests_async_metrics.json",
+          "sha256": "375ca5db156a0d2bbcbde04c538f6fa4267a9b332e19f65fb41c10294d19664b"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_requests.json",
+          "sha256": "0ba6e94985cb93c8d22dc0f392ceaf7f46bbe06975e161c6ddbc1decfee43131"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_requests.json",
+          "sha256": "710804b124fc2fbc0a6be4a245fbe68b9de66887d3380e7c7c1cba5a9bb35c72"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_requests.json",
+          "sha256": "072319ee9e8bb784d46b323813c2452b55729384cd9d3d352c0fa462f8de75f4"
+        }
+      },
+      "dependency_point_count": 3,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 3,
+          "communication_condition": "none_in_flight",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "commit0-requests.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 3,
+          "communication_condition": "structured_message_and_artifact",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "commit0-requests.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 3,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "commit0-requests.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "commit0-requests.iterative-single.v0.3"
+        }
+      },
+      "quality_status": null,
+      "repository": "requests",
+      "source": {
+        "base_ref": "origin/commit0_combined",
+        "base_sha": "0e5a01d0ed71fd20b6a72cafe92b9a917ce93d7b",
+        "benchmark": "Commit0",
+        "overlay_count": 3,
+        "repository": "requests"
+      },
+      "source_task_id": "commit0:requests",
+      "task_id": "asyncodebench:requests"
+    },
+    {
+      "artifacts": {
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_simpy_async_metrics.json",
+          "sha256": "7e62f62e792e5062ee9c149e1da5af1d77356f14230dfc2b2a30f6e2fe1a4b3b"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_simpy.json",
+          "sha256": "36405f20b704d6605293c0ceac1720ba13c9186323ce414ece7603f30941f07c"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_simpy.json",
+          "sha256": "5d64712e164ca168a0813fba4439272cd205378fcb0ae80591e0cc80e015d8cf"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_simpy.json",
+          "sha256": "fc82b75edbe1c24f5b9e5acad775cd9ea4dbcac3cc603a9ac70bb43e23a059d9"
+        }
+      },
+      "dependency_point_count": 3,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 4,
+          "communication_condition": "none_in_flight",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "commit0-simpy.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 4,
+          "communication_condition": "structured_message_and_artifact",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "commit0-simpy.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 4,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "commit0-simpy.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "commit0-simpy.iterative-single.v0.3"
+        }
+      },
+      "quality_status": null,
+      "repository": "simpy",
+      "source": {
+        "base_ref": "origin/commit0_combined",
+        "base_sha": "25496719af798e5a276289279651873ea5b6e7d1",
+        "benchmark": "Commit0",
+        "overlay_count": 0,
+        "repository": "simpy"
+      },
+      "source_task_id": "commit0:simpy",
+      "task_id": "asyncodebench:simpy"
+    },
+    {
+      "artifacts": {
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_parsel_async_metrics.json",
+          "sha256": "ae098befad71cf7ddeddd420ddde9d1c732ee29b5ca76b4b9153233ef1165a3a"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_parsel.json",
+          "sha256": "605a81f854cb3cbef549c802bb514393911349d3a82bebdd61854c971f2ca2df"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_parsel.json",
+          "sha256": "55f74ed58ea559e5498cb36949088b8220720f360c3908affc776039dc9ffccd"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_parsel.json",
+          "sha256": "82af8292b2cad4bf7859b4aefc2ac3fffe0fda29de68e9e5bcc0c84ec022d96e"
+        }
+      },
+      "dependency_point_count": 2,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 3,
+          "communication_condition": "none_in_flight",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "commit0-parsel.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 3,
+          "communication_condition": "structured_message_and_artifact",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "commit0-parsel.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 3,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "commit0-parsel.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "commit0-parsel.iterative-single.v0.3"
+        }
+      },
+      "quality_status": null,
+      "repository": "parsel",
+      "source": {
+        "base_ref": "origin/commit0_combined",
+        "base_sha": "7e73d60665ef2e3ddfe3c1bb01eed981cd317c6f",
+        "benchmark": "Commit0",
+        "overlay_count": 1,
+        "repository": "parsel"
+      },
+      "source_task_id": "commit0:parsel",
+      "task_id": "asyncodebench:parsel"
+    },
+    {
+      "artifacts": {
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_filesystem_spec_async_metrics.json",
+          "sha256": "ac3f202a9f3edeeaeb1f569f58502cc9d3b5b6a3605b0052241aa7d922d833a6"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_filesystem_spec.json",
+          "sha256": "b2224f13b008a9cc882bdda9c390dae8dbbfe8cbd5cce2441f7ba1d7dbc26e96"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_filesystem_spec.json",
+          "sha256": "cf3e5577945b58d84730352768ed7641913c8d90223330b1631d6d0ca1617d9f"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_filesystem_spec.json",
+          "sha256": "a21bc9cc3f5550b69d7b1a516224cba022e2377410dc8348a345b0a759f1914f"
+        }
+      },
+      "dependency_point_count": 2,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 3,
+          "communication_condition": "none_in_flight",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "commit0-filesystem-spec.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 3,
+          "communication_condition": "structured_message_and_artifact",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "commit0-filesystem-spec.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 3,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "commit0-filesystem-spec.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "commit0-filesystem-spec.iterative-single.v0.3"
+        }
+      },
+      "quality_status": null,
+      "repository": "filesystem_spec",
+      "source": {
+        "base_ref": "origin/commit0_combined",
+        "base_sha": "0d34761c18d98009d76a1c19246606026c0e44a0",
+        "benchmark": "Commit0",
+        "overlay_count": 4,
+        "repository": "filesystem_spec"
+      },
+      "source_task_id": "commit0:filesystem_spec",
+      "task_id": "asyncodebench:filesystem_spec"
+    },
+    {
+      "artifacts": {
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_marshmallow_async_metrics.json",
+          "sha256": "138564fcc6909caaa0f8297b3e010df63949ea07f87ebfe07afdd2eac9c2e139"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_marshmallow.json",
+          "sha256": "f94abbbdbf6479b9b0faa964851b0f73edcae24374f955304679779a6adca46d"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_marshmallow.json",
+          "sha256": "fad980aa4833b273bb4c1907f769780f2663cc15a0705d09e7450a2adda322a0"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_marshmallow.json",
+          "sha256": "19cd43370098f3e8401febe97412159dfada89a1a99c3a837a74c9edaca592b3"
+        }
+      },
+      "dependency_point_count": 3,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 3,
+          "communication_condition": "none_in_flight",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "commit0-marshmallow.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 3,
+          "communication_condition": "structured_message_and_artifact",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "commit0-marshmallow.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 3,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "commit0-marshmallow.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "commit0-marshmallow.iterative-single.v0.3"
+        }
+      },
+      "quality_status": null,
+      "repository": "marshmallow",
+      "source": {
+        "base_ref": "origin/commit0_combined",
+        "base_sha": "bd290d2b49f5030a2369aedc5538cffa4815982d",
+        "benchmark": "Commit0",
+        "overlay_count": 4,
+        "repository": "marshmallow"
+      },
+      "source_task_id": "commit0:marshmallow",
+      "task_id": "asyncodebench:marshmallow"
+    },
+    {
+      "artifacts": {
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_graphene_async_metrics.json",
+          "sha256": "7185bddae58451042063c8efc5adf07c925452dbd5e027547b7fb8ef4173004e"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_graphene.json",
+          "sha256": "0e7fb4fac8a606e94d6ed42bea02a2d4887b0adddf9310b79eff7bf7ae20c5ee"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_graphene.json",
+          "sha256": "1a6c8641c8d402b8541843c37d664e20c6c64f39ea02edc668d377ed5e4177bc"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_graphene.json",
+          "sha256": "b90148ed3ef451b3a5ede722751e2a6540de93fe683c250a19058c0821224699"
+        }
+      },
+      "dependency_point_count": 3,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 3,
+          "communication_condition": "private_concurrent_workspaces",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "commit0-graphene.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 3,
+          "communication_condition": "asynchronous_message_handoff",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "commit0-graphene.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 3,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "commit0-graphene.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "commit0-graphene.iterative-single.v0.3"
+        }
+      },
+      "quality_status": null,
+      "repository": "graphene",
+      "source": {
+        "base_ref": "origin/commit0_combined",
+        "base_sha": "ec2d3f476a7fa94a7a2ffc3c145422b0c3b7e71a",
+        "benchmark": "Commit0",
+        "overlay_count": 11,
+        "repository": "graphene"
+      },
+      "source_task_id": "commit0:graphene",
+      "task_id": "asyncodebench:graphene"
+    },
+    {
+      "artifacts": {
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_imapclient_async_metrics.json",
+          "sha256": "21c5af0979dad7e861ea44bfc14626491e9fa35a29713d062bdb47116bc734f1"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_imapclient.json",
+          "sha256": "06c817e45b851d0228be3a62b69d99c6af0d5ba09f94632c01a6d3614508649c"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_imapclient.json",
+          "sha256": "a0c444a586653e4acc5c863559962fa7b88a4f0d08421fb77f1039eedc1a6c01"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_imapclient.json",
+          "sha256": "1d8ae125a4dbf6b73fc1c12d1c4e378b666b18a42d3e933ce0453e563fce770c"
+        }
+      },
+      "dependency_point_count": 3,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 3,
+          "communication_condition": "private_concurrent_workspaces",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "commit0-imapclient.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 3,
+          "communication_condition": "asynchronous_message_handoff",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "commit0-imapclient.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 3,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "commit0-imapclient.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "commit0-imapclient.iterative-single.v0.3"
+        }
+      },
+      "quality_status": null,
+      "repository": "imapclient",
+      "source": {
+        "base_ref": "origin/commit0_combined",
+        "base_sha": "7ca5a23640bcb0b102673eaaf5eaa6e7fcebd76b",
+        "benchmark": "Commit0",
+        "overlay_count": 5,
+        "repository": "imapclient"
+      },
+      "source_task_id": "commit0:imapclient",
+      "task_id": "asyncodebench:imapclient"
+    },
+    {
+      "artifacts": {
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_pexpect_async_metrics.json",
+          "sha256": "d2e3464378553f05df0c358c12621f1fceba53a55cf496666799dd91a6dad44f"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_pexpect.json",
+          "sha256": "57a200544754856f0a4bfe9e0a5d0fa4cb3d2ecd56aba9237720e57b9942b248"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_pexpect.json",
+          "sha256": "dd2331a5c9e3e876cd9f90a8d0afd4aa02ff4a9dd42648dc4fd6485e1d514f69"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_pexpect.json",
+          "sha256": "3c41cd2a846d3b413da09ce3606287ff3c38800bf86ed74e8bc90fd2811b967a"
+        }
+      },
+      "dependency_point_count": 3,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 4,
+          "communication_condition": "private_concurrent_workspaces",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "commit0-pexpect.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 4,
+          "communication_condition": "asynchronous_message_handoff",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "commit0-pexpect.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 4,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "commit0-pexpect.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "commit0-pexpect.iterative-single.v0.3"
+        }
+      },
+      "quality_status": null,
+      "repository": "pexpect",
+      "source": {
+        "base_ref": "origin/commit0_combined",
+        "base_sha": "21b5908ea5b9b38ca996fec50dc449bff5c2c82f",
+        "benchmark": "Commit0",
+        "overlay_count": 1,
+        "repository": "pexpect"
+      },
+      "source_task_id": "commit0:pexpect",
+      "task_id": "asyncodebench:pexpect"
+    },
+    {
+      "artifacts": {
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_flask_async_metrics.json",
+          "sha256": "1d835acc0c8d1ecf9cd6e49b2581ca42a16072d9198364649f95d993654eec1f"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_flask.json",
+          "sha256": "43de76d569074bce9f120610e87ecb2e8911bed66bfe5a97cd1dab25c7223e9c"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_flask.json",
+          "sha256": "be8c0093ceb3d03bd3b3b3e89d965df393c2ebd1ecad0c87a8aa2f4ed1364e9e"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_flask.json",
+          "sha256": "6491757be2710e2408360a4f5a7efd58c287483f42e62bc96dfa49f06bcdaabc"
+        }
+      },
+      "dependency_point_count": 3,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 4,
+          "communication_condition": "private_concurrent_workspaces",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "commit0-flask.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 4,
+          "communication_condition": "asynchronous_message_handoff",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "commit0-flask.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 4,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "commit0-flask.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "commit0-flask.iterative-single.v0.3"
+        }
+      },
+      "quality_status": null,
+      "repository": "flask",
+      "source": {
+        "base_ref": "origin/commit0_combined",
+        "base_sha": "af126af63a288df1d4edfe07e82a3b241aa4567a",
+        "benchmark": "Commit0",
+        "overlay_count": 11,
+        "repository": "flask"
+      },
+      "source_task_id": "commit0:flask",
+      "task_id": "asyncodebench:flask"
+    },
+    {
+      "artifacts": {
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_python_rsa_async_metrics.json",
+          "sha256": "005dcfe9f2ec36efb3cf0dc1d614b1e1b94e1be333bff9b6814baaa1240c9077"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_python_rsa.json",
+          "sha256": "9a299997429ff58878bec0eb00dab770a7e67758b6ffcc590a3e4a85e38fcde1"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_python_rsa.json",
+          "sha256": "90e0cb9ec5ff6671803628133f986f6af1ce174c3cdd9fe74e1ed735d8a5a219"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_python_rsa.json",
+          "sha256": "8201fed08ad97db6fc577fd57736c66684857f692d65695462ba94c3b77b5c2e"
+        }
+      },
+      "dependency_point_count": 3,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 4,
+          "communication_condition": "none_in_flight",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "commit0-python-rsa.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 4,
+          "communication_condition": "structured_message_and_artifact",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "commit0-python-rsa.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 4,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "commit0-python-rsa.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "commit0-python-rsa.iterative-single.v0.3"
+        }
+      },
+      "quality_status": null,
+      "repository": "python-rsa",
+      "source": {
+        "base_ref": "origin/commit0_combined",
+        "base_sha": "228b947d61f06612107205ab369a017ff63f9a8f",
+        "benchmark": "Commit0",
+        "overlay_count": 0,
+        "repository": "python-rsa"
+      },
+      "source_task_id": "commit0:python-rsa",
+      "task_id": "asyncodebench:python-rsa"
+    },
+    {
+      "artifacts": {
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_cookiecutter_async_metrics.json",
+          "sha256": "78b5f849e4e3943b82ab8be300bd59fde8ad67534b6ee24913532e814ad8a346"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_cookiecutter.json",
+          "sha256": "93d2a4722f514ab8f332c554dcd096fef8af672aeb8a3c86f765593507a59963"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_cookiecutter.json",
+          "sha256": "64b6cdcecf67bc315c2365c5ec1f022f860303dd42ffa43889f6f7c4cdaa6b40"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_cookiecutter.json",
+          "sha256": "c082787fc9cedd9f01c4b33be434eb45db2738d0bc60b493a792fe6d9e02ba07"
+        }
+      },
+      "dependency_point_count": 3,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 4,
+          "communication_condition": "none_in_flight",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "commit0-cookiecutter.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 4,
+          "communication_condition": "structured_message_and_artifact",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "commit0-cookiecutter.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 4,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "commit0-cookiecutter.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "commit0-cookiecutter.iterative-single.v0.3"
+        }
+      },
+      "quality_status": null,
+      "repository": "cookiecutter",
+      "source": {
+        "base_ref": "origin/commit0_combined",
+        "base_sha": "c7a8c70a666270053d848f5664413af1af7a987f",
+        "benchmark": "Commit0",
+        "overlay_count": 0,
+        "repository": "cookiecutter"
+      },
+      "source_task_id": "commit0:cookiecutter",
+      "task_id": "asyncodebench:cookiecutter"
+    }
+  ]
+}

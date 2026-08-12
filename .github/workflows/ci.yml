@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - agent/community-ready-release
+      - agent/reproducible-model-evaluation
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark-contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+      - run: python -m pip install -U pip
+      - run: python -m pip install -e ".[dev]"
+      - run: PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest -q tests/contracts
+      - run: python scripts/build_release_index.py --check
+      - run: >-
+          python scripts/check_markdown_links.py
+          README
+          docs/README.md
+          docs/EVALUATION_BRANCH_QUICKSTART.md
+          docs/COMMUNITY_RELEASE_AND_AGENT_ADAPTER_PLAN.md
+
+  native-harness:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: reproductions/async-swe-agents
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --frozen
+      - run: uv run pytest -q tests
+      - name: Dry-run all native protocols
+        run: |
+          for protocol in single serial_specialists async_private caid_manager; do
+            uv run python run_asyncodebench.py \
+              --task_id asyncodebench:cachetools \
+              --protocol "$protocol" \
+              --model openai/ci-placeholder \
+              --dry_run
+          done
+
+  repository-hygiene:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject private environment and generated output files
+        shell: bash
+        run: |
+          set -euo pipefail
+          bad_env="$(git ls-files | grep -E '(^|/)\.env($|\.)' | grep -vE '\.example$' || true)"
+          bad_outputs="$(git ls-files | grep -E '(^|/)outputs/.+' | grep -vE '(^|/)outputs/README\.md$' || true)"
+          if [[ -n "$bad_env" || -n "$bad_outputs" ]]; then
+            printf 'Tracked private env files:\n%s\n' "$bad_env" >&2
+            printf 'Tracked generated outputs:\n%s\n' "$bad_outputs" >&2
+            exit 1
+          fi
