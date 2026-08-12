@@ -38,6 +38,8 @@ cd reproductions/async-swe-agents
 uv sync
 cd ..
 git clone https://github.com/OpenHands/software-agent-sdk.git
+git -C software-agent-sdk checkout \
+  944284310d9a5f1ccad0ef8c2d7c4c38342b9952
 cd async-swe-agents
 ```
 
@@ -48,13 +50,13 @@ experiment:
 docker run --rm hello-world
 ```
 
-## 3. Provide The External Task Source
+## 3. Configure The Model
 
-Set `COMMIT0_DATASET_PATH` to a local Hugging Face dataset created with
-`save_to_disk`. AsynCodeBench does not evaluate raw Commit0 directly: the
-runner selects the curated v0.3 source record, verifies its base SHA, applies
-checksum-pinned non-solution overlays, and uses the AsynCodeBench task and
-metric manifests.
+Native AsynCodeBench runs do not require a local Commit0 dataset. The runner
+loads the curated task record from this repository, clones the pinned public
+source repository, verifies its base SHA, applies checksum-pinned non-solution
+overlays, and uses the AsynCodeBench task and metric manifests. A
+`COMMIT0_DATASET_PATH` is needed only for historical Commit0-named scripts.
 
 Create an untracked model environment:
 
@@ -69,7 +71,6 @@ LLM_BASE_URL=<OpenAI-compatible endpoint>
 LLM_API_KEY=<secret or non-empty local dummy key>
 LLM_MODEL=<LiteLLM provider/model name>
 LLM_SUBAGENT_MODEL=<same model or empty>
-COMMIT0_DATASET_PATH=/absolute/path/to/commit0_combined
 SDK_SOURCE_DIR=/absolute/path/to/AsynCodeBench/reproductions/software-agent-sdk
 ```
 
@@ -86,7 +87,6 @@ unset ASYNCODEBENCH_DISABLE_CURATED_TASK_CONFIG
 unset ASYNCODEBENCH_DISABLE_MANIFEST_EVALUATOR
 
 docker info >/dev/null
-test -d "$COMMIT0_DATASET_PATH"
 test -d "$SDK_SOURCE_DIR"
 printf 'model=%s\nendpoint=%s\n' "$LLM_MODEL" "$LLM_BASE_URL"
 ```

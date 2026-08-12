@@ -157,6 +157,8 @@ enough disk space for task images and outputs.
 ```bash
 git clone https://github.com/OpenHands/software-agent-sdk.git \
   reproductions/software-agent-sdk
+git -C reproductions/software-agent-sdk checkout \
+  944284310d9a5f1ccad0ef8c2d7c4c38342b9952
 
 cd reproductions/async-swe-agents
 uv sync
@@ -179,14 +181,14 @@ LLM_BASE_URL=https://your-endpoint.example/v1
 LLM_API_KEY=your-key-or-local-dummy-key
 LLM_MODEL=openai/your-model-name
 LLM_SUBAGENT_MODEL=
-COMMIT0_DATASET_PATH=/absolute/path/to/commit0_combined
 SDK_SOURCE_DIR=/absolute/path/to/AsynCodeBench/reproductions/software-agent-sdk
 ```
 
-The external Commit0 dataset supplies the pinned source snapshot. It is not the
-runtime benchmark interface: the native harness verifies the curated source,
-applies only checksum-pinned bootstrap overlays, and executes the AsynCodeBench
-task, protocol, scope, probe, and evaluator contracts.
+Native runs do not require a local Commit0 `load_from_disk` dataset. The harness
+loads the curated record from this repository, clones the pinned public source,
+verifies its SHA, applies only checksum-pinned bootstrap overlays, and executes
+the AsynCodeBench task, protocol, scope, probe, and evaluator contracts.
+`COMMIT0_DATASET_PATH` is retained only for legacy reproduction scripts.
 
 ### 4. Dry-run all four protocols
 

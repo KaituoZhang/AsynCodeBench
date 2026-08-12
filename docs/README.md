@@ -17,6 +17,7 @@ Start here when onboarding a collaborator or a new Codex session.
 | `COLLABORATOR_RUNBOOK.md` | General collaborator setup and repository release notes; use its native-runner section. |
 | `AGENT_EXPERIMENT_RUNBOOK.md` | Historical v1 runner reference only; do not use it for new official runs. |
 | `EVALUATION_METRICS.md` | Metric definitions and post-run analysis rules. |
+| `COMMUNITY_RELEASE_AND_AGENT_ADAPTER_PLAN.md` | Concrete release packaging, standard result bundle, and custom-agent adapter plan. |
 
 ## Task Construction And Methodology
 

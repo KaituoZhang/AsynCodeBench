@@ -1,0 +1,5 @@
+{
+  "repository": "https://github.com/OpenHands/software-agent-sdk.git",
+  "commit": "944284310d9a5f1ccad0ef8c2d7c4c38342b9952",
+  "purpose": "Validated source checkout used to build the OpenHands agent-server image for the AsynCodeBench native harness."
+}
