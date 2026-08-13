@@ -122,6 +122,11 @@ scripts/run_gemma4_task_env.sh cachetools
 `run_gemma4_task_env.sh` is only for the validated Gemma 4 profile. For any
 other API or local model, use the model-neutral native wrapper:
 
+On Linux, the Gemma wrapper defaults the OpenHands task container to host
+networking so a local `LLM_BASE_URL=http://127.0.0.1:<port>/v1` remains
+reachable from inside the container. Before a formal run, still execute the
+Docker connectivity gate in `docs/GEMMA4_CAID_HARNESS_FIX.md`.
+
 ```bash
 ENV_FILE="$PWD/.env.<model_tag>" \
 MODEL_TAG=<filesystem-safe-model-tag> \

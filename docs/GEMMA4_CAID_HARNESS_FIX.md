@@ -93,8 +93,8 @@ scripts/serve_gemma4_26b_a4b.sh 0 8006 2
 ```
 
 The wrapper keeps the official Gemma reasoning parser, tool parser, chat
-template, thinking mode, 135,168-token server window, and 32,768-token scheduler
-batch setting. The third argument is `max-num-seqs`; set it to the task's
+template, thinking mode, a server window of at least 163,840 tokens, and the
+32,768-token scheduler batch setting. The third argument is `max-num-seqs`; set it to the task's
 specialist count and keep it unchanged across all four protocols for that task.
 It also prepends the selected vLLM environment's `bin` directory to `PATH`.
 This is required because FlashInfer may invoke that environment's `ninja`
@@ -118,17 +118,26 @@ curl -fsS http://127.0.0.1:8006/version
 
 uv run python scripts/check_gemma4_server.py \
   --base-url http://127.0.0.1:8006/v1 \
-  --model google/gemma-4-26B-A4B-it
+  --model google/gemma-4-26B-A4B-it \
+  --minimum-version 0.24.0 \
+  --minimum-context 163840
+
+docker run --rm --network host curlimages/curl:8.10.1 \
+  -fsS http://127.0.0.1:8006/v1/models
 ```
 
-The preflight rejects a legacy parser server or a wrong served model before any
-benchmark request is made.
+The metadata preflight rejects a legacy parser server, wrong served model, or
+insufficient context before any benchmark request is made. The Docker command
+checks the separate container-to-vLLM path. A successful host-side request is
+not sufficient because `127.0.0.1` otherwise refers to the task container.
 
 ## Run One Formal Task
 
 Endpoint env files must contain the Gemma model profile and matching port.
 `run_gemma4_task_env.sh` now exports the remote lifecycle defaults itself, so a
-stale endpoint copy cannot restore the old one-hour timeout.
+stale endpoint copy cannot restore the old one-hour timeout. For this local
+Linux profile it also defaults `ASYNCODEBENCH_WORKSPACE_DOCKER_NETWORK` to
+`host`, while preserving an explicit override for other platforms.
 
 ```bash
 cd /absolute/path/to/AsynCodeBench/reproductions/async-swe-agents
@@ -138,6 +147,10 @@ ASYNCODEBENCH_WORKSPACE_HOST_PORT=18000 \
 RUN_VERSION=vllm024plus_remotev2_v01 \
 scripts/run_gemma4_task_env.sh cachetools
 ```
+
+If a run reports `LLMServiceUnavailableError` with `Iterations used: 0`, treat
+it as infrastructure-invalid. Keep the failed directory as evidence and rerun
+with a new `RUN_VERSION` after the Docker connectivity gate passes.
 
 The formal defaults are:
 

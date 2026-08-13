@@ -22,6 +22,11 @@ esac
 # shellcheck source=scripts/env.sh
 source scripts/env.sh
 
+# The OpenHands agent server runs inside the task container. For the local
+# vLLM profile, host networking makes 127.0.0.1 resolve to the host endpoint
+# instead of the container itself. Preserve an explicit user override.
+export ASYNCODEBENCH_WORKSPACE_DOCKER_NETWORK="${ASYNCODEBENCH_WORKSPACE_DOCKER_NETWORK:-host}"
+
 # Per-port .env files are often copied before timeout defaults change. Apply the
 # Gemma local-serving policy here so a stale env cannot silently restore the
 # legacy one-hour CAID deadline.
