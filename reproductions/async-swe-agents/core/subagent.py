@@ -5,7 +5,6 @@ from datetime import datetime
 from types import MethodType
 
 import httpx
-
 from config import SubAgent, SubAgentResult
 from openhands.sdk import Agent, Conversation, LLMSummarizingCondenser
 from openhands.tools.preset.default import get_default_tools
@@ -370,6 +369,55 @@ def latest_conversation_error(events):
     return None
 
 
+def classify_conversation_termination(
+    conversation,
+    *,
+    error=None,
+    iterations=0,
+    max_iterations=0,
+    events=None,
+):
+    """Return a stable stop reason and whether the iteration cap was hit."""
+    event_list = list(
+        events
+        if events is not None
+        else getattr(getattr(conversation, "state", None), "events", [])
+    )
+    structured_error = (latest_conversation_error(event_list) or "").lower()
+    error_text = f"{error or ''} {structured_error}".lower()
+    status = _normalized_remote_status(
+        getattr(getattr(conversation, "state", None), "execution_status", "")
+    )
+
+    if "maxiterationsreached" in error_text or "maximum iterations" in error_text:
+        return "iteration_limit", True
+    if "contextwindow" in error_text or "context window" in error_text:
+        return "context_window_error", False
+    if "stuck" in error_text or status == "stuck":
+        return "stuck_detected", False
+    if "timed out" in error_text or "timeout" in error_text:
+        return "wall_clock_timeout", False
+    if any(
+        marker in error_text
+        for marker in (
+            "connection error",
+            "serviceunavailable",
+            "rate_limit",
+            "ratelimit",
+            "provider",
+            "transport",
+        )
+    ):
+        return "provider_or_transport_error", False
+    if status == "finished":
+        return "agent_finish", False
+    if max_iterations and iterations >= max_iterations:
+        return "iteration_limit", True
+    if error_text.strip():
+        return "execution_error", False
+    return "completed_without_finish", False
+
+
 _UNUSABLE_CONVERSATION_ERROR_MARKERS = (
     "got stuck",
     "maxiterationsreached",
@@ -546,6 +594,7 @@ class SubAgentRunner:
         completion_tokens_before = 0
         iteration_before = 0
 
+        run_error = None
         try:
             if self.subagent.current_round == 1:
                 prompt = self.build_first_round_prompt()
@@ -614,6 +663,7 @@ class SubAgentRunner:
                 self.print_summary(result, commit_info)
 
         except Exception as e:
+            run_error = e
             result.success = False
             result.error = str(e)
             self.log(f"ERROR: {e}")
@@ -643,6 +693,15 @@ class SubAgentRunner:
             result.total_tokens = result.prompt_tokens + result.completion_tokens
             result.actual_iterations = count_llm_iterations(self.conversation.state.events) - iteration_before
             result.max_iterations = self.max_iterations
+            (
+                result.termination_reason,
+                result.iteration_cap_hit,
+            ) = classify_conversation_termination(
+                self.conversation,
+                error=run_error or result.error,
+                iterations=result.actual_iterations,
+                max_iterations=result.max_iterations,
+            )
 
             if self.output_logger:
                 events = list(self.conversation.state.events)
@@ -674,6 +733,10 @@ class SubAgentRunner:
         self.log(f"  - End Time: {end_time.strftime('%Y-%m-%d %H:%M:%S')}")
         self.log(f"  - Duration: {duration:.1f}s")
         self.log(f"  - Iterations: {result.actual_iterations}/{result.max_iterations}")
+        self.log(
+            "  - Termination: "
+            f"{result.termination_reason} (cap_hit={result.iteration_cap_hit})"
+        )
         self.log(f"  - Cost: ${result.cost:.4f} ({result.total_tokens} tokens)")
         self.log(f"  - Can accept more tasks: {self.can_accept_more_tasks()}")
 

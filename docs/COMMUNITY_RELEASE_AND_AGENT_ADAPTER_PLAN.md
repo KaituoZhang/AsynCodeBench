@@ -104,7 +104,7 @@ protocol while still allowing different coding-agent implementations.
 ```text
 configs/tasks/commit0_official_tasks.v0.3.json
 configs/tasks/commit0_curated_tasks.v0.3.json
-configs/evaluation/official_execution_profile.v1.json
+configs/evaluation/official_execution_profile.v2.json
 manifests/pilot/v0.3/{tasks,scenarios,metrics,quality}/
 data/overlays/commit0/
 reproductions/async-swe-agents/tasks/asyncodebench.py

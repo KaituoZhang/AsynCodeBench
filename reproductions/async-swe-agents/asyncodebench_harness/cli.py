@@ -319,7 +319,7 @@ def _doctor(args):
         {
             "name": "official_execution_profile",
             "ok": (
-                _repo_root() / "configs/evaluation/official_execution_profile.v1.json"
+                _repo_root() / "configs/evaluation/official_execution_profile.v2.json"
             ).is_file(),
         }
     )
@@ -396,8 +396,8 @@ def build_parser():
     run.add_argument("--protocol", choices=[*PROTOCOL_ORDER, "all"], required=True)
     run.add_argument("--model", default=os.getenv("LLM_MODEL"))
     run.add_argument("--subagent-model", default=os.getenv("LLM_SUBAGENT_MODEL"))
-    run.add_argument("--max-iterations", type=int, default=30)
-    run.add_argument("--sub-iterations", type=int, default=30)
+    run.add_argument("--max-iterations", type=int, default=100)
+    run.add_argument("--sub-iterations", type=int, default=100)
     run.add_argument("--rounds-of-chat", type=int, default=2)
     run.add_argument("--output-dir")
     run.add_argument("--run-id")

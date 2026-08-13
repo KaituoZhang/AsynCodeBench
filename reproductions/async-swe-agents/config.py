@@ -202,6 +202,8 @@ class SubAgentResult:
     total_tokens: int = 0
     actual_iterations: int = 0
     max_iterations: int = 0
+    termination_reason: str = "unknown"
+    iteration_cap_hit: bool = False
     round_num: int = 1
     merged: bool = False
     merge_method: str = ""
@@ -235,6 +237,8 @@ class SubAgentResult:
             "total_tokens": self.total_tokens,
             "actual_iterations": self.actual_iterations,
             "max_iterations": self.max_iterations,
+            "termination_reason": self.termination_reason,
+            "iteration_cap_hit": self.iteration_cap_hit,
             "round_num": self.round_num,
             "merged": self.merged,
             "merge_method": self.merge_method,

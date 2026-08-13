@@ -801,7 +801,7 @@ def test_contract_snapshots_freeze_active_inputs(tmp_path):
     assert protocol["source_task_id"] == task.source_task_id
     assert protocol["source_scenario_id"] == scenario["scenario_id"]
     assert protocol["scope_policy"] == "reject_artifact_before_merge"
-    assert profile["profile_id"] == "asyncodebench-v0.3-standard-30"
+    assert profile["profile_id"] == "asyncodebench-v0.3-standard-100"
 
 
 def test_dry_run_does_not_create_output_directory_or_print_source_brand(

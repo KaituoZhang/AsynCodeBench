@@ -2,9 +2,9 @@
   "automated_audit_complete_task_count": 16,
   "community_preview_ready": true,
   "execution_profile": {
-    "path": "configs/evaluation/official_execution_profile.v1.json",
-    "profile_id": "asyncodebench-v0.3-standard-30",
-    "sha256": "f078cbfc97dbdc7be6147b9e84b2ddaaf50d2b58ba1f142bb9375bb78740b656"
+    "path": "configs/evaluation/official_execution_profile.v2.json",
+    "profile_id": "asyncodebench-v0.3-standard-100",
+    "sha256": "4d63f8d7176c0391528b39e283cd2f7ba53c15c99bc958f9674ebbe65cbef609"
   },
   "human_review_complete_task_count": 1,
   "official_task_ids": [

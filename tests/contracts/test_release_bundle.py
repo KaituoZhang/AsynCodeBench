@@ -69,7 +69,7 @@ def test_release_contains_only_the_16_official_tasks():
     )
     assert official["execution_profile"] == index["execution_profile"]
     assert official["execution_profile"]["profile_id"] == (
-        "asyncodebench-v0.3-standard-30"
+        "asyncodebench-v0.3-standard-100"
     )
     assert all(task["quality_status"] == "qualification_ready" for task in index["tasks"])
     assert sum(

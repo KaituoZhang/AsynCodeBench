@@ -160,9 +160,12 @@ and immutable campaign manifests provide the evidence needed to audit them.
 ## Official Execution Profile
 
 The authoritative profile is
-[`configs/evaluation/official_execution_profile.v1.json`](../configs/evaluation/official_execution_profile.v1.json).
-It fixes the 30-iteration protocol budgets and probe/evaluator timeouts used by
-the official aggregate. Each run stores:
+[`configs/evaluation/official_execution_profile.v2.json`](../configs/evaluation/official_execution_profile.v2.json).
+It fixes a 100-model-response hard cap for each model-facing agent run and the
+probe/evaluator timeouts used by the official aggregate. `FinishTool` remains
+the normal early-completion signal; hitting the cap is a distinct termination
+outcome. The preserved v1 file defines the historical 30-response profile.
+Each run stores:
 
 - the profile ID and SHA256;
 - an exact `execution_profile_snapshot.json`;

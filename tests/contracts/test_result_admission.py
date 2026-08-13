@@ -15,7 +15,7 @@ from summarize_model_task_runs import run_bundle_admission  # noqa: E402
 
 MODES = ("single", "serial_specialists", "async_private", "caid_manager")
 PROFILE_SHA256 = hashlib.sha256(
-    (ROOT / "configs/evaluation/official_execution_profile.v1.json").read_bytes()
+    (ROOT / "configs/evaluation/official_execution_profile.v2.json").read_bytes()
 ).hexdigest()
 
 
@@ -50,7 +50,7 @@ def write_task_records(path, *, model_tag="test-model", eligible):
                 "run_bundle_status": "valid" if eligible else "invalid",
                 "recorded_model": "test/provider-model",
                 "recorded_subagent_model": "test/provider-model",
-                "execution_profile_id": "asyncodebench-v0.3-standard-30",
+                "execution_profile_id": "asyncodebench-v0.3-standard-100",
                 "execution_profile_sha256": PROFILE_SHA256,
                 "generation_configuration_sha256": "a" * 64,
                 "recorded_agent_adapter_name": "openhands",
@@ -97,7 +97,7 @@ def write_task_records(path, *, model_tag="test-model", eligible):
                     "run_bundle_status": "valid" if eligible else "invalid",
                     "recorded_model": "test/provider-model",
                     "recorded_subagent_model": "test/provider-model",
-                    "execution_profile_id": "asyncodebench-v0.3-standard-30",
+                    "execution_profile_id": "asyncodebench-v0.3-standard-100",
                     "execution_profile_sha256": PROFILE_SHA256,
                     "generation_configuration_sha256": "a" * 64,
                     "recorded_agent_adapter_name": "openhands",

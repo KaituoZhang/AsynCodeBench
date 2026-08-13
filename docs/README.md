@@ -11,6 +11,7 @@ Start here when onboarding a collaborator or a new Codex session.
 | [`RESULT_VALIDITY.md`](RESULT_VALIDITY.md) | Canonical run status, per-metric eligibility, official profile, bundle integrity, and legacy-result triage. |
 | [`EVALUATION_METRICS.md`](EVALUATION_METRICS.md) | Metric definitions and post-run analysis rules. |
 | [`ASYNCODEBENCH_HARNESS_V2.md`](ASYNCODEBENCH_HARNESS_V2.md) | Native `task_id`-based runner and protocol guarantees. |
+| [`ITERATION_BUDGET_AND_TERMINATION.md`](ITERATION_BUDGET_AND_TERMINATION.md) | Official 100-response capability profile and stop-reason semantics. |
 | [`LOCAL_VLLM_EXPERIMENT_RUNBOOK.md`](LOCAL_VLLM_EXPERIMENT_RUNBOOK.md) | Local-vLLM capacity, networking, smoke gates, and failure diagnosis. |
 | [`AGENT_ADAPTER.md`](AGENT_ADAPTER.md) | Public bring-your-own-agent contract, loading commands, enforcement, and provenance. |
 | [`VLLM_QWEN_LOCAL_RUNBOOK.md`](VLLM_QWEN_LOCAL_RUNBOOK.md) | Qwen-specific local vLLM setup and tool calling. |

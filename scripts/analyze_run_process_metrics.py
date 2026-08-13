@@ -548,6 +548,8 @@ def outputs_agent_responses(outputs: list[dict[str, Any]]) -> list[dict[str, Any
                     "cost": None,
                     "total_tokens": None,
                     "actual_iterations": content.get("iterations"),
+                    "termination_reason": content.get("termination_reason"),
+                    "iteration_cap_hit": content.get("iteration_cap_hit", False),
                     "duration_seconds": content.get("duration"),
                     "start_time_unix": event.get("start_time_unix"),
                     "end_time_unix": event.get("end_time_unix"),
@@ -573,6 +575,8 @@ def outputs_agent_responses(outputs: list[dict[str, Any]]) -> list[dict[str, Any
                 "cost": content.get("cost"),
                 "total_tokens": content.get("total_tokens"),
                 "actual_iterations": content.get("actual_iterations"),
+                "termination_reason": content.get("termination_reason"),
+                "iteration_cap_hit": content.get("iteration_cap_hit", False),
                 "duration_seconds": content.get("duration_seconds"),
                 "start_time_unix": event.get("start_time_unix"),
                 "end_time_unix": event.get("end_time_unix"),
@@ -943,6 +947,15 @@ def summarize_process_metrics(
         for outcome in attempt_outcomes
         if outcome["failed_without_usable_artifact"]
     )
+    termination_reason_counts: dict[str, int] = defaultdict(int)
+    for response in responses:
+        reason = response.get("termination_reason") or "not_recorded"
+        termination_reason_counts[str(reason)] += 1
+    manager_phase_terminations = [
+        event.get("content") or {}
+        for event in outputs
+        if event.get("event_type") == "manager_run_termination"
+    ]
     return {
         "patch_file_generation_success": {
             "patch_diff_exists": bool(patch_text.strip()),
@@ -951,6 +964,19 @@ def summarize_process_metrics(
             "successful_agent_attempt_count": successful_attempts,
             "failed_agent_attempt_count": failed_attempts,
             "agent_files_modified": files_by_agent,
+        },
+        "agent_termination": {
+            "reason_counts": dict(sorted(termination_reason_counts.items())),
+            "iteration_cap_hit_count": sum(
+                1 for response in responses if response.get("iteration_cap_hit")
+            ),
+            "agent_attempt_count": len(responses),
+            "manager_phase_terminations": manager_phase_terminations,
+            "manager_phase_iteration_cap_hit_count": sum(
+                1
+                for record in manager_phase_terminations
+                if record.get("iteration_cap_hit")
+            ),
         },
         "textual_patch_conflict": {
             "observed": textual_patch_conflict,

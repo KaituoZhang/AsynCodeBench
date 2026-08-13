@@ -2,6 +2,7 @@ import pytest
 from core.subagent import (
     SubAgentRunner,
     _is_ambiguous_run_trigger_timeout,
+    classify_conversation_termination,
     configure_remote_message_timeout,
     configure_remote_status_polling,
     conversation_error_requires_fresh,
@@ -108,6 +109,34 @@ def test_extracts_latest_structured_remote_error():
     assert latest_conversation_error([older, latest]) == (
         "MaxIterationsReached: Agent reached maximum iterations limit (2)."
     )
+
+
+def test_classifies_normal_agent_finish_without_cap_hit():
+    conversation = FakeEventConversation([])
+    conversation.state.execution_status = "finished"
+
+    reason, cap_hit = classify_conversation_termination(
+        conversation, iterations=18, max_iterations=100
+    )
+
+    assert reason == "agent_finish"
+    assert cap_hit is False
+
+
+def test_classifies_iteration_limit_as_cap_hit():
+    ErrorEvent = type("ConversationErrorEvent", (), {})
+    event = ErrorEvent()
+    event.code = "MaxIterationsReached"
+    event.detail = "Agent reached maximum iterations limit (100)."
+    conversation = FakeEventConversation([event])
+    conversation.state.execution_status = "error"
+
+    reason, cap_hit = classify_conversation_termination(
+        conversation, iterations=100, max_iterations=100
+    )
+
+    assert reason == "iteration_limit"
+    assert cap_hit is True
 
 
 class FakePollResponse:

@@ -13,11 +13,12 @@ Versioned experimental conditions are grouped as:
 Configuration files select semantics defined in code and schemas; they must
 not silently introduce new semantics.
 
-`evaluation/official_execution_profile.v1.json` is the authoritative public
-comparison profile. It fixes the harness budgets and instrumentation timeouts
-used by the official aggregate. Scenario-level historical budget fields remain
-construction provenance; a run's actual eligibility is decided from its
-recorded execution-profile match and post-run health gates.
+`evaluation/official_execution_profile.v2.json` is the authoritative public
+comparison profile. It fixes the 100-response capability budgets and
+instrumentation timeouts used by the official aggregate. The v1 file is
+retained as the historical 30-response profile. Scenario-level historical
+budget fields remain construction provenance; a run's actual eligibility is
+decided from its recorded execution-profile match and post-run health gates.
 
 `tasks/commit0_repositories.v0.3.json` is the portable source inventory for
 Commit0. It records public repository URLs and pinned `commit0` SHAs; local

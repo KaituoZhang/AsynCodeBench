@@ -15,7 +15,7 @@ RELEASE_DIR = ROOT / "manifests" / "release" / RELEASE
 OFFICIAL_CONFIG = ROOT / "configs" / "tasks" / "commit0_official_tasks.v0.3.json"
 CURATED_CONFIG = ROOT / "configs" / "tasks" / "commit0_curated_tasks.v0.3.json"
 EXECUTION_PROFILE = (
-    ROOT / "configs" / "evaluation" / "official_execution_profile.v1.json"
+    ROOT / "configs" / "evaluation" / "official_execution_profile.v2.json"
 )
 VALIDATED_BASELINES = RELEASE_DIR / "validated_baselines.json"
 EXPECTED_MODES = {

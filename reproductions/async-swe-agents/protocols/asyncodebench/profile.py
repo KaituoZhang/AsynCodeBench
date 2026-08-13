@@ -7,7 +7,7 @@ import json
 import os
 from pathlib import Path
 
-PROFILE_RELATIVE_PATH = Path("configs/evaluation/official_execution_profile.v1.json")
+PROFILE_RELATIVE_PATH = Path("configs/evaluation/official_execution_profile.v2.json")
 
 
 def _repo_root() -> Path:

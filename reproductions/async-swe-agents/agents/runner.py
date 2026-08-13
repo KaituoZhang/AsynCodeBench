@@ -180,6 +180,18 @@ class AdapterSubAgentRunner(SubAgentRunner):
         result.total_tokens = result.prompt_tokens + result.completion_tokens
         result.actual_iterations = int(response.iterations or 0)
         result.max_iterations = self.max_iterations
+        result.termination_reason = str(
+            response.metadata.get("termination_reason")
+            or (
+                "iteration_limit"
+                if result.actual_iterations >= result.max_iterations
+                else "adapter_completed"
+            )
+        )
+        result.iteration_cap_hit = bool(
+            response.metadata.get("iteration_cap_hit")
+            or result.termination_reason == "iteration_limit"
+        )
 
         if self.output_logger:
             for event in response.events:
@@ -197,7 +209,9 @@ class AdapterSubAgentRunner(SubAgentRunner):
         self.last_result = result
         self.log(
             f"Adapter completed: success={result.success}, "
-            f"iterations={result.actual_iterations}/{result.max_iterations}"
+            f"iterations={result.actual_iterations}/{result.max_iterations}, "
+            f"termination={result.termination_reason}, "
+            f"cap_hit={result.iteration_cap_hit}"
         )
         return result
 

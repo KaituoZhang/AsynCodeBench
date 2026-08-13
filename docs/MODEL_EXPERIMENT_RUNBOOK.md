@@ -71,7 +71,7 @@ The native runner consumes these repository-owned artifacts:
 ```text
 configs/tasks/commit0_official_tasks.v0.3.json
 configs/tasks/commit0_curated_tasks.v0.3.json
-configs/evaluation/official_execution_profile.v1.json
+configs/evaluation/official_execution_profile.v2.json
 manifests/pilot/v0.3/tasks/
 manifests/pilot/v0.3/scenarios/
 manifests/pilot/v0.3/metrics/
@@ -269,8 +269,10 @@ instrumentation failure is not.
 
 ## 8. Run One Official Task
 
-The released profile fixes all four protocols at 30 iterations and two CAID
-chat rounds. The wrapper reads `max_subagents` from each active scenario.
+The released capability profile gives every model-facing agent run a hard cap
+of 100 model responses and keeps two CAID chat rounds. Agents normally stop
+earlier by invoking `FinishTool`; reaching 100 is recorded as an iteration-cap
+termination. The wrapper reads `max_subagents` from each active scenario.
 
 ```bash
 ENV_FILE="$PWD/.env.<model-tag>" \

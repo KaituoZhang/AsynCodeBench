@@ -315,7 +315,7 @@ formal run must have:
 - no provider, transport, parser, context-window, or instrumentation failure;
 - the same serving profile across the four compared protocols;
 - a matching
-  [`official_execution_profile.v1.json`](configs/evaluation/official_execution_profile.v1.json)
+  [`official_execution_profile.v2.json`](configs/evaluation/official_execution_profile.v2.json)
   for inclusion in the official aggregate.
 
 Detailed validity rules are in
@@ -328,6 +328,7 @@ Detailed validity rules are in
 | [`docs/QUICKSTART.md`](docs/QUICKSTART.md) | Canonical fresh-clone installation and first task |
 | [`docs/EVALUATION_BRANCH_QUICKSTART.md`](docs/EVALUATION_BRANCH_QUICKSTART.md) | Historical evaluation-branch workflow; not for new official runs |
 | [`docs/ASYNCODEBENCH_HARNESS_V2.md`](docs/ASYNCODEBENCH_HARNESS_V2.md) | Native harness guarantees and protocol semantics |
+| [`docs/ITERATION_BUDGET_AND_TERMINATION.md`](docs/ITERATION_BUDGET_AND_TERMINATION.md) | Official 100-response cap and stop-reason semantics |
 | [`docs/MODEL_EXPERIMENT_RUNBOOK.md`](docs/MODEL_EXPERIMENT_RUNBOOK.md) | Running a new model across all official tasks |
 | [`docs/LOCAL_VLLM_EXPERIMENT_RUNBOOK.md`](docs/LOCAL_VLLM_EXPERIMENT_RUNBOOK.md) | Local model serving, networking, capacity, and failure diagnosis |
 | [`docs/EVALUATION_METRICS.md`](docs/EVALUATION_METRICS.md) | Metric formulas and aggregation policy |

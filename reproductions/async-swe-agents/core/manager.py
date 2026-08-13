@@ -9,6 +9,7 @@ from openhands.sdk.context import AgentContext
 from openhands.tools.preset.default import get_default_tools
 
 from core.subagent import (
+    classify_conversation_termination,
     condenser_max_tokens,
     conversation_error_requires_fresh,
     latest_conversation_error,
@@ -92,6 +93,9 @@ class Manager:
         self.conversation_needs_reset = False
         self.conversation_mode = "multi_agent"
         self.retired_conversations = []
+        self.manager_iterations_total = 0
+        self.last_termination_reason = "unknown"
+        self.last_iteration_cap_hit = False
 
     def ensure_usable_conversation(self):
         """Start a new manager conversation after a terminal remote run."""
@@ -107,12 +111,16 @@ class Manager:
 
     def run_active_conversation(self):
         """Run and reconcile a manager conversation before metrics are read."""
+        event_start_idx = len(list(self.conversation.state.events))
+        iteration_before = count_llm_iterations(self.conversation.state.events)
+        run_error = None
         try:
             run_conversation_with_trigger_recovery(
                 self.conversation,
                 self.log,
             )
         except Exception as error:
+            run_error = error
             if conversation_error_requires_fresh(error):
                 self.conversation_needs_reset = True
             reconcile_conversation_events(self.conversation, self.log)
@@ -123,7 +131,33 @@ class Manager:
                 if structured_error:
                     raise RuntimeError(structured_error) from error
             raise
-        reconcile_conversation_events(self.conversation, self.log)
+        finally:
+            reconcile_conversation_events(self.conversation, self.log)
+            events = list(self.conversation.state.events)
+            iterations = count_llm_iterations(events) - iteration_before
+            self.manager_iterations_total += iterations
+            (
+                self.last_termination_reason,
+                self.last_iteration_cap_hit,
+            ) = classify_conversation_termination(
+                self.conversation,
+                error=run_error,
+                iterations=iterations,
+                max_iterations=self.config.manager_max_iterations,
+                events=events[event_start_idx:],
+            )
+            if self.output_logger:
+                self.output_logger.log_event(
+                    event_type="manager_run_termination",
+                    source="manager",
+                    content={
+                        "termination_reason": self.last_termination_reason,
+                        "iteration_cap_hit": self.last_iteration_cap_hit,
+                        "iterations": iterations,
+                        "max_iterations": self.config.manager_max_iterations,
+                        "cumulative_manager_iterations": self.manager_iterations_total,
+                    },
+                )
 
     def send_message(self, message):
         """Send a manager prompt using the remote request timeout policy."""
@@ -262,6 +296,8 @@ class Manager:
                 "iterations": iterations,
                 "max_iterations": self.config.manager_max_iterations,
                 "total_events": len(list(self.conversation.state.events)),
+                "termination_reason": self.last_termination_reason,
+                "iteration_cap_hit": self.last_iteration_cap_hit,
             },
             start_time=self.analysis_start_time,
             end_time=self.analysis_end_time,
@@ -272,6 +308,8 @@ class Manager:
         return {
             "duration": duration,
             "iterations": iterations,
+            "termination_reason": self.last_termination_reason,
+            "iteration_cap_hit": self.last_iteration_cap_hit,
         }
 
     def scan_and_analyze(self):

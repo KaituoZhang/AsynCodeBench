@@ -90,9 +90,9 @@ def write_valid_artifacts(path, *, profile_matched=True):
 
     profile_snapshot = path / "execution_profile_snapshot.json"
     observed = {
-        "manager_max_iterations": 30,
+        "manager_max_iterations": 100,
         "max_subagents": 1,
-        "subagent_max_iterations": 30,
+        "subagent_max_iterations": 100,
         "max_rounds_chat": 2,
         "final_pytest_timeout_seconds": 900,
         "probe_timeout_seconds": 60,
@@ -102,7 +102,7 @@ def write_valid_artifacts(path, *, profile_matched=True):
     deviations = (
         []
         if profile_matched
-        else [{"field": "manager_max_iterations", "expected": 30, "observed": 10}]
+        else [{"field": "manager_max_iterations", "expected": 100, "observed": 10}]
     )
     metadata = {
         "task_id": "asyncodebench:example",
@@ -115,15 +115,15 @@ def write_valid_artifacts(path, *, profile_matched=True):
         "subagent_model": "test/model",
         "agent_adapter": adapter,
         "budgets": {
-            "manager_max_iterations": 30,
+            "manager_max_iterations": 100,
             "max_subagents": 1,
-            "subagent_max_iterations": 30,
+            "subagent_max_iterations": 100,
             "max_rounds_chat": 2,
         },
         "execution_profile": {
-            "profile_id": "asyncodebench-v0.3-standard-30",
-            "schema_version": "asyncodebench-execution-profile-v1",
-            "path": "configs/evaluation/official_execution_profile.v1.json",
+            "profile_id": "asyncodebench-v0.3-standard-100",
+            "schema_version": "asyncodebench-execution-profile-v2",
+            "path": "configs/evaluation/official_execution_profile.v2.json",
             "sha256": sha256(profile_snapshot),
             "matched": profile_matched,
             "deviations": deviations,
@@ -161,7 +161,7 @@ def write_valid_artifacts(path, *, profile_matched=True):
         "release": "v0.3",
         "release_version": "0.3.0-test",
         "execution_profile": {
-            "profile_id": "asyncodebench-v0.3-standard-30",
+            "profile_id": "asyncodebench-v0.3-standard-100",
             "sha256": sha256(profile_snapshot),
         },
         "tasks": [
@@ -449,4 +449,4 @@ def test_cli_dry_runs_all_four_protocols(capsys):
     output = capsys.readouterr().out
     for protocol in PROTOCOLS:
         assert f"[DryRun] protocol={protocol}" in output
-    assert "execution_profile=asyncodebench-v0.3-standard-30 matched=True" in output
+    assert "execution_profile=asyncodebench-v0.3-standard-100 matched=True" in output

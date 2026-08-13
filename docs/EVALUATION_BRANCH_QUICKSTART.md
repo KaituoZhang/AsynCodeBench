@@ -101,9 +101,10 @@ docs/GEMMA4_CAID_HARNESS_FIX.md
 
 ## 5. Run All Four Protocols
 
-The official default is 30 iterations for single, specialists, CAID manager,
-and CAID subagents, with two CAID chat rounds. The wrapper assigns the official
-specialist count for the selected task and runs protocols sequentially.
+The official default is a hard cap of 100 model responses for single,
+specialists, CAID manager runs, and CAID subagent runs, with two CAID chat
+rounds. An agent can stop earlier with `FinishTool`. The wrapper assigns the
+official specialist count for the selected task and runs protocols sequentially.
 
 ```bash
 cd /absolute/path/to/AsynCodeBench/reproductions/async-swe-agents
