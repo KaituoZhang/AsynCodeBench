@@ -32,12 +32,16 @@ bash scripts/setup_evaluation.sh
 The setup script:
 
 1. installs the benchmark contract environment;
-2. checks out the validated OpenHands SDK revision;
-3. creates the native runner environment;
+2. checks out the validated OpenHands SDK revision and rejects local changes;
+3. creates the native runner environment and verifies that host and server
+   package versions and event schemas match;
 4. checks Docker;
 5. materializes pinned repositories used by source contract tests;
 6. runs the dataset and harness tests;
 7. creates an untracked runner `.env` from the example when needed.
+
+See [`OPENHANDS_RUNTIME_CONSISTENCY.md`](OPENHANDS_RUNTIME_CONSISTENCY.md) for
+the exact lock and the `dynamic_context` compatibility gate.
 
 Native runs clone and verify their pinned public source repositories directly.
 They do not require a local Commit0 dataset.
@@ -120,7 +124,7 @@ scripts/run_asyncodebench_all_protocols_env.sh cachetools
 ```
 
 The wrapper runs the four protocols sequentially. It reads specialist counts
-from the released scenario manifest and uses the official 30-iteration budgets.
+from the released scenario manifest and uses the official 100-response cap.
 An interrupted output directory remains immutable evidence; retry with a new
 `RUN_VERSION`.
 

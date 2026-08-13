@@ -108,11 +108,11 @@ def send_conversation_message(conversation, message, log):
 def configure_remote_status_polling(conversation, log):
     """Replace the SDK's fixed 30-second REST status timeout.
 
-    The host runner currently uses OpenHands SDK 1.11 while the Docker agent
-    server is built from the newer local SDK source. On long Qwen tool turns,
-    the legacy status endpoint can block behind conversation state for longer
-    than 30 seconds even though the run is healthy. Keep the SDK polling flow,
-    but make its per-request timeout suitable for long local-model turns.
+    The host runner and Docker agent server are built from the same locked
+    OpenHands source revision. On long local-model tool turns, the status
+    endpoint can still block behind conversation state for longer than 30
+    seconds even though the run is healthy. Keep the SDK polling flow, but use
+    a timeout suitable for long local-model turns.
     """
     if getattr(conversation, "_asyncodebench_polling_configured", False):
         return True
@@ -193,10 +193,9 @@ def _handle_remote_poll_exception(conversation, error):
 
 
 def wait_for_remote_run_completion(conversation, log, timeout, poll_interval):
-    """Wait for a remote run without relying on the legacy SDK state machine.
+    """Wait for a remote run with explicit terminal-state confirmation.
 
-    OpenHands SDK 1.11 treats every non-running REST state as completion. The
-    newer agent server can briefly expose IDLE before a run starts and FINISHED
+    The agent server can briefly expose IDLE before a run starts and FINISHED
     before its stop hooks and final event flush complete. Confirm REST terminal
     state for a short interval and only retry a trigger after a bounded IDLE
     grace period.

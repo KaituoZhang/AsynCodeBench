@@ -225,7 +225,14 @@ def build_run_metadata(
     repo_root = task._repo_root()
     runner_root = Path(__file__).resolve().parents[2]
     package_versions = {}
-    for package in ("openhands-sdk", "openhands-workspace", "litellm", "fire"):
+    for package in (
+        "openhands-sdk",
+        "openhands-workspace",
+        "openhands-tools",
+        "openhands-agent-server",
+        "litellm",
+        "fire",
+    ):
         try:
             package_versions[package] = importlib.metadata.version(package)
         except importlib.metadata.PackageNotFoundError:

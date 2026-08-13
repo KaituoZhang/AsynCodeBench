@@ -15,6 +15,16 @@ REQUIRED_HEALTH_FILES = (
 )
 
 HARD_ERROR_PATTERNS = {
+    "execution_error": re.compile(
+        r'"termination_reason"\s*:\s*"execution_error"|'
+        r"Termination:\s*execution_error",
+        re.IGNORECASE,
+    ),
+    "openhands_event_schema_mismatch": re.compile(
+        r"dynamic_context.{0,500}Extra inputs are not permitted|"
+        r"Extra inputs are not permitted.{0,500}dynamic_context",
+        re.IGNORECASE | re.DOTALL,
+    ),
     "context_window_error": re.compile(
         r"LLMContextWindowExceed(?:ed)?Error|ContextWindowExceededError|"
         r"This model's maximum context length is \d+ tokens.*you requested",
@@ -144,6 +154,7 @@ def _model_execution_evidence(run_dir: Path, process_summary: dict, cost: dict) 
         "model_calls": model_calls,
         "total_tokens": total_tokens,
         "iterations": iterations,
+        "zero_iteration_run": bool(iterations) and not any(iterations),
         "observed": model_calls > 0 or total_tokens > 0 or any(iterations),
     }
 
@@ -230,6 +241,9 @@ def inspect_run(run_dir: Path) -> dict[str, object]:
         runtime_seconds = None
 
     execution_evidence = _model_execution_evidence(run_dir, process_summary, cost)
+    if execution_evidence["zero_iteration_run"]:
+        hard_failures.append("zero_model_iterations")
+        efficiency_eligible = False
     if not execution_evidence["observed"]:
         hard_failures.append("no_model_execution_evidence")
         efficiency_eligible = False

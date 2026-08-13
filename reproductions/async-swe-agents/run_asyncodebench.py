@@ -68,6 +68,28 @@ def _assert_fresh_output(path):
     path.mkdir(parents=True, exist_ok=True)
 
 
+def _assert_openhands_runtime_consistency():
+    script = (
+        Path(__file__).resolve().parents[2]
+        / "scripts"
+        / "check_openhands_runtime_consistency.py"
+    )
+    result = subprocess.run(
+        [sys.executable, str(script), "--require-clean"],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        detail = result.stderr.strip() or result.stdout.strip()
+        raise RuntimeError(
+            "OpenHands runtime consistency check failed before model execution:\n"
+            + detail
+        )
+    if result.stdout:
+        print(result.stdout.rstrip())
+
+
 def _generate_process_metrics(task, output_dir):
     if os.getenv("ASYNCODEBENCH_DISABLE_AUTO_METRICS") == "1":
         print("[AsynCodeBench] Automatic process metrics disabled by environment")
@@ -238,6 +260,7 @@ def main(
         _print_dry_run(task, protocol, workflow_config, resolved_output, agent_adapter)
         return
 
+    _assert_openhands_runtime_consistency()
     _assert_fresh_output(resolved_output)
     prompt_path = Path(__file__).resolve().parent / "prompts" / "asyncodebench.yaml"
     metadata = build_run_metadata(

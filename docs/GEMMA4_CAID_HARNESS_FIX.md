@@ -25,11 +25,12 @@ different meanings.
    terminal tool" without issuing a valid call is a genuine agent failure once
    parser and transport gates pass.
 
-The host runner uses OpenHands SDK 1.11.0 while the Docker agent server is built
-from repository SDK source at 1.29.2. The newer server has more careful
-WebSocket and terminal-state handling. The runner therefore contains an
-explicit REST compatibility wait rather than trusting the legacy client's
-"any non-running status is complete" behavior.
+The host runner and Docker agent server now use the same locked OpenHands source
+revision. Earlier exploratory runs mixed a 1.11 client with a 1.29.2-derived
+server; those runs can fail before model execution because the event schemas
+differ and are not valid baselines. The explicit REST wait remains useful for
+long local-model turns, but it is no longer a cross-version compatibility shim.
+See [`OPENHANDS_RUNTIME_CONSISTENCY.md`](OPENHANDS_RUNTIME_CONSISTENCY.md).
 
 ## Verified Chat Template
 

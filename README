@@ -184,8 +184,9 @@ bash scripts/setup_evaluation.sh
 Prerequisites: Python 3.12, [`uv`](https://docs.astral.sh/uv/), Docker, and
 enough disk space for task images and outputs. The setup script installs the
 benchmark contracts and runner, checks out the pinned OpenHands SDK, verifies
-Docker, materializes checksum-pinned contract-test sources, and runs the no-API
-tests.
+that host and Docker-server packages use the same locked source revision, runs
+a cross-process event-schema smoke, verifies Docker, materializes
+checksum-pinned contract-test sources, and runs the no-API tests.
 
 `uv python install 3.12` provides a managed interpreter when the system Python
 is older; the setup script resolves Python through `uv`.
@@ -240,9 +241,10 @@ WORKSPACE_PORT_STRATEGY=auto \
 scripts/run_asyncodebench_all_protocols_env.sh cachetools
 ```
 
-The wrapper runs the four protocols sequentially with the official 30-iteration
-budgets and reads each specialist count from the scenario manifest. Output
-directories are immutable; use a new `RUN_VERSION` after an interrupted run.
+The wrapper runs the four protocols sequentially with the official 100-response
+cap and reads each specialist count from the scenario manifest. Agents may stop
+earlier through `FinishTool`. Output directories are immutable; use a new
+`RUN_VERSION` after an interrupted run.
 
 For local models, complete the connectivity, context-window, reasoning-parser,
 tool-parser, and concurrency checks in

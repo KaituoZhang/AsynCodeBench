@@ -10,11 +10,11 @@ readme = "README.md"
 license = "Apache-2.0"
 requires-python = "==3.12.*"
 dependencies = [
-    "openhands-sdk==1.11.0",
-    "openhands-workspace==1.11.0",
-    "openhands-tools==1.11.0",
-    "openhands-agent-server==1.11.0",
-    "litellm==1.81.11",
+    "openhands-sdk==1.29.2",
+    "openhands-workspace==1.29.2",
+    "openhands-tools==1.29.2",
+    "openhands-agent-server==1.29.2",
+    "litellm==1.84.1",
     "pydantic==2.12.5",
     "jsonschema>=4.23,<5",
     "fire==0.7.1",
@@ -22,7 +22,7 @@ dependencies = [
     "pyyaml==6.0.3",
     "numpy==2.4.1",
     "datasets==3.0.1",
-    "openai==2.8.1",
+    "openai==2.33.0",
     "anthropic==0.74.1",
     "jiter==0.12.0",
     "tokenizers==0.21.4",
@@ -41,6 +41,12 @@ dev = [
 
 [project.scripts]
 asyncodebench = "asyncodebench_harness.cli:main"
+
+[tool.uv.sources]
+openhands-sdk = { path = "../software-agent-sdk/openhands-sdk", editable = true }
+openhands-workspace = { path = "../software-agent-sdk/openhands-workspace", editable = true }
+openhands-tools = { path = "../software-agent-sdk/openhands-tools", editable = true }
+openhands-agent-server = { path = "../software-agent-sdk/openhands-agent-server", editable = true }
 
 [tool.setuptools]
 py-modules = ["config", "run_asyncodebench", "run_infer"]

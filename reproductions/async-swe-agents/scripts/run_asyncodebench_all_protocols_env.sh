@@ -83,6 +83,13 @@ if [[ ! -x "$python_bin" ]]; then
   exit 1
 fi
 
+if [[ "$dry_run" == "0" ]]; then
+  echo "[AsynCodeBench] Verifying locked OpenHands client/server runtime"
+  "$python_bin" \
+    "$RUNNER_ROOT/../../scripts/check_openhands_runtime_consistency.py" \
+    --require-clean
+fi
+
 unset ASYNCODEBENCH_DISABLE_CURATED_TASK_SOURCE
 unset ASYNCODEBENCH_DISABLE_CURATED_TASK_CONFIG
 unset ASYNCODEBENCH_DISABLE_MANIFEST_EVALUATOR

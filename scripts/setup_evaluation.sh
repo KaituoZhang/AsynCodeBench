@@ -4,7 +4,6 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 RUNNER="$ROOT/reproductions/async-swe-agents"
 SDK_DIR="$ROOT/reproductions/software-agent-sdk"
-SDK_LOCK="$ROOT/reproductions/software-agent-sdk.lock"
 BENCHMARK_VENV="${ASYNCODEBENCH_BENCHMARK_VENV:-$ROOT/.venv-benchmark}"
 cd "$ROOT"
 
@@ -32,33 +31,8 @@ if ! "$PYTHON_BIN" -c 'import sys; raise SystemExit(sys.version_info[:2] != (3, 
   exit 1
 fi
 
-readarray -t sdk_values < <(
-  "$PYTHON_BIN" - "$SDK_LOCK" <<'PY'
-import json
-import sys
-
-lock = json.load(open(sys.argv[1], encoding="utf-8"))
-print(lock["repository"])
-print(lock["commit"])
-PY
-)
-SDK_REPOSITORY="${sdk_values[0]}"
-SDK_COMMIT="${sdk_values[1]}"
-
-if [[ ! -d "$SDK_DIR/.git" ]]; then
-  echo "[setup] Cloning pinned OpenHands SDK"
-  git clone "$SDK_REPOSITORY" "$SDK_DIR"
-  git -C "$SDK_DIR" checkout --detach "$SDK_COMMIT"
-else
-  actual_sdk_commit="$(git -C "$SDK_DIR" rev-parse HEAD)"
-  if [[ "$actual_sdk_commit" != "$SDK_COMMIT" ]]; then
-    echo "Existing SDK checkout does not match the validated revision." >&2
-    echo "expected: $SDK_COMMIT" >&2
-    echo "actual:   $actual_sdk_commit" >&2
-    echo "Move the existing checkout aside and rerun this script." >&2
-    exit 1
-  fi
-fi
+echo "[setup] Materializing the locked OpenHands runtime source"
+"$PYTHON_BIN" "$ROOT/scripts/materialize_openhands_sdk.py" --require-clean
 
 echo "[setup] Creating benchmark validation environment"
 "$PYTHON_BIN" -m venv "$BENCHMARK_VENV"
@@ -67,6 +41,10 @@ echo "[setup] Creating benchmark validation environment"
 
 echo "[setup] Creating agent runner environment"
 uv sync --frozen --extra dev --python "$PYTHON_BIN" --project "$RUNNER"
+"$RUNNER/.venv/bin/python" \
+  "$ROOT/scripts/check_openhands_runtime_consistency.py" --require-clean
+"$RUNNER/.venv/bin/python" \
+  "$ROOT/scripts/smoke_openhands_event_roundtrip.py"
 "$RUNNER/.venv/bin/asyncodebench" tasks >/dev/null
 
 echo "[setup] Checking Docker"
@@ -90,4 +68,4 @@ fi
 
 echo "[setup] Ready"
 echo "  runner: $RUNNER"
-echo "  SDK:    $SDK_DIR ($SDK_COMMIT)"
+echo "  SDK:    $SDK_DIR"

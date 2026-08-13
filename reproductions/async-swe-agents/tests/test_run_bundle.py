@@ -350,6 +350,31 @@ def test_result_bundle_marks_provider_failure_invalid(tmp_path):
     assert "provider_or_transport_error" in bundle["instrumentation"]["hard_failures"]
 
 
+@pytest.mark.parametrize(
+    ("log_text", "failure"),
+    [
+        ('Termination: execution_error\nIterations used: 1\n', "execution_error"),
+        ("Iterations used: 0\n", "zero_model_iterations"),
+    ],
+)
+def test_validate_run_rejects_execution_error_and_zero_iterations(
+    tmp_path, log_text, failure
+):
+    write_valid_artifacts(tmp_path)
+    log = next(tmp_path.glob("run_*.log"))
+    log.write_text(log_text, encoding="utf-8")
+
+    _, bundle = build_run_bundle(
+        FakeTask(), tmp_path, "single", OpenHandsAgentAdapter()
+    )
+    validation = validate_run_bundle(tmp_path)
+
+    assert bundle["status"] == "invalid"
+    assert failure in bundle["instrumentation"]["hard_failures"]
+    assert validation["valid"] is False
+    assert failure in validation["recorded_hard_failures"]
+
+
 def test_profile_deviation_is_valid_but_exploratory(tmp_path):
     write_valid_artifacts(tmp_path, profile_matched=False)
 

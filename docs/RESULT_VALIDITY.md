@@ -51,6 +51,8 @@ The following are valid model outcomes, not infrastructure failures:
 The following invalidate a formal run:
 
 - provider, authentication, transport, or remote-run failure;
+- OpenHands client/server version or event-schema mismatch;
+- `termination_reason=execution_error` or an observed zero-iteration run;
 - context-window or model-server configuration failure;
 - no evidence that the model executed;
 - wrong evaluator source;

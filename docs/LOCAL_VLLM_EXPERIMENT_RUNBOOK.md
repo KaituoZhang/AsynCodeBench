@@ -410,8 +410,8 @@ The corrected profile changes only the model adapter and serving harness:
 - the client input limit is 131,072 tokens and the server window is 135,168;
 - the fixed per-call output limit remains 32,768 tokens, preserving Gemma's
   long-reasoning capacity;
-- task/scenario manifests, agent assignments, four protocols, and all
-  30-iteration budgets remain unchanged.
+- task/scenario manifests, agent assignments, four protocols, and the released
+  100-response capability profile remain unchanged.
 
 The currently tracked template exactly matches Hugging Face model revision
 `4d7ae4984b7db7de8f8457170b3f1a419ee76d52` (SHA-256

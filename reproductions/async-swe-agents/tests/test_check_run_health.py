@@ -161,6 +161,43 @@ def test_zero_model_execution_is_invalid(tmp_path):
     assert "no_model_execution_evidence" in result["hard_failures"]
 
 
+def test_zero_iterations_with_token_usage_is_invalid(tmp_path):
+    run_dir = create_run(tmp_path)
+    (run_dir / "outputs.jsonl").write_text(
+        json.dumps({"content": {"actual_iterations": 0}}) + "\n",
+        encoding="utf-8",
+    )
+
+    result = inspect_run(run_dir)
+
+    assert result["status"] == "invalid"
+    assert "zero_model_iterations" in result["hard_failures"]
+
+
+def test_execution_error_is_invalid(tmp_path):
+    run_dir = create_run(
+        tmp_path,
+        'agent finished with {"termination_reason": "execution_error"}\n',
+    )
+
+    result = inspect_run(run_dir)
+
+    assert result["status"] == "invalid"
+    assert "execution_error" in result["hard_failures"]
+
+
+def test_openhands_event_schema_mismatch_is_invalid(tmp_path):
+    run_dir = create_run(
+        tmp_path,
+        "dynamic_context: Extra inputs are not permitted\n",
+    )
+
+    result = inspect_run(run_dir)
+
+    assert result["status"] == "invalid"
+    assert "openhands_event_schema_mismatch" in result["hard_failures"]
+
+
 def test_silent_zero_test_collection_is_invalid(tmp_path):
     run_dir = create_run(tmp_path)
     report_path = run_dir / "report.json"

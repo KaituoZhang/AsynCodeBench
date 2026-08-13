@@ -34,7 +34,10 @@ jobs:
           scripts/summarize_model_task_runs.py
           scripts/aggregate_model_task_results.py
           scripts/check_repository_hygiene.py
+          scripts/check_openhands_runtime_consistency.py
+          scripts/materialize_openhands_sdk.py
           scripts/materialize_contract_test_repositories.py
+          scripts/smoke_openhands_event_roundtrip.py
           tests/contracts/test_release_bundle.py
           tests/contracts/test_result_admission.py
           tests/contracts/test_public_documentation.py
@@ -64,7 +67,13 @@ jobs:
         with:
           enable-cache: true
           python-version: "3.12"
+      - name: Materialize locked OpenHands source
+        run: python ../../scripts/materialize_openhands_sdk.py --require-clean
       - run: uv sync --frozen --extra dev
+      - name: Verify OpenHands runtime consistency
+        run: |
+          uv run python ../../scripts/check_openhands_runtime_consistency.py --require-clean
+          uv run python ../../scripts/smoke_openhands_event_roundtrip.py
       - run: uv run asyncodebench tasks
       - run: uv run asyncodebench release-status
       - run: uv run pytest -q tests
