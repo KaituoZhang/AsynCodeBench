@@ -7,13 +7,16 @@ from pathlib import Path
 import litellm
 from agents import create_agent_runner
 from openhands.sdk import LLM
-from openhands.workspace import DockerDevWorkspace, DockerWorkspace
 
 import core.patches
 from config import SubAgent
 from core.manager import Manager
 from core.dependency_probes import write_dependency_probe_checkpoint
 from core.subagent import run_subagents_parallel
+from core.workspace import (
+    AsynCodeBenchDockerDevWorkspace,
+    AsynCodeBenchDockerWorkspace,
+)
 from core.utils import (
     OutputLogger,
     TeeLogger,
@@ -106,7 +109,7 @@ class StaticCommit0ProtocolRunner:
                 else None
             )
             if workspace_config.get("base_image"):
-                return DockerDevWorkspace(
+                return AsynCodeBenchDockerDevWorkspace(
                     base_image=workspace_config["base_image"],
                     server_image=None,
                     target=workspace_config.get("target", "source-minimal"),
@@ -115,7 +118,7 @@ class StaticCommit0ProtocolRunner:
                     detach_logs=False,
                     network=workspace_network,
                 )
-            return DockerWorkspace(
+            return AsynCodeBenchDockerWorkspace(
                 server_image=workspace_config["server_image"],
                 host_port=workspace_host_port,
                 platform=detect_platform(),

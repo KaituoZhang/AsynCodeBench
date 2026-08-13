@@ -82,6 +82,7 @@ jobs:
           uv run ruff check
           asyncodebench_harness
           agents
+          core/workspace.py
           protocols/asyncodebench
           run_asyncodebench.py
           tests/test_agent_adapter_contract.py
@@ -89,6 +90,7 @@ jobs:
           tests/test_check_run_health.py
           tests/test_cli_doctor.py
           tests/test_asyncodebench_harness_v2.py
+          tests/test_workspace_networking.py
           --select F,E9,I
       - name: Dry-run all native protocols
         run: |

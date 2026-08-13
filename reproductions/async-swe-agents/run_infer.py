@@ -8,7 +8,6 @@ import fire
 import litellm
 from agents import create_agent_runner
 from openhands.sdk import LLM
-from openhands.workspace import DockerDevWorkspace, DockerWorkspace
 
 import core.patches  
 from config import SubAgent, WorkflowConfig
@@ -18,6 +17,10 @@ from core.dependency_probes import (
 )
 from core.manager import Manager
 from core.subagent import run_subagents_parallel
+from core.workspace import (
+    AsynCodeBenchDockerDevWorkspace,
+    AsynCodeBenchDockerWorkspace,
+)
 from core.utils import (
     OutputLogger,
     TeeLogger,
@@ -134,7 +137,7 @@ async def run_workflow_inner(
     )
 
     if workspace_config.get("base_image"):
-        workspace_ctx = DockerDevWorkspace(
+        workspace_ctx = AsynCodeBenchDockerDevWorkspace(
             base_image=workspace_config["base_image"],
             server_image=None,
             target=workspace_config.get("target", "source-minimal"),
@@ -144,7 +147,7 @@ async def run_workflow_inner(
             network=workspace_network,
         )
     else:
-        workspace_ctx = DockerWorkspace(
+        workspace_ctx = AsynCodeBenchDockerWorkspace(
             server_image=workspace_config["server_image"],
             host_port=workspace_host_port,
             platform=detect_platform(),

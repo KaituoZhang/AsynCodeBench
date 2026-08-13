@@ -47,6 +47,11 @@ reproductions/async-swe-agents/.venv/bin/python \
   scripts/smoke_openhands_event_roundtrip.py
 ```
 
+For local vLLM campaigns, AsynCodeBench also adapts OpenHands host-network
+workspaces so each selected `host_port` is used as the agent server's actual
+listen port. Docker ignores `-p host:container` mappings under `--network host`;
+without this adapter, parallel task terminals would all contend for port 8000.
+
 ## Existing Or Modified SDK Checkout
 
 Formal runs require a clean SDK checkout because unrecorded SDK patches would
