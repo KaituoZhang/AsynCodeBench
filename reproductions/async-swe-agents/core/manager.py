@@ -9,6 +9,7 @@ from openhands.sdk.context import AgentContext
 from openhands.tools.preset.default import get_default_tools
 
 from core.subagent import (
+    condenser_max_tokens,
     conversation_error_requires_fresh,
     latest_conversation_error,
     reconcile_conversation_events,
@@ -190,6 +191,7 @@ class Manager:
             condenser = LLMSummarizingCondenser(
                 llm=condenser_llm,
                 max_size=200,
+                max_tokens=condenser_max_tokens(self.llm),
                 keep_first=4,
             )
             self.agent = Agent(

@@ -26,6 +26,18 @@ task_id="asyncodebench:${task}"
 # shellcheck source=scripts/env.sh
 source scripts/env.sh
 
+# Keep enough output headroom before the OpenHands history reaches the model's
+# total context limit. The resolved value is recorded in run_metadata.json.
+if [[ -z "${ASYNCODEBENCH_CONDENSER_MAX_TOKENS:-}" \
+      && "${LLM_MAX_INPUT_TOKENS:-}" =~ ^[0-9]+$ \
+      && "${LLM_MAX_OUTPUT_TOKENS:-}" =~ ^[0-9]+$ ]]; then
+  condenser_budget=$((LLM_MAX_INPUT_TOKENS - LLM_MAX_OUTPUT_TOKENS))
+  if (( condenser_budget <= 0 )); then
+    condenser_budget=$((LLM_MAX_INPUT_TOKENS * 3 / 4))
+  fi
+  export ASYNCODEBENCH_CONDENSER_MAX_TOKENS="$condenser_budget"
+fi
+
 model_tag="${MODEL_TAG:?MODEL_TAG is required}"
 run_version="${RUN_VERSION:?RUN_VERSION is required}"
 

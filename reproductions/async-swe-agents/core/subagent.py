@@ -7,7 +7,7 @@ from types import MethodType
 import httpx
 
 from config import SubAgent, SubAgentResult
-from openhands.sdk import Agent, Conversation
+from openhands.sdk import Agent, Conversation, LLMSummarizingCondenser
 from openhands.tools.preset.default import get_default_tools
 
 from core.dependency_probes import write_dependency_probe_checkpoint
@@ -59,6 +59,26 @@ def remote_terminal_confirm_seconds():
     return float(
         os.getenv("ASYNCODEBENCH_REMOTE_TERMINAL_CONFIRM_SECONDS", "30")
     )
+
+
+def condenser_max_tokens(llm):
+    """Return the token threshold used to condense agent history."""
+    configured = os.getenv("ASYNCODEBENCH_CONDENSER_MAX_TOKENS")
+    if configured:
+        value = int(configured)
+        if value <= 0:
+            raise ValueError(
+                "ASYNCODEBENCH_CONDENSER_MAX_TOKENS must be positive"
+            )
+        return value
+
+    context_window = getattr(llm, "max_input_tokens", None)
+    output_budget = getattr(llm, "max_output_tokens", None) or 0
+    if context_window:
+        available = int(context_window) - int(output_budget)
+        fallback = int(context_window) * 3 // 4
+        return max(16384, available if available > 0 else fallback)
+    return None
 
 
 def configure_remote_message_timeout(conversation, log):
@@ -441,10 +461,18 @@ class SubAgentRunner:
     def setup(self):
         self.log("Setting up subagent...")
         tools = get_default_tools(enable_browser=False)
+        condenser_llm = self.llm.model_copy(update={"usage_id": "condenser"})
+        condenser = LLMSummarizingCondenser(
+            llm=condenser_llm,
+            max_size=80,
+            max_tokens=condenser_max_tokens(self.llm),
+            keep_first=4,
+        )
         self.agent = Agent(
             llm=self.llm,
             tools=tools,
             system_prompt_kwargs={"cli_mode": True},
+            condenser=condenser,
         )
         self.conversation = Conversation(
             agent=self.agent,

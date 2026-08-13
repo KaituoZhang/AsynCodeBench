@@ -162,6 +162,7 @@ def _generation_configuration():
         "LLM_TOP_K",
         "LLM_TIMEOUT",
         "LLM_NUM_RETRIES",
+        "ASYNCODEBENCH_CONDENSER_MAX_TOKENS",
     )
     configuration = {
         "schema_version": "asyncodebench-generation-configuration-v1",
