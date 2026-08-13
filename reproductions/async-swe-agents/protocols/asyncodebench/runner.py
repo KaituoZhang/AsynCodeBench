@@ -11,6 +11,7 @@ from tasks.asyncodebench import AsynCodeBenchTask
 
 from protocols.static_commit0 import StaticCommit0ProtocolRunner
 
+from .metadata import HARNESS_VERSION
 from .ordering import path_in_scope, topological_assignments
 
 
@@ -151,8 +152,9 @@ class AsynCodeBenchProtocolRunner(StaticCommit0ProtocolRunner):
         payload = json.loads(path.read_text(encoding="utf-8"))
         payload.update(
             {
-                "harness": "asyncodebench-v2",
+                "harness": HARNESS_VERSION,
                 "task_id": self.task_module.task_id,
+                "source_task_id": self.task_module.source_task_id,
                 "scenario_id": self.task_module.public_scenario_id(self.protocol),
                 "source_scenario_id": self.scenario.get("scenario_id"),
                 "dependency_ordered_integration": True,

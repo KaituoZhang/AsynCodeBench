@@ -614,6 +614,25 @@ def test_static_runner_uses_manifest_dependency_order(tmp_path):
     assert runner.shared_writable_paths == {}
 
 
+def test_static_runner_preserves_public_and_source_task_identity(tmp_path):
+    task = make_task()
+    task.set_active_protocol("serial_specialists")
+    config = WorkflowConfig(model="test/model", output_dir=str(tmp_path))
+    runner = AsynCodeBenchProtocolRunner(
+        task_module=task,
+        workflow_config=config,
+        protocol="serial_specialists",
+    )
+    runner.load_scenario()
+
+    runner.write_protocol_files([])
+
+    protocol = json.loads((tmp_path / "protocol.json").read_text())
+    assert protocol["harness"] == "asyncodebench-harness-v2.0"
+    assert protocol["task_id"] == "asyncodebench:cachetools"
+    assert protocol["source_task_id"] == "commit0:cachetools"
+
+
 def test_existing_shared_scope_and_cycle_are_reported_not_hidden(tmp_path):
     task = make_task("asyncodebench:marshmallow")
     task.set_active_protocol("serial_specialists")
