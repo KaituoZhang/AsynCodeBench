@@ -1,5 +1,9 @@
 # AsynCodeBench Native Harness v2
 
+The public name for the executable cross-agent dependency validation mechanism
+is **Dependency Checker**. Legacy runtime symbols and persisted artifact names
+containing `probe` remain unchanged for compatibility with existing runs.
+
 ## Purpose
 
 The native harness makes AsynCodeBench, rather than the source Commit0 dataset,
@@ -84,7 +88,7 @@ Harness v2 adds runner-enforced behavior in
 4. Every multi-agent artifact passes a pre-merge writable-path and main-workspace
    cleanliness gate. Out-of-scope committed or uncommitted changes are recorded
    and rejected rather than silently merged.
-5. Dependency probes still run at agent-artifact, integration, and final
+5. Dependency Checkers still run at agent-artifact, integration, and final
    checkpoints, preserving strict DRS and CAIL observability.
 6. CAID remains manager-mediated, but both its initial delegation and later
    reassignment decisions must map exactly to the active `async_message`

@@ -14,9 +14,17 @@ tests. AsynCodeBench asks an additional question:
 > they resolve cross-agent software dependencies correctly and in time?
 
 The benchmark makes that process observable through manifest-defined task
-ownership, producer/consumer dependency labels, executable dependency probes,
-controlled communication conditions, deterministic integration, and strict
-process metrics.
+ownership, producer/consumer dependency labels, executable Dependency
+Checkers, controlled communication conditions, deterministic integration, and
+strict process metrics.
+
+### Dependency Checker terminology
+
+`Dependency Checker` is the public name for the executable validation mechanism
+that checks producer, consumer, and integrated dependency contracts. Existing
+artifact names, manifest keys, and environment variables containing `probe`
+are retained as compatibility names so previously generated runs remain
+readable and reproducible.
 
 ## At A Glance
 
@@ -104,7 +112,7 @@ For each official task, AsynCodeBench supplies:
 - four scenario manifests defining ownership, writable paths, information
   visibility, and dependency ordering;
 - a metrics manifest defining executable upstream, downstream, and integrated
-  dependency probes;
+  Dependency Checkers;
 - a quality record documenting evaluator and bootstrap constraints;
 - checksum-pinned non-solution overlays when the stripped source otherwise
   cannot import or collect public tests;

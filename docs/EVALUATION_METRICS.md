@@ -4,6 +4,11 @@ This document explains the evaluation metrics used in the current
 AsynCodeBench experiments, what each metric means, which artifacts it uses,
 and how collaborators can compute the metrics from agent-run outputs.
 
+In the public terminology, the executable dependency-validation mechanism is
+called a **Dependency Checker**. The current artifact names and manifest keys
+containing `probe` are compatibility names from earlier runs and are
+intentionally preserved.
+
 The current main metrics are the first-round AsynCodeBench v0.3 metrics. They
 are dependency-centered: the goal is not only to know whether the final
 repository passes tests, but also when the labeled cross-agent software
@@ -36,7 +41,8 @@ merge conflicts, or failed subagent attempts.
 
 ### 2. Dependency-Level Metrics
 
-These are the main AsynCodeBench metrics. They use the dependency labels in:
+These are the main AsynCodeBench metrics. They use Dependency Checker labels
+in:
 
 ```text
 manifests/pilot/v0.3/metrics/commit0_<repo>_async_metrics.json
@@ -99,7 +105,8 @@ downstream_resolution_step_d =
   first checkpoint where downstream_probe_tests(d) pass
 ```
 
-These metrics separate producer-side correctness from consumer-side adaptation.
+These metrics separate producer-side correctness from consumer-side adaptation
+using the corresponding Dependency Checker test groups.
 They show whether a run was blocked by the upstream implementation, downstream
 adaptation, or late integration.
 
@@ -116,21 +123,21 @@ the checkpoint policy.
 
 #### Strict Checkpoint Policy
 
-For new runs, AsynCodeBench runners now write:
+For new runs, AsynCodeBench runners now write the legacy-compatible artifact:
 
 ```text
 dependency_probe_checkpoints.jsonl
 ```
 
 This file is produced by the test side, not by the task annotations. The runner
-executes the labeled probe tests at these points:
+executes the labeled Dependency Checker tests at these points:
 
 - after each subagent artifact is produced;
 - after each artifact is merged into the integrated workspace;
 - after the final integrated evaluator run.
 
 Each checkpoint stores `logical_step`, `checkpoint_type`, `agent_id`,
-`workspace_kind`, artifact versions, raw probe selector outcomes, and
+`workspace_kind`, artifact versions, raw Dependency Checker selector outcomes, and
 per-dependency upstream/downstream/integrated pass states.
 
 Strict metrics are then computed from those checkpoints:

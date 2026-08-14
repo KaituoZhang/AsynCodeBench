@@ -230,7 +230,8 @@ The most important files are:
 
 - `report.json`: final pytest summary and evaluator targets.
 - `<task>_test_output.txt`: final pytest text output.
-- `dependency_probe_checkpoints.jsonl`: strict dependency checkpoints for ADPR,
+- `dependency_probe_checkpoints.jsonl`: strict Dependency Checker checkpoints
+  for ADPR,
   DRS, and CAIL.
 - `cost.json`: token, cost, and wall-clock metadata.
 - `delegations.json`: who was assigned what.
