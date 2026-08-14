@@ -29,10 +29,16 @@ if [[ ! -f "$ENV_FILE" ]]; then
   _env_fail "Environment setup failed."
 fi
 
-set -a
-# shellcheck disable=SC1090
-source "$ENV_FILE"
-set +a
+_env_file_identity="$(readlink -f "$ENV_FILE" 2>/dev/null || printf '%s' "$ENV_FILE")"
+if [[ "${ASYNCODEBENCH_ENV_LOADED_FILE:-}" != "$_env_file_identity" \
+      || "${ASYNCODEBENCH_FORCE_ENV_RELOAD:-0}" == "1" ]]; then
+  set -a
+  # shellcheck disable=SC1090
+  source "$ENV_FILE"
+  set +a
+  export ASYNCODEBENCH_ENV_LOADED_FILE="$_env_file_identity"
+fi
+unset _env_file_identity
 
 # Keep existing private env files usable after the project rename. New examples
 # and all runtime code use ASYNCODEBENCH_*; the old prefix is read-only
