@@ -88,6 +88,42 @@ are not dropped as missing values. See
 [`docs/EVALUATION_METRICS.md`](docs/EVALUATION_METRICS.md) for formulas and the
 penalty policy.
 
+## Initial DeepSeek V4 Flash Results
+
+The following table is an initial descriptive evaluation of
+`openrouter/deepseek/deepseek-v4-flash-0731` with the built-in OpenHands
+adapter. It covers all 16 official tasks and all four protocols under the
+`asyncodebench-v0.3-standard-100` execution profile. All 64 selected run
+bundles passed the released official-aggregate admission checks. The harness
+revision was `ddebb7d`, and each task-protocol cell was run once.
+
+| Protocol | Successful tasks | Mean test pass rate | Mean ADPR | Mean unresolved dependencies | Mean penalized DRS | Mean penalized CAIL | Mean tokens | Mean runtime |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `single` | 16/16 (100.0%) | 0.990 | 1.000 | 0.000 | 1.000 | 0.000 | 1.685M | 909.5s |
+| `serial_specialists` | 10/16 (62.5%) | 0.750 | 0.698 | 0.875 | 6.121 | 2.590 | 3.696M | 2286.6s |
+| `async_private` | 8/16 (50.0%) | 0.748 | 0.698 | 0.875 | 7.131 | 5.037 | 4.004M | 1246.6s |
+| `caid_manager` | 13/16 (81.3%) | 0.922 | 0.885 | 0.250 | 7.292 | 2.669 | 6.452M | 2034.0s |
+
+Penalized DRS and CAIL assign each unresolved dependency the run-specific
+`T + 1` penalty. Because checkpoint counts differ across protocols, these
+values should be interpreted together with ADPR and the unresolved count.
+
+In this snapshot, `async_private` reduced mean wall-clock runtime by 45.5%
+relative to `serial_specialists`, but reduced task success from 62.5% to 50.0%
+and increased mean penalized CAIL from 2.590 to 5.037. The manager-mediated
+condition recovered success to 81.3% and ADPR to 0.885, but used substantially
+more tokens. This illustrates the benchmark's central distinction: faster
+parallel execution does not necessarily imply timely cross-agent dependency
+resolution or a correct final repository.
+
+These are single-run-per-cell results and should not be interpreted as
+confidence-bounded estimates. Valid model failures, including collection
+failures caused by generated repository states, remain in the aggregate;
+infrastructure-invalid attempts and smoke runs are excluded. Raw public run
+bundles are not yet distributed with this README, so this table is an initial
+experiment snapshot rather than the validated public baseline bundle required
+for the stable-release gate.
+
 ## Official Tasks
 
 ```text
@@ -139,9 +175,11 @@ completed. The exact status is machine-readable under each task's
 `annotation_status` in the release index.
 
 No current native model result bundle is committed as a public baseline yet.
+The initial aggregate reported above was produced by formal native bundles,
+but those raw bundles are not committed as public baseline artifacts.
 Historical local runs predate the formal bundle contract and are not relabeled
-as current results. The first published baseline must pass `validate-run` and
-include its checksum-linked campaign manifest.
+as current results. The first published baseline bundle must pass
+`validate-run` and include its checksum-linked campaign manifest.
 
 Check both executable and review status from the CLI:
 
