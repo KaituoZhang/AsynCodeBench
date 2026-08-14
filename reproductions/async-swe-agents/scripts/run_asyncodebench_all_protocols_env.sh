@@ -31,8 +31,9 @@ source scripts/env.sh
 if [[ -z "${ASYNCODEBENCH_CONDENSER_MAX_TOKENS:-}" \
       && "${LLM_MAX_INPUT_TOKENS:-}" =~ ^[0-9]+$ \
       && "${LLM_MAX_OUTPUT_TOKENS:-}" =~ ^[0-9]+$ ]]; then
-  condenser_budget=$((LLM_MAX_INPUT_TOKENS - LLM_MAX_OUTPUT_TOKENS))
-  if (( condenser_budget <= 0 )); then
+  available_input=$((LLM_MAX_INPUT_TOKENS - LLM_MAX_OUTPUT_TOKENS))
+  condenser_budget=$((available_input * 9 / 10))
+  if (( available_input <= 0 || condenser_budget <= 0 )); then
     condenser_budget=$((LLM_MAX_INPUT_TOKENS * 3 / 4))
   fi
   export ASYNCODEBENCH_CONDENSER_MAX_TOKENS="$condenser_budget"

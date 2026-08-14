@@ -213,21 +213,22 @@ class Manager:
         tools = get_default_tools(enable_browser=False)
 
         format_args = self.task.get_prompt_format_args(self.config)
+        condenser_llm = self.llm.model_copy(update={"usage_id": "condenser"})
+        condenser = LLMSummarizingCondenser(
+            llm=condenser_llm,
+            max_size=200,
+            max_tokens=condenser_max_tokens(self.llm),
+            keep_first=4,
+        )
 
         if mode == "single_agent":
             self.agent = Agent(
                 llm=self.llm,
                 tools=tools,
+                condenser=condenser,
             )
         else:
             instruction = self.prompts.get("user_instruction", "").format(**format_args)
-            condenser_llm = self.llm.model_copy(update={"usage_id": "condenser"})
-            condenser = LLMSummarizingCondenser(
-                llm=condenser_llm,
-                max_size=200,
-                max_tokens=condenser_max_tokens(self.llm),
-                keep_first=4,
-            )
             self.agent = Agent(
                 llm=self.llm,
                 tools=tools,

@@ -1,5 +1,6 @@
 from types import SimpleNamespace
 
+from core.manager import Manager
 from core.subagent import condenser_max_tokens
 from core.utils import build_llm_kwargs
 from pydantic import SecretStr
@@ -31,11 +32,11 @@ def test_build_llm_kwargs_rejects_invalid_context_window(monkeypatch):
         raise AssertionError("invalid LLM_MAX_INPUT_TOKENS was accepted")
 
 
-def test_condenser_budget_reserves_output_window(monkeypatch):
+def test_condenser_budget_reserves_output_window_and_safety_margin(monkeypatch):
     monkeypatch.delenv("ASYNCODEBENCH_CONDENSER_MAX_TOKENS", raising=False)
     llm = SimpleNamespace(max_input_tokens=131072, max_output_tokens=32768)
 
-    assert condenser_max_tokens(llm) == 98304
+    assert condenser_max_tokens(llm) == 88473
 
 
 def test_explicit_condenser_budget_must_be_positive(monkeypatch):
@@ -47,3 +48,37 @@ def test_explicit_condenser_budget_must_be_positive(monkeypatch):
         assert "must be positive" in str(exc)
     else:
         raise AssertionError("non-positive condenser threshold was accepted")
+
+
+def test_single_agent_uses_history_condenser(monkeypatch):
+    captured = {}
+    condenser = object()
+
+    class FakeLLM:
+        max_input_tokens = 131072
+        max_output_tokens = 32768
+
+        def model_copy(self, update):
+            assert update == {"usage_id": "condenser"}
+            return self
+
+    monkeypatch.setattr("core.manager.get_default_tools", lambda **_: [])
+    monkeypatch.setattr(
+        "core.manager.LLMSummarizingCondenser", lambda **_: condenser
+    )
+    monkeypatch.setattr(
+        "core.manager.Agent", lambda **kwargs: captured.update(kwargs) or object()
+    )
+    monkeypatch.setattr("core.manager.Conversation", lambda **_: object())
+    monkeypatch.setattr("core.manager.PanelVisualizer", lambda: object())
+
+    task = SimpleNamespace(
+        get_work_dir=lambda: "/workspace/repo",
+        get_prompt_format_args=lambda config: {},
+    )
+    config = SimpleNamespace(manager_max_iterations=100)
+    manager = Manager(FakeLLM(), object(), task, config, None, prompts={})
+
+    manager.setup(mode="single_agent")
+
+    assert captured["condenser"] is condenser

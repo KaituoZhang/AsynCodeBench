@@ -76,7 +76,10 @@ def condenser_max_tokens(llm):
     if context_window:
         available = int(context_window) - int(output_budget)
         fallback = int(context_window) * 3 // 4
-        return max(16384, available if available > 0 else fallback)
+        # Condense before reaching the provider's exact input/output boundary.
+        # Token counting can differ slightly across the SDK and model server.
+        safe_available = available * 9 // 10
+        return max(16384, safe_available if safe_available > 0 else fallback)
     return None
 
 
