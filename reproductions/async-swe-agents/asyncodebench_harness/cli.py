@@ -72,7 +72,7 @@ def _release_status(args):
     pending_human_review = [
         task.get("task_id")
         for task in tasks
-        if not task.get("annotation_status", {}).get("human_review_complete")
+        if not task.get("annotation_status", {}).get("human_review_passed")
     ]
     payload = {
         "benchmark": "AsynCodeBench",
@@ -90,6 +90,10 @@ def _release_status(args):
         "human_review_complete_task_count": index.get(
             "human_review_complete_task_count", 0
         ),
+        "human_review_passed_task_count": index.get(
+            "human_review_passed_task_count", 0
+        ),
+        "human_review_policy": index.get("human_review_policy", {}),
         "release_stage": index.get("release_stage", "unknown"),
         "community_preview_ready": index.get("community_preview_ready", False),
         "stable_release_ready": index.get("stable_release_ready", False),
@@ -119,7 +123,8 @@ def _release_status(args):
             "automated_audit="
             f"{payload['automated_audit_complete_task_count']}/{payload['task_count']} "
             "human_review="
-            f"{payload['human_review_complete_task_count']}/{payload['task_count']}"
+            f"{payload['human_review_passed_task_count']}/{payload['task_count']} "
+            "(one required human approval per task)"
         )
         if pending_human_review:
             print("pending_human_review=" + ",".join(pending_human_review))

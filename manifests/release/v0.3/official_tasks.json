@@ -6,7 +6,17 @@
     "profile_id": "asyncodebench-v0.3-standard-100",
     "sha256": "4d63f8d7176c0391528b39e283cd2f7ba53c15c99bc958f9674ebbe65cbef609"
   },
-  "human_review_complete_task_count": 1,
+  "human_review_complete_task_count": 16,
+  "human_review_passed_task_count": 16,
+  "human_review_policy": {
+    "adjudication_required": false,
+    "automated_audit_counts_as_human": false,
+    "automated_audit_required": true,
+    "policy_id": "single-human-plus-automated-audit-v1",
+    "required_human_annotation_artifact": "annotation_a",
+    "required_human_review_count_per_task": 1,
+    "secondary_human_annotation_required": false
+  },
   "official_task_ids": [
     "asyncodebench:cachetools",
     "asyncodebench:deprecated",

@@ -44,8 +44,10 @@ def test_release_contains_only_the_16_official_tasks():
     assert index["task_count"] == 16
     assert index["scenario_count"] == 64
     assert index["dependency_point_count"] == 47
-    assert official["human_review_complete_task_count"] == 1
-    assert index["human_review_complete_task_count"] == 1
+    assert official["human_review_complete_task_count"] == 16
+    assert index["human_review_complete_task_count"] == 16
+    assert official["human_review_passed_task_count"] == 16
+    assert index["human_review_passed_task_count"] == 16
     assert official["automated_audit_complete_task_count"] == 16
     assert index["automated_audit_complete_task_count"] == 16
     assert official["release_stage"] == "community_preview"
@@ -59,6 +61,16 @@ def test_release_contains_only_the_16_official_tasks():
     assert official["validated_baseline_registry"] == index[
         "validated_baseline_registry"
     ]
+    assert official["human_review_policy"] == index["human_review_policy"]
+    assert official["human_review_policy"] == {
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_review_count_per_task": 1,
+        "required_human_annotation_artifact": "annotation_a",
+        "automated_audit_required": True,
+        "automated_audit_counts_as_human": False,
+        "secondary_human_annotation_required": False,
+        "adjudication_required": False,
+    }
     assert len(set(official["official_task_ids"])) == 16
     assert all(
         task_id.startswith("asyncodebench:")
@@ -71,11 +83,25 @@ def test_release_contains_only_the_16_official_tasks():
     assert official["execution_profile"]["profile_id"] == (
         "asyncodebench-v0.3-standard-100"
     )
-    assert all(task["quality_status"] == "qualification_ready" for task in index["tasks"])
+    assert all(
+        task["quality_status"] == "qualification_ready" for task in index["tasks"]
+    )
     assert sum(
         task["annotation_status"]["human_review_complete"]
         for task in index["tasks"]
-    ) == 1
+    ) == 16
+    assert sum(
+        task["annotation_status"]["human_review_passed"]
+        for task in index["tasks"]
+    ) == 16
+    assert all(
+        task["annotation_status"]["required_human_review_count"] == 1
+        and task["annotation_status"]["required_human_annotation_artifact"]
+        == "annotation_a"
+        and task["annotation_status"]["automated_audit_counts_as_human"] is False
+        and task["annotation_status"]["adjudication_required"] is False
+        for task in index["tasks"]
+    )
     assert all(
         task["annotation_status"]["automated_audit_complete"]
         for task in index["tasks"]

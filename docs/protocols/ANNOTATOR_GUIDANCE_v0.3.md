@@ -11,6 +11,10 @@ The goal of annotation is not to solve the coding task. The goal is to decide
 whether a candidate task is suitable for AsynCodeBench and how naturally it
 supports multi-agent decomposition.
 
+The release policy is **one required human approval per task plus one automated
+audit**. The human decision is authoritative. The automated audit is supporting
+evidence and is never counted as a second human review.
+
 ## 1. What annotators are judging
 
 AsynCodeBench v0.3 focuses on LLM-based software-engineering agents under
@@ -59,9 +63,10 @@ quality records, and tests.
 
 ## 3. Which fields should be edited
 
-In most cases, an annotator should only edit these four fields:
+The required human annotator edits these five fields in `annotator_a.json`:
 
 ```json
+"annotator_id": "your-stable-public-or-pseudonymous-id",
 "include": null,
 "parallelizability_label": null,
 "rationale": null,
@@ -73,7 +78,6 @@ The other fields should usually remain unchanged:
 ```json
 "schema_version"
 "task_id"
-"annotator_id"
 "candidate_evidence_file"
 "task_record_file"
 "allowed_labels"
@@ -259,62 +263,46 @@ Example:
 }
 ```
 
-## 9. Independence requirement
+## 9. Review policy
 
-For release-quality annotation, two annotators must work independently:
+For release-quality annotation, one human completes:
 
 ```text
 annotator_a.json
-annotator_b.json
 ```
 
-The two annotators should not discuss their decisions before both forms are
-completed.
+The form is complete only when `annotator_id` is not a placeholder, `include`
+is Boolean, the label is allowed, and the rationale is non-empty. A task passes
+the human gate only when the completed form also has `include: true`.
 
-If both annotators agree on:
+Each task also has `annotator_codex_audit.json`. This automated audit is a
+required supporting check, but it does not count as a human and cannot override
+the human decision. Agreement between the human and automated audit is reported
+for transparency; disagreement is a review flag, not an automatic replacement
+of the human label.
 
-```text
-include
-parallelizability_label
-```
-
-then the task can be finalized without adjudication.
-
-If they disagree on either field, an independent adjudicator must complete:
-
-```text
-adjudication.template.json
-```
-
-The adjudicator must not be either annotator.
+`annotator_b.json` and `adjudication.template.json` are retained for optional
+secondary review and historical compatibility. They are not required by the
+current release gate. If an optional second human disagrees, report that fact
+rather than silently selecting the favorable decision.
 
 ## 10. Validation command
 
-After both annotation files are complete, run:
+After the required human annotation is complete, regenerate and check the
+machine-readable release index:
 
 ```bash
 cd /absolute/path/to/AsynCodeBench
-PYTHONPATH=src python scripts/finalize_v03_task_annotation.py \
-  --task manifests/pilot/v0.3/tasks/commit0_cachetools.json \
-  --annotation-a manifests/annotations/asyncodebench_v0.3/cachetools/annotator_a.json \
-  --annotation-b manifests/annotations/asyncodebench_v0.3/cachetools/annotator_b.json \
-  --output manifests/pilot/v0.3/tasks/commit0_cachetools.finalized.json
+python scripts/build_release_index.py
+python scripts/build_release_index.py --check
 ```
 
-If adjudication is needed:
+Inspect the resulting status:
 
 ```bash
-cd /absolute/path/to/AsynCodeBench
-PYTHONPATH=src python scripts/finalize_v03_task_annotation.py \
-  --task manifests/pilot/v0.3/tasks/commit0_cachetools.json \
-  --annotation-a manifests/annotations/asyncodebench_v0.3/cachetools/annotator_a.json \
-  --annotation-b manifests/annotations/asyncodebench_v0.3/cachetools/annotator_b.json \
-  --adjudication manifests/annotations/asyncodebench_v0.3/cachetools/adjudication.template.json \
-  --output manifests/pilot/v0.3/tasks/commit0_cachetools.finalized.json
+cd reproductions/async-swe-agents
+uv run asyncodebench release-status --json
 ```
-
-Replace `cachetools` with `deprecated`, `tinydb`, or `portalocker` for other
-tasks.
 
 ## 11. Practical checklist
 

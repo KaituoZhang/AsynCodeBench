@@ -4,10 +4,10 @@
     "partially_parallelizable",
     "effectively_serial"
   ],
-  "annotator_id": "annotator_a",
+  "annotator_id": "pZ512",
   "candidate_evidence_file": "docs/audits/COMMIT0_CANDIDATE_REVIEW_networkx_graphene_tlslite_v0.3.md",
   "exclusion_reason": null,
-  "include": null,
+  "include": true,
   "independence_instructions": [
     "Use only public Commit0 evidence, the audit note, and the draft task record.",
     "Review the linked TaskQualityRecord, including the requirement to use origin/commit0_combined plus checksum-recorded bootstrap overlays.",
@@ -16,8 +16,8 @@
     "Explicitly assess whether the mounting/object-input/schema splits are natural AsynCodeBench dependencies rather than artificial file partitioning.",
     "Explicitly assess whether the props bootstrap overlay is acceptable as a non-solution collection prerequisite for the scoped type/schema task."
   ],
-  "parallelizability_label": null,
-  "rationale": null,
+  "parallelizability_label": "partially_parallelizable",
+  "rationale": "After reviewing the graphene task, this task can be included in the AsynCodeBench.",
   "schema_version": "0.3",
   "source_task_id": "commit0:graphene",
   "task_id": "asyncodebench:graphene",

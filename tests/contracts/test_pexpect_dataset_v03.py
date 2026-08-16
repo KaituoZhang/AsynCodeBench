@@ -79,8 +79,12 @@ def test_pexpect_annotation_requires_scope_and_environment_review() -> None:
     for name in ("annotator_a.json", "annotator_b.json"):
         form = _read_json(ANNOTATION_DIR / name)
 
-        assert form["include"] is None
-        assert form["parallelizability_label"] is None
+        if name == "annotator_a.json":
+            assert form["include"] is True
+            assert form["parallelizability_label"] == "partially_parallelizable"
+        else:
+            assert form["include"] is None
+            assert form["parallelizability_label"] is None
         assert any("POSIX/ptyprocess" in instruction for instruction in form["independence_instructions"])
         assert any("expect/search -> SpawnBase -> transport/wrapper" in instruction for instruction in form["independence_instructions"])
         assert any("pxssh" in instruction for instruction in form["independence_instructions"])

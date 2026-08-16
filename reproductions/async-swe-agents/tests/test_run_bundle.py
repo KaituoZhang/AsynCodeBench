@@ -438,14 +438,15 @@ def test_cli_reports_release_and_review_status(capsys):
     assert status["scenario_count"] == 64
     assert status["dependency_point_count"] == 47
     assert status["automated_audit_complete_task_count"] == 16
-    assert status["human_review_complete_task_count"] == 1
+    assert status["human_review_complete_task_count"] == 16
+    assert status["human_review_passed_task_count"] == 16
     assert status["executable_release_complete"] is True
     assert status["release_stage"] == "community_preview"
     assert status["community_preview_ready"] is True
     assert status["stable_release_ready"] is False
     assert status["validated_baseline_bundle_count"] == 0
-    assert status["human_validation_complete"] is False
-    assert len(status["pending_human_review_task_ids"]) == 15
+    assert status["human_validation_complete"] is True
+    assert status["pending_human_review_task_ids"] == []
 
 
 def test_cli_release_gate_accepts_preview_and_rejects_stable(capsys):

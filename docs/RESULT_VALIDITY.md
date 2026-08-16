@@ -234,10 +234,11 @@ Task-level annotations and bootstrap overlays are frozen separately in
 contracts actually consumed during execution; the release index supplies the
 complete dataset and label lineage.
 
-Automatic task qualification, automated annotation audit, and independent
-human review are distinct states. The release index reports each separately;
-an executable run bundle does not by itself certify that human annotation and
-adjudication are complete.
+Automatic task qualification, automated annotation audit, and human review are
+distinct states. The release index reports each separately. The release policy
+requires one human approval per task; the automated audit is supporting
+evidence and never counts as that human approval. An executable run bundle does
+not by itself certify that human review is complete.
 
 The machine-readable release stage is exposed by:
 
@@ -247,9 +248,9 @@ uv run asyncodebench release-status --require stable
 ```
 
 The preview gate requires all released tasks to pass automatic qualification.
-The stable gate additionally requires 16/16 independent human reviews and at
-least one checksum-registered public baseline bundle. Missing evidence remains
-an explicit nonzero gate rather than being inferred from prose.
+The stable gate additionally requires 16/16 one-human approvals and at least
+one checksum-registered public baseline bundle. Missing evidence remains an
+explicit nonzero gate rather than being inferred from prose.
 
 ## Existing Results
 

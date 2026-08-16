@@ -24,6 +24,26 @@ EXPECTED_MODES = {
     "async_private": "async_private",
     "async_message": "caid_manager",
 }
+HUMAN_REVIEW_POLICY = {
+    "policy_id": "single-human-plus-automated-audit-v1",
+    "required_human_review_count_per_task": 1,
+    "required_human_annotation_artifact": "annotation_a",
+    "automated_audit_required": True,
+    "automated_audit_counts_as_human": False,
+    "secondary_human_annotation_required": False,
+    "adjudication_required": False,
+}
+ALLOWED_PARALLELIZABILITY_LABELS = {
+    "parallelizable",
+    "partially_parallelizable",
+    "effectively_serial",
+}
+PLACEHOLDER_ANNOTATOR_IDS = {
+    "annotator_a",
+    "annotator_b",
+    "human_annotator",
+    "independent_annotator",
+}
 
 
 def read_json(path: Path) -> dict:
@@ -62,9 +82,28 @@ def public_scenario_id(source_scenario_id: str) -> str:
     return source_scenario_id
 
 
-def annotation_decision_complete(document: dict) -> bool:
-    return isinstance(document.get("include"), bool) and bool(
-        document.get("parallelizability_label")
+def annotation_decision_complete(document: dict, *, require_human_id=False) -> bool:
+    include = document.get("include")
+    label = document.get("parallelizability_label")
+    rationale = document.get("rationale")
+    exclusion_reason = document.get("exclusion_reason")
+    annotator_id = str(document.get("annotator_id", "")).strip()
+    if not isinstance(include, bool):
+        return False
+    if label not in ALLOWED_PARALLELIZABILITY_LABELS:
+        return False
+    if not isinstance(rationale, str) or not rationale.strip():
+        return False
+    if include and exclusion_reason not in {None, ""}:
+        return False
+    if not include and (
+        not isinstance(exclusion_reason, str) or not exclusion_reason.strip()
+    ):
+        return False
+    if not annotator_id:
+        return False
+    return not (
+        require_human_id and annotator_id.lower() in PLACEHOLDER_ANNOTATOR_IDS
     )
 
 
@@ -91,6 +130,7 @@ def build_release_documents() -> tuple[dict, dict]:
     total_scenarios = 0
     total_dependencies = 0
     human_review_complete_tasks = 0
+    human_review_passed_tasks = 0
     automated_audit_complete_tasks = 0
 
     for repository in repositories:
@@ -138,7 +178,8 @@ def build_release_documents() -> tuple[dict, dict]:
         modes = {scenario.get("execution_mode") for scenario in scenarios}
         if modes != set(EXPECTED_MODES):
             raise ValueError(
-                f"{repository} must define {sorted(EXPECTED_MODES)}, found {sorted(modes)}"
+                f"{repository} must define {sorted(EXPECTED_MODES)}, "
+                f"found {sorted(modes)}"
             )
 
         protocol_scenarios = {}
@@ -155,35 +196,50 @@ def build_release_documents() -> tuple[dict, dict]:
             }
 
         dependency_points = metrics.get("dependency_points", [])
-        annotator_a_complete = annotation_decision_complete(annotation_a)
-        annotator_b_complete = annotation_decision_complete(annotation_b)
+        annotator_a_complete = annotation_decision_complete(
+            annotation_a, require_human_id=True
+        )
+        annotator_b_complete = annotation_decision_complete(
+            annotation_b, require_human_id=True
+        )
         automated_audit_complete = annotation_decision_complete(annotation_audit)
-        human_annotations_complete = annotator_a_complete and annotator_b_complete
-        human_annotations_agree = human_annotations_complete and (
+        human_annotations_agree = annotator_a_complete and annotator_b_complete and (
             annotation_a.get("include"),
             annotation_a.get("parallelizability_label"),
         ) == (
             annotation_b.get("include"),
             annotation_b.get("parallelizability_label"),
         )
-        adjudication_required = human_annotations_complete and not human_annotations_agree
         adjudication_complete = annotation_decision_complete(adjudication)
-        human_review_complete = human_annotations_complete and (
-            human_annotations_agree or adjudication_complete
+        human_review_complete = annotator_a_complete
+        human_review_passed = human_review_complete and bool(
+            annotation_a.get("include")
+        )
+        human_automated_audit_agree = (
+            human_review_complete
+            and automated_audit_complete
+            and (
+                annotation_a.get("include"),
+                annotation_a.get("parallelizability_label"),
+            )
+            == (
+                annotation_audit.get("include"),
+                annotation_audit.get("parallelizability_label"),
+            )
         )
         if human_review_complete:
             human_review_complete_tasks += 1
+        if human_review_passed:
+            human_review_passed_tasks += 1
         if automated_audit_complete:
             automated_audit_complete_tasks += 1
 
-        if not human_annotations_complete:
-            human_review_status = "pending_independent_annotations"
-        elif human_annotations_agree:
-            human_review_status = "complete_agreement"
-        elif adjudication_complete:
-            human_review_status = "complete_adjudicated"
+        if not human_review_complete:
+            human_review_status = "pending_required_human_review"
+        elif human_review_passed:
+            human_review_status = "complete_pass"
         else:
-            human_review_status = "pending_adjudication"
+            human_review_status = "complete_reject"
 
         total_scenarios += len(scenarios)
         total_dependencies += len(dependency_points)
@@ -200,17 +256,27 @@ def build_release_documents() -> tuple[dict, dict]:
                     "overlay_count": len(overlay_records),
                     "overlays": overlay_records,
                 },
-                "parallelizability": task.get(
-                    "proposed_parallelizability_label"
+                "parallelizability": (
+                    annotation_a.get("parallelizability_label")
+                    if human_review_complete
+                    else task.get("proposed_parallelizability_label")
                 ),
                 "annotation_status": {
+                    "policy_id": HUMAN_REVIEW_POLICY["policy_id"],
+                    "required_human_review_count": 1,
+                    "completed_human_review_count": int(annotator_a_complete),
+                    "required_human_annotation_artifact": "annotation_a",
                     "annotator_a_complete": annotator_a_complete,
                     "annotator_b_complete": annotator_b_complete,
+                    "secondary_human_annotation_required": False,
                     "automated_audit_complete": automated_audit_complete,
+                    "automated_audit_counts_as_human": False,
+                    "human_automated_audit_agree": human_automated_audit_agree,
                     "human_annotations_agree": human_annotations_agree,
-                    "adjudication_required": adjudication_required,
+                    "adjudication_required": False,
                     "adjudication_complete": adjudication_complete,
                     "human_review_complete": human_review_complete,
+                    "human_review_passed": human_review_passed,
                     "status": human_review_status,
                 },
                 "protocols": protocol_scenarios,
@@ -230,7 +296,7 @@ def build_release_documents() -> tuple[dict, dict]:
     )
     stable_release_ready = (
         community_preview_ready
-        and human_review_complete_tasks == len(tasks)
+        and human_review_passed_tasks == len(tasks)
         and bool(baseline_bundles)
     )
     release_stage = "stable" if stable_release_ready else "community_preview"
@@ -239,6 +305,7 @@ def build_release_documents() -> tuple[dict, dict]:
         "release_stage": release_stage,
         "community_preview_ready": community_preview_ready,
         "stable_release_ready": stable_release_ready,
+        "human_review_policy": HUMAN_REVIEW_POLICY,
         "validated_baseline_bundle_count": len(baseline_bundles),
         "validated_baseline_registry": {
             "path": relative(VALIDATED_BASELINES),
@@ -252,6 +319,7 @@ def build_release_documents() -> tuple[dict, dict]:
         "task_namespace": "asyncodebench",
         "task_count": len(tasks),
         "human_review_complete_task_count": human_review_complete_tasks,
+        "human_review_passed_task_count": human_review_passed_tasks,
         "automated_audit_complete_task_count": automated_audit_complete_tasks,
         "official_task_ids": [task["task_id"] for task in tasks],
         "execution_profile": {
@@ -269,6 +337,7 @@ def build_release_documents() -> tuple[dict, dict]:
         "scenario_count": total_scenarios,
         "dependency_point_count": total_dependencies,
         "human_review_complete_task_count": human_review_complete_tasks,
+        "human_review_passed_task_count": human_review_passed_tasks,
         "automated_audit_complete_task_count": automated_audit_complete_tasks,
         "protocols": list(EXPECTED_MODES.values()),
         "execution_profile": {

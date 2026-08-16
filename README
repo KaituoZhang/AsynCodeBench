@@ -3,9 +3,9 @@
 AsynCodeBench is a dependency-aware benchmark for evaluating asynchronous
 multi-agent software-engineering systems on real Python repositories.
 
-**Release status:** `v0.3` Community Preview. The executable release is ready
-for community evaluation; stable-release gates remain open for independent
-human review and a validated public baseline bundle.
+**Release status:** `v0.3` Community Preview. The executable release and the
+required human review are complete; the stable-release gate remains open for a
+validated public baseline bundle.
 
 Traditional coding benchmarks primarily ask whether the final patch passes the
 tests. AsynCodeBench asks an additional question:
@@ -152,8 +152,8 @@ For each official task, AsynCodeBench supplies:
 - a quality record documenting evaluator and bootstrap constraints;
 - checksum-pinned non-solution overlays when the stripped source otherwise
   cannot import or collect public tests;
-- two independent-annotator forms, an automated audit record, and an
-  adjudication template for auditing labels;
+- one required human-review form, an automated audit record, and optional
+  secondary-review/adjudication forms for auditing labels;
 - contract tests validating cross-file consistency.
 
 The active artifacts are under `manifests/pilot/v0.3/`. The directory name is
@@ -167,12 +167,12 @@ manifest, annotation/audit/template file, source SHA, and bootstrap overlay for
 all 16 tasks.
 
 Human-review completion is reported separately from automatic qualification.
-At the current checkout, the automated audit is complete for 16/16 tasks, while
-both independent annotation forms are complete for 1/16 tasks. The remaining
-15 tasks are executable benchmark candidates but must not be described as
-fully human-validated until those forms and any required adjudication are
-completed. The exact status is machine-readable under each task's
-`annotation_status` in the release index.
+The release policy requires one completed human approval in `annotator_a.json`
+per task, plus the separately identified automated audit. The automated audit
+does not count as a human reviewer. At the current checkout, the automated
+audit is complete for 16/16 tasks and the required human approval is complete
+for 16/16 tasks. See
+[`docs/HUMAN_REVIEW.md`](docs/HUMAN_REVIEW.md).
 
 No current native model result bundle is committed as a public baseline yet.
 The initial aggregate reported above was produced by formal native bundles,
@@ -188,8 +188,8 @@ cd reproductions/async-swe-agents
 uv run asyncodebench release-status --require preview
 ```
 
-`--require stable` intentionally exits nonzero until all 16 tasks complete
-independent human review and at least one checksum-validated baseline bundle is
+`--require stable` intentionally exits nonzero until all 16 tasks receive one
+human approval and at least one checksum-validated baseline bundle is
 registered in `manifests/release/v0.3/validated_baselines.json`.
 
 ## Runtime Architecture
@@ -382,6 +382,7 @@ Detailed validity rules are in
 | [`docs/EVALUATION_METRICS.md`](docs/EVALUATION_METRICS.md) | Metric formulas and aggregation policy |
 | [`docs/RESULT_VALIDITY.md`](docs/RESULT_VALIDITY.md) | Machine-checked result status, metric eligibility, profiles, and migration rules |
 | [`docs/AGENT_ADAPTER.md`](docs/AGENT_ADAPTER.md) | Integrating a third-party coding agent without changing benchmark semantics |
+| [`docs/HUMAN_REVIEW.md`](docs/HUMAN_REVIEW.md) | Required one-human review policy, fields, task checklist, and validation |
 | [`docs/CODEX_ONBOARDING.md`](docs/CODEX_ONBOARDING.md) | Context for a new collaborator or coding-agent session |
 
 ## Extending the Benchmark
@@ -398,9 +399,9 @@ skills/commit0-to-asyncodebench/SKILL.md
 ```
 
 The skill and generated manifests make benchmark construction auditable; they
-do not replace the contract tests, independent human review, or completed
-adjudication. Empty annotator forms are retained as explicit pending work, and
-adjudication templates are available where reviewers disagree.
+do not replace contract tests or the required human review. Empty required
+forms remain explicit pending work. Optional secondary-review and adjudication
+templates are retained for additional auditing and provenance.
 
 ## Bring Your Own Agent
 

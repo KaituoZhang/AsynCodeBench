@@ -15,6 +15,7 @@ Start here when onboarding a collaborator or a new Codex session.
 | [`OPENHANDS_RUNTIME_CONSISTENCY.md`](OPENHANDS_RUNTIME_CONSISTENCY.md) | Locked host/server OpenHands runtime, event-schema smoke, and invalid-run policy. |
 | [`LOCAL_VLLM_EXPERIMENT_RUNBOOK.md`](LOCAL_VLLM_EXPERIMENT_RUNBOOK.md) | Local-vLLM capacity, networking, smoke gates, and failure diagnosis. |
 | [`AGENT_ADAPTER.md`](AGENT_ADAPTER.md) | Public bring-your-own-agent contract, loading commands, enforcement, and provenance. |
+| [`HUMAN_REVIEW.md`](HUMAN_REVIEW.md) | Required one-human review fields, acceptance checklist, status, and validation. |
 | [`VLLM_QWEN_LOCAL_RUNBOOK.md`](VLLM_QWEN_LOCAL_RUNBOOK.md) | Qwen-specific local vLLM setup and tool calling. |
 | [`GEMMA4_CAID_HARNESS_FIX.md`](GEMMA4_CAID_HARNESS_FIX.md) | Gemma 4 parser/version and CAID lifecycle notes. |
 
@@ -23,11 +24,11 @@ execution guides: `EVALUATION_BRANCH_QUICKSTART.md`, `CODEX_ONBOARDING.md`,
 `GITHUB_COLLABORATOR_HANDOFF.md`, `COLLABORATOR_RUNBOOK.md`, and
 `AGENT_EXPERIMENT_RUNBOOK.md`.
 
-The official task directories contain two independent-annotator forms, one
-automated audit record, and an adjudication template. Form presence is not
-evidence of completion. `manifests/release/v0.3/task_index.json` reports the
-machine-readable completion state; publications should report the actual
-review, agreement, and adjudication procedure used for the released labels.
+The official task directories contain one required human-review form, one
+automated audit record, and optional secondary-review/adjudication forms. Form
+presence is not evidence of completion. The automated audit never counts as a
+human. `manifests/release/v0.3/task_index.json` reports the machine-readable
+completion and approval state.
 
 ## Task Construction And Methodology
 

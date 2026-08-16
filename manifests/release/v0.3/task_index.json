@@ -7,7 +7,17 @@
     "profile_id": "asyncodebench-v0.3-standard-100",
     "sha256": "4d63f8d7176c0391528b39e283cd2f7ba53c15c99bc958f9674ebbe65cbef609"
   },
-  "human_review_complete_task_count": 1,
+  "human_review_complete_task_count": 16,
+  "human_review_passed_task_count": 16,
+  "human_review_policy": {
+    "adjudication_required": false,
+    "automated_audit_counts_as_human": false,
+    "automated_audit_required": true,
+    "policy_id": "single-human-plus-automated-audit-v1",
+    "required_human_annotation_artifact": "annotation_a",
+    "required_human_review_count_per_task": 1,
+    "secondary_human_annotation_required": false
+  },
   "protocols": [
     "single",
     "serial_specialists",
@@ -29,9 +39,17 @@
         "annotator_a_complete": true,
         "annotator_b_complete": true,
         "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
         "human_annotations_agree": true,
+        "human_automated_audit_agree": true,
         "human_review_complete": true,
-        "status": "complete_agreement"
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
       },
       "artifacts": {
         "adjudication_template": {
@@ -120,12 +138,20 @@
       "annotation_status": {
         "adjudication_complete": false,
         "adjudication_required": false,
-        "annotator_a_complete": false,
+        "annotator_a_complete": true,
         "annotator_b_complete": false,
         "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
         "human_annotations_agree": false,
-        "human_review_complete": false,
-        "status": "pending_independent_annotations"
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
       },
       "artifacts": {
         "adjudication_template": {
@@ -134,7 +160,7 @@
         },
         "annotation_a": {
           "path": "manifests/annotations/asyncodebench_v0.3/deprecated/annotator_a.json",
-          "sha256": "674eed4898a37cf98868251e67ac9592787ef70690274d70839a6fefaea90ac3"
+          "sha256": "de069b5a6a53f120ccbea2967d9a75768566558b02cb28b35adb0e91da3887d2"
         },
         "annotation_audit": {
           "path": "manifests/annotations/asyncodebench_v0.3/deprecated/annotator_codex_audit.json",
@@ -214,12 +240,20 @@
       "annotation_status": {
         "adjudication_complete": false,
         "adjudication_required": false,
-        "annotator_a_complete": false,
+        "annotator_a_complete": true,
         "annotator_b_complete": false,
         "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
         "human_annotations_agree": false,
-        "human_review_complete": false,
-        "status": "pending_independent_annotations"
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
       },
       "artifacts": {
         "adjudication_template": {
@@ -228,7 +262,7 @@
         },
         "annotation_a": {
           "path": "manifests/annotations/asyncodebench_v0.3/portalocker/annotator_a.json",
-          "sha256": "5f7485617fe3a3a8b259a5e603f8532ddf27c0da669c39857308f35740e6b685"
+          "sha256": "309c7886a2c033f420b02d3c6f8130ace09ba730079a174936730fb0303830e5"
         },
         "annotation_audit": {
           "path": "manifests/annotations/asyncodebench_v0.3/portalocker/annotator_codex_audit.json",
@@ -314,12 +348,20 @@
       "annotation_status": {
         "adjudication_complete": false,
         "adjudication_required": false,
-        "annotator_a_complete": false,
+        "annotator_a_complete": true,
         "annotator_b_complete": false,
         "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
         "human_annotations_agree": false,
-        "human_review_complete": false,
-        "status": "pending_independent_annotations"
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
       },
       "artifacts": {
         "adjudication_template": {
@@ -328,7 +370,7 @@
         },
         "annotation_a": {
           "path": "manifests/annotations/asyncodebench_v0.3/tinydb/annotator_a.json",
-          "sha256": "fb61ad61bb097a04457d9eb364c56cac175f63c5cd0b87e6a158a882bd2d7b74"
+          "sha256": "b6cabb32eb7cde2e7d85b48c0856bf60c0d6fdeb9167ad86637db4277a82a20d"
         },
         "annotation_audit": {
           "path": "manifests/annotations/asyncodebench_v0.3/tinydb/annotator_codex_audit.json",
@@ -414,12 +456,20 @@
       "annotation_status": {
         "adjudication_complete": false,
         "adjudication_required": false,
-        "annotator_a_complete": false,
+        "annotator_a_complete": true,
         "annotator_b_complete": false,
         "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
         "human_annotations_agree": false,
-        "human_review_complete": false,
-        "status": "pending_independent_annotations"
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
       },
       "artifacts": {
         "adjudication_template": {
@@ -428,7 +478,7 @@
         },
         "annotation_a": {
           "path": "manifests/annotations/asyncodebench_v0.3/wcwidth/annotator_a.json",
-          "sha256": "669faa07980529c31749d516a2d3e8d311edbb5e79946b09f7b37f7fb93e0619"
+          "sha256": "680e0ece39f3512bb0c9d5ff471af0156c9d9a67d03db3d7d4186917fe47d921"
         },
         "annotation_audit": {
           "path": "manifests/annotations/asyncodebench_v0.3/wcwidth/annotator_codex_audit.json",
@@ -508,12 +558,20 @@
       "annotation_status": {
         "adjudication_complete": false,
         "adjudication_required": false,
-        "annotator_a_complete": false,
+        "annotator_a_complete": true,
         "annotator_b_complete": false,
         "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
         "human_annotations_agree": false,
-        "human_review_complete": false,
-        "status": "pending_independent_annotations"
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
       },
       "artifacts": {
         "adjudication_template": {
@@ -522,7 +580,7 @@
         },
         "annotation_a": {
           "path": "manifests/annotations/asyncodebench_v0.3/requests/annotator_a.json",
-          "sha256": "072bb12cfc4557d2935fe7a35fdce33843468d763aabc566bf7e09216c8da585"
+          "sha256": "746f3c66a9d291b9efa8230d72e0e8c669dd547018fd218aff10c259a848596b"
         },
         "annotation_audit": {
           "path": "manifests/annotations/asyncodebench_v0.3/requests/annotator_codex_audit.json",
@@ -618,12 +676,20 @@
       "annotation_status": {
         "adjudication_complete": false,
         "adjudication_required": false,
-        "annotator_a_complete": false,
+        "annotator_a_complete": true,
         "annotator_b_complete": false,
         "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
         "human_annotations_agree": false,
-        "human_review_complete": false,
-        "status": "pending_independent_annotations"
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
       },
       "artifacts": {
         "adjudication_template": {
@@ -632,7 +698,7 @@
         },
         "annotation_a": {
           "path": "manifests/annotations/asyncodebench_v0.3/simpy/annotator_a.json",
-          "sha256": "d54405781574dfa662086c28891cde96a2e7b3471ac02044bc92be0bdc6db598"
+          "sha256": "b44d283ca709d89eb15091f33d6c5de72c090877e03cd51bfe420842fca4ad7e"
         },
         "annotation_audit": {
           "path": "manifests/annotations/asyncodebench_v0.3/simpy/annotator_codex_audit.json",
@@ -712,12 +778,20 @@
       "annotation_status": {
         "adjudication_complete": false,
         "adjudication_required": false,
-        "annotator_a_complete": false,
+        "annotator_a_complete": true,
         "annotator_b_complete": false,
         "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
         "human_annotations_agree": false,
-        "human_review_complete": false,
-        "status": "pending_independent_annotations"
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
       },
       "artifacts": {
         "adjudication_template": {
@@ -726,7 +800,7 @@
         },
         "annotation_a": {
           "path": "manifests/annotations/asyncodebench_v0.3/parsel/annotator_a.json",
-          "sha256": "22e57293724c6e4bbcf3585b5c7833c1f7e34edcaf8af6fca81767c342fcc460"
+          "sha256": "821f326760eb939ea5f0c0104b0c1d5b2930e6715c68219880efc08ffbc09a4e"
         },
         "annotation_audit": {
           "path": "manifests/annotations/asyncodebench_v0.3/parsel/annotator_codex_audit.json",
@@ -812,12 +886,20 @@
       "annotation_status": {
         "adjudication_complete": false,
         "adjudication_required": false,
-        "annotator_a_complete": false,
+        "annotator_a_complete": true,
         "annotator_b_complete": false,
         "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
         "human_annotations_agree": false,
-        "human_review_complete": false,
-        "status": "pending_independent_annotations"
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
       },
       "artifacts": {
         "adjudication_template": {
@@ -826,7 +908,7 @@
         },
         "annotation_a": {
           "path": "manifests/annotations/asyncodebench_v0.3/filesystem_spec/annotator_a.json",
-          "sha256": "209d6a673560251d1361b6e0203ec1008401c9d0208698d9288d4dc6279a89ba"
+          "sha256": "370db319b7a9ca603a7ad8ff036b005f9b0f611d9d35b812c2d41d5eb4492e56"
         },
         "annotation_audit": {
           "path": "manifests/annotations/asyncodebench_v0.3/filesystem_spec/annotator_codex_audit.json",
@@ -927,12 +1009,20 @@
       "annotation_status": {
         "adjudication_complete": false,
         "adjudication_required": false,
-        "annotator_a_complete": false,
+        "annotator_a_complete": true,
         "annotator_b_complete": false,
         "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
         "human_annotations_agree": false,
-        "human_review_complete": false,
-        "status": "pending_independent_annotations"
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
       },
       "artifacts": {
         "adjudication_template": {
@@ -941,7 +1031,7 @@
         },
         "annotation_a": {
           "path": "manifests/annotations/asyncodebench_v0.3/marshmallow/annotator_a.json",
-          "sha256": "b30e0116157aef59f4583399e628412c198aa6640ccb43bd231c950b2d57fc6c"
+          "sha256": "819917857b2216f017e5d4d71ea6667444096d8a51020fdeb277b7df6dddaaec"
         },
         "annotation_audit": {
           "path": "manifests/annotations/asyncodebench_v0.3/marshmallow/annotator_codex_audit.json",
@@ -1042,12 +1132,20 @@
       "annotation_status": {
         "adjudication_complete": false,
         "adjudication_required": false,
-        "annotator_a_complete": false,
+        "annotator_a_complete": true,
         "annotator_b_complete": false,
         "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
         "human_annotations_agree": false,
-        "human_review_complete": false,
-        "status": "pending_independent_annotations"
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
       },
       "artifacts": {
         "adjudication_template": {
@@ -1056,7 +1154,7 @@
         },
         "annotation_a": {
           "path": "manifests/annotations/asyncodebench_v0.3/graphene/annotator_a.json",
-          "sha256": "9b1e5af74943421bca6b1f6633b7dc9d8613e64c6494332273371d3be5082f5b"
+          "sha256": "36fb093a134de4c9a906067eb0d5c3e826069aac7a3cc5ac419f0c7f0f9ba6ea"
         },
         "annotation_audit": {
           "path": "manifests/annotations/asyncodebench_v0.3/graphene/annotator_codex_audit.json",
@@ -1192,12 +1290,20 @@
       "annotation_status": {
         "adjudication_complete": false,
         "adjudication_required": false,
-        "annotator_a_complete": false,
+        "annotator_a_complete": true,
         "annotator_b_complete": false,
         "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
         "human_annotations_agree": false,
-        "human_review_complete": false,
-        "status": "pending_independent_annotations"
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
       },
       "artifacts": {
         "adjudication_template": {
@@ -1206,7 +1312,7 @@
         },
         "annotation_a": {
           "path": "manifests/annotations/asyncodebench_v0.3/imapclient/annotator_a.json",
-          "sha256": "6b563d3fbaf1e2d3e2c7425086899e10435b1d7da649089ab348f24e615bd5e6"
+          "sha256": "71baf8cab2950ac00213c4947a186739b294c2be9daf451ae7eb811092a0ca15"
         },
         "annotation_audit": {
           "path": "manifests/annotations/asyncodebench_v0.3/imapclient/annotator_codex_audit.json",
@@ -1312,12 +1418,20 @@
       "annotation_status": {
         "adjudication_complete": false,
         "adjudication_required": false,
-        "annotator_a_complete": false,
+        "annotator_a_complete": true,
         "annotator_b_complete": false,
         "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
         "human_annotations_agree": false,
-        "human_review_complete": false,
-        "status": "pending_independent_annotations"
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
       },
       "artifacts": {
         "adjudication_template": {
@@ -1326,7 +1440,7 @@
         },
         "annotation_a": {
           "path": "manifests/annotations/asyncodebench_v0.3/pexpect/annotator_a.json",
-          "sha256": "2dc74000f48c64d51dc5dd434cfd23b6458f53f5761dcd656f3d2c4af815669f"
+          "sha256": "3417ccee911e29767155c3628338b9abe33d706f44d8f7fef3b16b4b6589ce23"
         },
         "annotation_audit": {
           "path": "manifests/annotations/asyncodebench_v0.3/pexpect/annotator_codex_audit.json",
@@ -1412,12 +1526,20 @@
       "annotation_status": {
         "adjudication_complete": false,
         "adjudication_required": false,
-        "annotator_a_complete": false,
+        "annotator_a_complete": true,
         "annotator_b_complete": false,
         "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
         "human_annotations_agree": false,
-        "human_review_complete": false,
-        "status": "pending_independent_annotations"
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
       },
       "artifacts": {
         "adjudication_template": {
@@ -1426,7 +1548,7 @@
         },
         "annotation_a": {
           "path": "manifests/annotations/asyncodebench_v0.3/flask/annotator_a.json",
-          "sha256": "92be1a0ddec1826d9a10a4e601e274cbc5d1c8e4148deaa8924a91a19f7ebff8"
+          "sha256": "785c7f709b53fbc46a12ec8f1a590c22fc6eae9f3b3db5a6c6b8039781530aa2"
         },
         "annotation_audit": {
           "path": "manifests/annotations/asyncodebench_v0.3/flask/annotator_codex_audit.json",
@@ -1562,12 +1684,20 @@
       "annotation_status": {
         "adjudication_complete": false,
         "adjudication_required": false,
-        "annotator_a_complete": false,
+        "annotator_a_complete": true,
         "annotator_b_complete": false,
         "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
         "human_annotations_agree": false,
-        "human_review_complete": false,
-        "status": "pending_independent_annotations"
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
       },
       "artifacts": {
         "adjudication_template": {
@@ -1576,7 +1706,7 @@
         },
         "annotation_a": {
           "path": "manifests/annotations/asyncodebench_v0.3/python_rsa/annotator_a.json",
-          "sha256": "5f8e6526297677ad1873ebde6e045fdb449d18a697c6d01b1c8e96d3452fd7bd"
+          "sha256": "e9dffce25669ac8d106570f406f92868771bcdd42e917f8d55c38827bdb3abc2"
         },
         "annotation_audit": {
           "path": "manifests/annotations/asyncodebench_v0.3/python_rsa/annotator_codex_audit.json",
@@ -1656,12 +1786,20 @@
       "annotation_status": {
         "adjudication_complete": false,
         "adjudication_required": false,
-        "annotator_a_complete": false,
+        "annotator_a_complete": true,
         "annotator_b_complete": false,
         "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
         "human_annotations_agree": false,
-        "human_review_complete": false,
-        "status": "pending_independent_annotations"
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
       },
       "artifacts": {
         "adjudication_template": {
@@ -1670,7 +1808,7 @@
         },
         "annotation_a": {
           "path": "manifests/annotations/asyncodebench_v0.3/cookiecutter/annotator_a.json",
-          "sha256": "ad49253aac85c4d8ff4d057fa8d0de7cfc5d39987740b79821ed68cd3a46c798"
+          "sha256": "0a497ec9f2adae8c1aa1cc50c6e20a389359f0b85cd13acf332367927adb01b1"
         },
         "annotation_audit": {
           "path": "manifests/annotations/asyncodebench_v0.3/cookiecutter/annotator_codex_audit.json",

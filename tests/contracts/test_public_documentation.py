@@ -47,8 +47,8 @@ def test_readme_release_facts_match_machine_readable_index():
         f"{index['automated_audit_complete_task_count']}/{index['task_count']} tasks"
     ) in flat_readme
     assert (
-        f"both independent annotation forms are complete for "
-        f"{index['human_review_complete_task_count']}/{index['task_count']} tasks"
+        f"required human approval is complete for "
+        f"{index['human_review_passed_task_count']}/{index['task_count']} tasks"
     ) in flat_readme
 
 

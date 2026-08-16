@@ -82,8 +82,12 @@ def test_imapclient_annotation_requires_stripped_ref_and_bootstrap_review() -> N
     for name in ("annotator_a.json", "annotator_b.json"):
         form = _read_json(ANNOTATION_DIR / name)
 
-        assert form["include"] is None
-        assert form["parallelizability_label"] is None
+        if name == "annotator_a.json":
+            assert form["include"] is True
+            assert form["parallelizability_label"] == "partially_parallelizable"
+        else:
+            assert form["include"] is None
+            assert form["parallelizability_label"] is None
         assert any("origin/commit0_combined" in instruction for instruction in form["independence_instructions"])
         assert any("utility/lexer -> parser -> client" in instruction for instruction in form["independence_instructions"])
         assert any("bootstrap overlays" in instruction for instruction in form["independence_instructions"])

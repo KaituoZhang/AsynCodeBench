@@ -4,10 +4,10 @@
     "partially_parallelizable",
     "effectively_serial"
   ],
-  "annotator_id": "annotator_a",
+  "annotator_id": "pZ512",
   "candidate_evidence_file": "manifests/candidates/commit0_public_candidates_v0.2.json",
   "exclusion_reason": null,
-  "include": null,
+  "include": true,
   "independence_instructions": [
     "Use only public Commit0 evidence and the draft task record.",
     "Review the linked TaskQualityRecord and curated overlay provenance.",
@@ -15,8 +15,8 @@
     "Do not consult the other annotator before submitting.",
     "Explicitly assess whether the two-edit import bootstrap is answer-free and whether the two-specialist split is natural."
   ],
-  "parallelizability_label": null,
-  "rationale": null,
+  "parallelizability_label": "partially_parallelizable",
+  "rationale": "I think this task is partially parallelizable and can be included in the AsynCodebench.",
   "schema_version": "0.3",
   "source_task_id": "commit0:tinydb",
   "task_id": "asyncodebench:tinydb",
