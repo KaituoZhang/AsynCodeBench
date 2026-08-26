@@ -117,6 +117,7 @@ class StaticCommit0ProtocolRunner:
                     platform="linux/amd64",
                     detach_logs=False,
                     network=workspace_network,
+                    volumes=workspace_config.get("volumes", []),
                 )
             return AsynCodeBenchDockerWorkspace(
                 server_image=workspace_config["server_image"],
@@ -124,6 +125,7 @@ class StaticCommit0ProtocolRunner:
                 platform=detect_platform(),
                 detach_logs=False,
                 network=workspace_network,
+                volumes=workspace_config.get("volumes", []),
             )
         finally:
             os.chdir(original_cwd)
@@ -415,6 +417,9 @@ print(json.dumps(out))
             artifact_version=artifact_version,
             visible_upstream_artifact_version=visible_upstream_artifact_version,
             integrated_workspace_version=integrated_workspace_version,
+            metrics_path=self.task_module.manifest_paths.get("metrics")
+            if hasattr(self.task_module, "manifest_paths")
+            else None,
         )
 
     def save_final_artifacts(self, workspace, repo_dir, base_commit, results, runtime_seconds):
@@ -479,19 +484,22 @@ print(json.dumps(out))
             integrated_workspace_version=self.read_head(workspace, repo_dir),
         )
 
-        tarball_name = f"{self.repo_name}_repo.tar.gz"
-        tar_cmd = f"cd /workspace && tar -czf {tarball_name} {self.repo_name}_repo"
-        tar_result = workspace.execute_command(tar_cmd, timeout=300)
-        if tar_result.exit_code == 0:
-            final_repo_dir = output_dir / "final_repo"
-            final_repo_dir.mkdir(parents=True, exist_ok=True)
-            download_file_via_base64(
-                workspace,
-                f"/workspace/{tarball_name}",
-                str(final_repo_dir / f"{self.repo_name}.tar.gz"),
-            )
+        if getattr(self.task_module, "save_final_tarball", True):
+            tarball_name = f"{self.repo_name}_repo.tar.gz"
+            tar_cmd = f"cd /workspace && tar -czf {tarball_name} {self.repo_name}_repo"
+            tar_result = workspace.execute_command(tar_cmd, timeout=300)
+            if tar_result.exit_code == 0:
+                final_repo_dir = output_dir / "final_repo"
+                final_repo_dir.mkdir(parents=True, exist_ok=True)
+                download_file_via_base64(
+                    workspace,
+                    f"/workspace/{tarball_name}",
+                    str(final_repo_dir / f"{self.repo_name}.tar.gz"),
+                )
+            else:
+                print(f"[Tarball] Warning: failed to create tarball: {tar_result.stderr}")
         else:
-            print(f"[Tarball] Warning: failed to create tarball: {tar_result.stderr}")
+            print("[Tarball] Skipped for PR-hard source-build candidate")
 
     async def run_async_private(self, manager, workspace, repo_dir, subagent_llm, base_commit):
         subagents = self.build_subagents(workspace, repo_dir, base_commit)

@@ -32,6 +32,17 @@ uv run asyncodebench tasks
 
 ## Run
 
+For the PR-hard Apache TVM 20153 candidate, first reconstruct the isolated TVM
+runtime and follow
+[`../../docs/PR_HARD_20153_COLLABORATOR_RUNBOOK.md`](../../docs/PR_HARD_20153_COLLABORATOR_RUNBOOK.md).
+The candidate wrapper validates the runtime before any model call:
+
+```bash
+ENV_FILE="$PWD/.env" \
+RUN_ID="my-model-20153-seed1-$(date -u +%Y%m%dT%H%M%SZ)" \
+scripts/run_pr_hard_20153_all_protocols_env.sh
+```
+
 Run all four official protocols for one task:
 
 ```bash

@@ -1,4 +1,12 @@
 from core import dependency_checker, dependency_probes
+from core.subagent import task_metrics_manifest_path
+
+
+def test_candidate_tasks_use_their_explicit_metrics_manifest() -> None:
+    expected = "/candidate/metrics.json"
+    task = type("Task", (), {"manifest_paths": {"metrics": expected}})()
+    assert task_metrics_manifest_path(task) == expected
+    assert task_metrics_manifest_path(object()) is None
 
 
 def test_dependency_checker_facade_preserves_existing_implementation() -> None:

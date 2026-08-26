@@ -1,0 +1,34 @@
+{
+  "schema_version": "pr-hard-task-v0.4",
+  "task_id": "pr-hard:apache-tvm-20153",
+  "task_source": "merged upstream pull request",
+  "repository": "apache/tvm",
+  "upstream_version": "a35aca6a0ae5a61c486cb9a61c36b09be45f81af",
+  "source_materialization": "sanitized one-commit snapshot of the PR first parent plus checksum-pinned public test overlays",
+  "problem_statement": "Add a pure T.ptx.addr(base, byte_offset) expression for PTX memory operands with signed compile-time byte displacements. The dialect schema must declare which address slots support offsets, lowering must validate and normalize operands and immediates, and rendering must produce collision-free helpers and correct PTX syntax while rejecting unsupported address classes. Do not modify public tests.",
+  "publicly_implicated_modules": [
+    "python/tvm/backend/cuda/ptx/__init__.py",
+    "python/tvm/backend/cuda/ptx/engine.py",
+    "python/tvm/backend/cuda/ptx/gen_stubs.py",
+    "python/tvm/backend/cuda/ptx/render.py",
+    "python/tvm/backend/cuda/ptx/table.py",
+    "python/tvm/script/tirx.pyi"
+  ],
+  "test_targets": [
+    "tests/python/tirx/codegen/test_ptx_addr.py",
+    "tests/python/tirx/codegen/test_ptx_dialect.py",
+    "tests/python/tirx/codegen/test_ptx_ld_st_ops.py"
+  ],
+  "evaluator_command": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/python/tirx/codegen/test_ptx_addr.py",
+    "tests/python/tirx/codegen/test_ptx_dialect.py",
+    "tests/python/tirx/codegen/test_ptx_ld_st_ops.py"
+  ],
+  "proposed_parallelizability_label": "partially_parallelizable",
+  "qualification_status": "pending_human_review",
+  "official_result_eligible": false
+}

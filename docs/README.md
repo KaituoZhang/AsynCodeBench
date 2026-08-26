@@ -16,6 +16,7 @@ Start here when onboarding a collaborator or a new Codex session.
 | [`LOCAL_VLLM_EXPERIMENT_RUNBOOK.md`](LOCAL_VLLM_EXPERIMENT_RUNBOOK.md) | Local-vLLM capacity, networking, smoke gates, and failure diagnosis. |
 | [`AGENT_ADAPTER.md`](AGENT_ADAPTER.md) | Public bring-your-own-agent contract, loading commands, enforcement, and provenance. |
 | [`HUMAN_REVIEW.md`](HUMAN_REVIEW.md) | Required one-human review fields, acceptance checklist, status, and validation. |
+| [`PR_HARD_20153_COLLABORATOR_RUNBOOK.md`](PR_HARD_20153_COLLABORATOR_RUNBOOK.md) | Fresh-clone reconstruction, execution, result validation, and GitHub handoff for the PR-hard 20153 candidate. |
 | [`VLLM_QWEN_LOCAL_RUNBOOK.md`](VLLM_QWEN_LOCAL_RUNBOOK.md) | Qwen-specific local vLLM setup and tool calling. |
 | [`GEMMA4_CAID_HARNESS_FIX.md`](GEMMA4_CAID_HARNESS_FIX.md) | Gemma 4 parser/version and CAID lifecycle notes. |
 
@@ -38,6 +39,7 @@ completion and approval state.
 | [`protocols/README.md`](protocols/README.md) | Protocol documents for v0.3 construction. |
 | [`design/COMMIT0_TO_ASYNCODEBENCH_PIPELINE_v0.1.md`](design/COMMIT0_TO_ASYNCODEBENCH_PIPELINE_v0.1.md) | Pipeline framing for converting public coding tasks. |
 | [`design/paper_structure_reference.md`](design/paper_structure_reference.md) | Paper-structure reference and evaluation framing. |
+| [`design/PR_HARD_TASK_PILOT_v0.4.md`](design/PR_HARD_TASK_PILOT_v0.4.md) | Construction evidence and promotion gates for the Apache TVM PR-hard pilot. |
 
 ## Task-specific Runner Notes
 

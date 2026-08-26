@@ -27,3 +27,9 @@ PYTHONPATH=src python scripts/build_deprecated_v03_data.py
 
 Generated schemas must match the implementation and are checked by contract
 tests.
+
+The v0.4 PR-hard pilot adds
+`v0.4/pr_hard_candidate_registry.schema.json`. It describes qualification
+candidates rather than official release tasks and is validated directly by the
+contract suite. Promotion into a release still requires a frozen environment,
+red-green evaluator evidence, and semantic human review.

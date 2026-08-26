@@ -1,0 +1,431 @@
+{
+  "schema_version": "pr-hard-candidates-v0.4",
+  "release_status": "candidate_qualification_pending",
+  "environment_registry": "configs/environments/pr_hard_tvm.v0.4.json",
+  "source_policy": {
+    "base_state": "first_parent_of_merged_pr",
+    "public_evidence": "selected_upstream_test_changes_only",
+    "gold_policy": "offline_qualification_only",
+    "model_visible_git_history": false,
+    "trajectory_used_for_construction": false
+  },
+  "records": [
+    {
+      "task_id": "pr-hard:apache-tvm-20134",
+      "candidate_kind": "single_agent_calibration",
+      "repository": "apache/tvm",
+      "repository_url": "https://github.com/apache/tvm.git",
+      "pull_request_url": "https://github.com/apache/tvm/pull/20134",
+      "pull_request_number": 20134,
+      "base_sha": "3dea168fe20d6ea5c0d42de2b3fb4ad021fe5cf1",
+      "gold_sha": "cec83d1badecf35ba73dc206dc5d206ad4eea12e",
+      "problem_statement": "Fix Relax static memory planning so that storage backing a lowered reshape view is not reused while the view remains live. A program that has passed through DispatchSortScan and StaticPlanBlockMemory must not overwrite data still reachable through such a view. Preserve existing planning behavior outside this case.",
+      "public_test_overlay": {
+        "path": "data/overlays/pr_hard/apache_tvm_20134/0001-public-regression-tests.patch",
+        "sha256": "81a8e63f194976644713e0ebb0e5c85f3547ac04470af5f77a645cedf4f31390",
+        "policy": "test_only_answer_free"
+      },
+      "editable_paths": [
+        "src/relax/transform/static_plan_block_memory.cc"
+      ],
+      "public_test_paths": [
+        "tests/python/relax/test_transform_static_plan_block_memory.py"
+      ],
+      "focused_evaluator": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/python/relax/test_transform_static_plan_block_memory.py::test_builtin_reshape_preserves_storage_liveness"
+      ],
+      "regression_evaluator": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/python/relax/test_transform_static_plan_block_memory.py"
+      ],
+      "environment_profile": "tvm-cpu-llvm-source-build",
+      "difficulty_evidence": {
+        "language_boundary": [
+          "Python IR regression test",
+          "C++ Relax transformation implementation"
+        ],
+        "reasoning_scope": [
+          "lowered packed-call semantics",
+          "alias and liveness analysis",
+          "static storage reuse"
+        ],
+        "production_files_changed_by_gold": 1,
+        "production_additions": 5,
+        "production_deletions": 1
+      },
+      "natural_responsibility_hypothesis": {
+        "producer": "lowered reshape representation produced before static memory planning",
+        "consumer": "Relax static block-memory planner and liveness analysis",
+        "contract": "a reshape view aliases its input storage and extends that storage's live range",
+        "status": "not_admissible_for_current_path_owned_async_conditions",
+        "reason": "the gold implementation changes only the consumer-owned production file; assigning a second implementation owner would manufacture work"
+      },
+      "execution_eligibility": [
+        "iterative_single_agent"
+      ],
+      "qualification_status": "pending_local_red_green_and_environment_freeze"
+    },
+    {
+      "task_id": "pr-hard:apache-tvm-20116",
+      "candidate_kind": "single_agent_calibration",
+      "repository": "apache/tvm",
+      "repository_url": "https://github.com/apache/tvm.git",
+      "pull_request_url": "https://github.com/apache/tvm/pull/20116",
+      "pull_request_number": 20116,
+      "base_sha": "e85fbb1fa93d7e417fa20d5c48925b6665daeeee",
+      "gold_sha": "3dea168fe20d6ea5c0d42de2b3fb4ad021fe5cf1",
+      "problem_statement": "Fix te.create_prim_func when reduction iterators occur at multiple nested loop levels. Adaptive average pooling from 3x4 and 4x3 inputs to 2x2 must produce correct values, each logical reduction must have one effective initialization, and existing single-level reductions must remain correct.",
+      "public_test_overlay": {
+        "path": "data/overlays/pr_hard/apache_tvm_20116/0001-public-regression-tests.patch",
+        "sha256": "6569735afe923fc1d5d5c7068af4694eea79ac35e78cc13cbe252de4a9035904",
+        "policy": "test_only_answer_free"
+      },
+      "editable_paths": [
+        "src/te/operation/create_primfunc.cc"
+      ],
+      "public_test_paths": [
+        "tests/python/te/test_te_create_primfunc.py"
+      ],
+      "focused_evaluator": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/python/te/test_te_create_primfunc.py::test_adaptive_pooling_mixed_reduction_levels"
+      ],
+      "regression_evaluator": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/python/te/test_te_create_primfunc.py",
+        "tests/python/relax/test_transform_legalize_ops_nn.py"
+      ],
+      "environment_profile": "tvm-cpu-llvm-source-build",
+      "difficulty_evidence": {
+        "language_boundary": [
+          "Python numerical and structural TIR tests",
+          "C++ TE-to-TIR lowering implementation"
+        ],
+        "reasoning_scope": [
+          "nested reduction iterator scopes",
+          "TIR initialization placement",
+          "generated-code numerical correctness"
+        ],
+        "production_files_changed_by_gold": 1,
+        "production_additions": 11,
+        "production_deletions": 6,
+        "upstream_reported_focused_base_result": "2 failed",
+        "upstream_reported_focused_gold_result": "2 passed"
+      },
+      "natural_responsibility_hypothesis": {
+        "producer": "nested reduction-scope discovery during TE traversal",
+        "consumer": "TIR reduction initialization emission",
+        "contract": "initialization is emitted once at the outermost scope belonging to a logical commutative reduction",
+        "status": "not_admissible_for_current_path_owned_async_conditions",
+        "reason": "both responsibilities are implemented in the same production file and gold change; a file split would be arbitrary and conflict-prone"
+      },
+      "execution_eligibility": [
+        "iterative_single_agent"
+      ],
+      "qualification_status": "pending_local_red_green_and_environment_freeze"
+    },
+    {
+      "task_id": "pr-hard:apache-tvm-19605",
+      "candidate_kind": "multi_agent_benchmark_candidate",
+      "repository": "apache/tvm",
+      "repository_url": "https://github.com/apache/tvm.git",
+      "pull_request_url": "https://github.com/apache/tvm/pull/19605",
+      "pull_request_number": 19605,
+      "base_sha": "e159487b0e4131b6874622bf03c546e837ae84c6",
+      "gold_sha": "ec3171ab7a4c06fff4e9c1e441d28ef4e9a5831b",
+      "problem_statement": "Refactor the TIRx device compilation sequence so dynamic shared-memory merging, device-region annotation and splitting, device-kernel launch lowering, packed-API construction, and storage legalization compose safely. Sibling device regions must receive independent merged dynamic-shared allocations, reused allocations must remain liveness-safe, and existing host/device calling conventions must remain valid.",
+      "public_test_overlay": {
+        "path": "data/overlays/pr_hard/apache_tvm_19605/0001-public-regression-tests.patch",
+        "sha256": "aaeed3ef380fc8a6d0bef026b5c5af5f583fdbba25098da9cddd4575872e56d3",
+        "policy": "test_only_answer_free_sanitized",
+        "sanitization_notes": "Removed the pull-request number and root-cause narration from comments; executable assertions and behavior are unchanged."
+      },
+      "editable_paths": [
+        "src/s_tir/transform/merge_shared_memory_allocations.cc",
+        "src/tirx/transform/lower_device_kernel_launch.cc",
+        "python/tvm/s_tir/backend/adreno/pipeline.py",
+        "python/tvm/s_tir/pipeline.py",
+        "python/tvm/tirx/compilation_pipeline.py"
+      ],
+      "public_test_paths": [
+        "tests/python/s_tir/transform/test_s_tir_transform_merge_dynamic_shared_memory_allocations.py"
+      ],
+      "focused_evaluator": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/python/s_tir/transform/test_s_tir_transform_merge_dynamic_shared_memory_allocations.py::test_async_copy",
+        "tests/python/s_tir/transform/test_s_tir_transform_merge_dynamic_shared_memory_allocations.py::test_multi_thread_extent_blocks"
+      ],
+      "regression_evaluator": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/python/s_tir/transform/test_s_tir_transform_merge_dynamic_shared_memory_allocations.py",
+        "tests/python/tirx-transform",
+        "tests/python/codegen/test_target_codegen_c_host.py",
+        "tests/python/codegen/test_target_codegen_device.py"
+      ],
+      "environment_profile": "tvm-cpu-llvm-source-build",
+      "difficulty_evidence": {
+        "language_boundary": [
+          "Python S-TIR and TIRx regression tests",
+          "C++ transformation passes",
+          "Python compilation-pipeline composition"
+        ],
+        "reasoning_scope": [
+          "dynamic shared-memory liveness and allocation scope",
+          "host/device ABI lowering order",
+          "cross-dialect pipeline ordering"
+        ],
+        "production_files_changed_by_gold": 5,
+        "production_additions": 348,
+        "production_deletions": 206
+      },
+      "natural_subproblems": [
+        {
+          "subproblem_id": "shared_memory_planning",
+          "role": "dynamic shared-memory planning specialist",
+          "writable_paths": [
+            "src/s_tir/transform/merge_shared_memory_allocations.cc"
+          ],
+          "primary_test_targets": [
+            "tests/python/s_tir/transform/test_s_tir_transform_merge_dynamic_shared_memory_allocations.py::test_async_copy"
+          ]
+        },
+        {
+          "subproblem_id": "device_launch_lowering",
+          "role": "device-kernel launch lowering specialist",
+          "writable_paths": [
+            "src/tirx/transform/lower_device_kernel_launch.cc"
+          ],
+          "primary_test_targets": [
+            "tests/python/tirx-transform/test_tir_transform_device_kernel_launch.py::test_lower_device_kernel_launch",
+            "tests/python/tirx-transform/test_tir_transform_device_kernel_launch.py::test_externally_visible_kernel_launch"
+          ]
+        },
+        {
+          "subproblem_id": "pipeline_integration",
+          "role": "TIRx compilation-pipeline integration specialist",
+          "writable_paths": [
+            "python/tvm/s_tir/backend/adreno/pipeline.py",
+            "python/tvm/s_tir/pipeline.py",
+            "python/tvm/tirx/compilation_pipeline.py"
+          ],
+          "primary_test_targets": [
+            "tests/python/s_tir/transform/test_s_tir_transform_merge_dynamic_shared_memory_allocations.py::test_multi_thread_extent_blocks"
+          ]
+        }
+      ],
+      "dependency_points": [
+        {
+          "dependency_id": "shared-memory-to-pipeline",
+          "producer_subproblem": "shared_memory_planning",
+          "consumer_subproblem": "pipeline_integration",
+          "dependency_type": "integration",
+          "contract": "Merged dynamic-shared allocations are scoped independently per device region and remain valid when the merge pass runs before device-region annotation and splitting.",
+          "upstream_evidence": [
+            "tests/python/s_tir/transform/test_s_tir_transform_merge_dynamic_shared_memory_allocations.py::test_async_copy"
+          ],
+          "downstream_evidence": [
+            "tests/python/s_tir/transform/test_s_tir_transform_merge_dynamic_shared_memory_allocations.py::test_multi_thread_extent_blocks"
+          ],
+          "integrated_evidence": [
+            "tests/python/s_tir/transform/test_s_tir_transform_merge_dynamic_shared_memory_allocations.py::test_multi_thread_extent_blocks"
+          ]
+        },
+        {
+          "dependency_id": "device-launch-to-pipeline",
+          "producer_subproblem": "device_launch_lowering",
+          "consumer_subproblem": "pipeline_integration",
+          "dependency_type": "api_contract",
+          "contract": "Device-kernel launch lowering preserves a host/device calling convention that remains valid when it precedes MakePackedAPI in each compilation pipeline.",
+          "upstream_evidence": [
+            "tests/python/tirx-transform/test_tir_transform_device_kernel_launch.py::test_lower_device_kernel_launch",
+            "tests/python/tirx-transform/test_tir_transform_device_kernel_launch.py::test_externally_visible_kernel_launch"
+          ],
+          "downstream_evidence": [
+            "tests/python/codegen/test_target_codegen_c_host.py::test_subroutine_call"
+          ],
+          "integrated_evidence": [
+            "tests/python/s_tir/transform/test_s_tir_transform_merge_dynamic_shared_memory_allocations.py::test_multi_thread_extent_blocks"
+          ]
+        }
+      ],
+      "scenario_manifest": "manifests/candidates/pr_hard_v0.4/scenarios/apache_tvm_19605.json",
+      "qualification_record": "manifests/candidates/pr_hard_v0.4/qualification/apache_tvm_19605.json",
+      "execution_eligibility": [],
+      "qualification_status": "needs_revision"
+    },
+    {
+      "task_id": "pr-hard:apache-tvm-20153",
+      "candidate_kind": "multi_agent_benchmark_candidate",
+      "repository": "apache/tvm",
+      "repository_url": "https://github.com/apache/tvm.git",
+      "pull_request_url": "https://github.com/apache/tvm/pull/20153",
+      "pull_request_number": 20153,
+      "base_sha": "a35aca6a0ae5a61c486cb9a61c36b09be45f81af",
+      "gold_sha": "f20fa692d5dd71d875a9e310eae3e754169888fb",
+      "problem_statement": "Add a pure T.ptx.addr(base, byte_offset) expression for PTX memory operands with signed compile-time byte displacements. The dialect schema must declare which address slots support offsets, lowering must validate and normalize operands and immediates, and rendering must produce collision-free helpers and correct PTX syntax while rejecting unsupported address classes.",
+      "public_test_overlay": {
+        "path": "data/overlays/pr_hard/apache_tvm_20153/0001-public-regression-tests.patch",
+        "sha256": "2533917b23c7d481d706390776009f02ca350ff7e32dc54aabfe8dece517de07",
+        "policy": "test_only_answer_free_sanitized",
+        "sanitization_notes": "Selected the upstream dedicated regression file and removed one explanatory implementation hint; all test functions and assertions are retained."
+      },
+      "supplemental_public_test_overlays": [
+        {
+          "path": "data/overlays/pr_hard/apache_tvm_20153/0002-public-regression-updates.patch",
+          "sha256": "7b7c45225f51ebb423e8beb14c5c642bfc9b8ec75b9a732462d9521458084318",
+          "policy": "test_only_answer_free_sanitized",
+          "sanitization_notes": "Retained the upstream behavior and assertions while shortening one explanatory implementation comment."
+        }
+      ],
+      "editable_paths": [
+        "python/tvm/backend/cuda/ptx/__init__.py",
+        "python/tvm/backend/cuda/ptx/engine.py",
+        "python/tvm/backend/cuda/ptx/gen_stubs.py",
+        "python/tvm/backend/cuda/ptx/render.py",
+        "python/tvm/backend/cuda/ptx/table.py",
+        "python/tvm/script/tirx.pyi"
+      ],
+      "public_test_paths": [
+        "tests/python/tirx/codegen/test_ptx_addr.py",
+        "tests/python/tirx/codegen/test_ptx_dialect.py",
+        "tests/python/tirx/codegen/test_ptx_ld_st_ops.py"
+      ],
+      "focused_evaluator": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/python/tirx/codegen/test_ptx_addr.py"
+      ],
+      "regression_evaluator": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/python/tirx/codegen/test_ptx_addr.py",
+        "tests/python/tirx/codegen/test_ptx_dialect.py",
+        "tests/python/tirx/codegen/test_ptx_ld_st_ops.py"
+      ],
+      "environment_profile": "tvm-cuda-codegen-source-build",
+      "difficulty_evidence": {
+        "language_boundary": [
+          "Python TIRx DSL and type stubs",
+          "table-driven PTX instruction schema",
+          "CUDA source generation and PTX rendering"
+        ],
+        "reasoning_scope": [
+          "typed address-expression registration and coercion",
+          "compile-time immediate validation and normalization",
+          "helper-name uniqueness and PTX memory-operand syntax"
+        ],
+        "production_files_changed_by_gold": 6,
+        "production_additions": 339,
+        "production_deletions": 93
+      },
+      "natural_subproblems": [
+        {
+          "subproblem_id": "ptx_dialect_schema",
+          "role": "PTX dialect schema and public API specialist",
+          "writable_paths": [
+            "python/tvm/backend/cuda/ptx/__init__.py",
+            "python/tvm/backend/cuda/ptx/gen_stubs.py",
+            "python/tvm/backend/cuda/ptx/table.py",
+            "python/tvm/script/tirx.pyi"
+          ],
+          "primary_test_targets": [
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_registration_and_table_capabilities",
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_table_validation_rejects_wrong_operand_classes"
+          ]
+        },
+        {
+          "subproblem_id": "ptx_operand_lowering",
+          "role": "PTX address operand lowering specialist",
+          "writable_paths": [
+            "python/tvm/backend/cuda/ptx/engine.py"
+          ],
+          "primary_test_targets": [
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_coercion_ir_order_and_shared_codegen",
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_unrolled_expression_and_dynamic_rejection"
+          ]
+        },
+        {
+          "subproblem_id": "ptx_rendering",
+          "role": "PTX helper rendering specialist",
+          "writable_paths": [
+            "python/tvm/backend/cuda/ptx/render.py"
+          ],
+          "primary_test_targets": [
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_zero_sign_boundaries_and_helper_names",
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_scalar_vector_cache_predicate_and_multi_address_codegen"
+          ]
+        }
+      ],
+      "dependency_points": [
+        {
+          "dependency_id": "dialect-schema-to-lowering",
+          "producer_subproblem": "ptx_dialect_schema",
+          "consumer_subproblem": "ptx_operand_lowering",
+          "dependency_type": "api_contract",
+          "contract": "The public ptx.addr expression and each table-declared offset-capable address slot provide the operand metadata consumed by lowering, including exclusions for pointer, composite, and tensor-memory address classes.",
+          "upstream_evidence": [
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_registration_and_table_capabilities",
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_table_validation_rejects_wrong_operand_classes"
+          ],
+          "downstream_evidence": [
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_coercion_ir_order_and_shared_codegen",
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_pointer_and_raw_address_validation"
+          ],
+          "integrated_evidence": [
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_scalar_vector_cache_predicate_and_multi_address_codegen"
+          ]
+        },
+        {
+          "dependency_id": "operand-lowering-to-rendering",
+          "producer_subproblem": "ptx_operand_lowering",
+          "consumer_subproblem": "ptx_rendering",
+          "dependency_type": "integration",
+          "contract": "Lowering passes normalized signed int32 byte offsets and logical address-slot identities that rendering consumes to create unique helper names and in-bracket PTX displacement syntax.",
+          "upstream_evidence": [
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_offset_type_and_range_rejections",
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_unrolled_expression_and_dynamic_rejection"
+          ],
+          "downstream_evidence": [
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_zero_sign_boundaries_and_helper_names"
+          ],
+          "integrated_evidence": [
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_scalar_vector_cache_predicate_and_multi_address_codegen",
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_printer_script_and_json_roundtrip"
+          ]
+        }
+      ],
+      "scenario_manifest": "manifests/candidates/pr_hard_v0.4/scenarios/apache_tvm_20153.json",
+      "qualification_record": "manifests/candidates/pr_hard_v0.4/qualification/apache_tvm_20153.json",
+      "execution_eligibility": [
+        "iterative_single",
+        "serial_specialists",
+        "async_private",
+        "async_message"
+      ],
+      "qualification_status": "pending_human_review"
+    }
+  ]
+}

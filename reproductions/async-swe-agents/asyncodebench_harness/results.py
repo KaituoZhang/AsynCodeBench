@@ -60,6 +60,10 @@ def _release_index_path(release: str) -> Path:
     return _repo_root() / "manifests" / "release" / release_name / "task_index.json"
 
 
+def _candidate_registry_path() -> Path:
+    return _repo_root() / "configs" / "tasks" / "pr_hard_candidates.v0.4.json"
+
+
 def _sha256(path):
     digest = hashlib.sha256()
     with Path(path).open("rb") as stream:
@@ -182,7 +186,12 @@ def _cross_artifact_checks(run_dir, expected):
             issues.append(f"source_manifest_task_id_mismatch:{name}")
 
     report_source = report.get("asyncodebench", {}).get("final_evaluator_source")
-    if report_source != "asyncodebench_manifest":
+    expected_evaluator = (
+        "pr_hard_v0.4_manifest"
+        if metadata.get("candidate_lane", {}).get("kind") == "pr_hard_v0.4"
+        else "asyncodebench_manifest"
+    )
+    if report_source != expected_evaluator:
         issues.append(f"wrong_evaluator:{report_source}")
 
     profile_metadata = metadata.get("execution_profile", {})
@@ -216,6 +225,9 @@ def _cross_artifact_checks(run_dir, expected):
 
 def _release_contract_checks(run_dir, expected, metadata):
     """Verify frozen runtime inputs against the released benchmark inventory."""
+
+    if metadata.get("candidate_lane", {}).get("kind") == "pr_hard_v0.4":
+        return _candidate_contract_checks(run_dir, expected, metadata)
 
     issues = []
     release = expected.get("release")
@@ -299,6 +311,49 @@ def _release_contract_checks(run_dir, expected, metadata):
         issues.append("release_execution_profile_checksum_mismatch")
 
     return _dedupe(issues), release_record
+
+
+def _candidate_contract_checks(run_dir, expected, metadata):
+    """Verify PR-hard inputs against the frozen candidate registry.
+
+    Candidate runs are portable and checksum-verifiable, but never enter the
+    official aggregate before their remaining construction gates are closed.
+    """
+    issues = []
+    registry_path = _candidate_registry_path()
+    registry = _read_json(registry_path, issues, "candidate_registry")
+    try:
+        recorded_path = registry_path.relative_to(_repo_root()).as_posix()
+    except ValueError:
+        recorded_path = str(registry_path)
+    registry_record = {
+        "path": recorded_path,
+        "sha256": _sha256(registry_path) if registry_path.is_file() else None,
+        "release_version": registry.get("schema_version"),
+    }
+    record = next(
+        (
+            item
+            for item in registry.get("records", []) or []
+            if item.get("task_id") == expected.get("task_id")
+        ),
+        None,
+    )
+    if not isinstance(record, dict):
+        issues.append("task_not_in_candidate_registry")
+        return _dedupe(issues), registry_record
+
+    lane = metadata.get("candidate_lane", {})
+    if lane.get("official_result_eligible") is not False:
+        issues.append("candidate_lane_must_not_be_official")
+    if lane.get("qualification_status") != record.get("qualification_status"):
+        issues.append("candidate_qualification_status_mismatch")
+    recorded_source = metadata.get("source", {})
+    if recorded_source.get("repository") != record.get("repository"):
+        issues.append("candidate_source_mismatch:repository")
+    if recorded_source.get("base_sha") != record.get("base_sha"):
+        issues.append("candidate_source_mismatch:base_sha")
+    return _dedupe(issues), registry_record
 
 
 def _final_test_payload(report):
@@ -435,7 +490,7 @@ def _provenance(metadata, profile):
     }
 
 
-def _eligibility(health, profile_metadata, provenance):
+def _eligibility(health, profile_metadata, provenance, candidate_lane=None):
     values = dict(health.get("eligibility", {}))
     values["official_profile"] = bool(profile_metadata.get("matched"))
     values["provenance_complete"] = bool(provenance.get("required_fields_complete"))
@@ -446,6 +501,7 @@ def _eligibility(health, profile_metadata, provenance):
         and values.get("efficiency_metrics", False)
         and values["official_profile"]
         and values["provenance_complete"]
+        and not candidate_lane
     )
     return values
 
@@ -495,7 +551,9 @@ def build_run_bundle(task, output_dir, protocol, agent_adapter):
     hard_failures = _dedupe(hard_failures)
     profile_metadata = metadata.get("execution_profile", {})
     provenance = _provenance(metadata, profile)
-    eligibility = _eligibility(health, profile_metadata, provenance)
+    eligibility = _eligibility(
+        health, profile_metadata, provenance, metadata.get("candidate_lane")
+    )
     if hard_failures or review_flags:
         eligibility["official_aggregate"] = False
 
@@ -571,7 +629,9 @@ def validate_run_bundle(run_dir, verify_checksums=True):
     issues.extend(_schema_errors(bundle))
     if bundle.get("schema_version") != RUN_BUNDLE_SCHEMA_VERSION:
         issues.append(f"unsupported_run_bundle_schema:{bundle.get('schema_version')}")
-    if not str(bundle.get("task_id", "")).startswith("asyncodebench:"):
+    if not str(bundle.get("task_id", "")).startswith(
+        ("asyncodebench:", "pr-hard:")
+    ):
         issues.append("noncanonical_task_id")
     if bundle.get("protocol") not in PROTOCOLS:
         issues.append("noncanonical_protocol")
@@ -628,7 +688,12 @@ def validate_run_bundle(run_dir, verify_checksums=True):
     health = inspect_run(run_dir)
     profile_metadata = metadata.get("execution_profile", {})
     current_provenance = _provenance(metadata, profile)
-    current_eligibility = _eligibility(health, profile_metadata, current_provenance)
+    current_eligibility = _eligibility(
+        health,
+        profile_metadata,
+        current_provenance,
+        metadata.get("candidate_lane"),
+    )
     current_hard_failures = _dedupe(
         list(cross_issues)
         + list(release_issues)

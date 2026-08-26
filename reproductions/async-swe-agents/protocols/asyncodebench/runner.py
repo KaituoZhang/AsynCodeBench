@@ -182,6 +182,9 @@ class AsynCodeBenchProtocolRunner(StaticCommit0ProtocolRunner):
     def create_worktree(self, workspace, repo_dir, subagent, base_commit):
         super().create_worktree(workspace, repo_dir, subagent, base_commit)
         self.base_commit_by_agent[subagent.engineer_id] = base_commit
+        validator = getattr(self.task_module, "validate_worktree_runtime", None)
+        if validator is not None:
+            validator(workspace, subagent.worktree_path)
 
     def changed_paths(self, workspace, result):
         if result.worktree_path:
@@ -245,6 +248,12 @@ class AsynCodeBenchProtocolRunner(StaticCommit0ProtocolRunner):
 
     def merge_scoped_result(self, manager, workspace, result):
         scope = self.validate_scope(workspace, result)
+        if scope["main_workspace_status_before_merge"]:
+            raise RuntimeError(
+                "Benchmark isolation violation: a specialist wrote directly to "
+                "the integrated workspace before merge: "
+                + ", ".join(scope["main_workspace_status_before_merge"])
+            )
         if not scope["passed"]:
             result.merged = False
             result.merge_method = "scope_rejected"

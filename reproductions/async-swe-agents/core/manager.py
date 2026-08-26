@@ -211,6 +211,10 @@ class Manager:
         self.log(f"Setting up agent in {mode} mode...")
         self.conversation_mode = mode
         tools = get_default_tools(enable_browser=False)
+        if mode != "single_agent" and getattr(
+            self.task, "manager_must_be_read_only", False
+        ):
+            tools = [tool for tool in tools if getattr(tool, "name", "") != "file_editor"]
 
         format_args = self.task.get_prompt_format_args(self.config)
         condenser_llm = self.llm.model_copy(update={"usage_id": "condenser"})
@@ -638,6 +642,9 @@ class Manager:
             else:
                 subagent.status = "ready"
                 self.log(f"  {engineer_id}: {subagent.worktree_path} (branch: {subagent.branch_name})")
+                validator = getattr(self.task, "validate_worktree_runtime", None)
+                if validator is not None:
+                    validator(self.workspace, subagent.worktree_path)
 
             subagents.append(subagent)
 

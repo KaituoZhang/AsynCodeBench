@@ -1,0 +1,150 @@
+{
+  "schema_version": "pr-hard-qualification-v0.4",
+  "task_id": "pr-hard:apache-tvm-20153",
+  "qualified_at": "2026-08-23",
+  "automated_status": "passed_pending_human_review",
+  "human_review": {
+    "status": "pending",
+    "counts_as_completed_human_review": false
+  },
+  "provenance": {
+    "base_sha": "a35aca6a0ae5a61c486cb9a61c36b09be45f81af",
+    "gold_sha": "f20fa692d5dd71d875a9e310eae3e754169888fb",
+    "gold_first_parent_is_base": true,
+    "production_diff": {
+      "files": 6,
+      "additions": 339,
+      "deletions": 93,
+      "matches_editable_paths": true
+    }
+  },
+  "source_integrity": {
+    "public_overlays": [
+      {
+        "path": "data/overlays/pr_hard/apache_tvm_20153/0001-public-regression-tests.patch",
+        "sha256": "2533917b23c7d481d706390776009f02ca350ff7e32dc54aabfe8dece517de07"
+      },
+      {
+        "path": "data/overlays/pr_hard/apache_tvm_20153/0002-public-regression-updates.patch",
+        "sha256": "7b7c45225f51ebb423e8beb14c5c642bfc9b8ec75b9a732462d9521458084318"
+      }
+    ],
+    "test_only": true,
+    "apply_cleanly_in_order": true,
+    "model_visible_git_history": false,
+    "model_visible_gold_patch": false,
+    "model_trajectory_used_for_construction": false
+  },
+  "environment": {
+    "registry": "configs/environments/pr_hard_tvm.v0.4.json",
+    "profile": "tvm-cuda-codegen-source-build",
+    "conda_lock_sha256": "1c44901e30620de95c78a35e6d72230868ffdbcf206bda6143706e1ba0e83618",
+    "requirements_lock_sha256": "b2279a1089af16e16e267f554e009617883c995ce891ffdf69dc73f5060d1fb0",
+    "recursive_submodule_manifest_sha256": "2c046b5b99c80e41c7f252500eeffb069ec9e8826aae53ba06eff83b8f415939",
+    "tvm_ffi_sha": "12dbf053b3d9ba4ebd9da3123b1aeca79cf74229",
+    "configure": [
+      "cmake",
+      "-S",
+      ".",
+      "-B",
+      "build",
+      "-G",
+      "Ninja",
+      "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
+      "-DUSE_LLVM=llvm-config",
+      "-DUSE_CUDA=OFF",
+      "-DUSE_GTEST=OFF"
+    ],
+    "cold_build_elapsed_seconds": 418,
+    "cold_build_timing_method": "filesystem_birthtime_delta_from_CMakeCache_to_libtvm_compiler",
+    "gpu_execution_required": false
+  },
+  "evaluator_runs": [
+    {
+      "stage": "base_focused",
+      "expected": "red",
+      "exit_code": 1,
+      "collected": 12,
+      "duration_seconds": 2.17,
+      "outcomes": {"passed": 1, "failed": 11},
+      "notes": "Failures covered missing operator registration, table capability validation, operand lowering, diagnostics, round-trip printing, and rendering."
+    },
+    {
+      "stage": "gold_focused",
+      "expected": "green",
+      "exit_code": 0,
+      "collected": 12,
+      "duration_seconds": 2.08,
+      "outcomes": {"passed": 12}
+    },
+    {
+      "stage": "gold_role_local",
+      "expected": "green",
+      "exit_code": 0,
+      "collected": 6,
+      "duration_seconds": 1.86,
+      "outcomes": {"passed": 6},
+      "notes": "Two exact selectors for each of the schema, lowering, and rendering owners passed."
+    },
+    {
+      "stage": "gold_regression",
+      "expected": "green",
+      "exit_code": 0,
+      "collected": 102,
+      "duration_seconds": 74.25,
+      "outcomes": {"passed": 57, "skipped": 45},
+      "notes": "All non-CUDA-toolkit PTX dialect and load/store regressions passed; optional ptxas certification shards skipped because the toolkit was absent."
+    }
+  ],
+  "role_local_observability": [
+    {
+      "subproblem_id": "ptx_dialect_schema",
+      "base_status": "base_red",
+      "selectors": [
+        "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_registration_and_table_capabilities",
+        "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_table_validation_rejects_wrong_operand_classes"
+      ]
+    },
+    {
+      "subproblem_id": "ptx_operand_lowering",
+      "base_status": "base_red",
+      "selectors": [
+        "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_coercion_ir_order_and_shared_codegen",
+        "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_unrolled_expression_and_dynamic_rejection"
+      ]
+    },
+    {
+      "subproblem_id": "ptx_rendering",
+      "base_status": "base_red",
+      "selectors": [
+        "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_zero_sign_boundaries_and_helper_names",
+        "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_scalar_vector_cache_predicate_and_multi_address_codegen"
+      ]
+    }
+  ],
+  "dependency_checkers": [
+    {
+      "dependency_id": "dialect-schema-to-lowering",
+      "upstream": "passed",
+      "downstream": "passed",
+      "integrated": "passed"
+    },
+    {
+      "dependency_id": "operand-lowering-to-rendering",
+      "upstream": "passed",
+      "downstream": "passed",
+      "integrated": "passed"
+    }
+  ],
+  "runtime_package_validation": {
+    "validated_at": "2026-08-24",
+    "seed_commit": "bf756e7b49b792ac7536d267ccb99a42230a901a",
+    "seed_commit_count": 1,
+    "seed_has_remotes": false,
+    "task_local_ffi_version": "0.1.dev1+g12dbf053b",
+    "task_local_ffi_editable": false,
+    "base_focused": {"passed": 1, "failed": 11},
+    "gold_regression": {"passed": 57, "skipped": 45}
+  },
+  "remaining_gates": ["human_review"]
+}

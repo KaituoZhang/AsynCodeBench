@@ -1,0 +1,62 @@
+{
+  "schema_version": "pr-hard-async-metrics-v0.4",
+  "task_id": "pr-hard:apache-tvm-19605",
+  "metric_annotation_id": "pr-hard-apache-tvm-19605.async-metrics.v0.4",
+  "source_task_record": "manifests/candidates/pr_hard_v0.4/tasks/apache_tvm_19605.json",
+  "source_quality_record": "manifests/candidates/pr_hard_v0.4/qualification/apache_tvm_19605.json",
+  "dependency_points": [
+    {
+      "dependency_id": "shared-memory-to-pipeline",
+      "dependency_type": "integration_contract",
+      "producer_subproblem": "shared_memory_planning",
+      "consumer_subproblem": "pipeline_integration",
+      "producer_agent": "shared_memory_agent",
+      "consumer_agent": "pipeline_agent",
+      "producer_files": ["src/s_tir/transform/merge_shared_memory_allocations.cc"],
+      "consumer_files": [
+        "python/tvm/s_tir/backend/adreno/pipeline.py",
+        "python/tvm/s_tir/pipeline.py",
+        "python/tvm/tirx/compilation_pipeline.py"
+      ],
+      "contract_summary": "Merged dynamic-shared allocations are scoped independently per device region and remain valid when the merge pass runs before device-region annotation and splitting.",
+      "stale_failure_mode": "A pipeline can retain a globally merged allocation assumption after the planner changes to per-device-region scope, leaving sibling kernels aliased or missing allocations.",
+      "upstream_probe_tests": [
+        "tests/python/s_tir/transform/test_s_tir_transform_merge_dynamic_shared_memory_allocations.py::test_async_copy"
+      ],
+      "downstream_probe_tests": [
+        "tests/python/s_tir/transform/test_s_tir_transform_merge_dynamic_shared_memory_allocations.py::test_multi_thread_extent_blocks"
+      ],
+      "integrated_probe_tests": [
+        "tests/python/s_tir/transform/test_s_tir_transform_merge_dynamic_shared_memory_allocations.py::test_multi_thread_extent_blocks"
+      ],
+      "metrics_enabled": ["ADPR", "DRS", "CAIL", "SAD"]
+    },
+    {
+      "dependency_id": "device-launch-to-pipeline",
+      "dependency_type": "shared_api_contract",
+      "producer_subproblem": "device_launch_lowering",
+      "consumer_subproblem": "pipeline_integration",
+      "producer_agent": "device_launch_agent",
+      "consumer_agent": "pipeline_agent",
+      "producer_files": ["src/tirx/transform/lower_device_kernel_launch.cc"],
+      "consumer_files": [
+        "python/tvm/s_tir/backend/adreno/pipeline.py",
+        "python/tvm/s_tir/pipeline.py",
+        "python/tvm/tirx/compilation_pipeline.py"
+      ],
+      "contract_summary": "Device-kernel launch lowering preserves a host/device calling convention that remains valid when it precedes MakePackedAPI in each compilation pipeline.",
+      "stale_failure_mode": "The lowering pass and Python pipeline may independently choose incompatible ordering around packed-API construction and storage legalization.",
+      "upstream_probe_tests": [
+        "tests/python/tirx-transform/test_tir_transform_device_kernel_launch.py::test_lower_device_kernel_launch",
+        "tests/python/tirx-transform/test_tir_transform_device_kernel_launch.py::test_externally_visible_kernel_launch"
+      ],
+      "downstream_probe_tests": [
+        "tests/python/codegen/test_target_codegen_c_host.py::test_subroutine_call"
+      ],
+      "integrated_probe_tests": [
+        "tests/python/s_tir/transform/test_s_tir_transform_merge_dynamic_shared_memory_allocations.py::test_multi_thread_extent_blocks"
+      ],
+      "metrics_enabled": ["ADPR", "DRS", "CAIL", "SAD"]
+    }
+  ]
+}

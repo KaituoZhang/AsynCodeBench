@@ -19,6 +19,14 @@ from core.utils import (
 )
 
 
+def task_metrics_manifest_path(task_module):
+    """Return a task's explicit metrics manifest instead of guessing by repo name."""
+    manifest_paths = getattr(task_module, "manifest_paths", {})
+    if isinstance(manifest_paths, dict):
+        return manifest_paths.get("metrics")
+    return None
+
+
 def _is_ambiguous_run_trigger_timeout(error):
     """Return whether the remote /run trigger may have reached the server."""
     message = str(error).strip().lower()
@@ -939,6 +947,7 @@ async def run_subagents_parallel(runners, manager=None, task_module=None, output
             repo_name=repo_name,
             workspace_path=workspace_path,
             logical_step=next_probe_step(),
+            metrics_path=task_metrics_manifest_path(task_module),
             **kwargs,
         )
 

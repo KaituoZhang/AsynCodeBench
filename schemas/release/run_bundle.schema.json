@@ -27,12 +27,18 @@
     "schema_version": {"const": "0.2"},
     "benchmark": {"const": "AsynCodeBench"},
     "release": {"type": "string", "minLength": 1},
-    "task_id": {"type": "string", "pattern": "^asyncodebench:[A-Za-z0-9_.-]+$"},
+    "task_id": {
+      "type": "string",
+      "pattern": "^(asyncodebench|pr-hard):[A-Za-z0-9_.-]+$"
+    },
     "source_task_id": {"type": "string", "minLength": 1},
     "protocol": {
       "enum": ["single", "serial_specialists", "async_private", "caid_manager"]
     },
-    "scenario_id": {"type": "string", "pattern": "^asyncodebench[-.]"},
+    "scenario_id": {
+      "type": "string",
+      "pattern": "^(asyncodebench|pr-hard)[-.]"
+    },
     "source_scenario_id": {"type": "string", "minLength": 1},
     "release_index": {
       "type": "object",

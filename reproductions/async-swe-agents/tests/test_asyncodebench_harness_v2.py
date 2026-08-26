@@ -591,6 +591,31 @@ def test_caid_rejects_merge_when_main_workspace_is_dirty(tmp_path):
     assert git(repo, "rev-parse", "HEAD") == base_head
 
 
+def test_caid_rejects_and_restores_manager_final_review_writes(tmp_path):
+    repo, _, base_head, _ = make_git_worktree(
+        tmp_path, ["src/cachetools/keys.py"]
+    )
+    task = make_task()
+    manager = make_manager(task, LocalWorkspace(), tmp_path / "output", repo)
+    Path(manager.config.output_dir).mkdir()
+    (repo / "src/cachetools/keys.py").write_text("MANAGER = 1\n", encoding="utf-8")
+    (repo / "manager-created.txt").write_text("unauthorized\n", encoding="utf-8")
+
+    record = manager.reject_final_review_writes(base_head)
+
+    assert record["passed"] is False
+    assert record["remediated"] is True
+    assert record["rejected_paths"] == [
+        "manager-created.txt",
+        "src/cachetools/keys.py",
+    ]
+    assert git(repo, "rev-parse", "HEAD") == base_head
+    assert (repo / "src/cachetools/keys.py").read_text() == "VALUE = 0\n"
+    assert not (repo / "manager-created.txt").exists()
+    assert git(repo, "status", "--porcelain") == ""
+    assert (Path(manager.config.output_dir) / "rejected_manager_final_review.patch").is_file()
+
+
 def test_static_runner_uses_manifest_dependency_order(tmp_path):
     task = make_task()
     task.set_active_protocol("serial_specialists")
