@@ -548,6 +548,7 @@ def outputs_agent_responses(outputs: list[dict[str, Any]]) -> list[dict[str, Any
                     "cost": None,
                     "total_tokens": None,
                     "actual_iterations": content.get("iterations"),
+                    "max_iterations": content.get("max_iterations"),
                     "termination_reason": content.get("termination_reason"),
                     "iteration_cap_hit": content.get("iteration_cap_hit", False),
                     "duration_seconds": content.get("duration"),
@@ -575,6 +576,7 @@ def outputs_agent_responses(outputs: list[dict[str, Any]]) -> list[dict[str, Any
                 "cost": content.get("cost"),
                 "total_tokens": content.get("total_tokens"),
                 "actual_iterations": content.get("actual_iterations"),
+                "max_iterations": content.get("max_iterations"),
                 "termination_reason": content.get("termination_reason"),
                 "iteration_cap_hit": content.get("iteration_cap_hit", False),
                 "duration_seconds": content.get("duration_seconds"),
@@ -585,6 +587,44 @@ def outputs_agent_responses(outputs: list[dict[str, Any]]) -> list[dict[str, Any
             }
         )
     return responses
+
+
+def repair_20018_caid_legacy_termination_stats(
+    run_dir: Path, responses: list[dict[str, Any]]
+) -> int:
+    """Recover cap-hit fields omitted by the legacy #20018 CAID serializer.
+
+    The completed #20018 CAID trajectory predates the structured termination
+    fields now emitted by the runner.  Its response records still contain the
+    unambiguous legacy evidence: ``actual_iterations == max_iterations`` and a
+    ``MaxIterationsReached`` error.  Keep this compatibility repair explicitly
+    task/protocol scoped so regenerating unrelated historical summaries cannot
+    change their published statistics.
+    """
+
+    metadata = load_json(run_dir / "run_metadata.json", {})
+    if not (
+        metadata.get("task_id") == "pr-hard:apache-tvm-20018"
+        and metadata.get("protocol") == "caid_manager"
+    ):
+        return 0
+
+    inferred = 0
+    for response in responses:
+        actual = response.get("actual_iterations")
+        maximum = response.get("max_iterations")
+        legacy_error = str(response.get("error") or "")
+        if (
+            not response.get("iteration_cap_hit")
+            and isinstance(actual, int)
+            and isinstance(maximum, int)
+            and actual == maximum
+            and "MaxIterationsReached" in legacy_error
+        ):
+            response["termination_reason"] = "iteration_limit"
+            response["iteration_cap_hit"] = True
+            inferred += 1
+    return inferred
 
 
 def agent_attempt_outcomes(
@@ -875,6 +915,9 @@ def summarize_process_metrics(
     modified_files = extract_modified_files(patch_text)
     added_defs_by_file = extract_patch_added_defs(patch_text)
     responses = outputs_agent_responses(outputs)
+    legacy_termination_inference_count = repair_20018_caid_legacy_termination_stats(
+        run_dir, responses
+    )
     attempt_outcomes = agent_attempt_outcomes(outputs, responses)
     scope_summary = scope_violations(run_dir, responses)
     agent_attempts = len(responses)
@@ -971,6 +1014,7 @@ def summarize_process_metrics(
                 1 for response in responses if response.get("iteration_cap_hit")
             ),
             "agent_attempt_count": len(responses),
+            "legacy_compatibility_inference_count": legacy_termination_inference_count,
             "manager_phase_terminations": manager_phase_terminations,
             "manager_phase_iteration_cap_hit_count": sum(
                 1

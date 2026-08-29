@@ -1,0 +1,31 @@
+{
+  "schema_version": "qwen36-statistical-corrections-v1",
+  "corrections": [
+    {
+      "correction_id": "apache-tvm-20018-caid-legacy-cap-hit-v1",
+      "task": "apache-tvm-20018",
+      "protocol": "caid_manager",
+      "run_id": "pr-hard-20018-qwen36-caid-isolation-v2-20260829T125649Z",
+      "source_sha256": {
+        "run_bundle.json": "a0dd4e1d41f3e7bed4381c1f84b4e572f001800261b975a6bb9f90f8bf2a78dd",
+        "outputs.jsonl": "47cbdb420358f6dde4fc29033479b5a521e898167f7da3bdd7f64ab659cf6275",
+        "process_metrics_summary.json": "84127f9dd10b2e41094f75405c348e70eb9fab184ec19bd7e7b61196ee3951dc"
+      },
+      "original": {
+        "process_metrics.agent_termination.iteration_cap_hit_count": 0,
+        "process_metrics.agent_termination.reason_counts": {
+          "not_recorded": 5
+        }
+      },
+      "corrected": {
+        "process_metrics.agent_termination.iteration_cap_hit_count": 5,
+        "process_metrics.agent_termination.reason_counts": {
+          "iteration_limit": 5
+        },
+        "process_metrics.agent_termination.legacy_compatibility_inference_count": 5
+      },
+      "evidence_rule": "Each of the five agent_response records has actual_iterations == max_iterations == 100 and an error containing MaxIterationsReached.",
+      "scope": "Analysis-only correction; the frozen source bundle and its indexed artifacts are not modified."
+    }
+  ]
+}
