@@ -1,0 +1,1214 @@
+{
+  "entries": [
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "f4a7c8aae75049f3c7ee11b8571748f662b4bd5bc7266b67f786d9cc25992a82",
+        "report.json": "2a745ada35b04d533f2b625bc1136b0a2c6648502423eafd5105e6aace7094bc",
+        "run_bundle.json": "7052e5c18b5cb4354159ab1550778bb8c43a89679a413fad586952a5a13b20e2",
+        "strict_dependency_metrics.json": "fce80b486061f2a008e0cf56e105a45ef331d2c8b225aae38d5ffad7f9177b3b"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "single",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/cachetools/single/oh1292_standard100_ddebb7d_r01",
+      "run_id": "oh1292_standard100_ddebb7d_r01",
+      "statistics_correction_id": null,
+      "task": "cachetools"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "00770afa9ca4e089bf61c499fcb1d491df67a90e48437069c5a549a2fc03c9a7",
+        "report.json": "99b5be97ede111e7d973ba22164841f856835cf998d2da011474acea756547fc",
+        "run_bundle.json": "1412fbba32a366e1d136ee839e2f387ca923c3db58b9e080b77653621d3aed3b",
+        "strict_dependency_metrics.json": "3494aad9764d4ae3bcd6462f77913dde8077f4b0b9519c1a210ff0f191901793"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "serial_specialists",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/cachetools/serial_specialists/oh1292_standard100_ddebb7d_r01",
+      "run_id": "oh1292_standard100_ddebb7d_r01",
+      "statistics_correction_id": null,
+      "task": "cachetools"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "5311d48647318086c431ea38c4cac005089ae044a05b1ad6e8c2e66d5b4f3c06",
+        "report.json": "38a48186520ea0dd9ab47e26872434fc2aac9fe869b6257b964d94bf90efc063",
+        "run_bundle.json": "078490b7bdc6cd076e6cb958c3e550ae7a00808a6f40abb02030f4350ca71ed3",
+        "strict_dependency_metrics.json": "f24a60ca41a4b11fa9cac3a9e69850aec62ceb4b1bf34861544fda3aa6ae5499"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "async_private",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/cachetools/async_private/oh1292_standard100_ddebb7d_r01",
+      "run_id": "oh1292_standard100_ddebb7d_r01",
+      "statistics_correction_id": null,
+      "task": "cachetools"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "9df04c195ceb6d158c0c99d2bd5b35ed6b69034507692f400626b6fd188abc6c",
+        "report.json": "58fa3be9f21df0ee6d27e9e410df02f474d7eb5427e35946a7d38b15da529dbf",
+        "run_bundle.json": "889a739725e79722eebf5b35999bfac78738d20b594c5f0382a91d96b42ff4a2",
+        "strict_dependency_metrics.json": "3494aad9764d4ae3bcd6462f77913dde8077f4b0b9519c1a210ff0f191901793"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "caid_manager",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/cachetools/caid_manager/oh1292_standard100_ddebb7d_r01",
+      "run_id": "oh1292_standard100_ddebb7d_r01",
+      "statistics_correction_id": null,
+      "task": "cachetools"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "096631bce8821c57cfd0d7b94527cadc8d8a72e558ee10bda9b6471e7c93038a",
+        "report.json": "9de80daf8e0674c31d992e8ee1bdeaffd2e154d48d0ecdb3cf2828c31fa25fe3",
+        "run_bundle.json": "3740969f88ef1eaf727fbff485499e74aa36654239e9a54b3bf938c3fdedea53",
+        "strict_dependency_metrics.json": "2da4cfe728553a621a9e816f3c6e889a21218342a209da30c25ca817bda85008"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "single",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/deprecated/single/oh1292_standard100_3d110b2_r01",
+      "run_id": "oh1292_standard100_3d110b2_r01",
+      "statistics_correction_id": null,
+      "task": "deprecated"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "19b4e0ccb0bd3f374b5a33d9d0d14ca1f60e7c2f85c8e948bf9e8eaa00debc08",
+        "report.json": "03538f373ebbba82a82b0b945c1a54c88d896ff03b2692febce221bf1d3518be",
+        "run_bundle.json": "7cfae0fc653ba9e54631599c9e0bba67f36a5f7e057f80a4586c34d8155aa615",
+        "strict_dependency_metrics.json": "de7e53e38e26e112c1839c356d332a758f11ccc1bb7a0ac87840bcbe3d893920"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "serial_specialists",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/deprecated/serial_specialists/oh1292_standard100_3d110b2_r01",
+      "run_id": "oh1292_standard100_3d110b2_r01",
+      "statistics_correction_id": null,
+      "task": "deprecated"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "15719e715e224a93e5187a1adfc65e423a11bb50d7dc1f9428765f04914d3acf",
+        "report.json": "e265ed95d12432a64bbd587578f7a53fba9c4f429f3ad9b1f380774bf4693f42",
+        "run_bundle.json": "1f8669b5258e15b3ae468ecbcb9d30cb91e436b6899cbc507f91b8f51b00832d",
+        "strict_dependency_metrics.json": "ba3fdb06bc8258e4cfa3d940be001f99e62ba1dc0b52346df85dcb8a2d9e27bb"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "async_private",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/deprecated/async_private/oh1292_standard100_3d110b2_r01",
+      "run_id": "oh1292_standard100_3d110b2_r01",
+      "statistics_correction_id": null,
+      "task": "deprecated"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "0eefad5cb18f028697c6bb5c1f11db225cc370b812f6e48bb989eb7cd86e7225",
+        "report.json": "6b9d6a9827fb3e1b48db9dee20849321d049a587ebf6e4d8f3c65918dc1f6979",
+        "run_bundle.json": "4641bc34a78291aebd23b6e1e60793a6a3379fe1437a113de6255970c94dca1b",
+        "strict_dependency_metrics.json": "de7e53e38e26e112c1839c356d332a758f11ccc1bb7a0ac87840bcbe3d893920"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "caid_manager",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/deprecated/caid_manager/oh1292_standard100_3d110b2_r01",
+      "run_id": "oh1292_standard100_3d110b2_r01",
+      "statistics_correction_id": null,
+      "task": "deprecated"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "e078ae8c3ed5c642f508d9e23d1a42c04e452b9d61ab8f4fa9d07f156b3118f8",
+        "report.json": "3a8121d644110fa600bdcd6f39caa3bfb4032308a36d6ba7acf9d011a0508c8c",
+        "run_bundle.json": "2d6a73fd2192bb57c062674a31227bb33d8ae5987a0d7cbfcaf1e05a1aced5c2",
+        "strict_dependency_metrics.json": "74df4e2562676daf185b94817893efa4c41721b7475d832b7635a712cb8b5e1b"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "single",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/portalocker/single/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "portalocker"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "370947d585702aa628e487e3c7278f87f5aa700a0d763ca4a13818095bde0b8f",
+        "report.json": "6cf34f215c9a737a5ec652c4db6f18794f052299460aed3f8106787991b07b7b",
+        "run_bundle.json": "31c38caa2b1c029743b184630f998898f61e1bce2130de8c305ccee287ebd246",
+        "strict_dependency_metrics.json": "7e3ef0176bf4cd42bda803d428bcfd9bec9c6cf097a77356c4cb8d17d522f1e3"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "serial_specialists",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/portalocker/serial_specialists/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "portalocker"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "f98ec66f527662d5e8b7a3fe877eb9f4ccd296301a5ceaba78e586ec16dff01e",
+        "report.json": "c782a074513339199bb9c37ed2881c08da48fc087e7828b3a5390da0fb9e4348",
+        "run_bundle.json": "3eae0cb32d536a5165a5c24498e4d2ec4439f693dd448808cbf4939e80866552",
+        "strict_dependency_metrics.json": "1ca48e12e1d4e2a91841f4dd137fd4b6125f3001fbfbb1a781c81c2189821a72"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "async_private",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/portalocker/async_private/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "portalocker"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "386bdb5521e9d5d68edb3ae5bacb238f4ac71fcbe94c828d6a71e9157b955307",
+        "report.json": "1adda86f758bae852a1d6f76423107eeb9a7f42277f4d9ee35c333687ee4e43e",
+        "run_bundle.json": "6a6bb93c93f970294c3fa48b64798f9c5ae1eab9095db4f4dc4e785d73d9a149",
+        "strict_dependency_metrics.json": "af78b620c5e03e6fbe2bd400ba1e149a1a9790409b5d0ae79bfcb032a727cc03"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "caid_manager",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/portalocker/caid_manager/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "portalocker"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "78c0220d14b466cbcb1e0676a81d5ace29888d6103b87f8c60a02589204425ec",
+        "report.json": "d25e984dfdd13cd379d5eb71c7b9df74300e3e1b99badf8c1b41833b46a5956f",
+        "run_bundle.json": "f6345722975a636050af6ee8955f58d8b3671582f13d34bb1e4632d20bfef2a2",
+        "strict_dependency_metrics.json": "cb36a2342ff32572805f9a58ebc13a1aba9af6d9c1b359cd85aa881550231106"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "single",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/tinydb/single/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "tinydb"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "73fc659d7e6da19f6a94c1e814170e2a94e3ab10a7be7e4f952e46e92a32ec16",
+        "report.json": "c12b72d573908f5ced081fd63c85d481052b950e5da4506f0637d238ce45968d",
+        "run_bundle.json": "0ecaa843426b00440523ba80c0b8e27d6a3edf855e4ddf43e863a4bb1f71c6a7",
+        "strict_dependency_metrics.json": "c4aa9bd8e4fb96c0e314323f778f62f05ff4a816be49c5fc000f4c13b2628ff4"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "serial_specialists",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/tinydb/serial_specialists/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "tinydb"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "ef7366c857a38d3603922ecbb094d26457090197e2d5d2076af45c36992af0c4",
+        "report.json": "ddf1dcceb32d8305d8fd4c2c8ec08d84160b762c30c88aab1c7e6b5845621a8e",
+        "run_bundle.json": "abc586fb6ec3103a993d7824de6a14f2e0cb60136aa96a5fae93c0be83e77605",
+        "strict_dependency_metrics.json": "a176ecde3a3603ae913ae13f40a470b9aff2001df6daed364d03c5a150bc90d8"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "async_private",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/tinydb/async_private/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "tinydb"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "db353b229b1ce82ef1412c61a36a2287e054bb88728507d5eaa2eff979e6f7f9",
+        "report.json": "5b895bcd1ef1f61b9b1538b1b268a06e025821283a1bbbbe70cc0b2885a59282",
+        "run_bundle.json": "eae703ec22d7edb9b75f2c230bbbe1ef856f3fde8003104e671921b9c03597df",
+        "strict_dependency_metrics.json": "587a1af7e5b1f1521432416e9bbe5cf51e9351e2c98f2e0b76637171a537c5a8"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "caid_manager",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/tinydb/caid_manager/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "tinydb"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "2a779603fed27015ac6d6b5d6dbd3e0c15204fdba4f47303d994c0d673e897c5",
+        "report.json": "2389ce1d44cbe4f52fe1b0627807010f7450672a0aefd62c91667ecf0f2fb125",
+        "run_bundle.json": "54946a4bd4522435d8c65049f230e6773900d125d192a86d329401c4d09c7c87",
+        "strict_dependency_metrics.json": "d79430a3d55c75aa4dd06d2c7ad1a05629354c32a6fe439448011f24c09c10cf"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "single",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/wcwidth/single/oh1292_standard100_ddebb7d_r01",
+      "run_id": "oh1292_standard100_ddebb7d_r01",
+      "statistics_correction_id": null,
+      "task": "wcwidth"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "52ccba5a18940af0749b30270071fb0ae63c2f2e6f2f5957ae55e4023f21fa7f",
+        "report.json": "847d77d9abbd63529489f33408d47fd11b8c13ea014cf2bd995a8ee78443323e",
+        "run_bundle.json": "6bf04fe1f9c23ec903a320ebf62386184551b80e778bcc4b672643ad212eb341",
+        "strict_dependency_metrics.json": "a3c99636920996524e35a29d79e9c254475dd275f15a12dc2c9c5a0a24a759c8"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "serial_specialists",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/wcwidth/serial_specialists/oh1292_standard100_ddebb7d_r01",
+      "run_id": "oh1292_standard100_ddebb7d_r01",
+      "statistics_correction_id": null,
+      "task": "wcwidth"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "5c44d153e39946ec45edbe08642543356a9d5b360ce665fcf4cdf186ba87de9a",
+        "report.json": "2489677ff486e1b7d3c1435686bf512848f5e590fbf8267fff899a1b4a2ce39b",
+        "run_bundle.json": "271b7b60b152899546274b5d2af80b7b2e9a4dd1ba0ff38373998c1393d7842a",
+        "strict_dependency_metrics.json": "72732eedddc2d8c15dc2dfa11345a733329dc0a949af3058c0c953db6e17ba87"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "async_private",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/wcwidth/async_private/oh1292_standard100_ddebb7d_r01",
+      "run_id": "oh1292_standard100_ddebb7d_r01",
+      "statistics_correction_id": null,
+      "task": "wcwidth"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "1cf94253cfb478a3271488b8a9c175fa042a713b72787b9fa84889b2d5c09729",
+        "report.json": "68d1b7d3b008da5cb7329d7f6e665b88df3f3941ecf6b519788a1347e9b425c9",
+        "run_bundle.json": "db0e0d652d2b8155117951b5a5e530a9f9f8262d9d6d9ab8813ff6f3f2687994",
+        "strict_dependency_metrics.json": "a3c99636920996524e35a29d79e9c254475dd275f15a12dc2c9c5a0a24a759c8"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "caid_manager",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/wcwidth/caid_manager/oh1292_standard100_ddebb7d_r01",
+      "run_id": "oh1292_standard100_ddebb7d_r01",
+      "statistics_correction_id": null,
+      "task": "wcwidth"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "57853fb196553d65fd54108dcd031ababb26eaa54aec33dc455d1c237a77d6b6",
+        "report.json": "44395a497df3d0dda7f36918c10c4551b6045b670712c4f23f51dc1103edf673",
+        "run_bundle.json": "135462b25e6a2edddb5d84c96d20cf55408e3c70fff635b42ea62d309cbacc9e",
+        "strict_dependency_metrics.json": "e80ba246515badfbb629de94d96984bc0eac2afac48587095b7f62090e2a46bc"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "single",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/requests/single/oh1292_standard100_ddebb7d_r01",
+      "run_id": "oh1292_standard100_ddebb7d_r01",
+      "statistics_correction_id": null,
+      "task": "requests"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "69dc57467c569ef830f5a1d77a831630872acbf785f42879ad57113419bbca01",
+        "report.json": "c8dda2afb811217423f8cacc029bca218af706ff7261b112001249548d8481c7",
+        "run_bundle.json": "c22c306d901ebd2675f21685352cc1df35a8c8d21638414f216d8167f40c968d",
+        "strict_dependency_metrics.json": "7028d5f5c2060f2e688313b33c681bd662f09d9cd71975a645b051ae6c1380cc"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "serial_specialists",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/requests/serial_specialists/oh1292_standard100_ddebb7d_r01",
+      "run_id": "oh1292_standard100_ddebb7d_r01",
+      "statistics_correction_id": null,
+      "task": "requests"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "0ccc8b182faabf3781e36316e126d249d9f5afdab4c2e2af7f0eddc44c8890e1",
+        "report.json": "fc31a6fa24b6a20f9aedb8b4a3fb42f13de0732abe3cb7854675ae1260a9a5cd",
+        "run_bundle.json": "d355322542ca735c1d3406298766b282dbe41c0c977cc208fb781f275d5f65df",
+        "strict_dependency_metrics.json": "434710dd0039107965e07a1240fe8c3bdb3e4e6939c9c24f918db49ff0d0588e"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "async_private",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/requests/async_private/oh1292_standard100_ddebb7d_r01",
+      "run_id": "oh1292_standard100_ddebb7d_r01",
+      "statistics_correction_id": null,
+      "task": "requests"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "9ffda6b0e40943a6867b4dfdad58b9c7f42a016c1e159b946f48aa86f6035618",
+        "report.json": "ecbbf97f1a6bfd223e5aabc6b3a063550db64c920c007506797899dad210fa2a",
+        "run_bundle.json": "273f70560f3e071a67ebaaa2e3af49475bd7c6f655c3a574a0a754f8ff3e5a25",
+        "strict_dependency_metrics.json": "452689dd6a3aafdbed1d77f3c463948a2f4170a350372936e4e34ff6705a163a"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "caid_manager",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/requests/caid_manager/oh1292_standard100_ddebb7d_r01",
+      "run_id": "oh1292_standard100_ddebb7d_r01",
+      "statistics_correction_id": null,
+      "task": "requests"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "22b255f9193ca234b09f78ead5873b326c9de75dd7ee15006ae0ff615cc289a6",
+        "report.json": "9ffcd25312595a2ab71d10b400bf52c96d1488e5408fe5be8f246cc3559a2fc5",
+        "run_bundle.json": "7ec95a024f7bde2aa9bbf21efe0a32118d33eae1db54233ccc28235ab8203ecf",
+        "strict_dependency_metrics.json": "4e70a26eb0622cd4faaf35db944416cb3f985155aa7626b9fe319f318b43eb06"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "single",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/simpy/single/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "simpy"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "45042b04843501bf2939799d39117907f2686c49efa81754b6d33a76dbf87f67",
+        "report.json": "d92e308345dfc588aa496e9514c749b2e3196467ddc05ea50988348ac3531372",
+        "run_bundle.json": "08f117a1c1747ce8c886bb73085088d6fc5355a0d6b2cd39102d8c733ee02b85",
+        "strict_dependency_metrics.json": "67b62c0b6d43098dd0f18943e29cadafa274a86e94b91648502e8a74c244a414"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "serial_specialists",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/simpy/serial_specialists/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "simpy"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "d64626488dcb9ab75bfb5fc55747a7ac24586a3753d451b1d5ca37955e75446b",
+        "report.json": "71f47d6c922111f2fd7592a4e00b29c26250123840e3394219cd14c4fb037088",
+        "run_bundle.json": "bbe4d8215c679b905334a610f63000318edbc5ae47bfec71075d65cf23ddd697",
+        "strict_dependency_metrics.json": "a104aff30366d65002ed8bd1931a5aaaed02c21aa39da77001a43a08b8d8831b"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "async_private",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/simpy/async_private/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "simpy"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "0c88a2ea63ce44e2616b229149b7ca2b1dbbd2393cfe9fbf4b20d29ba07e666b",
+        "report.json": "acc77cbc6bf87d333a9a7e5dacf2093f783f81bca56a41523658132f93a33d7b",
+        "run_bundle.json": "4ac622f90c11d27fa60f9c5dfc7bbfe00d2025c483c830c4ced723ec3c1b3af3",
+        "strict_dependency_metrics.json": "73d8528ef156db77c2b519e6cb2cc8672b1721e6d6ca76daddb65f9485881f7a"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "caid_manager",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/simpy/caid_manager/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "simpy"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "2df2a35941962638af75e62df4778bbb162a803a97a82602f46b701e0e48a552",
+        "report.json": "37b6c42e712d5581e1eec8fa88b6b729f84d216abf030a21baed6dc652fa5fbc",
+        "run_bundle.json": "30a7d8ecec2e1c420e65315d567fc911b9cc525532c53e14cc0e709a684e082e",
+        "strict_dependency_metrics.json": "955a2dab87b04e24f2f02757981e58df5159dd2778234abc9dd696f60ad4e9db"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "single",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/parsel/single/oh1292_standard100_ddebb7d_r01",
+      "run_id": "oh1292_standard100_ddebb7d_r01",
+      "statistics_correction_id": null,
+      "task": "parsel"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "fd00bbb2027fba347f5742df2215df8015f9cdd824521a80b0511364bb1eb8b1",
+        "report.json": "45dd068e93c0a950642534d8bcf13d0ba643815eb65b13930c51a1fc3064bfc4",
+        "run_bundle.json": "8b2c915b81a7d95de2f24a11bc93adaa62199962f8e73a5aa57f36def06049c3",
+        "strict_dependency_metrics.json": "625ccdbf2a059f71bc092e55ac98aefab75a9548173772977d1109a9e4ecc85d"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "serial_specialists",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/parsel/serial_specialists/oh1292_standard100_ddebb7d_r01",
+      "run_id": "oh1292_standard100_ddebb7d_r01",
+      "statistics_correction_id": null,
+      "task": "parsel"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "98b23adf5ecaadca0924dfcdb6259dc1ae8d8da364b01407cd1113aca78b1261",
+        "report.json": "b1e8e9753858dba60c164b90b323503993d8a69ca4863698ee02d1dfd71755bf",
+        "run_bundle.json": "b525221e305caaa8cbd51fb588bdf7c2c3169fe0018e75294746ac2a60d3b9eb",
+        "strict_dependency_metrics.json": "6dbae76297d102c9bcacd61483d562049421d8d05fe4961e71be3b2cf1884a2e"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "async_private",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/parsel/async_private/oh1292_standard100_ddebb7d_r01",
+      "run_id": "oh1292_standard100_ddebb7d_r01",
+      "statistics_correction_id": null,
+      "task": "parsel"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "9cf1523a4c539935e9ba640034758e8866d7f8860c90c46db5eec9f26be52208",
+        "report.json": "11a4421c6f439525eb1aa8275c9e772de0f5eb17910384b4def0db6de9a6ebfe",
+        "run_bundle.json": "cb6ac3175d48765f77fba044eb481d1bf2833085f81b7c7204bf83810955c148",
+        "strict_dependency_metrics.json": "65337d8322701c81d04ff13d3ae266479f6036edbcf4e487a267fb215370f1a0"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "caid_manager",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/parsel/caid_manager/oh1292_standard100_ddebb7d_r01",
+      "run_id": "oh1292_standard100_ddebb7d_r01",
+      "statistics_correction_id": null,
+      "task": "parsel"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "aaa5d7d2560cdb87a730697095816740cb7c18c6d6ba780debacf695de0d2af6",
+        "report.json": "3efddda9af49b917140c51b0882a39ae6ebdb71ec71e1eb9c2c06b2eee6b271c",
+        "run_bundle.json": "70263ce23bbecfa0dcebc62eca03230abf83e640ff55155cd100bb363f1c321a",
+        "strict_dependency_metrics.json": "71c989c819ebf96429a591d4a71665c0ea205d20efbbf5e027dc46d6cbca5514"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "single",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/filesystem_spec/single/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "filesystem_spec"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "4459ee2dfa8dab03a777fc80cfcb636719e4470e9be5064c186e3700436a9326",
+        "report.json": "041ce1624d6eb177ac20cf2e986bfae08ac440c7052eb6c50e4d959602ca402b",
+        "run_bundle.json": "0b87b808470f02cfdc060fe974c352358d8383b71f387915eb395666bcc4db70",
+        "strict_dependency_metrics.json": "9cb26f7ef4affe4d15282787876fde8ec73bd55696d16e42db16b13b70be1a31"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "serial_specialists",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/filesystem_spec/serial_specialists/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "filesystem_spec"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "229d47845642214b8457372cd3f4c5b95eb1083fd030d47d71bff9ae257020b7",
+        "report.json": "b966a6b7d493fc13767814aa78475219bd010a713192aefbded9617852ce664c",
+        "run_bundle.json": "ed457951e5716a4d05a22e293dd7c8625443ba96f132238bf1391e9105e95f30",
+        "strict_dependency_metrics.json": "702269397a80650baeb8671866d1fa339e9f548a3a76dace5d222e146e3401f6"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "async_private",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/filesystem_spec/async_private/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "filesystem_spec"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "2fb421342d33d28c61cb34216ce15c1552a097bb943f254c4567c354e15d7f06",
+        "report.json": "6537430d5a4600fd267343b37db1531dc8cfc4ea5bd53ad7261c334549a74183",
+        "run_bundle.json": "d562fea39a414bd24f2315e962bc52970667deb72c7b1e2c9a3a59126210b6a0",
+        "strict_dependency_metrics.json": "9e54bbb674875fd47914f264ff4f8c6d5a1ac91411f164bcfbf374ed483b606b"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "caid_manager",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/filesystem_spec/caid_manager/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "filesystem_spec"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "b183c60375785eac9f661643518a69b66e6861673d5e2c7d9a7ec21fcecbed21",
+        "report.json": "283aff9017b0a1b55235387e49f08bb57b0b2e859e2a23a3ec11a0c8c5fee893",
+        "run_bundle.json": "d4c3bcf752dae338b7820203900b0554427704ada85af4b1f979fef5296b7bf6",
+        "strict_dependency_metrics.json": "5c79aceee1838f9458658d86022b4e2a6cd5ac1c2ada2bad8e09d885deda2716"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "single",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/marshmallow/single/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "marshmallow"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "812d7f05229d3dcc9b879111c3471d32e6e71fb0871743f7eb25f07f0733d794",
+        "report.json": "c74b349a51d44b89b601f63d999e7f810d11b2e3bd426ca001a9e4636c64c268",
+        "run_bundle.json": "469e607116ec30a730df8d6accb32fbd79b715ba7cb270408c0b7b78dc345771",
+        "strict_dependency_metrics.json": "8be16dedbcb34e628c6f45247ceb68e6467805b3b1c496b4b78eef977705bfd5"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "serial_specialists",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/marshmallow/serial_specialists/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "marshmallow"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "3fc9551521f373e2ae9480c2d739ba37c31f69d053db69a9823c2366d3175b87",
+        "report.json": "24b2b77e44fbe59cef41073c708e564859e16f3962d7135fa496f05191847c50",
+        "run_bundle.json": "190abe40326b1d79d0b862e993d439b3980df34d610495c1d0f0ca26df8a7196",
+        "strict_dependency_metrics.json": "9ff7a261195682bb541336ed0615dd065d8cf0b5c30391c5ae6c75f0cedd3486"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "async_private",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/marshmallow/async_private/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "marshmallow"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "db9be52216db34e75685c5994f3a73c5d95b860c1688e6057b651bb0b19f018b",
+        "report.json": "bde090686e9f9956df615351dd2d09b94552d7a1b0e84e45bab25e6525c1e633",
+        "run_bundle.json": "b8a9251b5118e9f17bf4ee89e01792efa4c64929dfedc94ba3a1b3c96bd0453c",
+        "strict_dependency_metrics.json": "1c66397617150c5cc82149ce73f46f1a1f7844dba101820d64330e1474ee364e"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "caid_manager",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/marshmallow/caid_manager/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "marshmallow"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "0536d0acd8712f18efd7fe6fc155716660839352add6930ecc9faf3e09ccfe89",
+        "report.json": "c67e5de84be58eb23b3351e8201064ee9279fc61a846c7ac0447eb213db24c1f",
+        "run_bundle.json": "39355eea1ccc7e26b8de1c3447864c8dcc98eaf150d24093023ec2fa89cbf53e",
+        "strict_dependency_metrics.json": "fdeba9c30514917119e84a68649a8b21ac474a89fbc6015e388303342c93c752"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "single",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/graphene/single/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "graphene"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "41e7e78af1b0fc68274dae70f8249c7fad9efc7fc28bdd7ba412b6a4fc486156",
+        "report.json": "c41e26039794a20c880ade4657340fac056cacb9685d2a4bd08c3e88ba086a12",
+        "run_bundle.json": "619a1b682a1fcb274564dbf7a48cb8b66b653e4a37e1fd0a12032f92ca6d299f",
+        "strict_dependency_metrics.json": "b712a760c036d048a95db2d33fa2f56c52dc4cc6ffac56dacb47e8401f4b11f5"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "serial_specialists",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/graphene/serial_specialists/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "graphene"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "9c5c3748eb81156b644447b76f5b4e9264b7b7d929f94cb6e6db56024a919fbd",
+        "report.json": "245fba9e1c832ab0f9a49f68f5458c7b829eee289d703ca10712638c7bdaab75",
+        "run_bundle.json": "f7cf378e6fea00e8469270ead93bd4bb02cb143260427fbfe7f2d05d91e75116",
+        "strict_dependency_metrics.json": "d0bee637b66a6dcdc17bb20f02c6f105e5bcf71b1fea3962c84feb2f4292ca7f"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "async_private",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/graphene/async_private/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "graphene"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "5588b926ac8fad793f278921d42b1e2980ff84e3f03c7e9eed3aeabb5a1ba8bb",
+        "report.json": "317246a2e343938932c87f74c378ac542dae3939930bce7d5e973691f60e4a6c",
+        "run_bundle.json": "fba3a9e7f34b3da2c20d679442f7252cb8b9b6e8c48af514d20ea0deb7741e7e",
+        "strict_dependency_metrics.json": "da92111d96c4c0bf513e5dde44a1b69d194a71e0b16612460cd09b1a38d0b487"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "caid_manager",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/graphene/caid_manager/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "graphene"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "9de126d411ca28ecac0615199880cf5aa7ffbc73b21b0d6957ccc7692d442390",
+        "report.json": "0d8ec1657d1f075ed3ec2152720d9d52335a47eb3ec0afef8e8a2b6d7be6cb33",
+        "run_bundle.json": "e9bd2c50d40ab0ff8bf2e8c105591d397f8381ae7c6b9f09a51cee0674f7bccf",
+        "strict_dependency_metrics.json": "de010861834d4fde2adfe863df35adda37796d60cd7dba3626e01a6c19805013"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "single",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/imapclient/single/oh1292_standard100_ddebb7d_r01",
+      "run_id": "oh1292_standard100_ddebb7d_r01",
+      "statistics_correction_id": null,
+      "task": "imapclient"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "313fdf13443f9b6d648fdc0d5fe23f79779cc5b688d44d3ed50d0c07f879eff4",
+        "report.json": "e574212c159ecc5dc5081b0fa2d1c161561de07695d383c0354f4097c947b26c",
+        "run_bundle.json": "ca24b665ec490cb9d1021a6d9caa13d020b8830399d0a7c3d70188ce1f49a0a2",
+        "strict_dependency_metrics.json": "aa11c6a4d1dec100a46d176f8e20a87c7ef856c99c0c8f5b297e1f10148b29be"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "serial_specialists",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/imapclient/serial_specialists/oh1292_standard100_ddebb7d_r01",
+      "run_id": "oh1292_standard100_ddebb7d_r01",
+      "statistics_correction_id": null,
+      "task": "imapclient"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "5a626d5cd0f5340b61019873488de00494826af84d117424521aba89a8a4e9b1",
+        "report.json": "7ae5b12b141182af6cdea9338b90eec3a065fa956adffe7a9b38bf27bd7b3566",
+        "run_bundle.json": "92a09259f267c752726aa07cd8d15a92a10181e22f514604bcb1c6964c890fd8",
+        "strict_dependency_metrics.json": "1dfc10cc8fd92ae590c846f195e50f38a5b7ecc3f537f0cdbaa69985a1f73abc"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "async_private",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/imapclient/async_private/oh1292_standard100_ddebb7d_r01",
+      "run_id": "oh1292_standard100_ddebb7d_r01",
+      "statistics_correction_id": null,
+      "task": "imapclient"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "5a2f6ec6bd71aa3e878edf4e3a07054d23f46117008a773a740677d2b3d58c49",
+        "report.json": "2be5ac1d737e97f7b5ce741e0433a9719ebd427af946aea92788954ac0b5f4b3",
+        "run_bundle.json": "9dcd7c9c9ab0134cab4ae942f7f238bf7ac13fcee9ec67c2abdd784af2459398",
+        "strict_dependency_metrics.json": "42885cdd723b1144e9fecb3683660ea70ced71b1fd30955686a05ba6cd1e4bf1"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "caid_manager",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/imapclient/caid_manager/oh1292_standard100_ddebb7d_r01",
+      "run_id": "oh1292_standard100_ddebb7d_r01",
+      "statistics_correction_id": null,
+      "task": "imapclient"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "1363dba6e37549e5b271332ed7a96e7bce8bd97df98c6ed201bc8cf80b59da20",
+        "report.json": "617896d8955535f102b6e2e4b50f5f986dc5925002d62dab7879f95748982436",
+        "run_bundle.json": "d5b2dcf2cda24ebdeb87a6b7fc08ae311f436f36f31ef465381ce1dcce72945b",
+        "strict_dependency_metrics.json": "6b50b04a1e8b9774b79f9a6b2e0373e8e416977e18f41f18924d74f11547978b"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "single",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/pexpect/single/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "pexpect"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "abae9305e79f8a3e72ddfbec8975665dbf1162c64a75d7c6f6ce2ef02fc52ee1",
+        "report.json": "ec32eac93cd7c6816d1e7fac93aa117f1b95d9b7b1d4644fae0f8121d7c70d45",
+        "run_bundle.json": "40dc6ac82bdbcbf97ca1d52783252fd3c7b1e7680a088dfe69d445160859a07a",
+        "strict_dependency_metrics.json": "3237c87170f7a7007f0c21c4c94fd4340bdc0341e04fbb4b1946662ad2e32cb0"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "serial_specialists",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/pexpect/serial_specialists/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "pexpect"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "d3c33a6f1ea972aa59d2804888b0aa8cc835adaed8ffe97cbcea3b8fdc55a033",
+        "report.json": "2164763b4522e4f61c7550249fe1ad7b3dc87e7341ec4266dc5175d8662b52eb",
+        "run_bundle.json": "dc08df57f4452d1231c130d93cfd311db60f322762a041f76d63b80e11723b10",
+        "strict_dependency_metrics.json": "83c96c674e98a5693c5527f0c15f6798b1cf7c6185b46f9f698b1be4f026f9f1"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "async_private",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/pexpect/async_private/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "pexpect"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "b41fa1cbade08068dbca338e793599ed17686af5d6624da4e96c055decf180ca",
+        "report.json": "eccf877253f9a83fb146b734634ce898fc8cd76a19916c2d7ea48b3fa72679ee",
+        "run_bundle.json": "81998c091c7bef4dced34f25d5793ef470ca8117806a27177c361467b3aa5c85",
+        "strict_dependency_metrics.json": "5173c82abffb180ccf47ee6074d1d4dcd78e01766a3d83b15c4cfe463b81eba2"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "caid_manager",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/pexpect/caid_manager/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "pexpect"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "3f693112b59dd08a73d942df3a5b8617c382dd8b0ecdcbe4616ccc98f090396c",
+        "report.json": "a3efb6dd1582bbd8c24cee29b5942b2294944bf22ccb888deb6718531d254437",
+        "run_bundle.json": "f08676d1e9037c17676187c7d9175f61019fbcb2e68d9b7c8de0031de4ba9d7f",
+        "strict_dependency_metrics.json": "84077dff321ee02b308dbdbde8aa634ea07f4c489d6f14de948574b63c4b8e01"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "single",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/flask/single/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "flask"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "6ffa0857e7ee72ef598b672704444b18f4d9d7b244b19c703e8247b475216711",
+        "report.json": "11430be0cc723e41a025fc2f3d023cda2f9c1bfb603c05a9699f34c33fb3147f",
+        "run_bundle.json": "00367175a4e86a24ad791b11f99e95694e02d218115c5e1db1e2a9ca513a65c4",
+        "strict_dependency_metrics.json": "afe0abae8a4cbf1670c0bbffc9ed66144e3e12e520473dbf43eeee3e134e198d"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "serial_specialists",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/flask/serial_specialists/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "flask"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "a35e36acad49553c87136d44b9f103821e7d7d744e671c7b8052901ce35d2cf0",
+        "report.json": "a0951ac9407c9360131af3b28f74e59fd40d7e259db00fcd7097f4ea392a21d8",
+        "run_bundle.json": "06c9727bf04f1b46a218dc4fa70a839604ed4e35cde76159aa38ce76d2340cad",
+        "strict_dependency_metrics.json": "b05eec16fe008a277365f25aee16c4a629524f8ec05342c725130f6e1484b849"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "async_private",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/flask/async_private/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "flask"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "36ace1cb1bfc9ba0b8dfc145889a213c3ce928b59a15757268b64cade6be2667",
+        "report.json": "67f5baa8b1950149c3385a999e6a9443ea1942126a0692bb752967a4b2c7658e",
+        "run_bundle.json": "f07f272b349590f4a958870daae17255e6036ed3022ca6ef3f6b04006e9240e3",
+        "strict_dependency_metrics.json": "6d3933fa6169636415c4e7575e82282cd0b2bb24d95f977d57536e9b4a70152e"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "caid_manager",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/flask/caid_manager/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "flask"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "cc0e22bdfe0d898d9b31bf1047940c4b7dcba6e28fe87bfd37117df862781e30",
+        "report.json": "26a8d5966b5d21974b8b7108e0f987791b727cb2243b7a9f054946848715c9aa",
+        "run_bundle.json": "6c738b0e6159d28074070b9958292a1ba7dceeaf31b8481996cc8aff21c62b86",
+        "strict_dependency_metrics.json": "02ea4394a60ca1106d14b408f42e975f4a381cbfa430df043cd1363d40903d08"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "single",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/python-rsa/single/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "python-rsa"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "421c3791394fb034416bbed845c3138db1c5ce582bdc2fb9bd7f445a989098bc",
+        "report.json": "1156c13c4a9dfba91dd78147a06d2ec52f9cb0f85fa324ca4bf6d812a0fb9829",
+        "run_bundle.json": "efcdb8174d2f5d9e39708bdf760721df4be1a87752554215e0906354ea332f77",
+        "strict_dependency_metrics.json": "da64625e9750cab09a9bcff14656964d0ef3ad509ba4de408ca57dc1c11f73a2"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "serial_specialists",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/python-rsa/serial_specialists/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "python-rsa"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "3b874a40f04e8d492f7cb961f9b55d3bf628149921763e9cf5315bbe11c63f1d",
+        "report.json": "23560fc935052f38d2eb888d277e280c150bbf57e88f9a902bf88d5f666ffc0c",
+        "run_bundle.json": "17e10ef1b5ed53b19145489e2f6ed76481c694efe74d6a6c192c6240aa8418c7",
+        "strict_dependency_metrics.json": "296f39583021e5d2bfa482e540a9067d9eaa92876aab60b110ad7cfc60a31d7a"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "async_private",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/python-rsa/async_private/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "python-rsa"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "c5d08d1040fc858a346e4a232551420527b4181b7ea6e081d3433c2259c2c42d",
+        "report.json": "08e73e73211c230345bd3d01937e130818e3db663c60847b2f960a01c65331b2",
+        "run_bundle.json": "667901e5eb852734e61eccce835a8e0f98a1232d05521c8ba750b1d9f1b5da0a",
+        "strict_dependency_metrics.json": "de908a0f4ff61d937eb1e40f26f8aa444e4d0f3931bf53857180d8e1f9271dd8"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "caid_manager",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/python-rsa/caid_manager/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "python-rsa"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "7095acddf651853f39c7eaa52dbfb97bc2f9e6a0a6ff9da7808e5e38707f6466",
+        "report.json": "af36f799d277da89a48378def4195727babbdd40fb0c9393e74235f838943300",
+        "run_bundle.json": "16a3ab4f21a2fc4d787300d3370bb616ee9cba95b21202c84308e67192141631",
+        "strict_dependency_metrics.json": "0025f63b1c6fc83b0f97c69efd28567c952b08ce2f86258e3e13708a5a893fc1"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "single",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/cookiecutter/single/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "cookiecutter"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "f37fb33965203bcf219014603e78b4b4a485afd74f3a074c51736706d742bfd5",
+        "report.json": "320c4a75633f10685f29dcdf0f6eab72e45108131bf56e1c5b8c0e4b827a1a12",
+        "run_bundle.json": "9ea54adea3a1462360a13ccdbc9af7510999b03fedc38c2c70612d43c2c56988",
+        "strict_dependency_metrics.json": "dd81c8edacee7867aaf6c780b8d9c0fee4324d0a5e53ac7551dcc204b78e7d48"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "serial_specialists",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/cookiecutter/serial_specialists/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "cookiecutter"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "e837d6e629b9e212ee17a6eeda4995d04f3767217b10f5235800b2b2105ef0b7",
+        "report.json": "d36951ab281b6a696ee2ec2056f221a060235bb6a976c7b0bd11d87e43993c14",
+        "run_bundle.json": "fbeea948e05ba275cffd6035b0d4d2af249a51da0d4a7f14d43a42fa50e96a01",
+        "strict_dependency_metrics.json": "a8ed17760a4dcc1ee3ad17e16b6d12b115fc7df1ed4f5a508ff6c54b6f684030"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "async_private",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/cookiecutter/async_private/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "cookiecutter"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "1edacfda958cb2e678116928393ed83a6a6459df3328c64b5137557254a6b7d9",
+        "report.json": "42ba1222c549686620c0fdec070bfffe8194a6afdb074feb295b4fad73a0d42e",
+        "run_bundle.json": "912f27425a5427f6a16a1c592047c149159361d68047fa8360c716b7e5b0d974",
+        "strict_dependency_metrics.json": "e87fa51c2b70e2527ee7ff271ecd34dbbf6a98067d3332d4aba0fa7b1748affc"
+      },
+      "lane": "Commit0 official v0.3",
+      "model": "Qwen3.6-27B",
+      "protocol": "caid_manager",
+      "run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen36-27/cookiecutter/caid_manager/oh1292_standard100_endpointfix_3d110b2_r05",
+      "run_id": "oh1292_standard100_endpointfix_3d110b2_r05",
+      "statistics_correction_id": null,
+      "task": "cookiecutter"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "1941c2cf82e423ed1cd087db00fb9ed01aa958cb5dd2801cb87a5f2d0a5062ba",
+        "report.json": "6706157ef60b97063cfbb488a3c3feefc4c2560f6ccccfe59e60db04f34409a6",
+        "run_bundle.json": "92671ce59bb490f29ba85834f7f6264519efcba16d1571ccbdce584f56984868",
+        "strict_dependency_metrics.json": "fcd142d65fa2df068f30ea7e902e6068badac76b83b08be1eb4efc9642c6f7c0"
+      },
+      "lane": "TVM PR-hard candidate v0.4",
+      "model": "Qwen3.6-27B",
+      "protocol": "single",
+      "run_dir": "reproductions/async-swe-agents/outputs/pr_hard/v0.4/openai_Qwen_Qwen3.6-27B/apache-tvm-20073/single/pr-hard-20073-qwen36-27b-thinking-20260827T110040Z",
+      "run_id": "pr-hard-20073-qwen36-27b-thinking-20260827T110040Z",
+      "statistics_correction_id": null,
+      "task": "apache-tvm-20073"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "ba39707dfd858b01057750cbd005a860293c4bfb915c1bbcd3f6ab6552ff0728",
+        "report.json": "bd147a05e741dc24837c17dc3b57e4f0e67f83ba3a9b9f067e1efcb01a6081be",
+        "run_bundle.json": "2681ed6ff71f68f90beda2cc65eaf3b26ec0cc8b54d7f098838821c8bdf0ea58",
+        "strict_dependency_metrics.json": "c7a5a3c1e518362c4a66dacc183e5a3dbfd541a5ce4fd68369668c6897f6f6c6"
+      },
+      "lane": "TVM PR-hard candidate v0.4",
+      "model": "Qwen3.6-27B",
+      "protocol": "serial_specialists",
+      "run_dir": "reproductions/async-swe-agents/outputs/pr_hard/v0.4/openai_Qwen_Qwen3.6-27B/apache-tvm-20073/serial_specialists/pr-hard-20073-qwen36-27b-thinking-20260827T110040Z",
+      "run_id": "pr-hard-20073-qwen36-27b-thinking-20260827T110040Z",
+      "statistics_correction_id": null,
+      "task": "apache-tvm-20073"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "80aff535a124b04b307a634690388822a8e14f45afe4f29dd71800d352c10e27",
+        "report.json": "e06dd830975aaed10c3eeafe3f8c4f79b39b8bca12586a926d5297fc28ab4193",
+        "run_bundle.json": "989a180cb25d8a1973404fcb0be25938d301ba4af00ba562684545cd4ffd5c38",
+        "strict_dependency_metrics.json": "a1876097328253672e7c612b642af1ec73d3d5247f32daf0d75452a23bacb2d3"
+      },
+      "lane": "TVM PR-hard candidate v0.4",
+      "model": "Qwen3.6-27B",
+      "protocol": "async_private",
+      "run_dir": "reproductions/async-swe-agents/outputs/pr_hard/v0.4/openai_Qwen_Qwen3.6-27B/apache-tvm-20073/async_private/pr-hard-20073-qwen36-27b-thinking-20260827T110040Z",
+      "run_id": "pr-hard-20073-qwen36-27b-thinking-20260827T110040Z",
+      "statistics_correction_id": null,
+      "task": "apache-tvm-20073"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "b2ff3667c125b124bc6bf9a7a56c0a673da9cc690051357276b87f2dc476e65f",
+        "report.json": "23355bb0f8b15285312cfb2263c989ce9b16268d5ce7519b7efac8d049d149e5",
+        "run_bundle.json": "92ba0b6f50034c84180406eb36fc6a40f0b00288d1fee01aaa4bdd7a4a7e00b6",
+        "strict_dependency_metrics.json": "b59d6e1cfd1eb796506faf3b2c243398d0166a76eae3ea415fb9167ff4264eaa"
+      },
+      "lane": "TVM PR-hard candidate v0.4",
+      "model": "Qwen3.6-27B",
+      "protocol": "caid_manager",
+      "run_dir": "reproductions/async-swe-agents/outputs/pr_hard/v0.4/openai_Qwen_Qwen3.6-27B/apache-tvm-20073/caid_manager/pr-hard-20073-qwen36-27b-thinking-20260827T110040Z",
+      "run_id": "pr-hard-20073-qwen36-27b-thinking-20260827T110040Z",
+      "statistics_correction_id": null,
+      "task": "apache-tvm-20073"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "6b2310f7344c5b3c916e501664c6da052ff4c5ab5158dd6a7502ddcf96c2025a",
+        "report.json": "49287cdc583cade5660b0be1b06d175243bf3f5347b356004d5c1f1c81f21de9",
+        "run_bundle.json": "3df0ef2bca8f3097954ad7e910dc33b3e12add8d8d6b1236014a4e2ec56dcf0a",
+        "strict_dependency_metrics.json": "ebaf84e08bb2146a23e4fdbf50e6bd266b7b17a621d79453721bc099de32c183"
+      },
+      "lane": "TVM PR-hard candidate v0.4",
+      "model": "Qwen3.6-27B",
+      "protocol": "single",
+      "run_dir": "reproductions/async-swe-agents/outputs/pr_hard/v0.4/openai_Qwen_Qwen3.6-27B/apache-tvm-20107/single/pr-hard-20107-qwen36-27b-thinking-20260826T180300Z",
+      "run_id": "pr-hard-20107-qwen36-27b-thinking-20260826T180300Z",
+      "statistics_correction_id": null,
+      "task": "apache-tvm-20107"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "d5e0d46a913226895566fedcee1dc99c1a90d4b5470f5808383077383b106e43",
+        "report.json": "e51d229169ffc03017cfe98698ca291eb89332c73601d10e25a1983361eb4203",
+        "run_bundle.json": "30c5f6e14e08f0161634a406394709fc8967e33e1bd8dc4d450f568846c3f3a2",
+        "strict_dependency_metrics.json": "d62d54f1f017c249dc9311043e0bc3954a1c03779010d38505bff10e0c5a51a6"
+      },
+      "lane": "TVM PR-hard candidate v0.4",
+      "model": "Qwen3.6-27B",
+      "protocol": "serial_specialists",
+      "run_dir": "reproductions/async-swe-agents/outputs/pr_hard/v0.4/openai_Qwen_Qwen3.6-27B/apache-tvm-20107/serial_specialists/pr-hard-20107-qwen36-27b-thinking-20260826T180300Z",
+      "run_id": "pr-hard-20107-qwen36-27b-thinking-20260826T180300Z",
+      "statistics_correction_id": null,
+      "task": "apache-tvm-20107"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "e438401c40fbe338aaa00a1872baadc66dae740b681dbfc91ce16d0c90177746",
+        "report.json": "6c4b6b48ae18bd63e2b471218c01d2188a2f11e63f3a38baac12b8d35fb24b92",
+        "run_bundle.json": "c28aea01ba0ed1d56757b40209c2e55b3d50ec9747b0007244b41d8fcfb59bb4",
+        "strict_dependency_metrics.json": "efe0fa8c50d15a5a489752d8feca6c754d53151e9d85cecd21cac9dabd4c433c"
+      },
+      "lane": "TVM PR-hard candidate v0.4",
+      "model": "Qwen3.6-27B",
+      "protocol": "async_private",
+      "run_dir": "reproductions/async-swe-agents/outputs/pr_hard/v0.4/openai_Qwen_Qwen3.6-27B/apache-tvm-20107/async_private/pr-hard-20107-qwen36-27b-thinking-20260826T180300Z",
+      "run_id": "pr-hard-20107-qwen36-27b-thinking-20260826T180300Z",
+      "statistics_correction_id": null,
+      "task": "apache-tvm-20107"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "d2b1cd723e2595955d4276ecdd16c0ff49c244c973cf065879f3d54b388deb84",
+        "report.json": "741144f60e369f300cfc7231be66f14af6eb76ce0e2327236e3d0ca9046a08fa",
+        "run_bundle.json": "95c231c1b8e1a5e313a281398084ee563b9e148c380b3a35a8d62b392bf391f1",
+        "strict_dependency_metrics.json": "a15658da7ff9c4d047456d9a58af496006260e758f89699eb872399c8bf3d9fa"
+      },
+      "lane": "TVM PR-hard candidate v0.4",
+      "model": "Qwen3.6-27B",
+      "protocol": "caid_manager",
+      "run_dir": "reproductions/async-swe-agents/outputs/pr_hard/v0.4/openai_Qwen_Qwen3.6-27B/apache-tvm-20107/caid_manager/pr-hard-20107-qwen36-27b-thinking-20260826T180300Z",
+      "run_id": "pr-hard-20107-qwen36-27b-thinking-20260826T180300Z",
+      "statistics_correction_id": null,
+      "task": "apache-tvm-20107"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "7793a63aedd16b0fbcebe76535061a0d18387ac45d2519d54253d2ac826ffeca",
+        "report.json": "57f1d78ec9c4646979079e7ee8acfacad2227dc7fda5816cd79e16248eb5a2d7",
+        "run_bundle.json": "bbb5534383f7ace9ab13a0895b924c349bfd6974ea3b883dcd185b2c645b9e07",
+        "strict_dependency_metrics.json": "5875814db336193c6d11e7e10285c6d197b92c914096d8a1ad2f7856bd135756"
+      },
+      "lane": "TVM PR-hard candidate v0.4",
+      "model": "Qwen3.6-27B",
+      "protocol": "single",
+      "run_dir": "reproductions/async-swe-agents/outputs/pr_hard/v0.4/openai_Qwen_Qwen3.6-27B/apache-tvm-20153/single/qwen36-27b-gpu1-tvm20153-fixed2-20260825T113252Z",
+      "run_id": "qwen36-27b-gpu1-tvm20153-fixed2-20260825T113252Z",
+      "statistics_correction_id": null,
+      "task": "apache-tvm-20153"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "a76a77efa65e1c2a837cbce4957bd3c8d76e1a5a0d712959a29cc106a9fbaf07",
+        "report.json": "ec76fa8cf536fb1d9614ca664761749cff99bfc3d4b2003ad271c5e17a17620f",
+        "run_bundle.json": "f7789ee63e18b648b6c45a96bee4c421595f4c241fc7eabcf3338447383d18e1",
+        "strict_dependency_metrics.json": "c7be29de305b97ceb047de05c3de4ea592355d48d9f3dfbb1da3a5029ad02ee4"
+      },
+      "lane": "TVM PR-hard candidate v0.4",
+      "model": "Qwen3.6-27B",
+      "protocol": "serial_specialists",
+      "run_dir": "reproductions/async-swe-agents/outputs/pr_hard/v0.4/openai_Qwen_Qwen3.6-27B/apache-tvm-20153/serial_specialists/qwen36-27b-gpu1-tvm20153-fixed2-20260825T113252Z",
+      "run_id": "qwen36-27b-gpu1-tvm20153-fixed2-20260825T113252Z",
+      "statistics_correction_id": null,
+      "task": "apache-tvm-20153"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "f12641bdde7deba1f532c6b3136f1b0149fb70923057660f035b8b7bfe609023",
+        "report.json": "9b80e2b55a7e60cb274121cd1d8abc473e7a360b34ebb05ad93a22d30b9b47b4",
+        "run_bundle.json": "04b9cdbcef076a421fe0414fca493e8dff8596852e4a0e308baad282af943465",
+        "strict_dependency_metrics.json": "d405d9f3cd59f845c6a38e45540b9228100c1b57e1b21f9fa86d355b87c939f4"
+      },
+      "lane": "TVM PR-hard candidate v0.4",
+      "model": "Qwen3.6-27B",
+      "protocol": "async_private",
+      "run_dir": "reproductions/async-swe-agents/outputs/pr_hard/v0.4/openai_Qwen_Qwen3.6-27B/apache-tvm-20153/async_private/qwen36-27b-gpu1-tvm20153-fixed2-20260825T113252Z",
+      "run_id": "qwen36-27b-gpu1-tvm20153-fixed2-20260825T113252Z",
+      "statistics_correction_id": null,
+      "task": "apache-tvm-20153"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "f8bceca214adcf0c3ebf05d42b52f1cccbe2cac3ec3028403edb32f6113ab318",
+        "report.json": "77ebc03e37ce7fede59af5434a98687bb4c8596647a0726e1d0c50d2f6928dee",
+        "run_bundle.json": "ae0a6dead9e5ea369234e6d1694e4f54fdb4399d2f1b88d77ea782d87c520ae6",
+        "strict_dependency_metrics.json": "ce16ea1cbcbd3c6eec6ac6bd683040bbd6a80a203d2df93e9293e5bad4fe4ff0"
+      },
+      "lane": "TVM PR-hard candidate v0.4",
+      "model": "Qwen3.6-27B",
+      "protocol": "caid_manager",
+      "run_dir": "reproductions/async-swe-agents/outputs/pr_hard/v0.4/openai_Qwen_Qwen3.6-27B/apache-tvm-20153/caid_manager/qwen36-27b-gpu1-tvm20153-caidretry1-20260825T224253Z",
+      "run_id": "qwen36-27b-gpu1-tvm20153-caidretry1-20260825T224253Z",
+      "statistics_correction_id": null,
+      "task": "apache-tvm-20153"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "1e299823d78439c36d8d7b54717bfee93fb59c0c8a1ea40eac3204a4fa34ab3e",
+        "report.json": "e1ae3919167e041a0478ece6b43870bef285136022694d424730745256b28aaf",
+        "run_bundle.json": "4e576637a88b8beb2b6448708eb35f22cdb454d99cf0690bed075b6ad7f2cd65",
+        "strict_dependency_metrics.json": "9cdc4794605cc0a8f2d9a34563c41b0db8cdbc43533e24d9329e7e4510a661b6"
+      },
+      "lane": "TVM PR-hard candidate v0.4",
+      "model": "Qwen3.6-27B",
+      "protocol": "single",
+      "run_dir": "reproductions/async-swe-agents/outputs/pr_hard/v0.4/openai_Qwen_Qwen3.6-27B/apache-tvm-20018/single/pr-hard-20018-qwen36-full-20260828T160649Z",
+      "run_id": "pr-hard-20018-qwen36-full-20260828T160649Z",
+      "statistics_correction_id": null,
+      "task": "apache-tvm-20018"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "3c230782a599bd866ed29b229e8620d41ac6b28068d06dc069224eb645a7746b",
+        "report.json": "dc292254cb12a08a20aad52ea2d5a7be2c2e10d755209d46bafec58a8c2b1973",
+        "run_bundle.json": "d562aed0ee7b0ea94bd772cea1e6174cc40a0967b4f909f905249695689f4dc1",
+        "strict_dependency_metrics.json": "b64264351c9af71104de569ea1a59e4b61d46bbb03af9f30f8254d7af5e19e04"
+      },
+      "lane": "TVM PR-hard candidate v0.4",
+      "model": "Qwen3.6-27B",
+      "protocol": "serial_specialists",
+      "run_dir": "reproductions/async-swe-agents/outputs/pr_hard/v0.4/openai_Qwen_Qwen3.6-27B/apache-tvm-20018/serial_specialists/pr-hard-20018-qwen36-full-20260828T160649Z",
+      "run_id": "pr-hard-20018-qwen36-full-20260828T160649Z",
+      "statistics_correction_id": null,
+      "task": "apache-tvm-20018"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "6ad96251515b3e7cdd184960cda888860215312bce9408543cea062fa5f89283",
+        "report.json": "b1bbdc412fb0edb356f31bd100097dc6de0ef210fc0e28b31f1d3c5344da8bb8",
+        "run_bundle.json": "cb7a58c9e764ec633ce9aea7cfd0b60394644bb8ef99fce6cc73949a7fe15e90",
+        "strict_dependency_metrics.json": "5493d174b0406de9816a14f05bfb1d43a00fd2dfcb2898985c5906c9cfa124f5"
+      },
+      "lane": "TVM PR-hard candidate v0.4",
+      "model": "Qwen3.6-27B",
+      "protocol": "async_private",
+      "run_dir": "reproductions/async-swe-agents/outputs/pr_hard/v0.4/openai_Qwen_Qwen3.6-27B/apache-tvm-20018/async_private/pr-hard-20018-qwen36-full-20260828T160649Z",
+      "run_id": "pr-hard-20018-qwen36-full-20260828T160649Z",
+      "statistics_correction_id": null,
+      "task": "apache-tvm-20018"
+    },
+    {
+      "artifact_sha256": {
+        "process_metrics_summary.json": "84127f9dd10b2e41094f75405c348e70eb9fab184ec19bd7e7b61196ee3951dc",
+        "report.json": "8725dd072b80bc75345cb76b58902b836c147a97c15b02484429d8d4fe04bc6a",
+        "run_bundle.json": "a0dd4e1d41f3e7bed4381c1f84b4e572f001800261b975a6bb9f90f8bf2a78dd",
+        "strict_dependency_metrics.json": "393c98a85fd5ef466afc91fc4cf002d46ee0ef46841940ea4e7871188b7fe9ca"
+      },
+      "lane": "TVM PR-hard candidate v0.4",
+      "model": "Qwen3.6-27B",
+      "protocol": "caid_manager",
+      "run_dir": "reproductions/async-swe-agents/outputs/pr_hard/v0.4/openai_Qwen_Qwen3.6-27B/apache-tvm-20018/caid_manager/pr-hard-20018-qwen36-caid-isolation-v2-20260829T125649Z",
+      "run_id": "pr-hard-20018-qwen36-caid-isolation-v2-20260829T125649Z",
+      "statistics_correction_id": "apache-tvm-20018-caid-legacy-cap-hit-v1",
+      "task": "apache-tvm-20018"
+    }
+  ],
+  "model": "Qwen3.6-27B",
+  "protocol_count": 4,
+  "result_cell_count": 80,
+  "schema_version": "qwen36-frozen-result-index-v1",
+  "selection_policy": "Explicit run IDs only; never select the best rerun. Whole-registry hash changes do not invalidate a frozen run when all run-relevant bundle checks pass.",
+  "statistical_corrections": {
+    "path": "docs/results/qwen36_27_statistical_corrections.v1.json",
+    "sha256": "63446ed30973c34f01d22d6e5aafdb1a2d63392c780b2db7c5dbf774a11a5e03"
+  },
+  "task_count": 20
+}
