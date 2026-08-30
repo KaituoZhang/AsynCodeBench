@@ -675,6 +675,12 @@ async def run_workflow_inner(
                     model=workflow_config.model,
                 )
 
+                prepare_final_evaluation = getattr(
+                    manager, "prepare_final_evaluation", None
+                )
+                if callable(prepare_final_evaluation):
+                    prepare_final_evaluation()
+
                 # Generate patch
                 base_commit = None
                 for s in subagents:

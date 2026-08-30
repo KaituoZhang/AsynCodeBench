@@ -681,6 +681,35 @@ def test_caid_rejects_and_restores_manager_final_review_writes(tmp_path):
     assert (Path(manager.config.output_dir) / "rejected_manager_final_review.patch").is_file()
 
 
+def test_caid_restores_rejected_direct_writes_before_final_evaluation(tmp_path):
+    repo, _, accepted_head, _ = make_git_worktree(
+        tmp_path, ["src/cachetools/keys.py"]
+    )
+    task = make_task()
+    manager = make_manager(task, LocalWorkspace(), tmp_path / "output", repo)
+    Path(manager.config.output_dir).mkdir()
+    (repo / "src/cachetools/keys.py").write_text("DIRECT = 1\n", encoding="utf-8")
+    (repo / "specialist-debug.txt").write_text("unauthorized\n", encoding="utf-8")
+
+    record = manager.prepare_final_evaluation()
+
+    assert record["passed"] is False
+    assert record["remediated"] is True
+    assert record["accepted_head"] == accepted_head
+    assert record["rejected_paths"] == [
+        "specialist-debug.txt",
+        "src/cachetools/keys.py",
+    ]
+    assert git(repo, "rev-parse", "HEAD") == accepted_head
+    assert (repo / "src/cachetools/keys.py").read_text() == "VALUE = 0\n"
+    assert not (repo / "specialist-debug.txt").exists()
+    assert git(repo, "status", "--porcelain") == ""
+    assert (
+        Path(manager.config.output_dir)
+        / "rejected_integrated_workspace_pre_evaluation.patch"
+    ).is_file()
+
+
 def run_workspace_guard(tool_name, tool_input):
     command = workspace_guard_command(
         "/workspace/apache-tvm-worktree-engineer-3",
@@ -844,6 +873,71 @@ def test_static_runner_preserves_public_and_source_task_identity(tmp_path):
     assert protocol["harness"] == "asyncodebench-harness-v2.0"
     assert protocol["task_id"] == "asyncodebench:cachetools"
     assert protocol["source_task_id"] == "commit0:cachetools"
+
+
+def test_async_private_restores_integrated_workspace_and_rejects_owner(tmp_path):
+    repo, _, base_head, _ = make_git_worktree(
+        tmp_path, ["src/cachetools/func.py"]
+    )
+    output_dir = tmp_path / "output"
+    output_dir.mkdir()
+    task = make_task()
+    task.set_active_protocol("async_private")
+    config = WorkflowConfig(
+        model="test/model",
+        max_subagents=2,
+        output_dir=str(output_dir),
+    )
+    runner = AsynCodeBenchProtocolRunner(
+        task_module=task,
+        workflow_config=config,
+        protocol="async_private",
+    )
+    runner.load_scenario()
+    (repo / "src/cachetools/keys.py").write_text(
+        "VALUE = 'out-of-band'\n", encoding="utf-8"
+    )
+    results = [
+        SubAgentResult(
+            engineer_id="key_agent",
+            task_id="key_construction",
+            success=False,
+            round_num=1,
+        ),
+        SubAgentResult(
+            engineer_id="decorator_agent",
+            task_id="decorator_factories",
+            success=True,
+            round_num=1,
+        ),
+    ]
+
+    rejected = runner.recover_async_private_workspace(
+        LocalWorkspace(), str(repo), base_head, results
+    )
+
+    assert rejected == {"key_agent": ["src/cachetools/keys.py"]}
+    assert git(repo, "rev-parse", "HEAD") == base_head
+    assert git(repo, "status", "--porcelain") == ""
+    assert (repo / "src/cachetools/keys.py").read_text() == "VALUE = 0\n"
+    validation = json.loads(
+        (output_dir / "workspace_isolation_validation.jsonl").read_text()
+    )
+    assert validation["rejected_agents"] == ["key_agent"]
+    assert validation["remediated"] is True
+    scope = json.loads((output_dir / "scope_validation.jsonl").read_text())
+    assert scope["violations"] == []
+    assert scope["workspace_isolation_violations"] == [
+        "src/cachetools/keys.py"
+    ]
+    assert scope["passed"] is False
+
+    review = runner.reject_workspace_isolation_result(
+        results[0], rejected["key_agent"]
+    )
+    assert review["merge_method"] == "workspace_isolation_rejected"
+    assert results[0].merged is False
+    assert "integrated workspace" in results[0].error
 
 
 def test_existing_shared_scope_and_cycle_are_reported_not_hidden(tmp_path):

@@ -365,6 +365,198 @@ class AsynCodeBenchProtocolRunner(StaticCommit0ProtocolRunner):
             return {"merged": False, "merge_method": "scope_rejected"}
         return self.merge_result(manager, result)
 
+    def recover_async_private_workspace(
+        self, workspace, repo_dir, base_commit, results
+    ):
+        """Reject and remove out-of-band specialist writes before integration.
+
+        Async-private specialists run concurrently, so a dirty integrated
+        workspace cannot safely be blamed on whichever result happens to be
+        integrated first.  Detect the contamination once after all workers
+        finish, attribute paths from the frozen manifest ownership, preserve
+        audit evidence, restore the clean base, and let unaffected private
+        artifacts proceed through the normal merge gate.
+        """
+        self.task_module._clean_transient_test_artifacts(workspace, repo_dir)
+        status = workspace.execute_command(
+            f"cd {shlex.quote(repo_dir)} && git status --porcelain", timeout=30
+        )
+        if status.exit_code != 0:
+            raise RuntimeError(
+                "Failed to inspect the async-private integrated workspace: "
+                + (status.stderr or status.stdout)
+            )
+        dirty_paths = set(self._parse_status_paths(status.stdout))
+
+        head = workspace.execute_command(
+            f"cd {shlex.quote(repo_dir)} && git rev-parse HEAD", timeout=30
+        )
+        if head.exit_code != 0:
+            raise RuntimeError(
+                "Failed to inspect the async-private integrated workspace HEAD: "
+                + (head.stderr or head.stdout)
+            )
+        head_before_restore = head.stdout.strip()
+        head_changed = head_before_restore != base_commit
+        committed_paths = set()
+        if head_changed:
+            changed = workspace.execute_command(
+                f"cd {shlex.quote(repo_dir)} && git diff --name-only "
+                f"{shlex.quote(base_commit)}..HEAD",
+                timeout=30,
+            )
+            if changed.exit_code != 0:
+                raise RuntimeError(
+                    "Failed to inspect committed async-private workspace writes: "
+                    + (changed.stderr or changed.stdout)
+                )
+            committed_paths.update(
+                line.strip() for line in changed.stdout.splitlines() if line.strip()
+            )
+
+        changed_paths = sorted(dirty_paths | committed_paths)
+        if not changed_paths and not head_changed:
+            return {}
+
+        ownership = {}
+        for path in changed_paths:
+            ownership[path] = sorted(
+                agent_id
+                for agent_id, assignment in self.assignment_by_agent.items()
+                if path_in_scope(path, assignment.get("writable_paths", []))
+            )
+        unattributed_paths = sorted(
+            path for path, owners in ownership.items() if not owners
+        )
+        rejected_agents = {
+            agent_id for owners in ownership.values() for agent_id in owners
+        }
+        if unattributed_paths:
+            # Unknown out-of-band writes make every concurrently active
+            # specialist suspect. Reject all private artifacts conservatively.
+            rejected_agents.update(result.engineer_id for result in results)
+
+        patch_result = workspace.execute_command(
+            f"cd {shlex.quote(repo_dir)} && git diff --binary "
+            f"{shlex.quote(base_commit)}",
+            timeout=60,
+        )
+        patch_path = (
+            Path(self.workflow_config.output_dir)
+            / "rejected_async_private_workspace.patch"
+        )
+        patch_path.write_text(patch_result.stdout or "", encoding="utf-8")
+
+        restore = workspace.execute_command(
+            f"cd {shlex.quote(repo_dir)} && git reset --hard "
+            f"{shlex.quote(base_commit)}",
+            timeout=120,
+        )
+        if restore.exit_code != 0:
+            raise RuntimeError(
+                "Failed to restore the async-private integrated workspace: "
+                + (restore.stderr or restore.stdout)
+            )
+        clean = workspace.execute_command(
+            f"cd {shlex.quote(repo_dir)} && git clean -fd", timeout=120
+        )
+        if clean.exit_code != 0:
+            raise RuntimeError(
+                "Failed to clean rejected async-private workspace writes: "
+                + (clean.stderr or clean.stdout)
+            )
+        verify_status = workspace.execute_command(
+            f"cd {shlex.quote(repo_dir)} && git status --porcelain", timeout=30
+        )
+        verify_head = workspace.execute_command(
+            f"cd {shlex.quote(repo_dir)} && git rev-parse HEAD", timeout=30
+        )
+        if (
+            verify_status.exit_code != 0
+            or verify_status.stdout.strip()
+            or verify_head.exit_code != 0
+            or verify_head.stdout.strip() != base_commit
+        ):
+            raise RuntimeError(
+                "Async-private integrated workspace restoration could not be verified"
+            )
+
+        rejected_by_agent = {
+            agent_id: sorted(
+                path
+                for path, owners in ownership.items()
+                if agent_id in owners or path in unattributed_paths
+            )
+            for agent_id in sorted(rejected_agents)
+        }
+        validation = {
+            "schema_version": "0.1",
+            "protocol": "async_private",
+            "base_commit": base_commit,
+            "head_before_restore": head_before_restore,
+            "head_changed": head_changed,
+            "changed_paths": changed_paths,
+            "path_ownership_candidates": ownership,
+            "unattributed_paths": unattributed_paths,
+            "rejected_agents": sorted(rejected_agents),
+            "remediated": True,
+            "patch_path": patch_path.name,
+            "policy": "reject_out_of_band_integrated_workspace_writes",
+        }
+        validation_path = (
+            Path(self.workflow_config.output_dir)
+            / "workspace_isolation_validation.jsonl"
+        )
+        with validation_path.open("a", encoding="utf-8") as stream:
+            stream.write(json.dumps(validation, sort_keys=True) + "\n")
+
+        result_by_agent = {result.engineer_id: result for result in results}
+        scope_path = Path(self.workflow_config.output_dir) / "scope_validation.jsonl"
+        with scope_path.open("a", encoding="utf-8") as stream:
+            for agent_id, paths in rejected_by_agent.items():
+                assignment = self.assignment_by_agent.get(agent_id, {})
+                result = result_by_agent.get(agent_id)
+                writable_paths = assignment.get("writable_paths", [])
+                ownership_violations = [
+                    path for path in paths if not path_in_scope(path, writable_paths)
+                ]
+                record = {
+                    "agent_id": agent_id,
+                    "task_assignment_id": getattr(result, "task_id", None),
+                    "writable_paths": writable_paths,
+                    "changed_paths": paths,
+                    "violations": ownership_violations,
+                    "workspace_isolation_violations": paths,
+                    "main_workspace_status_before_merge": changed_paths,
+                    "passed": False,
+                    "remediated": True,
+                    "policy": "reject_out_of_band_integrated_workspace_writes",
+                }
+                stream.write(json.dumps(record, sort_keys=True) + "\n")
+
+        print(
+            "[AsynCodeBench] Rejected and restored out-of-band async-private "
+            "workspace writes: "
+            + ", ".join(changed_paths)
+        )
+        return rejected_by_agent
+
+    @staticmethod
+    def reject_workspace_isolation_result(result, changed_paths):
+        reason = (
+            "async-private workspace isolation violation: wrote directly to "
+            "the integrated workspace before artifact merge: "
+            + ", ".join(changed_paths)
+        )
+        result.merged = False
+        result.merge_method = "workspace_isolation_rejected"
+        result.error = reason if not result.error else f"{result.error}; {reason}"
+        return {
+            "merged": False,
+            "merge_method": "workspace_isolation_rejected",
+            "merge_message": reason,
+        }
+
     def run_targeted_tests(self, workspace, repo_dir, assignment, agent_id):
         targets = assignment.get("primary_test_targets", [])
         if not targets:
@@ -550,6 +742,9 @@ class AsynCodeBenchProtocolRunner(StaticCommit0ProtocolRunner):
             "[AsynCodeBench] Workers completed privately; integrating in "
             "dependency order: " + " -> ".join(result.engineer_id for result in results)
         )
+        workspace_rejections = self.recover_async_private_workspace(
+            workspace, repo_dir, base_commit, results
+        )
         for result in results:
             if result.worktree_path:
                 self.write_probe_checkpoint(
@@ -563,7 +758,12 @@ class AsynCodeBenchProtocolRunner(StaticCommit0ProtocolRunner):
                     artifact_version=result.commit_hash
                     or self.read_head(workspace, result.worktree_path),
                 )
-            self.merge_scoped_result(manager, workspace, result)
+            if result.engineer_id in workspace_rejections:
+                self.reject_workspace_isolation_result(
+                    result, workspace_rejections[result.engineer_id]
+                )
+            else:
+                self.merge_scoped_result(manager, workspace, result)
             self.write_probe_checkpoint(
                 workspace,
                 repo_dir,

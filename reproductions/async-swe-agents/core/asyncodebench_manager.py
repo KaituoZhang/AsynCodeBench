@@ -47,7 +47,7 @@ class AsynCodeBenchManager(Manager):
 
     def assert_manager_workspace_clean(self, phase):
         """Reject out-of-band writes before they can taint integration."""
-        dirty = self.main_workspace_status()
+        dirty = sorted(self.main_workspace_status())
         record = {
             "schema_version": "0.1",
             "phase": phase,
@@ -152,6 +152,93 @@ class AsynCodeBenchManager(Manager):
             "passed": not rejected_paths and not changed_head,
             "remediated": remediated,
             "policy": "reject_and_restore_manager_final_review_writes",
+        }
+        path = Path(self.config.output_dir) / "manager_workspace_validation.jsonl"
+        with path.open("a", encoding="utf-8") as stream:
+            stream.write(json.dumps(record, sort_keys=True) + "\n")
+        return record
+
+    def prepare_final_evaluation(self):
+        """Reject uncommitted out-of-band writes without aborting evaluation.
+
+        Artifact scope validation already rejects a specialist result whenever the
+        integrated workspace is dirty before merge.  A rejected specialist can,
+        however, leave those direct writes behind.  Preserve them as audit evidence
+        and restore the current integrated HEAD so the final evaluator measures only
+        committed, manager-accepted artifacts.
+        """
+        head_result = self.workspace.execute_command(
+            f"cd {shlex.quote(self.repo_dir)} && git rev-parse HEAD",
+            timeout=30,
+        )
+        if head_result.exit_code != 0:
+            raise RuntimeError(
+                "Failed to snapshot integrated HEAD before final evaluation: "
+                f"{head_result.stderr or head_result.stdout}"
+            )
+        accepted_head = head_result.stdout.strip()
+        dirty = sorted(self.main_workspace_status())
+        remediated = False
+
+        if dirty:
+            patch_result = self.workspace.execute_command(
+                f"cd {shlex.quote(self.repo_dir)} && git diff --binary HEAD",
+                timeout=60,
+            )
+            patch_path = (
+                Path(self.config.output_dir)
+                / "rejected_integrated_workspace_pre_evaluation.patch"
+            )
+            patch_path.write_text(patch_result.stdout or "", encoding="utf-8")
+
+            restore = self.workspace.execute_command(
+                f"cd {shlex.quote(self.repo_dir)} && git reset --hard HEAD",
+                timeout=120,
+            )
+            if restore.exit_code != 0:
+                raise RuntimeError(
+                    "Failed to restore the integrated workspace before final "
+                    f"evaluation: {restore.stderr or restore.stdout}"
+                )
+            clean = self.workspace.execute_command(
+                f"cd {shlex.quote(self.repo_dir)} && git clean -fd",
+                timeout=120,
+            )
+            if clean.exit_code != 0:
+                raise RuntimeError(
+                    "Failed to remove rejected untracked integrated-workspace "
+                    f"writes: {clean.stderr or clean.stdout}"
+                )
+            remaining = self.main_workspace_status()
+            verify_head = self.workspace.execute_command(
+                f"cd {shlex.quote(self.repo_dir)} && git rev-parse HEAD",
+                timeout=30,
+            )
+            if (
+                remaining
+                or verify_head.exit_code != 0
+                or verify_head.stdout.strip() != accepted_head
+            ):
+                raise RuntimeError(
+                    "Integrated workspace restoration could not be verified before "
+                    "final evaluation"
+                )
+            remediated = True
+            self.log(
+                "Rejected and restored out-of-band integrated-workspace writes "
+                "before final evaluation: "
+                + ", ".join(dirty)
+            )
+
+        record = {
+            "schema_version": "0.1",
+            "phase": "pre_final_evaluation",
+            "accepted_head": accepted_head,
+            "main_workspace_status": dirty,
+            "rejected_paths": dirty,
+            "passed": not dirty,
+            "remediated": remediated,
+            "policy": "reject_and_restore_uncommitted_out_of_band_writes",
         }
         path = Path(self.config.output_dir) / "manager_workspace_validation.jsonl"
         with path.open("a", encoding="utf-8") as stream:
