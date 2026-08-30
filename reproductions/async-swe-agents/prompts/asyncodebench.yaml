@@ -24,6 +24,11 @@ user_instruction: |
   peers until the harness integrates them. Treat the manifest dependencies as
   first-class coordination constraints, not as optional hints.
 
+  Manager workspace rule: you are read-only. Never edit, create, delete, or
+  format repository files, and never implement the solution yourself. Only
+  specialists may change production code in their private worktrees. Manager
+  filesystem writes invalidate the benchmark run.
+
   Final evaluator command:
   {test_cmd} {test_dir}
 
@@ -32,7 +37,9 @@ scan_analysis: |
   specification and manifest dependency contracts to the unfinished code.
   Identify producer-before-consumer constraints, likely interface assumptions,
   and the smallest useful targeted tests. Do not implement solution code during
-  this phase. Return a concise analysis that can support delegation.
+  this phase. Use only read-only inspection commands. Do not use the file editor,
+  shell redirection, in-place formatting, or any command that changes git state.
+  Return a concise analysis that can support delegation.
 
 task_delegation: |
   Delegate the task using the manifest-defined assignment boundaries and the
@@ -122,6 +129,10 @@ subagent_prompt: |
   public tests or files owned by another assignment. If an unresolved dependency
   requires an out-of-scope edit, report it instead of making that edit.
 
+  Every command and file edit must target {worktree_path}. Before running a
+  command, change directory to that exact worktree. Never read or write the
+  similarly named integrated repository under /workspace/*_repo.
+
   Suggested test command:
   {test_cmd} {test_dir}
 
@@ -175,5 +186,7 @@ manager_final_review_all: |
 
   {unmerged_worktrees_section}
 
-  Perform a bounded integration review. Recover usable committed artifacts when
-  allowed, preserve public tests, and do not rewrite the task solution yourself.
+  Perform a bounded, read-only integration review of the recorded results.
+  Do not edit files, create commits, merge or cherry-pick branches, or rewrite
+  the task solution. The harness has already completed artifact integration;
+  any filesystem or Git change during this phase will be rejected and restored.
