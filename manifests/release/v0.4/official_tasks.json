@@ -1,0 +1,54 @@
+{
+  "automated_audit_complete_task_count": 20,
+  "community_preview_ready": true,
+  "execution_profile": {
+    "path": "configs/evaluation/official_execution_profile.v2.json",
+    "profile_id": "asyncodebench-v0.3-standard-100",
+    "sha256": "4d63f8d7176c0391528b39e283cd2f7ba53c15c99bc958f9674ebbe65cbef609"
+  },
+  "human_review_complete_task_count": 20,
+  "human_review_passed_task_count": 20,
+  "human_review_policy": {
+    "adjudication_required": false,
+    "automated_audit_counts_as_human": false,
+    "automated_audit_required": true,
+    "policy_id": "single-human-plus-automated-audit-v1",
+    "required_human_annotation_artifact": "annotation_a",
+    "required_human_review_count_per_task": 1,
+    "secondary_human_annotation_required": false
+  },
+  "official_task_ids": [
+    "asyncodebench:cachetools",
+    "asyncodebench:deprecated",
+    "asyncodebench:portalocker",
+    "asyncodebench:tinydb",
+    "asyncodebench:wcwidth",
+    "asyncodebench:requests",
+    "asyncodebench:simpy",
+    "asyncodebench:parsel",
+    "asyncodebench:filesystem_spec",
+    "asyncodebench:marshmallow",
+    "asyncodebench:graphene",
+    "asyncodebench:imapclient",
+    "asyncodebench:pexpect",
+    "asyncodebench:flask",
+    "asyncodebench:python-rsa",
+    "asyncodebench:cookiecutter",
+    "asyncodebench:apache-tvm-20018",
+    "asyncodebench:apache-tvm-20073",
+    "asyncodebench:apache-tvm-20107",
+    "asyncodebench:apache-tvm-20153"
+  ],
+  "release": "v0.4",
+  "release_stage": "community_preview",
+  "release_version": "0.4.0",
+  "schema_version": "asyncodebench-release-tasks-v1",
+  "stable_release_ready": false,
+  "task_count": 20,
+  "task_namespace": "asyncodebench",
+  "validated_baseline_bundle_count": 0,
+  "validated_baseline_registry": {
+    "path": "manifests/release/v0.4/validated_baselines.json",
+    "sha256": "f9d33c2eb9712858b337277f2695a50be8341811e6b659cb79a60297b2c06553"
+  }
+}

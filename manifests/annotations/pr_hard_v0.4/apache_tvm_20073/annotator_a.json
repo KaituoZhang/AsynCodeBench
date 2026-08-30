@@ -1,0 +1,25 @@
+{
+  "allowed_labels": [
+    "parallelizable",
+    "partially_parallelizable",
+    "effectively_serial"
+  ],
+  "annotator_id": "pz0512",
+  "candidate_evidence_file": "manifests/candidates/pr_hard_v0.4/qualification/apache_tvm_20073.json",
+  "exclusion_reason": null,
+  "include": true,
+  "independence_instructions": [
+    "Use only the public, answer-free task, scenario, metric, qualification, and overlay evidence listed in the review worksheet.",
+    "Do not inspect the gold production patch, reference solution, hidden tests, or model-generated implementation.",
+    "Judge semantic naturalness yourself; automated qualification is evidence, not inclusion authority.",
+    "Confirm that ownership follows coherent responsibilities rather than arbitrary file partitions.",
+    "Confirm at least one genuine cross-owner producer-consumer dependency with public executable evidence.",
+    "Complete annotator_id, include, parallelizability_label, rationale, and exclusion_reason as applicable."
+  ],
+  "parallelizability_label": "partially_parallelizable",
+  "rationale": "This task is suitable for AsynCodeBench because scoped IRBuilder source-span state and AST-to-Span coordinate mapping are two coherent producer responsibilities that join in the parser/evaluator propagation consumer. The consumer must use both contracts to attach direct, inline, and tile-primitive call spans while preserving structural identity. Public ablation evidence shows that either producer alone passes exactly its 1/6 local selector, both producers without propagation pass 2/6, and complete integration passes 6/6; the selected regression evaluator reports 28 passes. In private asynchronous work, the propagation owner can implement against a stale span-state API or an incompatible coordinate convention, causing missing or shifted diagnostic spans even when producer-local tests pass. The producers can proceed independently, but correct parser behavior requires their joined contracts, so partially_parallelizable is the appropriate label.",
+  "schema_version": "0.3",
+  "source_task_id": null,
+  "task_id": "pr-hard:apache-tvm-20073",
+  "task_record_file": "manifests/candidates/pr_hard_v0.4/tasks/apache_tvm_20073.json"
+}

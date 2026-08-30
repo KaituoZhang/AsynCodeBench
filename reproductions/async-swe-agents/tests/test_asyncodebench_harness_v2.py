@@ -7,7 +7,13 @@ from types import SimpleNamespace
 import pytest
 from config import SubAgentResult, WorkflowConfig
 from core.asyncodebench_manager import AsynCodeBenchManager
-from core.utils import build_delegation_plan
+from core.utils import build_delegation_plan, generate_patch
+from core.workspace_isolation import (
+    build_workspace_guard_hook,
+    private_remote_workspace,
+    uses_task_specific_workspace_isolation,
+    workspace_guard_command,
+)
 from protocols.asyncodebench.metadata import (
     build_run_metadata,
     write_contract_snapshots,
@@ -21,6 +27,65 @@ from tasks.commit0 import Commit0Task
 
 def make_task(task_id="asyncodebench:cachetools"):
     return AsynCodeBenchTask(AsynCodeBenchConfig(task_id=task_id))
+
+
+def test_workspace_isolation_repair_is_scoped_to_20018():
+    assert uses_task_specific_workspace_isolation(
+        SimpleNamespace(
+            task_id="pr-hard:apache-tvm-20018", active_protocol="caid_manager"
+        )
+    )
+    assert not uses_task_specific_workspace_isolation(
+        SimpleNamespace(
+            task_id="pr-hard:apache-tvm-20018", active_protocol="async_private"
+        )
+    )
+    assert not uses_task_specific_workspace_isolation(
+        SimpleNamespace(
+            task_id="pr-hard:apache-tvm-20073", active_protocol="caid_manager"
+        )
+    )
+    assert not uses_task_specific_workspace_isolation(
+        SimpleNamespace(
+            task_id="asyncodebench:cachetools", active_protocol="caid_manager"
+        )
+    )
+
+
+def test_20018_patch_export_preserves_final_context_prefix(tmp_path):
+    diff = """diff --git a/example.txt b/example.txt
+index 422c2b7..0f7bc76 100644
+--- a/example.txt
++++ b/example.txt
+@@ -1,2 +1,2 @@
+-old
++new
+ context
+"""
+    workspace = SimpleNamespace(
+        execute_command=lambda *args, **kwargs: SimpleNamespace(
+            exit_code=0, stdout=diff, stderr=""
+        )
+    )
+
+    patch, _ = generate_patch(
+        workspace,
+        "/workspace/apache-tvm-repo",
+        "base",
+        [],
+        preserve_diff_whitespace=True,
+    )
+    patch_path = tmp_path / "patch.diff"
+    patch_path.write_text(patch, encoding="utf-8")
+
+    parsed = subprocess.run(
+        ["git", "apply", "--numstat", str(patch_path)],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert parsed.returncode == 0, parsed.stderr
+    assert patch.endswith(" context\n")
 
 
 def test_benchmark_root_can_be_explicitly_configured(monkeypatch, tmp_path):
@@ -589,6 +654,154 @@ def test_caid_rejects_merge_when_main_workspace_is_dirty(tmp_path):
     assert review["merged"] is False
     assert "main workspace dirty before merge" in review["merge_message"]
     assert git(repo, "rev-parse", "HEAD") == base_head
+
+
+def test_caid_rejects_and_restores_manager_final_review_writes(tmp_path):
+    repo, _, base_head, _ = make_git_worktree(
+        tmp_path, ["src/cachetools/keys.py"]
+    )
+    task = make_task()
+    manager = make_manager(task, LocalWorkspace(), tmp_path / "output", repo)
+    Path(manager.config.output_dir).mkdir()
+    (repo / "src/cachetools/keys.py").write_text("MANAGER = 1\n", encoding="utf-8")
+    (repo / "manager-created.txt").write_text("unauthorized\n", encoding="utf-8")
+
+    record = manager.reject_final_review_writes(base_head)
+
+    assert record["passed"] is False
+    assert record["remediated"] is True
+    assert record["rejected_paths"] == [
+        "manager-created.txt",
+        "src/cachetools/keys.py",
+    ]
+    assert git(repo, "rev-parse", "HEAD") == base_head
+    assert (repo / "src/cachetools/keys.py").read_text() == "VALUE = 0\n"
+    assert not (repo / "manager-created.txt").exists()
+    assert git(repo, "status", "--porcelain") == ""
+    assert (Path(manager.config.output_dir) / "rejected_manager_final_review.patch").is_file()
+
+
+def run_workspace_guard(tool_name, tool_input):
+    command = workspace_guard_command(
+        "/workspace/apache-tvm-worktree-engineer-3",
+        "/workspace/apache-tvm-repo",
+    )
+    event = {
+        "event_type": "PreToolUse",
+        "tool_name": tool_name,
+        "tool_input": tool_input,
+        "working_dir": "/workspace/apache-tvm-worktree-engineer-3",
+    }
+    result = subprocess.run(
+        command,
+        shell=True,
+        input=json.dumps(event),
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    return json.loads(result.stdout)
+
+
+@pytest.mark.parametrize(
+    ("tool_name", "tool_input"),
+    [
+        ("terminal", {"command": "git status --short"}),
+        (
+            "terminal",
+            {
+                "command": (
+                    "cd /workspace/apache-tvm-worktree-engineer-3 && "
+                    "python -m pytest tests/python/tirx"
+                )
+            },
+        ),
+        ("file_editor", {"command": "view", "path": "src/tirx/ir/stmt.cc"}),
+    ],
+)
+def test_specialist_workspace_guard_allows_private_worktree_access(
+    tool_name,
+    tool_input,
+):
+    decision = run_workspace_guard(tool_name, tool_input)
+
+    assert decision["decision"] == "allow"
+
+
+@pytest.mark.parametrize(
+    ("tool_name", "tool_input"),
+    [
+        (
+            "terminal",
+            {"command": "cd /workspace/apache-tvm-repo && git status"},
+        ),
+        (
+            "terminal",
+            {
+                "command": (
+                    "cd /workspace/apache-tvm-worktree-engineer-2 && git status"
+                )
+            },
+        ),
+        ("terminal", {"command": "cd .. && ls"}),
+        (
+            "file_editor",
+            {"command": "str_replace", "path": "../apache-tvm-repo/src/a.cc"},
+        ),
+    ],
+)
+def test_specialist_workspace_guard_blocks_integrated_or_sibling_access(
+    tool_name,
+    tool_input,
+):
+    decision = run_workspace_guard(tool_name, tool_input)
+
+    assert decision["decision"] == "deny"
+    assert "Benchmark isolation violation" in decision["reason"]
+
+
+def test_specialist_conversation_uses_private_remote_workspace_and_hook():
+    shared = SimpleNamespace(
+        host="http://127.0.0.1:8123/",
+        api_key="test-key",
+        read_timeout=123.0,
+        max_connections=7,
+    )
+    worktree = "/workspace/apache-tvm-worktree-engineer-3"
+    integrated = "/workspace/apache-tvm-repo"
+
+    private = private_remote_workspace(shared, worktree)
+    hook = build_workspace_guard_hook(worktree, integrated)
+
+    assert private.host == "http://127.0.0.1:8123"
+    assert private.api_key == "test-key"
+    assert private.working_dir == worktree
+    assert private.read_timeout == 123.0
+    assert private.max_connections == 7
+    assert hook.pre_tool_use[0].matcher == "*"
+    assert hook.pre_tool_use[0].hooks[0].async_ is False
+    assert integrated in hook.pre_tool_use[0].hooks[0].command
+
+
+def test_integrated_workspace_error_does_not_guess_the_actor(tmp_path):
+    repo, _, _, _ = make_git_worktree(tmp_path, ["src/cachetools/keys.py"])
+    (repo / "src/cachetools/func.py").write_text("DIRTY = 1\n", encoding="utf-8")
+    task = make_task()
+    manager = make_manager(task, LocalWorkspace(), tmp_path / "output", repo)
+    Path(manager.config.output_dir).mkdir()
+
+    with pytest.raises(RuntimeError, match="out-of-band write") as exc_info:
+        manager.assert_manager_workspace_clean("before_final_review")
+
+    assert "does not infer the actor" in str(exc_info.value)
+    record = json.loads(
+        (Path(manager.config.output_dir) / "manager_workspace_validation.jsonl")
+        .read_text()
+        .splitlines()[0]
+    )
+    assert record["passed"] is False
+    assert record["attribution"].startswith("unknown_at_detection")
 
 
 def test_static_runner_uses_manifest_dependency_order(tmp_path):

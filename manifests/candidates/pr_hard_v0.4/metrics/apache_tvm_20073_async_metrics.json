@@ -1,0 +1,84 @@
+{
+  "schema_version": "pr-hard-async-metrics-v0.4",
+  "task_id": "pr-hard:apache-tvm-20073",
+  "metric_annotation_id": "pr-hard-apache-tvm-20073.async-metrics.v0.4",
+  "aggregate_metrics": {
+    "primary_async_dependency_ids": [
+      "irbuilder-state-to-parser-propagation",
+      "source-mapping-to-parser-propagation"
+    ],
+    "ADPR_denominator": "All dependency_points for this candidate.",
+    "minimum_success_condition_for_task_level_async_dependency_resolution": "Both incoming join dependencies pass in the final integrated workspace."
+  },
+  "source_task_record": "manifests/candidates/pr_hard_v0.4/tasks/apache_tvm_20073.json",
+  "source_quality_record": "manifests/candidates/pr_hard_v0.4/qualification/apache_tvm_20073.json",
+  "dependency_points": [
+    {
+      "dependency_id": "irbuilder-state-to-parser-propagation",
+      "dependency_type": "shared_state_contract",
+      "producer_subproblem": "irbuilder_active_span_state",
+      "consumer_subproblem": "parser_and_evaluator_span_propagation",
+      "producer_agent": "irbuilder_agent",
+      "consumer_agent": "propagation_agent",
+      "producer_files": [
+        "include/tvm/script/ir_builder/base.h",
+        "python/tvm/script/ir_builder/base.py",
+        "src/script/ir_builder/base.cc"
+      ],
+      "consumer_files": [
+        "python/tvm/script/parser/core/evaluator.py",
+        "python/tvm/script/parser/core/parser.py",
+        "src/tirx/script/builder/utils.h"
+      ],
+      "contract_summary": "IRBuilder maintains normalized scoped source-span state and exposes annotation operations consumed by parser, evaluator, and TIRx emission paths.",
+      "stale_failure_mode": "The consumer can enter source-aware parser scopes against an IRBuilder that lacks the required state API, or emitted statements and expressions can silently lose nested and inline source locations.",
+      "upstream_probe_tests": [
+        "tests/python/tvmscript/test_tvmscript_ir_builder_tir.py::test_ir_builder_source_span_applies_to_emitted_stmt"
+      ],
+      "downstream_probe_tests": [
+        "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_direct_call",
+        "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_retains_inline_call_site_and_definition_spans",
+        "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_tile_primitive_call"
+      ],
+      "integrated_probe_tests": [
+        "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_direct_call",
+        "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_retains_inline_call_site_and_definition_spans",
+        "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_tile_primitive_call",
+        "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_spans_do_not_affect_structural_identity"
+      ],
+      "metrics_enabled": ["ADPR", "DRS", "CAIL", "SAD"]
+    },
+    {
+      "dependency_id": "source-mapping-to-parser-propagation",
+      "dependency_type": "interface_dependency",
+      "producer_subproblem": "source_coordinate_mapping",
+      "consumer_subproblem": "parser_and_evaluator_span_propagation",
+      "producer_agent": "source_mapping_agent",
+      "consumer_agent": "propagation_agent",
+      "producer_files": [
+        "python/tvm/script/parser/core/diagnostics.py"
+      ],
+      "consumer_files": [
+        "python/tvm/script/parser/core/evaluator.py",
+        "python/tvm/script/parser/core/parser.py",
+        "src/tirx/script/builder/utils.h"
+      ],
+      "contract_summary": "Source maps Python AST coordinates and source offsets into TVM spans that the parser and evaluator consume while constructing IR.",
+      "stale_failure_mode": "The propagation consumer can call a missing or inconsistent coordinate interface, producing absent spans or ranges that disagree with parser diagnostics.",
+      "upstream_probe_tests": [
+        "tests/python/tvmscript/test_tvmscript_parser_source.py::test_source_to_span_matches_parser_diagnostic_coordinates"
+      ],
+      "downstream_probe_tests": [
+        "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_direct_call",
+        "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_tile_primitive_call"
+      ],
+      "integrated_probe_tests": [
+        "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_direct_call",
+        "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_retains_inline_call_site_and_definition_spans",
+        "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_tile_primitive_call",
+        "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_spans_do_not_affect_structural_identity"
+      ],
+      "metrics_enabled": ["ADPR", "DRS", "CAIL", "SAD"]
+    }
+  ]
+}

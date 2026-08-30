@@ -3,6 +3,7 @@
 import json
 import os
 import shlex
+import time
 from copy import deepcopy
 from pathlib import Path
 
@@ -30,6 +31,8 @@ class AsynCodeBenchProtocolRunner(StaticCommit0ProtocolRunner):
         self.dependency_cycle_nodes = []
         self.shared_writable_paths = {}
         self.base_commit_by_agent = {}
+        self.source_build_records = []
+        self.worktree_preparation_seconds = 0.0
 
     def load_scenario(self):
         scenario = deepcopy(self.task_module.scenario_for(self.protocol))
@@ -123,12 +126,23 @@ class AsynCodeBenchProtocolRunner(StaticCommit0ProtocolRunner):
                 ["", "Role-specific public tests:", *[f"- {t}" for t in primary_tests]]
             )
         if test_cmd:
+            worktree_build_command = getattr(
+                self.task_module, "worktree_build_command", None
+            )
             parts.extend(
                 [
                     "",
                     "Validation workflow:",
                     "- Work iteratively: inspect, implement, then run relevant "
                     "tests, diagnose failures, and repair within scope.",
+                    *(
+                        [
+                            "- After C++ or header edits, rebuild this worktree "
+                            f"before testing: {worktree_build_command}"
+                        ]
+                        if worktree_build_command
+                        else []
+                    ),
                     "- Suggested command: "
                     f"{test_cmd} {' '.join(primary_tests) or test_dir}",
                 ]
@@ -182,6 +196,89 @@ class AsynCodeBenchProtocolRunner(StaticCommit0ProtocolRunner):
     def create_worktree(self, workspace, repo_dir, subagent, base_commit):
         super().create_worktree(workspace, repo_dir, subagent, base_commit)
         self.base_commit_by_agent[subagent.engineer_id] = base_commit
+        preparer = getattr(self.task_module, "prepare_worktree_runtime", None)
+        if preparer is not None:
+            started = time.monotonic()
+            try:
+                preparer(workspace, subagent.worktree_path)
+            finally:
+                self.worktree_preparation_seconds += time.monotonic() - started
+        else:
+            validator = getattr(self.task_module, "validate_worktree_runtime", None)
+            if validator is not None:
+                validator(workspace, subagent.worktree_path)
+
+    def measured_runtime_seconds(self, raw_runtime_seconds):
+        """Exclude deterministic worktree prebuilds already excluded for single-agent runs."""
+        preparation_seconds = min(
+            max(0.0, self.worktree_preparation_seconds), raw_runtime_seconds
+        )
+        measured_seconds = max(0.0, raw_runtime_seconds - preparation_seconds)
+        timing = {
+            "schema_version": "0.1",
+            "raw_protocol_seconds": raw_runtime_seconds,
+            "worktree_preparation_seconds": preparation_seconds,
+            "reported_protocol_seconds": measured_seconds,
+            "policy": "exclude_deterministic_worktree_source_build_preparation",
+        }
+        path = Path(self.workflow_config.output_dir) / "infrastructure_timing.json"
+        path.write_text(json.dumps(timing, indent=2) + "\n", encoding="utf-8")
+        if preparation_seconds:
+            print(
+                "[PR-hard] Excluding deterministic worktree preparation from "
+                f"protocol runtime: {preparation_seconds:.1f}s"
+            )
+        return measured_seconds
+
+    def refresh_source_build(self, workspace, workspace_path, reason):
+        refresh = getattr(self.task_module, "refresh_source_build", None)
+        if refresh is None:
+            return {"status": "not_required", "workspace_path": workspace_path}
+        result = refresh(workspace, workspace_path)
+        record = {
+            "schema_version": "0.1",
+            "reason": reason,
+            **result,
+        }
+        self.source_build_records.append(record)
+        path = Path(self.workflow_config.output_dir) / "source_build_checkpoints.jsonl"
+        with path.open("a", encoding="utf-8") as stream:
+            stream.write(json.dumps(record, sort_keys=True) + "\n")
+        print(
+            "[PR-hard] Source build "
+            f"{reason}: {result.get('status')} ({workspace_path})"
+        )
+        return result
+
+    def write_probe_checkpoint(
+        self,
+        workspace,
+        workspace_path,
+        checkpoint_id,
+        checkpoint_type,
+        agent_id=None,
+        task_id=None,
+        workspace_kind="agent_workspace",
+        artifact_version=None,
+        visible_upstream_artifact_version=None,
+        integrated_workspace_version=None,
+    ):
+        source_build = self.refresh_source_build(
+            workspace, workspace_path, reason=f"probe:{checkpoint_id}"
+        )
+        return super().write_probe_checkpoint(
+            workspace,
+            workspace_path,
+            checkpoint_id,
+            checkpoint_type,
+            agent_id=agent_id,
+            task_id=task_id,
+            workspace_kind=workspace_kind,
+            artifact_version=artifact_version,
+            visible_upstream_artifact_version=visible_upstream_artifact_version,
+            integrated_workspace_version=integrated_workspace_version,
+            source_build=source_build,
+        )
 
     def changed_paths(self, workspace, result):
         if result.worktree_path:
@@ -245,6 +342,12 @@ class AsynCodeBenchProtocolRunner(StaticCommit0ProtocolRunner):
 
     def merge_scoped_result(self, manager, workspace, result):
         scope = self.validate_scope(workspace, result)
+        if scope["main_workspace_status_before_merge"]:
+            raise RuntimeError(
+                "Benchmark isolation violation: a specialist wrote directly to "
+                "the integrated workspace before merge: "
+                + ", ".join(scope["main_workspace_status_before_merge"])
+            )
         if not scope["passed"]:
             result.merged = False
             result.merge_method = "scope_rejected"
@@ -266,6 +369,20 @@ class AsynCodeBenchProtocolRunner(StaticCommit0ProtocolRunner):
         targets = assignment.get("primary_test_targets", [])
         if not targets:
             return {"status": "not_configured", "targets": [], "exit_code": None}
+        source_build = self.refresh_source_build(
+            workspace, repo_dir, reason=f"handoff:{agent_id}"
+        )
+        if source_build.get("status") not in {"passed", "not_required"}:
+            return {
+                "status": "build_failed",
+                "targets": targets,
+                "exit_code": source_build.get("exit_code"),
+                "timed_out": False,
+                "summary": {},
+                "evaluator_source": "pr_hard_source_build",
+                "output_excerpt": source_build.get("output_excerpt", ""),
+                "source_build": source_build,
+            }
         test_cmd, _, evaluator_source = self.task_module._resolve_evaluator()
         timeout = max(
             30,
@@ -396,6 +513,13 @@ class AsynCodeBenchProtocolRunner(StaticCommit0ProtocolRunner):
             self.record_handoff(result, assignment, targeted_tests, checkpoint)
             completed_context = self.build_completed_context(results)
             runner.cleanup()
+            if targeted_tests.get("status") == "build_failed":
+                print(
+                    "[PR-hard] Stopping serial prefix after an unbuildable "
+                    f"artifact from {result.engineer_id}; final evaluation will "
+                    "record the model-produced failure."
+                )
+                break
         return results
 
     async def run_async_private(

@@ -17,6 +17,7 @@ from core.dependency_probes import (
 )
 from core.manager import Manager
 from core.subagent import run_subagents_parallel
+from core.workspace_isolation import uses_task_specific_workspace_isolation
 from core.workspace import (
     AsynCodeBenchDockerDevWorkspace,
     AsynCodeBenchDockerWorkspace,
@@ -67,6 +68,9 @@ def write_commit0_final_probe_checkpoint(workspace, workflow_config, task_module
             workspace,
             task_module.get_work_dir(),
         ),
+        metrics_path=task_module.manifest_paths.get("metrics")
+        if hasattr(task_module, "manifest_paths")
+        else None,
     )
 
 
@@ -145,6 +149,7 @@ async def run_workflow_inner(
             platform="linux/amd64",
             detach_logs=False,
             network=workspace_network,
+            volumes=workspace_config.get("volumes", []),
         )
     else:
         workspace_ctx = AsynCodeBenchDockerWorkspace(
@@ -153,6 +158,7 @@ async def run_workflow_inner(
             platform=detect_platform(),
             detach_logs=False,
             network=workspace_network,
+            volumes=workspace_config.get("volumes", []),
         )
 
     os.chdir(original_cwd)
@@ -311,21 +317,24 @@ async def run_workflow_inner(
                         checkpoint_id="final_integrated",
                     )
 
-                    # Save final repo state as tarball
-                    print("\n[Tarball] Saving final repo state...")
-                    repo_name = task_module.config.repo_name
-                    tarball_name = f"{repo_name}_repo.tar.gz"
-                    tarball_cmd = f"cd /workspace && tar -czf {tarball_name} {repo_name}_repo"
-                    tar_result = workspace.execute_command(tarball_cmd, timeout=300)
-                    if tar_result.exit_code == 0:
-                        final_repo_dir = Path(workflow_config.output_dir) / "final_repo"
-                        final_repo_dir.mkdir(parents=True, exist_ok=True)
-                        tarball_local_path = final_repo_dir / f"{repo_name}.tar.gz"
-                        success = download_file_via_base64(workspace, f"/workspace/{tarball_name}", str(tarball_local_path))
-                        if not success:
-                            print(f"[Tarball] Warning: Download failed")
+                    if getattr(task_module, "save_final_tarball", True):
+                        # Save final repo state as tarball
+                        print("\n[Tarball] Saving final repo state...")
+                        repo_name = task_module.config.repo_name
+                        tarball_name = f"{repo_name}_repo.tar.gz"
+                        tarball_cmd = f"cd /workspace && tar -czf {tarball_name} {repo_name}_repo"
+                        tar_result = workspace.execute_command(tarball_cmd, timeout=300)
+                        if tar_result.exit_code == 0:
+                            final_repo_dir = Path(workflow_config.output_dir) / "final_repo"
+                            final_repo_dir.mkdir(parents=True, exist_ok=True)
+                            tarball_local_path = final_repo_dir / f"{repo_name}.tar.gz"
+                            success = download_file_via_base64(workspace, f"/workspace/{tarball_name}", str(tarball_local_path))
+                            if not success:
+                                print(f"[Tarball] Warning: Download failed")
+                        else:
+                            print(f"[Tarball] Warning: Failed to create tarball: {tar_result.stderr}")
                     else:
-                        print(f"[Tarball] Warning: Failed to create tarball: {tar_result.stderr}")
+                        print("[Tarball] Skipped for PR-hard source-build candidate")
 
                     # Save costs
                     total_time = (datetime.now() - start_time).total_seconds()
@@ -577,7 +586,33 @@ async def run_workflow_inner(
 
             # Save runtime (before evaluation)
             runtime_end = datetime.now()
-            runtime_seconds = (runtime_end - runtime_start).total_seconds()
+            raw_runtime_seconds = (runtime_end - runtime_start).total_seconds()
+            worktree_preparation_seconds = min(
+                max(0.0, getattr(manager, "worktree_preparation_seconds", 0.0)),
+                raw_runtime_seconds,
+            )
+            runtime_seconds = max(
+                0.0, raw_runtime_seconds - worktree_preparation_seconds
+            )
+            if worktree_preparation_seconds:
+                infrastructure_timing = {
+                    "schema_version": "0.1",
+                    "raw_protocol_seconds": raw_runtime_seconds,
+                    "worktree_preparation_seconds": worktree_preparation_seconds,
+                    "reported_protocol_seconds": runtime_seconds,
+                    "policy": "exclude_deterministic_worktree_source_build_preparation",
+                }
+                timing_path = (
+                    Path(workflow_config.output_dir) / "infrastructure_timing.json"
+                )
+                timing_path.write_text(
+                    json.dumps(infrastructure_timing, indent=2) + "\n",
+                    encoding="utf-8",
+                )
+                print(
+                    "[Runtime] Excluding deterministic worktree preparation: "
+                    f"{worktree_preparation_seconds:.1f}s"
+                )
             runtime_file = Path(workflow_config.output_dir) / "runtime.txt"
             with open(runtime_file, "w") as f:
                 f.write(f"{runtime_seconds:.1f}")
@@ -649,7 +684,13 @@ async def run_workflow_inner(
 
                 if base_commit:
                     patch_content, _ = generate_patch(
-                        workspace, manager.repo_dir, base_commit, subagent_results
+                        workspace,
+                        manager.repo_dir,
+                        base_commit,
+                        subagent_results,
+                        preserve_diff_whitespace=(
+                            uses_task_specific_workspace_isolation(task_module)
+                        ),
                     )
                     patch_file = Path(workflow_config.output_dir) / "patch.diff"
                     with open(patch_file, "w") as f:
@@ -686,21 +727,24 @@ async def run_workflow_inner(
                     checkpoint_id="final_integrated",
                 )
 
-                # Save final repo state as tarball
-                print("\n[Tarball] Saving final repo state...")
-                repo_name = task_module.config.repo_name
-                tarball_name = f"{repo_name}_repo.tar.gz"
-                tarball_cmd = f"cd /workspace && tar -czf {tarball_name} {repo_name}_repo"
-                tar_result = workspace.execute_command(tarball_cmd, timeout=300)
-                if tar_result.exit_code == 0:
-                    final_repo_dir = Path(workflow_config.output_dir) / "final_repo"
-                    final_repo_dir.mkdir(parents=True, exist_ok=True)
-                    tarball_local_path = final_repo_dir / f"{repo_name}.tar.gz"
-                    success = download_file_via_base64(workspace, f"/workspace/{tarball_name}", str(tarball_local_path))
-                    if not success:
-                        print(f"[Tarball] Warning: Download failed")
+                if getattr(task_module, "save_final_tarball", True):
+                    # Save final repo state as tarball
+                    print("\n[Tarball] Saving final repo state...")
+                    repo_name = task_module.config.repo_name
+                    tarball_name = f"{repo_name}_repo.tar.gz"
+                    tarball_cmd = f"cd /workspace && tar -czf {tarball_name} {repo_name}_repo"
+                    tar_result = workspace.execute_command(tarball_cmd, timeout=300)
+                    if tar_result.exit_code == 0:
+                        final_repo_dir = Path(workflow_config.output_dir) / "final_repo"
+                        final_repo_dir.mkdir(parents=True, exist_ok=True)
+                        tarball_local_path = final_repo_dir / f"{repo_name}.tar.gz"
+                        success = download_file_via_base64(workspace, f"/workspace/{tarball_name}", str(tarball_local_path))
+                        if not success:
+                            print(f"[Tarball] Warning: Download failed")
+                    else:
+                        print(f"[Tarball] Warning: Failed to create tarball: {tar_result.stderr}")
                 else:
-                    print(f"[Tarball] Warning: Failed to create tarball: {tar_result.stderr}")
+                    print("[Tarball] Skipped for PR-hard source-build candidate")
 
             else:
                 # Paperbench post-parallel flow

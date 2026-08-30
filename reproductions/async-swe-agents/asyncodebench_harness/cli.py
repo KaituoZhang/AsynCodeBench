@@ -41,7 +41,7 @@ def _repo_root():
 
 
 def _release_index():
-    path = _repo_root() / "manifests" / "release" / "v0.3" / "task_index.json"
+    path = _repo_root() / "manifests" / "release" / "v0.4" / "task_index.json"
     return json.loads(path.read_text(encoding="utf-8"))
 
 
@@ -101,7 +101,7 @@ def _release_status(args):
             "validated_baseline_bundle_count", 0
         ),
         "pending_human_review_task_ids": pending_human_review,
-        "executable_release_complete": len(tasks) == 16
+        "executable_release_complete": len(tasks) == index.get("task_count", 0)
         and all(task.get("quality_status") == "qualification_ready" for task in tasks),
         "human_validation_complete": not pending_human_review,
     }
@@ -317,7 +317,7 @@ def _doctor(args):
     checks.append(
         {
             "name": "release_index",
-            "ok": (_repo_root() / "manifests/release/v0.3/task_index.json").is_file(),
+            "ok": (_repo_root() / "manifests/release/v0.4/task_index.json").is_file(),
         }
     )
     checks.append(

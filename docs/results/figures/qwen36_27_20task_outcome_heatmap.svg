@@ -1,0 +1,271 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1425" viewBox="0 0 1800 1425">
+<rect width="100%" height="100%" fill="#f7f9fc"/>
+<text x="48" y="48" font-family="Inter,Arial,sans-serif" font-size="28" font-weight="700" fill="#172033" text-anchor="start">Per-Task Dependency Resolution across the Unified 20-Task Suite</text>
+<text x="48" y="78" font-family="Inter,Arial,sans-serif" font-size="16" font-weight="400" fill="#596579" text-anchor="start">Fill = ADPR; each cell reports ADPR, DRE, penalized DRS, and penalized CAIL</text>
+<text x="470" y="121" font-family="Inter,Arial,sans-serif" font-size="17" font-weight="650" fill="#303a4c" text-anchor="middle">Single</text>
+<text x="835" y="121" font-family="Inter,Arial,sans-serif" font-size="17" font-weight="650" fill="#303a4c" text-anchor="middle">Serial</text>
+<text x="1200" y="121" font-family="Inter,Arial,sans-serif" font-size="17" font-weight="650" fill="#303a4c" text-anchor="middle">Async private</text>
+<text x="1565" y="121" font-family="Inter,Arial,sans-serif" font-size="17" font-weight="650" fill="#303a4c" text-anchor="middle">CAID</text>
+<text x="280" y="179" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="650" fill="#253047" text-anchor="end">cachetools</text>
+<rect x="300" y="145" width="345" height="49" rx="7" fill="#257d6c" stroke="#247a55" stroke-width="2"/>
+<text x="311" y="166" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">✓ ADPR 100%  DRE 100%</text>
+<text x="311" y="185" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 1.0  CAIL-P 0.0</text>
+<rect x="665" y="145" width="345" height="49" rx="7" fill="#257d6c" stroke="#247a55" stroke-width="2"/>
+<text x="676" y="166" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">✓ ADPR 100%  DRE 48%</text>
+<text x="676" y="185" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 3.6  CAIL-P 1.6</text>
+<rect x="1030" y="145" width="345" height="49" rx="7" fill="#257d6c" stroke="#247a55" stroke-width="2"/>
+<text x="1041" y="166" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">✓ ADPR 100%  DRE 63%</text>
+<text x="1041" y="185" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 3.6  CAIL-P 1.6</text>
+<rect x="1395" y="145" width="345" height="49" rx="7" fill="#257d6c" stroke="#247a55" stroke-width="2"/>
+<text x="1406" y="166" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">✓ ADPR 100%  DRE 48%</text>
+<text x="1406" y="185" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 3.6  CAIL-P 1.6</text>
+<text x="280" y="237" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="650" fill="#253047" text-anchor="end">deprecated</text>
+<rect x="300" y="203" width="345" height="49" rx="7" fill="#257d6c" stroke="#247a55" stroke-width="2"/>
+<text x="311" y="224" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">✓ ADPR 100%  DRE 100%</text>
+<text x="311" y="243" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 1.0  CAIL-P 0.0</text>
+<rect x="665" y="203" width="345" height="49" rx="7" fill="#257d6c" stroke="#247a55" stroke-width="2"/>
+<text x="676" y="224" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">✓ ADPR 100%  DRE 40%</text>
+<text x="676" y="243" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 4.0  CAIL-P 1.3</text>
+<rect x="1030" y="203" width="345" height="49" rx="7" fill="#b1c4ba" stroke="#c7ced9" stroke-width="2"/>
+<text x="1041" y="224" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 33%  DRE 19%</text>
+<text x="1041" y="243" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 6.7  CAIL-P 0.0</text>
+<rect x="1395" y="203" width="345" height="49" rx="7" fill="#257d6c" stroke="#247a55" stroke-width="2"/>
+<text x="1406" y="224" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">✓ ADPR 100%  DRE 40%</text>
+<text x="1406" y="243" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 4.0  CAIL-P 1.3</text>
+<text x="280" y="295" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="650" fill="#253047" text-anchor="end">portalocker</text>
+<rect x="300" y="261" width="345" height="49" rx="7" fill="#257d6c" stroke="#247a55" stroke-width="2"/>
+<text x="311" y="282" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">✓ ADPR 100%  DRE 100%</text>
+<text x="311" y="301" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 1.0  CAIL-P 0.0</text>
+<rect x="665" y="261" width="345" height="49" rx="7" fill="#6ba093" stroke="#c7ced9" stroke-width="2"/>
+<text x="676" y="282" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">× ADPR 67%  DRE 27%</text>
+<text x="676" y="301" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 4.7  CAIL-P 2.3</text>
+<rect x="1030" y="261" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="1041" y="282" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="1041" y="301" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 8.0  CAIL-P 2.3</text>
+<rect x="1395" y="261" width="345" height="49" rx="7" fill="#257d6c" stroke="#247a55" stroke-width="2"/>
+<text x="1406" y="282" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">✓ ADPR 100%  DRE 14%</text>
+<text x="1406" y="301" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 7.0  CAIL-P 2.7</text>
+<text x="280" y="353" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="650" fill="#253047" text-anchor="end">tinydb</text>
+<rect x="300" y="319" width="345" height="49" rx="7" fill="#257d6c" stroke="#247a55" stroke-width="2"/>
+<text x="311" y="340" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">✓ ADPR 100%  DRE 100%</text>
+<text x="311" y="359" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 1.0  CAIL-P 0.0</text>
+<rect x="665" y="319" width="345" height="49" rx="7" fill="#257d6c" stroke="#c7ced9" stroke-width="2"/>
+<text x="676" y="340" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">× ADPR 100%  DRE 40%</text>
+<text x="676" y="359" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 4.0  CAIL-P 0.7</text>
+<rect x="1030" y="319" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="1041" y="340" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="1041" y="359" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 8.0  CAIL-P 3.0</text>
+<rect x="1395" y="319" width="345" height="49" rx="7" fill="#257d6c" stroke="#247a55" stroke-width="2"/>
+<text x="1406" y="340" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">✓ ADPR 100%  DRE 40%</text>
+<text x="1406" y="359" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 4.0  CAIL-P 1.0</text>
+<text x="280" y="411" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="650" fill="#253047" text-anchor="end">wcwidth</text>
+<rect x="300" y="377" width="345" height="49" rx="7" fill="#257d6c" stroke="#247a55" stroke-width="2"/>
+<text x="311" y="398" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">✓ ADPR 100%  DRE 100%</text>
+<text x="311" y="417" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 1.0  CAIL-P 0.0</text>
+<rect x="665" y="377" width="345" height="49" rx="7" fill="#257d6c" stroke="#247a55" stroke-width="2"/>
+<text x="676" y="398" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">✓ ADPR 100%  DRE 40%</text>
+<text x="676" y="417" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 4.0  CAIL-P 0.0</text>
+<rect x="1030" y="377" width="345" height="49" rx="7" fill="#257d6c" stroke="#247a55" stroke-width="2"/>
+<text x="1041" y="398" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">✓ ADPR 100%  DRE 57%</text>
+<text x="1041" y="417" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 4.0  CAIL-P 0.0</text>
+<rect x="1395" y="377" width="345" height="49" rx="7" fill="#257d6c" stroke="#247a55" stroke-width="2"/>
+<text x="1406" y="398" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">✓ ADPR 100%  DRE 40%</text>
+<text x="1406" y="417" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 4.0  CAIL-P 0.0</text>
+<text x="280" y="469" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="650" fill="#253047" text-anchor="end">requests</text>
+<rect x="300" y="435" width="345" height="49" rx="7" fill="#b1c4ba" stroke="#c7ced9" stroke-width="2"/>
+<text x="311" y="456" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 33%  DRE 33%</text>
+<text x="311" y="475" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 1.7  CAIL-P 1.3</text>
+<rect x="665" y="435" width="345" height="49" rx="7" fill="#b1c4ba" stroke="#c7ced9" stroke-width="2"/>
+<text x="676" y="456" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 33%  DRE 29%</text>
+<text x="676" y="475" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 6.0  CAIL-P 5.3</text>
+<rect x="1030" y="435" width="345" height="49" rx="7" fill="#b1c4ba" stroke="#c7ced9" stroke-width="2"/>
+<text x="1041" y="456" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 33%  DRE 30%</text>
+<text x="1041" y="475" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 8.0  CAIL-P 6.7</text>
+<rect x="1395" y="435" width="345" height="49" rx="7" fill="#257d6c" stroke="#247a55" stroke-width="2"/>
+<text x="1406" y="456" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">✓ ADPR 100%  DRE 24%</text>
+<text x="1406" y="475" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 9.3  CAIL-P 0.7</text>
+<text x="280" y="527" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="650" fill="#253047" text-anchor="end">simpy</text>
+<rect x="300" y="493" width="345" height="49" rx="7" fill="#b1c4ba" stroke="#c7ced9" stroke-width="2"/>
+<text x="311" y="514" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 33%  DRE 33%</text>
+<text x="311" y="533" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 1.7  CAIL-P 1.0</text>
+<rect x="665" y="493" width="345" height="49" rx="7" fill="#257d6c" stroke="#c7ced9" stroke-width="2"/>
+<text x="676" y="514" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">× ADPR 100%  DRE 44%</text>
+<text x="676" y="533" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 6.0  CAIL-P 2.0</text>
+<rect x="1030" y="493" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="1041" y="514" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="1041" y="533" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 14.0  CAIL-P 3.7</text>
+<rect x="1395" y="493" width="345" height="49" rx="7" fill="#6ba093" stroke="#c7ced9" stroke-width="2"/>
+<text x="1406" y="514" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">× ADPR 67%  DRE 5%</text>
+<text x="1406" y="533" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 13.3  CAIL-P 7.7</text>
+<text x="280" y="585" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="650" fill="#253047" text-anchor="end">parsel</text>
+<rect x="300" y="551" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="311" y="572" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="311" y="591" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 2.0  CAIL-P 2.0</text>
+<rect x="665" y="551" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="676" y="572" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="676" y="591" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 8.0  CAIL-P 1.0</text>
+<rect x="1030" y="551" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="1041" y="572" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="1041" y="591" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 11.0  CAIL-P 9.0</text>
+<rect x="1395" y="551" width="345" height="49" rx="7" fill="#257d6c" stroke="#247a55" stroke-width="2"/>
+<text x="1406" y="572" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">✓ ADPR 100%  DRE 14%</text>
+<text x="1406" y="591" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 7.0  CAIL-P 3.0</text>
+<text x="280" y="643" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="650" fill="#253047" text-anchor="end">filesystem_spec</text>
+<rect x="300" y="609" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="311" y="630" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="311" y="649" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 2.0  CAIL-P 1.0</text>
+<rect x="665" y="609" width="345" height="49" rx="7" fill="#8eb2a6" stroke="#c7ced9" stroke-width="2"/>
+<text x="676" y="630" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 50%  DRE 14%</text>
+<text x="676" y="649" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 7.0  CAIL-P 4.5</text>
+<rect x="1030" y="609" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="1041" y="630" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="1041" y="649" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 11.0  CAIL-P 10.5</text>
+<rect x="1395" y="609" width="345" height="49" rx="7" fill="#257d6c" stroke="#247a55" stroke-width="2"/>
+<text x="1406" y="630" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">✓ ADPR 100%  DRE 36%</text>
+<text x="1406" y="649" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 5.5  CAIL-P 2.5</text>
+<text x="280" y="701" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="650" fill="#253047" text-anchor="end">marshmallow</text>
+<rect x="300" y="667" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="311" y="688" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="311" y="707" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 2.0  CAIL-P 1.7</text>
+<rect x="665" y="667" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="676" y="688" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="676" y="707" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 8.0  CAIL-P 7.7</text>
+<rect x="1030" y="667" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="1041" y="688" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="1041" y="707" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 11.0  CAIL-P 10.7</text>
+<rect x="1395" y="667" width="345" height="49" rx="7" fill="#257d6c" stroke="#247a55" stroke-width="2"/>
+<text x="1406" y="688" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">✓ ADPR 100%  DRE 11%</text>
+<text x="1406" y="707" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 9.0  CAIL-P 2.0</text>
+<text x="280" y="759" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="650" fill="#253047" text-anchor="end">graphene</text>
+<rect x="300" y="725" width="345" height="49" rx="7" fill="#257d6c" stroke="#c7ced9" stroke-width="2"/>
+<text x="311" y="746" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">× ADPR 100%  DRE 100%</text>
+<text x="311" y="765" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 1.0  CAIL-P 0.0</text>
+<rect x="665" y="725" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="676" y="746" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="676" y="765" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 8.0  CAIL-P 5.3</text>
+<rect x="1030" y="725" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="1041" y="746" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="1041" y="765" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 11.0  CAIL-P 6.7</text>
+<rect x="1395" y="725" width="345" height="49" rx="7" fill="#257d6c" stroke="#247a55" stroke-width="2"/>
+<text x="1406" y="746" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">✓ ADPR 100%  DRE 9%</text>
+<text x="1406" y="765" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 11.0  CAIL-P 6.0</text>
+<text x="280" y="817" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="650" fill="#253047" text-anchor="end">imapclient</text>
+<rect x="300" y="783" width="345" height="49" rx="7" fill="#b1c4ba" stroke="#c7ced9" stroke-width="2"/>
+<text x="311" y="804" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 33%  DRE 33%</text>
+<text x="311" y="823" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 1.7  CAIL-P 1.0</text>
+<rect x="665" y="783" width="345" height="49" rx="7" fill="#b1c4ba" stroke="#c7ced9" stroke-width="2"/>
+<text x="676" y="804" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 33%  DRE 19%</text>
+<text x="676" y="823" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 6.7  CAIL-P 4.7</text>
+<rect x="1030" y="783" width="345" height="49" rx="7" fill="#b1c4ba" stroke="#c7ced9" stroke-width="2"/>
+<text x="1041" y="804" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 33%  DRE 23%</text>
+<text x="1041" y="823" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 8.7  CAIL-P 6.7</text>
+<rect x="1395" y="783" width="345" height="49" rx="7" fill="#257d6c" stroke="#247a55" stroke-width="2"/>
+<text x="1406" y="804" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">✓ ADPR 100%  DRE 9%</text>
+<text x="1406" y="823" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 11.0  CAIL-P 5.3</text>
+<text x="280" y="875" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="650" fill="#253047" text-anchor="end">pexpect</text>
+<rect x="300" y="841" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="311" y="862" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="311" y="881" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 2.0  CAIL-P 2.0</text>
+<rect x="665" y="841" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="676" y="862" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="676" y="881" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 10.0  CAIL-P 9.0</text>
+<rect x="1030" y="841" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="1041" y="862" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="1041" y="881" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 14.0  CAIL-P 0.0</text>
+<rect x="1395" y="841" width="345" height="49" rx="7" fill="#257d6c" stroke="#247a55" stroke-width="2"/>
+<text x="1406" y="862" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">✓ ADPR 100%  DRE 9%</text>
+<text x="1406" y="881" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 11.0  CAIL-P 2.7</text>
+<text x="280" y="933" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="650" fill="#253047" text-anchor="end">flask</text>
+<rect x="300" y="899" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="311" y="920" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="311" y="939" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 2.0  CAIL-P 2.0</text>
+<rect x="665" y="899" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="676" y="920" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="676" y="939" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 10.0  CAIL-P 10.0</text>
+<rect x="1030" y="899" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="1041" y="920" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="1041" y="939" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 14.0  CAIL-P 14.0</text>
+<rect x="1395" y="899" width="345" height="49" rx="7" fill="#6ba093" stroke="#c7ced9" stroke-width="2"/>
+<text x="1406" y="920" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">× ADPR 67%  DRE 5%</text>
+<text x="1406" y="939" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 13.3  CAIL-P 8.7</text>
+<text x="280" y="991" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="650" fill="#253047" text-anchor="end">python-rsa</text>
+<rect x="300" y="957" width="345" height="49" rx="7" fill="#257d6c" stroke="#247a55" stroke-width="2"/>
+<text x="311" y="978" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">✓ ADPR 100%  DRE 100%</text>
+<text x="311" y="997" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 1.0  CAIL-P 0.0</text>
+<rect x="665" y="957" width="345" height="49" rx="7" fill="#257d6c" stroke="#247a55" stroke-width="2"/>
+<text x="676" y="978" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">✓ ADPR 100%  DRE 44%</text>
+<text x="676" y="997" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 6.0  CAIL-P 2.7</text>
+<rect x="1030" y="957" width="345" height="49" rx="7" fill="#b1c4ba" stroke="#c7ced9" stroke-width="2"/>
+<text x="1041" y="978" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 33%  DRE 26%</text>
+<text x="1041" y="997" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 10.7  CAIL-P 7.7</text>
+<rect x="1395" y="957" width="345" height="49" rx="7" fill="#257d6c" stroke="#247a55" stroke-width="2"/>
+<text x="1406" y="978" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">✓ ADPR 100%  DRE 39%</text>
+<text x="1406" y="997" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 7.7  CAIL-P 0.7</text>
+<text x="280" y="1049" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="650" fill="#253047" text-anchor="end">cookiecutter</text>
+<rect x="300" y="1015" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="311" y="1036" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="311" y="1055" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 2.0  CAIL-P 2.0</text>
+<rect x="665" y="1015" width="345" height="49" rx="7" fill="#b1c4ba" stroke="#c7ced9" stroke-width="2"/>
+<text x="676" y="1036" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 33%  DRE 7%</text>
+<text x="676" y="1055" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 9.3  CAIL-P 8.0</text>
+<rect x="1030" y="1015" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="1041" y="1036" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="1041" y="1055" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 14.0  CAIL-P 9.7</text>
+<rect x="1395" y="1015" width="345" height="49" rx="7" fill="#257d6c" stroke="#247a55" stroke-width="2"/>
+<text x="1406" y="1036" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">✓ ADPR 100%  DRE 24%</text>
+<text x="1406" y="1055" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 9.3  CAIL-P 0.7</text>
+<text x="280" y="1107" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="650" fill="#253047" text-anchor="end">apache-tvm-20073</text>
+<rect x="300" y="1073" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="311" y="1094" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="311" y="1113" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 2.0  CAIL-P 1.5</text>
+<rect x="665" y="1073" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="676" y="1094" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="676" y="1113" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 8.0  CAIL-P 6.5</text>
+<rect x="1030" y="1073" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="1041" y="1094" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="1041" y="1113" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 11.0  CAIL-P 10.5</text>
+<rect x="1395" y="1073" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="1406" y="1094" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="1406" y="1113" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 12.0  CAIL-P 9.0</text>
+<text x="280" y="1165" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="650" fill="#253047" text-anchor="end">apache-tvm-20107</text>
+<rect x="300" y="1131" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="311" y="1152" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="311" y="1171" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 2.0  CAIL-P 2.0</text>
+<rect x="665" y="1131" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="676" y="1152" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="676" y="1171" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 8.0  CAIL-P 7.0</text>
+<rect x="1030" y="1131" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="1041" y="1152" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="1041" y="1171" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 11.0  CAIL-P 10.0</text>
+<rect x="1395" y="1131" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="1406" y="1152" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="1406" y="1171" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 12.0  CAIL-P 11.0</text>
+<text x="280" y="1223" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="650" fill="#253047" text-anchor="end">apache-tvm-20153</text>
+<rect x="300" y="1189" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="311" y="1210" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="311" y="1229" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 2.0  CAIL-P 1.5</text>
+<rect x="665" y="1189" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="676" y="1210" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="676" y="1229" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 8.0  CAIL-P 3.5</text>
+<rect x="1030" y="1189" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="1041" y="1210" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="1041" y="1229" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 11.0  CAIL-P 10.5</text>
+<rect x="1395" y="1189" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="1406" y="1210" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="1406" y="1229" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 12.0  CAIL-P 2.0</text>
+<text x="280" y="1281" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="650" fill="#253047" text-anchor="end">apache-tvm-20018</text>
+<rect x="300" y="1247" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="311" y="1268" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="311" y="1287" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 2.0  CAIL-P 2.0</text>
+<rect x="665" y="1247" width="345" height="49" rx="7" fill="#257d6c" stroke="#247a55" stroke-width="2"/>
+<text x="676" y="1268" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#ffffff" text-anchor="start">✓ ADPR 100%  DRE 43%</text>
+<text x="676" y="1287" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#ffffff" text-anchor="start">DRS-P 5.0  CAIL-P 2.0</text>
+<rect x="1030" y="1247" width="345" height="49" rx="7" fill="#8eb2a6" stroke="#c7ced9" stroke-width="2"/>
+<text x="1041" y="1268" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 50%  DRE 35%</text>
+<text x="1041" y="1287" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 7.5  CAIL-P 5.0</text>
+<rect x="1395" y="1247" width="345" height="49" rx="7" fill="#f7e7e1" stroke="#c7ced9" stroke-width="2"/>
+<text x="1406" y="1268" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" fill="#182235" text-anchor="start">× ADPR 0%  DRE 0%</text>
+<text x="1406" y="1287" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="500" fill="#182235" text-anchor="start">DRS-P 12.0  CAIL-P 9.5</text>
+<text x="48" y="1350" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="500" fill="#596579" text-anchor="start">A check mark denotes final evaluator success; dependency metrics remain the primary cell content.</text>
+<text x="48" y="1380" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="500" fill="#596579" text-anchor="start">All 20 tasks are evaluated in the same four-condition matrix.</text>
+</svg>

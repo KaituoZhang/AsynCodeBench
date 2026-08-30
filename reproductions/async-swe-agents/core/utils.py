@@ -1304,7 +1304,13 @@ def get_manager_summary(analysis_result, delegation_plan, identifier, phase="all
     return "\n".join(lines) if lines else "No results yet."
 
 
-def generate_patch(workspace, repo_dir, base_commit, subagent_results):
+def generate_patch(
+    workspace,
+    repo_dir,
+    base_commit,
+    subagent_results,
+    preserve_diff_whitespace=False,
+):
     patch_content = ""
     agent_contributions = []
 
@@ -1341,7 +1347,12 @@ def generate_patch(workspace, repo_dir, base_commit, subagent_results):
     )
 
     if result.exit_code == 0 and result.stdout.strip():
-        patch_content = header + result.stdout.strip()
+        diff_text = (
+            result.stdout.rstrip("\r\n")
+            if preserve_diff_whitespace
+            else result.stdout.strip()
+        )
+        patch_content = header + diff_text + "\n"
     else:
         patch_content = header + "# No changes detected\n"
 

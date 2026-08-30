@@ -1,0 +1,247 @@
+{
+  "schema_version": "tvm-pr-static-screening-v0.1",
+  "generated_at": "2026-08-26",
+  "repository": "apache/tvm",
+  "status": "static_screening_only_not_qualified",
+  "execution_follow_up": "manifests/candidates/pr_hard_v0.4/discovery/apache_tvm_pr_deep_qualification_20260826.json",
+  "search_scope": {
+    "title_body_results_reviewed": 200,
+    "changed_file_lists_reviewed": 42,
+    "test_patches_reviewed": 18,
+    "existing_pilot_prs_excluded": [19605, 20116, 20134, 20153]
+  },
+  "source_policy": {
+    "candidate_base": "first_parent_of_merged_pr_to_be_verified",
+    "candidate_gold": "merged_production_commit_offline_only",
+    "public_overlay": "selected_answer_free_upstream_test_changes_only",
+    "model_trajectories_used": false,
+    "static_screening_implies_execution_eligibility": false
+  },
+  "primary_candidates": [
+    {
+      "priority": 1,
+      "pr": 20121,
+      "url": "https://github.com/apache/tvm/pull/20121",
+      "title": "[Feature][Relax] Support shared-KV attention with configurable sliding windows",
+      "screening_base_sha": "ea0950abfe49031720171a931fc244c0fb2033e2",
+      "offline_gold_candidate_sha": "27c2e019d0ce6182158020c7534dda4a3ce981ae",
+      "merged_at": "2026-08-12T21:19:28Z",
+      "scale": {"commits": 2, "files": 8, "additions": 422, "deletions": 64},
+      "topology": "chain",
+      "natural_roles": ["frontend_kv_api_and_prefill_kernels", "runtime_abi_and_ffi", "paged_cache_state_machine"],
+      "directed_edges": ["frontend_kv_api_and_prefill_kernels->runtime_abi_and_ffi", "runtime_abi_and_ffi->paged_cache_state_machine"],
+      "public_test_selectors_to_verify": [
+        "tests/python/relax/test_runtime_builtin_paged_attention_kv_cache_cpu.py::test_per_layer_sliding_window",
+        "tests/python/relax/test_runtime_builtin_paged_attention_kv_cache_cpu.py::test_attention_with_shared_kv",
+        "tests/python/relax/test_runtime_builtin_paged_attention_kv_cache_tir.py::test_paged_prefill_layer_sliding_window_mask"
+      ],
+      "next_gate": "base_gold_role_local_and_integrated_execution"
+    },
+    {
+      "priority": 2,
+      "pr": 20107,
+      "url": "https://github.com/apache/tvm/pull/20107",
+      "title": "[SCRIPT] Support PEP 695 symbolic variables in Relax and TIR",
+      "screening_base_sha": "0468e13a1450a4429758003612aa2b3d080c1f13",
+      "offline_gold_candidate_sha": "bb9bc20a8294fb19a2a40f029fe57baa546a8206",
+      "merged_at": "2026-08-09T14:53:09Z",
+      "scale": {"commits": 3, "files": 27, "additions": 588, "deletions": 61},
+      "topology": "fan_out_with_roundtrip_join",
+      "natural_roles": ["shared_signature_and_doc_core", "relax_dependent_signature", "tirx_dependent_signature"],
+      "directed_edges": ["shared_signature_and_doc_core->relax_dependent_signature", "shared_signature_and_doc_core->tirx_dependent_signature"],
+      "public_test_selectors_to_verify": [
+        "tests/python/relax/test_tvmscript_type_vars.py::test_type_vars_roundtrip",
+        "tests/python/tirx/test_tvmscript_type_vars.py::test_type_vars_roundtrip",
+        "tests/python/tvmscript/test_tvmscript_printer_python_doc_printer.py::test_print_function_doc_with_type_params"
+      ],
+      "next_gate": "base_gold_role_local_and_integrated_execution"
+    },
+    {
+      "priority": 3,
+      "pr": 20168,
+      "url": "https://github.com/apache/tvm/pull/20168",
+      "title": "[IR][TIRX] Add first-class tuple expressions",
+      "screening_base_sha": "4e9a099d154d7c4644a40a1a9c00b8873226468e",
+      "offline_gold_candidate_sha": "2647a19cc39965e39033904f42e934a76d427d53",
+      "merged_at": "2026-08-23T20:41:20Z",
+      "scale": {"commits": 6, "files": 23, "additions": 439, "deletions": 195},
+      "topology": "fan_out_with_roundtrip_join",
+      "natural_roles": ["core_tuple_ir", "tirx_traversal_and_equality", "tirx_script_integration"],
+      "directed_edges": ["core_tuple_ir->tirx_traversal_and_equality", "core_tuple_ir->tirx_script_integration"],
+      "public_test_selectors_to_verify": [
+        "tests/python/tirx-base/test_tir_expr_functor.py::test_tuple",
+        "tests/python/tirx-base/test_tir_expr_functor.py::test_tuple_get_item",
+        "tests/python/tirx-transform/test_tir_functor.py::test_tuple_default_traversal_and_mutation",
+        "tests/python/tirx/test_parser_printer.py::test_tuple_let_binding_and_traversal"
+      ],
+      "next_gate": "base_gold_role_local_and_integrated_execution"
+    },
+    {
+      "priority": 4,
+      "pr": 20073,
+      "url": "https://github.com/apache/tvm/pull/20073",
+      "title": "[TVMSCRIPT][TIRx] Preserve parser source spans in IR",
+      "screening_base_sha": "62fb780bb0a8da62e3808f60a2343f6fd1d4b01f",
+      "offline_gold_candidate_sha": "ae99c3fd92ddb8cd5bb0cbda1dd9584b525b7a24",
+      "merged_at": "2026-07-29T17:51:57Z",
+      "scale": {"commits": 1, "files": 9, "additions": 330, "deletions": 15},
+      "topology": "chain",
+      "natural_roles": ["irbuilder_active_span_state", "parser_coordinate_and_inline_span_propagation"],
+      "directed_edges": ["irbuilder_active_span_state->parser_coordinate_and_inline_span_propagation"],
+      "public_test_selectors_to_verify": [
+        "tests/python/tvmscript/test_tvmscript_ir_builder_tir.py::test_ir_builder_source_span_applies_to_emitted_stmt",
+        "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_direct_call",
+        "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_retains_inline_call_site_and_definition_spans",
+        "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_tile_primitive_call"
+      ],
+      "next_gate": "base_gold_role_local_and_integrated_execution"
+    },
+    {
+      "priority": 5,
+      "pr": 20018,
+      "url": "https://github.com/apache/tvm/pull/20018",
+      "title": "[TIRx] Introduce first-class Return statement",
+      "screening_base_sha": "302aaf9f961a6e0a2c5cc23dc87e51fbaabd1e42",
+      "offline_gold_candidate_sha": "9bfefb7e4b2f13f92b59ed4755bc83d856369c40",
+      "merged_at": "2026-07-16T21:34:50Z",
+      "scale": {"commits": 1, "files": 43, "additions": 328, "deletions": 195},
+      "topology": "three_stage_chain",
+      "natural_roles": ["return_ir_core", "return_script_surface", "return_lowering_codegen_integration"],
+      "directed_edges": ["return_ir_core->return_script_surface", "return_script_surface->return_lowering_codegen_integration"],
+      "public_test_selectors_to_verify": [
+        "tests/python/tirx-base/test_tir_base.py::test_return_accepts_expr_and_roundtrips",
+        "tests/python/tirx-base/test_tir_base.py::test_return_stmt_functor_traversal_and_mutation",
+        "tests/python/tvmscript/test_tvmscript_syntax_sugar.py::test_return_statement",
+        "tests/python/tvmscript/test_tvmscript_printer_tir.py::test_return_statement",
+        "tests/python/tirx-transform/test_tir_transform_make_packed_api.py::test_return_from_parallel_scope_is_rejected",
+        "tests/python/tirx-transform/test_tir_transform_split_host_device.py::test_device_kernel_nonzero_return_is_rejected",
+        "tests/python/tirx-base/test_tir_base.py::test_return_const"
+      ],
+      "next_gate": "mandatory_human_review"
+    },
+    {
+      "priority": 6,
+      "pr": 18421,
+      "url": "https://github.com/apache/tvm/pull/18421",
+      "title": "[TIR] Add step attribute to ForNode (Initial codes)",
+      "screening_base_sha": "33fa9262faf085ec0ad2d7ef0d843c7e4c2ba148",
+      "offline_gold_candidate_sha": "13ea9dc10436836e9654a897cf6f8f87813dc8a4",
+      "merged_at": "2025-11-24T13:30:16Z",
+      "scale": {"commits": 9, "files": 47, "additions": 619, "deletions": 126},
+      "topology": "chain_with_codegen_fan_out",
+      "natural_roles": ["for_step_ir_and_script", "loop_canonicalization", "c_llvm_codegen", "accelerator_codegen"],
+      "directed_edges": ["for_step_ir_and_script->loop_canonicalization", "loop_canonicalization->c_llvm_codegen", "loop_canonicalization->accelerator_codegen"],
+      "public_test_selectors_to_verify": [
+        "tests/python/tvmscript/test_tvmscript_parser_tir.py::test_tir_loop_steps",
+        "tests/python/tir-transform/test_tir_transform_canonicalize_loop.py::test_canonicalize_loop",
+        "tests/python/codegen/test_target_codegen.py::test_codegen_loop_step",
+        "tests/python/codegen/test_target_codegen_cuda.py::test_cuda_loop_step"
+      ],
+      "next_gate": "fixed_budget_scope_and_base_gold_execution"
+    },
+    {
+      "priority": 7,
+      "pr": 20076,
+      "url": "https://github.com/apache/tvm/pull/20076",
+      "title": "[FIX][TIRx] Use physical order for Buffer.local views",
+      "screening_base_sha": "1b992163b03522fb061c3f86b9dd7388f58a73f9",
+      "offline_gold_candidate_sha": "6e13371b6602f50cbce9e733f6b4479ae4fc4a01",
+      "merged_at": "2026-08-04T23:11:39Z",
+      "scale": {"commits": 2, "files": 12, "additions": 561, "deletions": 110},
+      "topology": "fan_out",
+      "natural_roles": ["physical_local_buffer_view", "script_roundtrip", "register_copy_consumer", "reduction_gemm_consumer"],
+      "directed_edges": ["physical_local_buffer_view->script_roundtrip", "physical_local_buffer_view->register_copy_consumer", "physical_local_buffer_view->reduction_gemm_consumer"],
+      "public_test_selectors_to_verify": [
+        "tests/python/tirx/test_parser_printer.py::test_buffer_local_physical_order",
+        "tests/python/tirx/operator/tile_primitive/cuda/copy/test_reg.py::test_reg_roundtrip_gapped_permuted_storage",
+        "tests/python/tirx/operator/tile_primitive/cuda/reduction/test_reduction.py::test_reduction_op_warp_shuffle_gapped_permuted_storage"
+      ],
+      "next_gate": "device_free_required_evaluator_and_base_gold_execution"
+    },
+    {
+      "priority": 8,
+      "pr": 20075,
+      "url": "https://github.com/apache/tvm/pull/20075",
+      "title": "[FEATURE][TIRx][CUDA] Support TMEM datapath B",
+      "screening_base_sha": "115029b3ab44c177bfca56c2c1bcf65566450d26",
+      "offline_gold_candidate_sha": "771193a5c26188713b2ec01f5bcd937bf7966fae",
+      "merged_at": "2026-07-31T00:40:19Z",
+      "scale": {"commits": 1, "files": 11, "additions": 664, "deletions": 54},
+      "topology": "fan_out_then_join",
+      "natural_roles": ["datapath_b_layout", "allocation_and_builder", "tmem_transfer", "gemm_consumer"],
+      "directed_edges": ["datapath_b_layout->allocation_and_builder", "datapath_b_layout->tmem_transfer", "allocation_and_builder->gemm_consumer", "tmem_transfer->gemm_consumer"],
+      "public_test_selectors_to_verify": [
+        "tests/python/tirx/operator/tile_primitive/cuda/copy_async/test_tmem_16xnb.py::test_tmem_datapath_layout_B_col_split_mapping",
+        "tests/python/tirx/operator/tile_primitive/cuda/copy_async/test_tmem_16xnb.py::test_datapath_B_codegen",
+        "tests/python/tirx/operator/tile_primitive/cuda/copy_async/test_tmem_16xnb.py::test_datapath_B_ld_st_roundtrip",
+        "tests/python/tirx/operator/tile_primitive/cuda/gemm_async/test_gemm_async.py::test_gemm_tcgen05_cta_group_2_datapath_b_readback"
+      ],
+      "next_gate": "device_free_required_evaluator_and_base_gold_execution"
+    },
+    {
+      "priority": 9,
+      "pr": 20133,
+      "url": "https://github.com/apache/tvm/pull/20133",
+      "title": "[Fix][Relax] Lower non-contiguous WebGPU cumsum",
+      "screening_base_sha": "6734aa22568bdce3da2d95008e8486d97e1250a7",
+      "offline_gold_candidate_sha": "1f352bf9c1af19b9f43584a5d27e9a14c30b468b",
+      "merged_at": "2026-08-25T02:43:24Z",
+      "scale": {"commits": 1, "files": 4, "additions": 266, "deletions": 27},
+      "topology": "chain",
+      "natural_roles": ["scan_dispatch_and_axis_contract", "generic_gpu_cumsum"],
+      "directed_edges": ["scan_dispatch_and_axis_contract->generic_gpu_cumsum"],
+      "public_test_selectors_to_verify": [
+        "tests/python/relax/test_backend_dispatch_sort_scan.py::test_dispatch_cumsum_webgpu_axes_and_dtypes",
+        "tests/python/relax/test_backend_dispatch_sort_scan.py::test_dispatch_cumsum_webgpu_symbolic_non_contiguous_axis",
+        "tests/python/relax/test_backend_dispatch_sort_scan.py::test_gpu_axis_1_cumsum_numerical"
+      ],
+      "next_gate": "ownership_naturalness_and_device_free_base_gold_execution"
+    }
+  ],
+  "conditional_candidates": [
+    {"pr": 20035, "url": "https://github.com/apache/tvm/pull/20035", "reason": "strong CPU checkpoint tests but production behavior is concentrated in one central file and ownership may be too imbalanced"},
+    {"pr": 20180, "url": "https://github.com/apache/tvm/pull/20180", "reason": "natural launch chain but current public test patch does not visibly execute the final CUDA runtime branch"},
+    {"pr": 20097, "url": "https://github.com/apache/tvm/pull/20097", "reason": "compact deterministic tests, but analyzer context and Z3 memoization may be one tightly coupled responsibility"},
+    {"pr": 17599, "url": "https://github.com/apache/tvm/pull/17599", "reason": "rich Adreno dependency graph but very large patch, 31 commits, and costly environment"},
+    {"pr": 19998, "url": "https://github.com/apache/tvm/pull/19998", "reason": "potential TensorRT join graph, but bundled fixes and external TensorRT requirements threaten task coherence and reproducibility"}
+  ],
+  "negative_decisions": [
+    {"pr": 20136, "decision": "single_agent_calibration_only", "reason": "one production file"},
+    {"pr": 20132, "decision": "single_agent_calibration_only", "reason": "one natural WebGPU codegen responsibility"},
+    {"pr": 20159, "decision": "reject_multi_agent", "reason": "independent register-cap and cluster-runtime features"},
+    {"pr": 20140, "decision": "reject_multi_agent", "reason": "four independent PTX capabilities"},
+    {"pr": 20120, "decision": "reject_multi_agent", "reason": "refactor plus independent PTX fixes"},
+    {"pr": 20110, "decision": "reject_multi_agent", "reason": "three explicitly independent changes"},
+    {"pr": 20103, "decision": "reject_fixed_budget", "reason": "141 files and migration-scale diff"},
+    {"pr": 20101, "decision": "single_agent_calibration_only", "reason": "one Metal codegen responsibility"},
+    {"pr": 20086, "decision": "reject_fixed_budget", "reason": "98-file repository-wide migration"},
+    {"pr": 20080, "decision": "reject_fixed_budget", "reason": "199-file heterogeneous fork delta"},
+    {"pr": 20079, "decision": "reject_fixed_budget", "reason": "266-file typed-buffer migration"},
+    {"pr": 20074, "decision": "single_agent_calibration_only", "reason": "one production file"},
+    {"pr": 20059, "decision": "single_agent_calibration_only", "reason": "one production file"},
+    {"pr": 20028, "decision": "reject_public_evidence", "reason": "no upstream test patch"},
+    {"pr": 20019, "decision": "reject_benchmark_task", "reason": "mechanical removal dominated by deletions and removed tests"},
+    {"pr": 20016, "decision": "reject_benchmark_task", "reason": "102-file mechanical rename with narrow tests"},
+    {"pr": 19923, "decision": "reject", "reason": "test-only PR"},
+    {"pr": 18604, "decision": "reject_public_evidence", "reason": "runtime launch changes without upstream test patch"},
+    {"pr": 18418, "decision": "single_agent_calibration_only", "reason": "one schedule primitive responsibility"},
+    {"pr": 18528, "decision": "reject_multi_agent", "reason": "two root causes without directional role-local evidence"},
+    {"pr": 18511, "decision": "reject_multi_agent", "reason": "one DumpIR responsibility plus unrelated cleanup"},
+    {"pr": 18465, "decision": "single_agent_calibration_only", "reason": "one parser and IRBuilder responsibility"},
+    {"pr": 18467, "decision": "single_agent_calibration_only", "reason": "one runtime implementation file"},
+    {"pr": 18544, "decision": "single_agent_calibration_only", "reason": "one frontend converter-registration responsibility"},
+    {"pr": 18499, "decision": "single_agent_calibration_only", "reason": "one frontend implementation file"}
+  ],
+  "required_next_gates": [
+    "verify_merge_first_parent_and_recursive_submodules",
+    "construct_checksum_pinned_answer_free_test_only_overlay",
+    "base_red_for_intended_behavior_without_setup_failure",
+    "offline_gold_green_focused_and_regression",
+    "non_overlapping_natural_path_ownership",
+    "every_role_has_base_red_and_gold_green_evidence",
+    "integrated_selectors_execute_both_ends_of_every_edge",
+    "task_specific_environment_freeze",
+    "matched_four_condition_scenarios",
+    "mandatory_human_semantic_review"
+  ]
+}

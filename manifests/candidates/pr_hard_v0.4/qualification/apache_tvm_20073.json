@@ -1,0 +1,152 @@
+{
+  "schema_version": "pr-hard-qualification-v0.4",
+  "task_id": "pr-hard:apache-tvm-20073",
+  "qualified_at": "2026-08-26",
+  "automated_status": "passed",
+  "human_review": {
+    "status": "complete_pass",
+    "counts_as_completed_human_review": true,
+    "annotation_file": "manifests/annotations/pr_hard_v0.4/apache_tvm_20073/annotator_a.json",
+    "annotator_id": "pz0512",
+    "parallelizability_label": "partially_parallelizable",
+    "reviewed_at": "2026-08-29"
+  },
+  "provenance": {
+    "base_sha": "62fb780bb0a8da62e3808f60a2343f6fd1d4b01f",
+    "gold_sha": "ae99c3fd92ddb8cd5bb0cbda1dd9584b525b7a24",
+    "gold_first_parent_is_base": true,
+    "production_diff": {
+      "files": 7,
+      "additions": 191,
+      "deletions": 14,
+      "matches_editable_paths": true
+    }
+  },
+  "source_integrity": {
+    "public_overlays": [
+      {
+        "path": "data/overlays/pr_hard/apache_tvm_20073/0001-public-regression-tests.patch",
+        "sha256": "9fdc39a78fdea5254633c73f11e87198b193bcaede742e2ac883bf0e947b1940"
+      }
+    ],
+    "test_only": true,
+    "apply_cleanly_in_order": true,
+    "model_visible_git_history": false,
+    "model_visible_gold_patch": false,
+    "model_trajectory_used_for_construction": false
+  },
+  "environment": {
+    "registry": "configs/environments/pr_hard_tvm.v0.4.json",
+    "profile": "tvm-cpu-llvm-source-build",
+    "conda_lock_sha256": "1c44901e30620de95c78a35e6d72230868ffdbcf206bda6143706e1ba0e83618",
+    "requirements_lock_sha256": "b2279a1089af16e16e267f554e009617883c995ce891ffdf69dc73f5060d1fb0",
+    "recursive_submodule_manifest_sha256": "835f296c60c2737aeeecb764f22a3d2a74017e4e2d55a3a8d8ce2ea0bdfcf88e",
+    "tvm_ffi_sha": "3e8b2a860936fdacc85d65ec07bcebe150d23b5f",
+    "configure": [
+      "cmake",
+      "-S",
+      ".",
+      "-B",
+      "build",
+      "-G",
+      "Ninja",
+      "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
+      "-DUSE_LLVM=llvm-config",
+      "-DUSE_CUDA=OFF",
+      "-DUSE_GTEST=OFF"
+    ],
+    "cold_build_elapsed_seconds": 619,
+    "cold_build_timing_method": "filesystem_birthtime_delta_from_CMakeCache_to_libtvm_compiler",
+    "gpu_execution_required": false
+  },
+  "evaluator_runs": [
+    {
+      "stage": "base_focused",
+      "expected": "red",
+      "exit_code": 1,
+      "collected": 6,
+      "duration_seconds": 4.19,
+      "outcomes": {"passed": 0, "failed": 6},
+      "notes": "The incomplete base lacks IRBuilder span state, Source.to_span coordinate conversion, and parser/evaluator propagation."
+    },
+    {
+      "stage": "gold_focused",
+      "expected": "green",
+      "exit_code": 0,
+      "collected": 6,
+      "duration_seconds": 3.47,
+      "outcomes": {"passed": 6}
+    },
+    {
+      "stage": "gold_role_local",
+      "expected": "green",
+      "exit_code": 0,
+      "collected": 6,
+      "duration_seconds": 3.47,
+      "outcomes": {"passed": 6},
+      "notes": "One exact selector covers each producer and four exact selectors cover the shared parser/evaluator consumer."
+    },
+    {
+      "stage": "gold_regression",
+      "expected": "green",
+      "exit_code": 0,
+      "collected": 28,
+      "duration_seconds": 3.31,
+      "outcomes": {"passed": 28},
+      "notes": "Both complete selected public TVMScript modules passed against the offline gold state."
+    }
+  ],
+  "role_local_observability": [
+    {
+      "subproblem_id": "irbuilder_active_span_state",
+      "base_status": "base_red",
+      "selectors": [
+        "tests/python/tvmscript/test_tvmscript_ir_builder_tir.py::test_ir_builder_source_span_applies_to_emitted_stmt"
+      ]
+    },
+    {
+      "subproblem_id": "source_coordinate_mapping",
+      "base_status": "base_red",
+      "selectors": [
+        "tests/python/tvmscript/test_tvmscript_parser_source.py::test_source_to_span_matches_parser_diagnostic_coordinates"
+      ]
+    },
+    {
+      "subproblem_id": "parser_and_evaluator_span_propagation",
+      "base_status": "base_red",
+      "selectors": [
+        "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_direct_call",
+        "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_retains_inline_call_site_and_definition_spans",
+        "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_tile_primitive_call",
+        "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_spans_do_not_affect_structural_identity"
+      ]
+    }
+  ],
+  "dependency_checkers": [
+    {
+      "dependency_id": "irbuilder-state-to-parser-propagation",
+      "upstream": "passed",
+      "downstream": "passed",
+      "integrated": "passed",
+      "finding": "IRBuilder-only passes exactly its 1/6 producer selector; both producers without propagation pass only 2/6; complete integration passes all four propagation selectors and reaches 6/6."
+    },
+    {
+      "dependency_id": "source-mapping-to-parser-propagation",
+      "upstream": "passed",
+      "downstream": "passed",
+      "integrated": "passed",
+      "finding": "Source-mapping-only passes exactly its 1/6 producer selector; both producers without propagation pass only 2/6; complete integration passes all four propagation selectors and reaches 6/6."
+    }
+  ],
+  "runtime_package_validation": {
+    "validated_at": "2026-08-26",
+    "seed_commit": "7e2bdf65f0f15b9003a6459e3f84fc25f8834916",
+    "seed_commit_count": 1,
+    "seed_has_remotes": false,
+    "task_local_ffi_version": "0.1.13.dev55+g3e8b2a860",
+    "task_local_ffi_editable": false,
+    "base_focused": {"passed": 0, "failed": 6},
+    "gold_regression": {"passed": 28, "skipped": 0}
+  },
+  "remaining_gates": []
+}

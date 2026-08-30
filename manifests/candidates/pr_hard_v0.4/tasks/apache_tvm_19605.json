@@ -1,0 +1,35 @@
+{
+  "schema_version": "pr-hard-task-v0.4",
+  "task_id": "pr-hard:apache-tvm-19605",
+  "task_source": "merged upstream pull request",
+  "repository": "apache/tvm",
+  "upstream_version": "e159487b0e4131b6874622bf03c546e837ae84c6",
+  "source_materialization": "sanitized one-commit snapshot of the PR first parent plus the checksum-pinned public test overlay",
+  "problem_statement": "Refactor the TIRx device compilation sequence so dynamic shared-memory merging, device-region annotation and splitting, device-kernel launch lowering, packed-API construction, and storage legalization compose safely. Sibling device regions must receive independent merged dynamic-shared allocations, reused allocations must remain liveness-safe, and existing host/device calling conventions must remain valid. Do not modify public tests.",
+  "publicly_implicated_modules": [
+    "src/s_tir/transform/merge_shared_memory_allocations.cc",
+    "src/tirx/transform/lower_device_kernel_launch.cc",
+    "python/tvm/s_tir/backend/adreno/pipeline.py",
+    "python/tvm/s_tir/pipeline.py",
+    "python/tvm/tirx/compilation_pipeline.py"
+  ],
+  "test_targets": [
+    "tests/python/s_tir/transform/test_s_tir_transform_merge_dynamic_shared_memory_allocations.py",
+    "tests/python/tirx-transform",
+    "tests/python/codegen/test_target_codegen_c_host.py",
+    "tests/python/codegen/test_target_codegen_device.py"
+  ],
+  "evaluator_command": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/python/s_tir/transform/test_s_tir_transform_merge_dynamic_shared_memory_allocations.py",
+    "tests/python/tirx-transform",
+    "tests/python/codegen/test_target_codegen_c_host.py",
+    "tests/python/codegen/test_target_codegen_device.py"
+  ],
+  "proposed_parallelizability_label": "partially_parallelizable",
+  "qualification_status": "pending_human_review",
+  "official_result_eligible": false
+}

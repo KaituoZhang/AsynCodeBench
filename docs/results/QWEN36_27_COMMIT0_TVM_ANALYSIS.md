@@ -1,5 +1,11 @@
 # Qwen3.6-27B on AsynCodeBench Commit0 and TVM PR-hard Candidates
 
+> **Superseded release-status snapshot.** This document preserves the
+> pre-human-review analysis for provenance. Do not use its lane split or
+> eligibility statements in the paper. The canonical analysis is the unified
+> 20-task report in `docs/results/QWEN36_27_20TASK_PAPER_ANALYSIS.md`; all 20
+> tasks are qualified and result-eligible in the v0.4 community preview.
+
 ## Bottom line
 
 This analysis separates the **16 official Commit0 v0.3 tasks** from the **4 non-official TVM PR-hard v0.4 candidates**. The latter remain pending mandatory human review and have `official_result_eligible=false`; the 20-task view below is therefore descriptive rather than a new official release composition.

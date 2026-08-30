@@ -10,6 +10,7 @@ from tasks.asyncodebench import AsynCodeBenchTask
 
 from core.manager import Manager
 from core.utils import build_delegation_plan
+from core.workspace_isolation import uses_task_specific_workspace_isolation
 
 
 class AsynCodeBenchManager(Manager):
@@ -19,9 +20,149 @@ class AsynCodeBenchManager(Manager):
         super().__init__(*args, **kwargs)
         if not isinstance(self.task, AsynCodeBenchTask):
             raise TypeError("AsynCodeBenchManager requires AsynCodeBenchTask")
+        self.task_specific_workspace_isolation = (
+            uses_task_specific_workspace_isolation(self.task)
+        )
+        if self.task_specific_workspace_isolation:
+            self.prompts = dict(self.prompts)
+            self.prompts["user_instruction"] = (
+                self.prompts.get("user_instruction", "")
+                + "\n\nManager workspace rule for this task: remain read-only; "
+                "only specialists may modify production code in their private "
+                "worktrees.\n"
+            )
+            self.prompts["scan_analysis"] = (
+                self.prompts.get("scan_analysis", "")
+                + "\nUse read-only inspection only; do not edit files or change "
+                "Git state during analysis.\n"
+            )
+            self.prompts["manager_final_review_all"] = (
+                self.prompts.get("manager_final_review_all", "")
+                + "\nThis task's final review is read-only. Do not edit files, "
+                "create commits, merge, or cherry-pick.\n"
+            )
 
     def active_scenario(self):
         return self.task.scenario_for("caid_manager")
+
+    def assert_manager_workspace_clean(self, phase):
+        """Reject out-of-band writes before they can taint integration."""
+        dirty = self.main_workspace_status()
+        record = {
+            "schema_version": "0.1",
+            "phase": phase,
+            "main_workspace_status": dirty,
+            "passed": not dirty,
+            "policy": "manager_is_read_only_outside_committed_artifact_merges",
+            "attribution": (
+                "none"
+                if not dirty
+                else "unknown_at_detection; inspect manager and specialist events"
+            ),
+        }
+        path = Path(self.config.output_dir) / "manager_workspace_validation.jsonl"
+        with path.open("a", encoding="utf-8") as stream:
+            stream.write(json.dumps(record, sort_keys=True) + "\n")
+        if dirty:
+            raise RuntimeError(
+                "Benchmark isolation violation: the integrated workspace received "
+                f"an out-of-band write before {phase}: {dirty}. The cleanliness "
+                "check detects contamination but does not infer the actor; inspect "
+                "manager and specialist hook events for attribution."
+            )
+        return record
+
+    def reject_final_review_writes(self, head_before):
+        """Discard manager-side final-review writes and preserve audit evidence."""
+        head_result = self.workspace.execute_command(
+            f"cd {shlex.quote(self.repo_dir)} && git rev-parse HEAD",
+            timeout=30,
+        )
+        head_after = head_result.stdout.strip() if head_result.exit_code == 0 else None
+        dirty = self.main_workspace_status()
+        changed_result = self.workspace.execute_command(
+            f"cd {shlex.quote(self.repo_dir)} && git diff --name-only "
+            f"{shlex.quote(head_before)}",
+            timeout=30,
+        )
+        changed_paths = (
+            [line.strip() for line in changed_result.stdout.splitlines() if line.strip()]
+            if changed_result.exit_code == 0
+            else []
+        )
+        rejected_paths = sorted(set(dirty + changed_paths))
+        changed_head = bool(head_after and head_after != head_before)
+        remediated = False
+
+        if rejected_paths or changed_head:
+            patch_result = self.workspace.execute_command(
+                f"cd {shlex.quote(self.repo_dir)} && git diff --binary "
+                f"{shlex.quote(head_before)}",
+                timeout=60,
+            )
+            patch_path = Path(self.config.output_dir) / "rejected_manager_final_review.patch"
+            patch_path.write_text(patch_result.stdout or "", encoding="utf-8")
+            restore = self.workspace.execute_command(
+                f"cd {shlex.quote(self.repo_dir)} && "
+                f"git reset --hard {shlex.quote(head_before)}",
+                timeout=120,
+            )
+            if restore.exit_code != 0:
+                raise RuntimeError(
+                    "Failed to restore the integrated workspace after rejecting "
+                    f"manager final-review writes: {restore.stderr or restore.stdout}"
+                )
+            clean = self.workspace.execute_command(
+                f"cd {shlex.quote(self.repo_dir)} && git clean -fd",
+                timeout=120,
+            )
+            if clean.exit_code != 0:
+                raise RuntimeError(
+                    "Failed to remove untracked manager final-review writes: "
+                    f"{clean.stderr or clean.stdout}"
+                )
+            remaining = self.main_workspace_status()
+            verify_head = self.workspace.execute_command(
+                f"cd {shlex.quote(self.repo_dir)} && git rev-parse HEAD",
+                timeout=30,
+            )
+            if (
+                remaining
+                or verify_head.exit_code != 0
+                or verify_head.stdout.strip() != head_before
+            ):
+                raise RuntimeError(
+                    "Integrated workspace restoration could not be verified after "
+                    "manager final review"
+                )
+            remediated = True
+            self.log(
+                "Rejected and restored manager final-review writes: "
+                + ", ".join(rejected_paths or ["committed HEAD change"])
+            )
+
+        record = {
+            "schema_version": "0.1",
+            "phase": "final_review",
+            "head_before": head_before,
+            "head_after": head_after,
+            "main_workspace_status": dirty,
+            "rejected_paths": rejected_paths,
+            "head_changed": changed_head,
+            "passed": not rejected_paths and not changed_head,
+            "remediated": remediated,
+            "policy": "reject_and_restore_manager_final_review_writes",
+        }
+        path = Path(self.config.output_dir) / "manager_workspace_validation.jsonl"
+        with path.open("a", encoding="utf-8") as stream:
+            stream.write(json.dumps(record, sort_keys=True) + "\n")
+        return record
+
+    def scan_and_analyze(self):
+        result = super().scan_and_analyze()
+        if self.task_specific_workspace_isolation:
+            self.assert_manager_workspace_clean("scan_and_analyze")
+        return result
 
     def build_commit0_scenario_fallback_delegation(self):
         fallback = self.task.build_manifest_delegation(
@@ -121,7 +262,30 @@ class AsynCodeBenchManager(Manager):
 
     def delegate_tasks(self):
         super().delegate_tasks()
-        return self.enforce_manifest_delegation()
+        result = self.enforce_manifest_delegation()
+        if self.task_specific_workspace_isolation:
+            self.assert_manager_workspace_clean("delegate_tasks")
+        return result
+
+    def final_review_all(self, subagent_results, max_iterations=30):
+        if not self.task_specific_workspace_isolation:
+            return super().final_review_all(
+                subagent_results, max_iterations=max_iterations
+            )
+        self.assert_manager_workspace_clean("before_final_review")
+        head = self.workspace.execute_command(
+            f"cd {shlex.quote(self.repo_dir)} && git rev-parse HEAD",
+            timeout=30,
+        )
+        if head.exit_code != 0:
+            raise RuntimeError(
+                "Failed to snapshot integrated HEAD before manager final review: "
+                f"{head.stderr or head.stdout}"
+            )
+        head_before = head.stdout.strip()
+        result = super().final_review_all(subagent_results, max_iterations=max_iterations)
+        self.reject_final_review_writes(head_before)
+        return result
 
     def assignment_for_result(self, result):
         scenario = self.active_scenario()

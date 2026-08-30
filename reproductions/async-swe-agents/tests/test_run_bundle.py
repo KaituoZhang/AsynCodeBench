@@ -426,7 +426,7 @@ def test_cli_lists_all_official_tasks(capsys):
     assert cli_main(["tasks", "--json"]) == 0
 
     tasks = json.loads(capsys.readouterr().out)
-    assert len(tasks) == 16
+    assert len(tasks) == 20
     assert all(item["task_id"].startswith("asyncodebench:") for item in tasks)
 
 
@@ -434,12 +434,12 @@ def test_cli_reports_release_and_review_status(capsys):
     assert cli_main(["release-status", "--json"]) == 0
 
     status = json.loads(capsys.readouterr().out)
-    assert status["task_count"] == 16
-    assert status["scenario_count"] == 64
-    assert status["dependency_point_count"] == 47
-    assert status["automated_audit_complete_task_count"] == 16
-    assert status["human_review_complete_task_count"] == 16
-    assert status["human_review_passed_task_count"] == 16
+    assert status["task_count"] == 20
+    assert status["scenario_count"] == 80
+    assert status["dependency_point_count"] == 55
+    assert status["automated_audit_complete_task_count"] == 20
+    assert status["human_review_complete_task_count"] == 20
+    assert status["human_review_passed_task_count"] == 20
     assert status["executable_release_complete"] is True
     assert status["release_stage"] == "community_preview"
     assert status["community_preview_ready"] is True

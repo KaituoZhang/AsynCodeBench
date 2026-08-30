@@ -225,3 +225,35 @@ def test_missing_final_probe_selector_is_invalid(tmp_path):
 
     assert result["status"] == "invalid"
     assert "missing_final_probe_selectors:1" in result["hard_failures"]
+
+
+def test_20018_caid_rejects_a_corrupt_patch(tmp_path):
+    run_dir = create_run(tmp_path)
+    report_path = run_dir / "report.json"
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    report["asyncodebench"]["final_evaluator_source"] = "pr_hard_v0.4_manifest"
+    report_path.write_text(json.dumps(report), encoding="utf-8")
+    (run_dir / "run_metadata.json").write_text(
+        json.dumps(
+            {
+                "task_id": "pr-hard:apache-tvm-20018",
+                "protocol": "caid_manager",
+                "candidate_lane": {"kind": "pr_hard_v0.4"},
+            }
+        ),
+        encoding="utf-8",
+    )
+    (run_dir / "patch.diff").write_text(
+        """diff --git a/example.py b/example.py
+--- a/example.py
++++ b/example.py
+@@ -1 +1 @@
+-old
+""",
+        encoding="utf-8",
+    )
+
+    result = inspect_run(run_dir)
+
+    assert result["status"] == "invalid"
+    assert "invalid_patch_diff" in result["hard_failures"]

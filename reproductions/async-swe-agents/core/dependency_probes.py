@@ -229,6 +229,7 @@ def write_dependency_probe_checkpoint(
     integrated_workspace_version=None,
     metrics_path=None,
     timeout=60,
+    source_build=None,
 ):
     if os.getenv("ASYNCODEBENCH_DISABLE_PROBE_CHECKPOINTS") == "1":
         return None
@@ -254,27 +255,40 @@ def write_dependency_probe_checkpoint(
     selector_exit_codes = {}
     selector_timed_out = {}
     output_chunks = []
-    for index, selector in enumerate(selectors):
-        selector_safe_id = re.sub(r"[^A-Za-z0-9_.-]+", "_", f"{safe_id}_{index}")
-        selector_report_path = f"/tmp/asyncodebench_probe_{selector_safe_id}.json"
-        selector_output_path = f"/tmp/asyncodebench_probe_{selector_safe_id}.txt"
-        selector_run = _run_one_selector_probe(
-            workspace,
-            selector=selector,
-            workspace_path=workspace_path,
-            report_path=selector_report_path,
-            output_path=selector_output_path,
-            timeout=probe_timeout,
-        )
-        probe_results[selector] = selector_run["result"]
-        selector_exit_codes[selector] = selector_run["exit_code"]
-        selector_timed_out[selector] = selector_run["timed_out"]
+    build_status = (source_build or {}).get("status")
+    build_failed = build_status not in {None, "passed", "not_required"}
+    if build_failed:
+        build_exit_code = (source_build or {}).get("exit_code", 1)
+        for selector in selectors:
+            probe_results[selector] = _selector_passed(selector, {})
+            selector_exit_codes[selector] = build_exit_code
+            selector_timed_out[selector] = False
         output_chunks.append(
-            f"\n--- selector: {selector} "
-            f"(exit={selector_run['exit_code']}, "
-            f"status={selector_run['result'].get('status')}) ---\n"
-            f"{selector_run['output']}"
+            "\n--- source build failed before dependency probes ---\n"
+            + (source_build or {}).get("output_excerpt", "")
         )
+    else:
+        for index, selector in enumerate(selectors):
+            selector_safe_id = re.sub(r"[^A-Za-z0-9_.-]+", "_", f"{safe_id}_{index}")
+            selector_report_path = f"/tmp/asyncodebench_probe_{selector_safe_id}.json"
+            selector_output_path = f"/tmp/asyncodebench_probe_{selector_safe_id}.txt"
+            selector_run = _run_one_selector_probe(
+                workspace,
+                selector=selector,
+                workspace_path=workspace_path,
+                report_path=selector_report_path,
+                output_path=selector_output_path,
+                timeout=probe_timeout,
+            )
+            probe_results[selector] = selector_run["result"]
+            selector_exit_codes[selector] = selector_run["exit_code"]
+            selector_timed_out[selector] = selector_run["timed_out"]
+            output_chunks.append(
+                f"\n--- selector: {selector} "
+                f"(exit={selector_run['exit_code']}, "
+                f"status={selector_run['result'].get('status')}) ---\n"
+                f"{selector_run['output']}"
+            )
 
     timed_out = any(selector_timed_out.values())
     checkpoint_exit_code = _checkpoint_exit_code(probe_results)
@@ -305,6 +319,7 @@ def write_dependency_probe_checkpoint(
         "timed_out": timed_out,
         "selector_exit_codes": selector_exit_codes,
         "selector_timed_out": selector_timed_out,
+        "source_build": source_build,
         "probe_test_results": probe_results,
         "dependency_results": dependency_results,
         "test_output_excerpt": "".join(output_chunks)[-4000:],

@@ -1,0 +1,198 @@
+{
+  "schema_version": "0.3",
+  "task_id": "pr-hard:apache-tvm-20107",
+  "candidate_status": "qualified",
+  "scenarios": [
+    {
+      "schema_version": "0.3",
+      "scenario_id": "pr-hard-apache-tvm-20107.iterative-single.v0.4",
+      "task_id": "pr-hard:apache-tvm-20107",
+      "execution_mode": "iterative_single",
+      "agent_count": 1,
+      "assignments": [
+        {
+          "schema_version": "0.3",
+          "agent_id": "integrator",
+          "role": "iterative full-task coding agent",
+          "subproblem_id": "full_task",
+          "writable_paths": [
+            "include/tvm/script/printer/doc.h",
+            "python/tvm/relax/script/parser/parser.py",
+            "python/tvm/runtime/script_printer.py",
+            "python/tvm/script/parser/_core.py",
+            "python/tvm/script/parser/core/diagnostics.py",
+            "python/tvm/script/parser/core/doc.py",
+            "python/tvm/script/parser/core/doc_core.py",
+            "python/tvm/script/parser/core/entry.py",
+            "python/tvm/script/parser/core/parser.py",
+            "python/tvm/script/printer/doc.py",
+            "python/tvm/tirx/script/parser/parser.py",
+            "src/relax/script/printer/dependent_type.cc",
+            "src/relax/script/printer/function.cc",
+            "src/relax/script/printer/tir.cc",
+            "src/relax/script/printer/utils.h",
+            "src/script/printer/doc.cc",
+            "src/script/printer/doc_printer/python_doc_printer.cc",
+            "src/script/printer/ir/ir.cc",
+            "src/script/printer/utils.h",
+            "src/tirx/script/printer/buffer.cc",
+            "src/tirx/script/printer/function.cc",
+            "src/tirx/script/printer/utils.h"
+          ],
+          "primary_test_targets": [
+            "tests/python/tvmscript/test_tvmscript_printer_python_doc_printer.py::test_print_function_doc_with_type_params",
+            "tests/python/relax/test_tvmscript_type_vars.py::test_type_vars_roundtrip",
+            "tests/python/tirx/test_tvmscript_type_vars.py::test_type_vars_roundtrip"
+          ]
+        }
+      ],
+      "dependency_annotations": [
+        {
+          "schema_version": "0.3",
+          "producer_subproblem": "shared_script_signature_core",
+          "consumer_subproblem": "relax_dependent_signature",
+          "dependency_type": "api_contract",
+          "description": "The shared Script type-parameter AST and document model are consumed by the Relax dependent-signature parser and printer.",
+          "evidence_paths": [
+            "python/tvm/script/parser/core/doc_core.py",
+            "src/script/printer/doc_printer/python_doc_printer.cc",
+            "python/tvm/relax/script/parser/parser.py",
+            "src/relax/script/printer/function.cc",
+            "tests/python/relax/test_tvmscript_type_vars.py"
+          ]
+        },
+        {
+          "schema_version": "0.3",
+          "producer_subproblem": "shared_script_signature_core",
+          "consumer_subproblem": "tirx_dependent_signature",
+          "dependency_type": "api_contract",
+          "description": "The shared Script type-parameter AST and document model are consumed by the TIRx dependent-signature parser and printer.",
+          "evidence_paths": [
+            "python/tvm/script/parser/core/doc_core.py",
+            "src/script/printer/doc_printer/python_doc_printer.cc",
+            "python/tvm/tirx/script/parser/parser.py",
+            "src/tirx/script/printer/function.cc",
+            "tests/python/tirx/test_tvmscript_type_vars.py"
+          ]
+        }
+      ],
+      "information_profile": "complete-task",
+      "concurrent_execution": false,
+      "communication_condition": "not_applicable",
+      "message_delivery_policy": "No inter-agent messages.",
+      "integration_policy": "Agent submits its final workspace.",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "token_budget_per_agent": 60000,
+      "test_budget_per_agent": 8,
+      "wall_clock_budget_seconds": 1800,
+      "competence_gate_required": true,
+      "official_result_eligible": true
+    },
+    {
+      "schema_version": "0.3",
+      "scenario_id": "pr-hard-apache-tvm-20107.serial-specialists.v0.4",
+      "task_id": "pr-hard:apache-tvm-20107",
+      "execution_mode": "serial_specialists",
+      "agent_count": 3,
+      "assignments": [
+        {
+          "schema_version": "0.3",
+          "agent_id": "script_core_agent",
+          "role": "shared TVMScript signature and document-core specialist",
+          "subproblem_id": "shared_script_signature_core",
+          "writable_paths": ["include/tvm/script/printer/doc.h", "python/tvm/runtime/script_printer.py", "python/tvm/script/parser/_core.py", "python/tvm/script/parser/core/diagnostics.py", "python/tvm/script/parser/core/doc.py", "python/tvm/script/parser/core/doc_core.py", "python/tvm/script/parser/core/entry.py", "python/tvm/script/parser/core/parser.py", "python/tvm/script/printer/doc.py", "src/script/printer/doc.cc", "src/script/printer/doc_printer/python_doc_printer.cc", "src/script/printer/ir/ir.cc", "src/script/printer/utils.h"],
+          "primary_test_targets": ["tests/python/tvmscript/test_tvmscript_printer_python_doc_printer.py::test_print_function_doc_with_type_params"]
+        },
+        {
+          "schema_version": "0.3",
+          "agent_id": "relax_agent",
+          "role": "Relax dependent-signature parser and printer specialist",
+          "subproblem_id": "relax_dependent_signature",
+          "writable_paths": ["python/tvm/relax/script/parser/parser.py", "src/relax/script/printer/dependent_type.cc", "src/relax/script/printer/function.cc", "src/relax/script/printer/tir.cc", "src/relax/script/printer/utils.h"],
+          "primary_test_targets": ["tests/python/relax/test_tvmscript_type_vars.py::test_type_vars_roundtrip"]
+        },
+        {
+          "schema_version": "0.3",
+          "agent_id": "tirx_agent",
+          "role": "TIRx dependent-signature parser and printer specialist",
+          "subproblem_id": "tirx_dependent_signature",
+          "writable_paths": ["python/tvm/tirx/script/parser/parser.py", "src/tirx/script/printer/buffer.cc", "src/tirx/script/printer/function.cc", "src/tirx/script/printer/utils.h"],
+          "primary_test_targets": ["tests/python/tirx/test_tvmscript_type_vars.py::test_type_vars_roundtrip"]
+        }
+      ],
+      "dependency_annotations": [
+        {"schema_version": "0.3", "producer_subproblem": "shared_script_signature_core", "consumer_subproblem": "relax_dependent_signature", "dependency_type": "api_contract", "description": "The shared Script type-parameter AST and document model are consumed by the Relax dependent-signature parser and printer.", "evidence_paths": ["python/tvm/script/parser/core/doc_core.py", "src/script/printer/doc_printer/python_doc_printer.cc", "python/tvm/relax/script/parser/parser.py", "src/relax/script/printer/function.cc", "tests/python/relax/test_tvmscript_type_vars.py"]},
+        {"schema_version": "0.3", "producer_subproblem": "shared_script_signature_core", "consumer_subproblem": "tirx_dependent_signature", "dependency_type": "api_contract", "description": "The shared Script type-parameter AST and document model are consumed by the TIRx dependent-signature parser and printer.", "evidence_paths": ["python/tvm/script/parser/core/doc_core.py", "src/script/printer/doc_printer/python_doc_printer.cc", "python/tvm/tirx/script/parser/parser.py", "src/tirx/script/printer/function.cc", "tests/python/tirx/test_tvmscript_type_vars.py"]}
+      ],
+      "information_profile": "private-workspace",
+      "concurrent_execution": false,
+      "communication_condition": "completed_artifact_handoff",
+      "message_delivery_policy": "Run the shared Script producer first, then deliver its completed artifact and targeted result to both dialect consumers.",
+      "integration_policy": "Apply the shared producer artifact before starting the Relax and TIRx consumers, then evaluate the combined workspace.",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "token_budget_per_agent": 60000,
+      "test_budget_per_agent": 8,
+      "wall_clock_budget_seconds": 1800,
+      "competence_gate_required": true,
+      "official_result_eligible": true
+    },
+    {
+      "schema_version": "0.3",
+      "scenario_id": "pr-hard-apache-tvm-20107.async-private.v0.4",
+      "task_id": "pr-hard:apache-tvm-20107",
+      "execution_mode": "async_private",
+      "agent_count": 3,
+      "assignments": [
+        {"schema_version": "0.3", "agent_id": "script_core_agent", "role": "shared TVMScript signature and document-core specialist", "subproblem_id": "shared_script_signature_core", "writable_paths": ["include/tvm/script/printer/doc.h", "python/tvm/runtime/script_printer.py", "python/tvm/script/parser/_core.py", "python/tvm/script/parser/core/diagnostics.py", "python/tvm/script/parser/core/doc.py", "python/tvm/script/parser/core/doc_core.py", "python/tvm/script/parser/core/entry.py", "python/tvm/script/parser/core/parser.py", "python/tvm/script/printer/doc.py", "src/script/printer/doc.cc", "src/script/printer/doc_printer/python_doc_printer.cc", "src/script/printer/ir/ir.cc", "src/script/printer/utils.h"], "primary_test_targets": ["tests/python/tvmscript/test_tvmscript_printer_python_doc_printer.py::test_print_function_doc_with_type_params"]},
+        {"schema_version": "0.3", "agent_id": "relax_agent", "role": "Relax dependent-signature parser and printer specialist", "subproblem_id": "relax_dependent_signature", "writable_paths": ["python/tvm/relax/script/parser/parser.py", "src/relax/script/printer/dependent_type.cc", "src/relax/script/printer/function.cc", "src/relax/script/printer/tir.cc", "src/relax/script/printer/utils.h"], "primary_test_targets": ["tests/python/relax/test_tvmscript_type_vars.py::test_type_vars_roundtrip"]},
+        {"schema_version": "0.3", "agent_id": "tirx_agent", "role": "TIRx dependent-signature parser and printer specialist", "subproblem_id": "tirx_dependent_signature", "writable_paths": ["python/tvm/tirx/script/parser/parser.py", "src/tirx/script/printer/buffer.cc", "src/tirx/script/printer/function.cc", "src/tirx/script/printer/utils.h"], "primary_test_targets": ["tests/python/tirx/test_tvmscript_type_vars.py::test_type_vars_roundtrip"]}
+      ],
+      "dependency_annotations": [
+        {"schema_version": "0.3", "producer_subproblem": "shared_script_signature_core", "consumer_subproblem": "relax_dependent_signature", "dependency_type": "api_contract", "description": "The shared Script type-parameter AST and document model are consumed by the Relax dependent-signature parser and printer.", "evidence_paths": ["python/tvm/script/parser/core/doc_core.py", "src/script/printer/doc_printer/python_doc_printer.cc", "python/tvm/relax/script/parser/parser.py", "src/relax/script/printer/function.cc", "tests/python/relax/test_tvmscript_type_vars.py"]},
+        {"schema_version": "0.3", "producer_subproblem": "shared_script_signature_core", "consumer_subproblem": "tirx_dependent_signature", "dependency_type": "api_contract", "description": "The shared Script type-parameter AST and document model are consumed by the TIRx dependent-signature parser and printer.", "evidence_paths": ["python/tvm/script/parser/core/doc_core.py", "src/script/printer/doc_printer/python_doc_printer.cc", "python/tvm/tirx/script/parser/parser.py", "src/tirx/script/printer/function.cc", "tests/python/tirx/test_tvmscript_type_vars.py"]}
+      ],
+      "information_profile": "private-workspace",
+      "concurrent_execution": true,
+      "communication_condition": "none_in_flight",
+      "message_delivery_policy": "No in-flight worker messages or artifacts are delivered.",
+      "integration_policy": "Run all three specialists concurrently in private workspaces and integrate their final artifacts only after all finish.",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "token_budget_per_agent": 60000,
+      "test_budget_per_agent": 8,
+      "wall_clock_budget_seconds": 1800,
+      "competence_gate_required": true,
+      "official_result_eligible": true
+    },
+    {
+      "schema_version": "0.3",
+      "scenario_id": "pr-hard-apache-tvm-20107.async-message.v0.4",
+      "task_id": "pr-hard:apache-tvm-20107",
+      "execution_mode": "async_message",
+      "agent_count": 3,
+      "assignments": [
+        {"schema_version": "0.3", "agent_id": "script_core_agent", "role": "shared TVMScript signature and document-core specialist", "subproblem_id": "shared_script_signature_core", "writable_paths": ["include/tvm/script/printer/doc.h", "python/tvm/runtime/script_printer.py", "python/tvm/script/parser/_core.py", "python/tvm/script/parser/core/diagnostics.py", "python/tvm/script/parser/core/doc.py", "python/tvm/script/parser/core/doc_core.py", "python/tvm/script/parser/core/entry.py", "python/tvm/script/parser/core/parser.py", "python/tvm/script/printer/doc.py", "src/script/printer/doc.cc", "src/script/printer/doc_printer/python_doc_printer.cc", "src/script/printer/ir/ir.cc", "src/script/printer/utils.h"], "primary_test_targets": ["tests/python/tvmscript/test_tvmscript_printer_python_doc_printer.py::test_print_function_doc_with_type_params"]},
+        {"schema_version": "0.3", "agent_id": "relax_agent", "role": "Relax dependent-signature parser and printer specialist", "subproblem_id": "relax_dependent_signature", "writable_paths": ["python/tvm/relax/script/parser/parser.py", "src/relax/script/printer/dependent_type.cc", "src/relax/script/printer/function.cc", "src/relax/script/printer/tir.cc", "src/relax/script/printer/utils.h"], "primary_test_targets": ["tests/python/relax/test_tvmscript_type_vars.py::test_type_vars_roundtrip"]},
+        {"schema_version": "0.3", "agent_id": "tirx_agent", "role": "TIRx dependent-signature parser and printer specialist", "subproblem_id": "tirx_dependent_signature", "writable_paths": ["python/tvm/tirx/script/parser/parser.py", "src/tirx/script/printer/buffer.cc", "src/tirx/script/printer/function.cc", "src/tirx/script/printer/utils.h"], "primary_test_targets": ["tests/python/tirx/test_tvmscript_type_vars.py::test_type_vars_roundtrip"]}
+      ],
+      "dependency_annotations": [
+        {"schema_version": "0.3", "producer_subproblem": "shared_script_signature_core", "consumer_subproblem": "relax_dependent_signature", "dependency_type": "api_contract", "description": "The shared Script type-parameter AST and document model are consumed by the Relax dependent-signature parser and printer.", "evidence_paths": ["python/tvm/script/parser/core/doc_core.py", "src/script/printer/doc_printer/python_doc_printer.cc", "python/tvm/relax/script/parser/parser.py", "src/relax/script/printer/function.cc", "tests/python/relax/test_tvmscript_type_vars.py"]},
+        {"schema_version": "0.3", "producer_subproblem": "shared_script_signature_core", "consumer_subproblem": "tirx_dependent_signature", "dependency_type": "api_contract", "description": "The shared Script type-parameter AST and document model are consumed by the TIRx dependent-signature parser and printer.", "evidence_paths": ["python/tvm/script/parser/core/doc_core.py", "src/script/printer/doc_printer/python_doc_printer.cc", "python/tvm/tirx/script/parser/parser.py", "src/tirx/script/printer/function.cc", "tests/python/tirx/test_tvmscript_type_vars.py"]}
+      ],
+      "information_profile": "private-workspace",
+      "concurrent_execution": true,
+      "communication_condition": "structured_message_and_artifact",
+      "message_delivery_policy": "Workers may send type-parameter AST decisions, signature-shape assumptions, targeted results, and explicit patch artifacts while active.",
+      "integration_policy": "Integrate the latest explicitly transferred artifacts and record whether delivered shared-core contract information changed later dialect actions.",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "token_budget_per_agent": 60000,
+      "test_budget_per_agent": 8,
+      "wall_clock_budget_seconds": 1800,
+      "competence_gate_required": true,
+      "official_result_eligible": true
+    }
+  ]
+}

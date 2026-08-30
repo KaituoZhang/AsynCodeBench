@@ -1,0 +1,52 @@
+{
+  "generated_sha256": {
+    "docs/results/QWEN36_27_20TASK_PAPER_ANALYSIS.md": "9c1d17fb0b6aedf5173875bba1b080cabb6d920a532f8b5821be9301c033e6bb",
+    "docs/results/figures/qwen36_27_20task_async_effects.svg": "a4675d8c6b36eb8d3bafeaa04672d4316e70eb234ebdd25fec29464bb0ad2a11",
+    "docs/results/figures/qwen36_27_20task_coordination_diagnostics.svg": "1d0bb7683715578a44a7f59d58b0ab42aa1745bcf1148e5016dafbfd0cd9b366",
+    "docs/results/figures/qwen36_27_20task_outcome_heatmap.svg": "7b60f7a0f6f4c37bb79ce0fc87e13bdb15f4e26c6db4e0a80aea1c4d1141aef2",
+    "docs/results/figures/qwen36_27_dependency_coordination_profile.svg": "43f72270cb56a783ffc51d0f80df7b76446430009842cc5a7b02300e8222ab1d",
+    "docs/results/qwen36_27_paper_protocol_contrasts.csv": "73ec88d0802db465822ee70963b968d3663cf9f8b6a4d94054b77fd2efa40cea",
+    "docs/results/qwen36_27_paper_protocol_table.csv": "c01d79077c830d1253d04537a355d95fb82fbece2d20d4c3dfd7ed3274527e18",
+    "docs/results/qwen36_27_paper_task_table.csv": "68ed6ea1555d140d9f6a1477b6f6c2bce83ad7259504b9a0e540b666460373b6"
+  },
+  "metric_policy": {
+    "SAD_SAR": "not estimable; heuristic proxy candidates are audit-only",
+    "coordination_diagnostics": [
+      "FSAR",
+      "IFR",
+      "SVR",
+      "MRR"
+    ],
+    "primary": [
+      "ADPR",
+      "unresolved",
+      "DRS_penalized",
+      "CAIL_penalized",
+      "DRE"
+    ],
+    "supporting": [
+      "final_success",
+      "test_pass_rate",
+      "tokens",
+      "runtime"
+    ]
+  },
+  "model": "Qwen3.6-27B",
+  "schema_version": "qwen36-unified-20task-paper-analysis-v2",
+  "scope": {
+    "adapted_repository_tasks": 20,
+    "aggregation_population": "all 20 adapted repository tasks",
+    "protocols": [
+      "single",
+      "serial_specialists",
+      "async_private",
+      "caid_manager"
+    ],
+    "result_cells": 80
+  },
+  "source_sha256": {
+    "docs/results/qwen36_27_commit0_tvm_per_run.csv": "b3f90bb934fe8164511cbff8294302aeee05a39602cde9384ce4bd52751503f3",
+    "docs/results/qwen36_27_frozen_result_index.v1.json": "03368eb0db07edc3876ea4547b0ef50075efc2ba38b2b16d492431ab71fae6aa",
+    "docs/results/qwen36_27_task_taxonomy.csv": "27795362cf2c88ab21ffcf1bde78457838049d2b1e647f6c4df1f210e99761f7"
+  }
+}

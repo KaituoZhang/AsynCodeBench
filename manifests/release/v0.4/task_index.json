@@ -1,0 +1,2301 @@
+{
+  "automated_audit_complete_task_count": 20,
+  "community_preview_ready": true,
+  "dependency_point_count": 55,
+  "execution_profile": {
+    "path": "configs/evaluation/official_execution_profile.v2.json",
+    "profile_id": "asyncodebench-v0.3-standard-100",
+    "sha256": "4d63f8d7176c0391528b39e283cd2f7ba53c15c99bc958f9674ebbe65cbef609"
+  },
+  "human_review_complete_task_count": 20,
+  "human_review_passed_task_count": 20,
+  "human_review_policy": {
+    "adjudication_required": false,
+    "automated_audit_counts_as_human": false,
+    "automated_audit_required": true,
+    "policy_id": "single-human-plus-automated-audit-v1",
+    "required_human_annotation_artifact": "annotation_a",
+    "required_human_review_count_per_task": 1,
+    "secondary_human_annotation_required": false
+  },
+  "protocols": [
+    "single",
+    "serial_specialists",
+    "async_private",
+    "caid_manager"
+  ],
+  "release": "v0.4",
+  "release_stage": "community_preview",
+  "release_version": "0.4.0",
+  "scenario_count": 80,
+  "schema_version": "asyncodebench-task-index-v1",
+  "stable_release_ready": false,
+  "task_count": 20,
+  "tasks": [
+    {
+      "annotation_status": {
+        "adjudication_complete": false,
+        "adjudication_required": false,
+        "annotator_a_complete": true,
+        "annotator_b_complete": true,
+        "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
+        "human_annotations_agree": true,
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
+      },
+      "artifacts": {
+        "adjudication_template": {
+          "path": "manifests/annotations/asyncodebench_v0.3/cachetools/adjudication.template.json",
+          "sha256": "26fb9878933765b12ee92b8890de07272c5d51c05dfc3e9d3e4091e59ab64fc4"
+        },
+        "annotation_a": {
+          "path": "manifests/annotations/asyncodebench_v0.3/cachetools/annotator_a.json",
+          "sha256": "317b2094afa5ca64f18162d58f1cc30320b0693be506a60bcb37d7a9f9fb5a8c"
+        },
+        "annotation_audit": {
+          "path": "manifests/annotations/asyncodebench_v0.3/cachetools/annotator_codex_audit.json",
+          "sha256": "33fd212ab7d8359b8b251e258dc9587bca728201003481989f5fb87b5e59fdee"
+        },
+        "annotation_b": {
+          "path": "manifests/annotations/asyncodebench_v0.3/cachetools/annotator_b.json",
+          "sha256": "c0c8cf2d95e1c37bc072817aa259bd7f0a4953a466a04eb73979906336f5d954"
+        },
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_cachetools_async_metrics.json",
+          "sha256": "00a744020f4bc919310fc35bcb49c07dc5e99212d561d4de7c16adbeb25e1075"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_cachetools.json",
+          "sha256": "2c145f118eb2372f8062fd80112207e87bd9c1cebf3bfdc13dc6e7a5297955de"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_cachetools.json",
+          "sha256": "00a85f9ddfbb1d783c5dd13455a0927e83029ccc76e33c270431118e81997879"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_cachetools.json",
+          "sha256": "f7a842f0b90085ea7364a84f03da117872674fcfa86c978199e8d3663127408d"
+        }
+      },
+      "dependency_point_count": 5,
+      "official_result_eligible": true,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 2,
+          "communication_condition": "none_in_flight",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "asyncodebench-cachetools.async-private.v0.3",
+          "source_scenario_id": "commit0-cachetools.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 2,
+          "communication_condition": "structured_message_and_artifact",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "asyncodebench-cachetools.async-message.v0.3",
+          "source_scenario_id": "commit0-cachetools.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 2,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "asyncodebench-cachetools.serial-specialists.v0.3",
+          "source_scenario_id": "commit0-cachetools.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "asyncodebench-cachetools.iterative-single.v0.3",
+          "source_scenario_id": "commit0-cachetools.iterative-single.v0.3"
+        }
+      },
+      "quality_status": "qualification_ready",
+      "repository": "cachetools",
+      "source": {
+        "base_ref": "commit0",
+        "base_sha": "a0a7e2b73f9e146b8a8f2912948b17a918e5fe83",
+        "benchmark": "Commit0",
+        "overlay_count": 0,
+        "overlays": [],
+        "repository": "cachetools"
+      },
+      "source_task_id": "commit0:cachetools",
+      "task_id": "asyncodebench:cachetools"
+    },
+    {
+      "annotation_status": {
+        "adjudication_complete": false,
+        "adjudication_required": false,
+        "annotator_a_complete": true,
+        "annotator_b_complete": false,
+        "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
+        "human_annotations_agree": false,
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
+      },
+      "artifacts": {
+        "adjudication_template": {
+          "path": "manifests/annotations/asyncodebench_v0.3/deprecated/adjudication.template.json",
+          "sha256": "b3aef46f3f7e6dc21f3e7f37ac9432c92f17b42b11cac1ff4e79999783029080"
+        },
+        "annotation_a": {
+          "path": "manifests/annotations/asyncodebench_v0.3/deprecated/annotator_a.json",
+          "sha256": "de069b5a6a53f120ccbea2967d9a75768566558b02cb28b35adb0e91da3887d2"
+        },
+        "annotation_audit": {
+          "path": "manifests/annotations/asyncodebench_v0.3/deprecated/annotator_codex_audit.json",
+          "sha256": "765310875193cc0868951abfd88fe8761431b7866cf2e2aed4622cae87d813ef"
+        },
+        "annotation_b": {
+          "path": "manifests/annotations/asyncodebench_v0.3/deprecated/annotator_b.json",
+          "sha256": "fb9a24bf58dbe63633a0c958f4f885d11f6d9569ad22cfcc2d21c2b88e7046fe"
+        },
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_deprecated_async_metrics.json",
+          "sha256": "1c0e0d2465b05edacb6375a8b27aac249f9a677df2d182c9adc4862b2cb2f86a"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_deprecated.json",
+          "sha256": "dc156e4ce4c997d33df548b0732d17f154682a0f53631dbe12febfc6f1e0346d"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_deprecated.json",
+          "sha256": "b76901c8dddbe5f441ad241463b82a73a563f21f78cc057d0c0907b24a9eef1d"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_deprecated.json",
+          "sha256": "5137b46f15ce6bf40bee27f1e4d7722e434a2387e205e36d92adfc37a06d0e23"
+        }
+      },
+      "dependency_point_count": 3,
+      "official_result_eligible": true,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 2,
+          "communication_condition": "none_in_flight",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "asyncodebench-deprecated.async-private.v0.3",
+          "source_scenario_id": "commit0-deprecated.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 2,
+          "communication_condition": "structured_message_and_artifact",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "asyncodebench-deprecated.async-message.v0.3",
+          "source_scenario_id": "commit0-deprecated.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 2,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "asyncodebench-deprecated.serial-specialists.v0.3",
+          "source_scenario_id": "commit0-deprecated.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "asyncodebench-deprecated.iterative-single.v0.3",
+          "source_scenario_id": "commit0-deprecated.iterative-single.v0.3"
+        }
+      },
+      "quality_status": "qualification_ready",
+      "repository": "deprecated",
+      "source": {
+        "base_ref": "commit0",
+        "base_sha": "b7e2114c046abb489e4e23ab9f829778b076650d",
+        "benchmark": "Commit0",
+        "overlay_count": 0,
+        "overlays": [],
+        "repository": "deprecated"
+      },
+      "source_task_id": "commit0:deprecated",
+      "task_id": "asyncodebench:deprecated"
+    },
+    {
+      "annotation_status": {
+        "adjudication_complete": false,
+        "adjudication_required": false,
+        "annotator_a_complete": true,
+        "annotator_b_complete": false,
+        "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
+        "human_annotations_agree": false,
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
+      },
+      "artifacts": {
+        "adjudication_template": {
+          "path": "manifests/annotations/asyncodebench_v0.3/portalocker/adjudication.template.json",
+          "sha256": "ca89578ddcdc63c3c51db2278096613da1f29d16f8b7ab062fc81fe64b9444ba"
+        },
+        "annotation_a": {
+          "path": "manifests/annotations/asyncodebench_v0.3/portalocker/annotator_a.json",
+          "sha256": "309c7886a2c033f420b02d3c6f8130ace09ba730079a174936730fb0303830e5"
+        },
+        "annotation_audit": {
+          "path": "manifests/annotations/asyncodebench_v0.3/portalocker/annotator_codex_audit.json",
+          "sha256": "feb161bb95736a9eff66b54841fdc298bb478b86f87932809a7f22bf73499857"
+        },
+        "annotation_b": {
+          "path": "manifests/annotations/asyncodebench_v0.3/portalocker/annotator_b.json",
+          "sha256": "93dd473f66dad1b8304d2a9206815ab8010a0b6c3312a7322fd1a26ad172b760"
+        },
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_portalocker_async_metrics.json",
+          "sha256": "983fb18a3e450236e31859ffb9dde5f2b4d7fb0cfc8875a4d69f1686cfd69ff1"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_portalocker.json",
+          "sha256": "1aed52fc8127ea30b089ef0f2b131417bf2babdf0d63e4248c0f55c2e6eea90c"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_portalocker.json",
+          "sha256": "7c2bfac6b45d33a75668ff299d419366f939ae37c31a21d2dd6f1fffbaf01769"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_portalocker.json",
+          "sha256": "a57a8825fc374a3791a0ba100e6fba5104bade50f896a83309de7224e917acde"
+        }
+      },
+      "dependency_point_count": 3,
+      "official_result_eligible": true,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 2,
+          "communication_condition": "none_in_flight",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "asyncodebench-portalocker.async-private.v0.3",
+          "source_scenario_id": "commit0-portalocker.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 2,
+          "communication_condition": "structured_message_and_artifact",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "asyncodebench-portalocker.async-message.v0.3",
+          "source_scenario_id": "commit0-portalocker.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 2,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "asyncodebench-portalocker.serial-specialists.v0.3",
+          "source_scenario_id": "commit0-portalocker.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "asyncodebench-portalocker.iterative-single.v0.3",
+          "source_scenario_id": "commit0-portalocker.iterative-single.v0.3"
+        }
+      },
+      "quality_status": "qualification_ready",
+      "repository": "portalocker",
+      "source": {
+        "base_ref": "commit0",
+        "base_sha": "300136afca11ea23c79ecfd110ed0d2819322f11",
+        "benchmark": "Commit0",
+        "overlay_count": 1,
+        "overlays": [
+          {
+            "path": "data/overlays/commit0/portalocker/0001-import-bootstrap.patch",
+            "rationale": "Expose intentionally unfinished lock and unlock stubs required by the public package API so the POSIX core evaluator can collect. No operating-system locking, exception translation, timeout, or lifecycle behavior is supplied.",
+            "sha256": "954c4855872d8c4695e981cc257f72a22a4d6e5302f09f0965c2062cee8d6c54"
+          }
+        ],
+        "repository": "portalocker"
+      },
+      "source_task_id": "commit0:portalocker",
+      "task_id": "asyncodebench:portalocker"
+    },
+    {
+      "annotation_status": {
+        "adjudication_complete": false,
+        "adjudication_required": false,
+        "annotator_a_complete": true,
+        "annotator_b_complete": false,
+        "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
+        "human_annotations_agree": false,
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
+      },
+      "artifacts": {
+        "adjudication_template": {
+          "path": "manifests/annotations/asyncodebench_v0.3/tinydb/adjudication.template.json",
+          "sha256": "6f01b994b556674cb16e7bf36e60976140a8b955eeb89d27507b2d53acf20b51"
+        },
+        "annotation_a": {
+          "path": "manifests/annotations/asyncodebench_v0.3/tinydb/annotator_a.json",
+          "sha256": "b6cabb32eb7cde2e7d85b48c0856bf60c0d6fdeb9167ad86637db4277a82a20d"
+        },
+        "annotation_audit": {
+          "path": "manifests/annotations/asyncodebench_v0.3/tinydb/annotator_codex_audit.json",
+          "sha256": "5378d8fe49b893bbc1897f5154bf835a8f60861917a2174031fece2953e712a0"
+        },
+        "annotation_b": {
+          "path": "manifests/annotations/asyncodebench_v0.3/tinydb/annotator_b.json",
+          "sha256": "7c35807e83f94c8102b5dc3c37b0cbd0e60e7b9e87640cd269af6397728c2c11"
+        },
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_tinydb_async_metrics.json",
+          "sha256": "9a5cfef074c231dfb652762421d2ce2e3493c6370bbccbfbc0492c11cadd570c"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_tinydb.json",
+          "sha256": "bfe0302c6f054fbec0f164b233da4bb9305aef531b893f5cc4df1eed2bcf2813"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_tinydb.json",
+          "sha256": "ffea0dd040d78cc0f6ccdb5fe37d2968ae6c4a343570175d13575f3a5ae18e1a"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_tinydb.json",
+          "sha256": "26a16db0b781593dad0dbeb1253a2b12d70173c097ff1473c08c9cd34bd92afe"
+        }
+      },
+      "dependency_point_count": 3,
+      "official_result_eligible": true,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 2,
+          "communication_condition": "none_in_flight",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "asyncodebench-tinydb.async-private.v0.3",
+          "source_scenario_id": "commit0-tinydb.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 2,
+          "communication_condition": "structured_message_and_artifact",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "asyncodebench-tinydb.async-message.v0.3",
+          "source_scenario_id": "commit0-tinydb.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 2,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "asyncodebench-tinydb.serial-specialists.v0.3",
+          "source_scenario_id": "commit0-tinydb.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "asyncodebench-tinydb.iterative-single.v0.3",
+          "source_scenario_id": "commit0-tinydb.iterative-single.v0.3"
+        }
+      },
+      "quality_status": "qualification_ready",
+      "repository": "tinydb",
+      "source": {
+        "base_ref": "commit0",
+        "base_sha": "ed761a72c8c1e1cb24ca4dbcc089f35c5264d357",
+        "benchmark": "Commit0",
+        "overlay_count": 1,
+        "overlays": [
+          {
+            "path": "data/overlays/commit0/tinydb/0001-import-bootstrap.patch",
+            "rationale": "Restore only the two runtime class-definition prerequisites described by the public source: with_typehint uses object at runtime and FrozenDict exposes an intentionally unfinished _immutable stub. No query, storage, table, database, or middleware behavior is supplied.",
+            "sha256": "fa0d43a64a64d6bcd085661328bfca566f678f384ac4bf6c8bf2b79b0c01a464"
+          }
+        ],
+        "repository": "tinydb"
+      },
+      "source_task_id": "commit0:tinydb",
+      "task_id": "asyncodebench:tinydb"
+    },
+    {
+      "annotation_status": {
+        "adjudication_complete": false,
+        "adjudication_required": false,
+        "annotator_a_complete": true,
+        "annotator_b_complete": false,
+        "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
+        "human_annotations_agree": false,
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
+      },
+      "artifacts": {
+        "adjudication_template": {
+          "path": "manifests/annotations/asyncodebench_v0.3/wcwidth/adjudication.template.json",
+          "sha256": "30dfa06622f9e4c1ee9c722f8ddc5bc2f440a2948ee5f199d52e9ca043f77831"
+        },
+        "annotation_a": {
+          "path": "manifests/annotations/asyncodebench_v0.3/wcwidth/annotator_a.json",
+          "sha256": "680e0ece39f3512bb0c9d5ff471af0156c9d9a67d03db3d7d4186917fe47d921"
+        },
+        "annotation_audit": {
+          "path": "manifests/annotations/asyncodebench_v0.3/wcwidth/annotator_codex_audit.json",
+          "sha256": "c81fe50c8959949c12870f9224045d108b767a57599914c92edaab8d75369325"
+        },
+        "annotation_b": {
+          "path": "manifests/annotations/asyncodebench_v0.3/wcwidth/annotator_b.json",
+          "sha256": "ae0e887112d6782366126b7d93478ab1227a380c78a4b0517fb631ca7c4b0827"
+        },
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_wcwidth_async_metrics.json",
+          "sha256": "f8388c8ac1cd188f834926716015a49dfaeeeaf36651e2cadd0b032cd4dfc52a"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_wcwidth.json",
+          "sha256": "837b4b956d5865960f0e1623ca94745c3b2051f8a11d942d26d95b18888b6e60"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_wcwidth.json",
+          "sha256": "1745a4c31a80729491e402e9170af543bf7e4f4b24aa0fa0253f513861f9afb7"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_wcwidth.json",
+          "sha256": "f97c73ea0f21f1dad850cede184f99c9ebd17de5d000d9d1b83ed4354a66cad6"
+        }
+      },
+      "dependency_point_count": 2,
+      "official_result_eligible": true,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 2,
+          "communication_condition": "none_in_flight",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "asyncodebench-wcwidth.async-private.v0.3",
+          "source_scenario_id": "commit0-wcwidth.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 2,
+          "communication_condition": "structured_message_and_artifact",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "asyncodebench-wcwidth.async-message.v0.3",
+          "source_scenario_id": "commit0-wcwidth.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 2,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "asyncodebench-wcwidth.serial-specialists.v0.3",
+          "source_scenario_id": "commit0-wcwidth.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "asyncodebench-wcwidth.iterative-single.v0.3",
+          "source_scenario_id": "commit0-wcwidth.iterative-single.v0.3"
+        }
+      },
+      "quality_status": "qualification_ready",
+      "repository": "wcwidth",
+      "source": {
+        "base_ref": "commit0",
+        "base_sha": "0d0054189bdb0fc7b9de0456fc3cee2b67a6ceba",
+        "benchmark": "Commit0",
+        "overlay_count": 0,
+        "overlays": [],
+        "repository": "wcwidth"
+      },
+      "source_task_id": "commit0:wcwidth",
+      "task_id": "asyncodebench:wcwidth"
+    },
+    {
+      "annotation_status": {
+        "adjudication_complete": false,
+        "adjudication_required": false,
+        "annotator_a_complete": true,
+        "annotator_b_complete": false,
+        "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
+        "human_annotations_agree": false,
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
+      },
+      "artifacts": {
+        "adjudication_template": {
+          "path": "manifests/annotations/asyncodebench_v0.3/requests/adjudication.template.json",
+          "sha256": "f1c290aa1ffddc4171b97797333356b05d282aac058a5df3a064463c7f2ab579"
+        },
+        "annotation_a": {
+          "path": "manifests/annotations/asyncodebench_v0.3/requests/annotator_a.json",
+          "sha256": "746f3c66a9d291b9efa8230d72e0e8c669dd547018fd218aff10c259a848596b"
+        },
+        "annotation_audit": {
+          "path": "manifests/annotations/asyncodebench_v0.3/requests/annotator_codex_audit.json",
+          "sha256": "0bfccd09317cfa66c923e39e36fd9b58965f3f18ad0e1f2aedf2b3e19574633f"
+        },
+        "annotation_b": {
+          "path": "manifests/annotations/asyncodebench_v0.3/requests/annotator_b.json",
+          "sha256": "89f3ab1a9047e4dc83ddb3201e2f6a4475a47a50ae171c201a0377950c20a39f"
+        },
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_requests_async_metrics.json",
+          "sha256": "375ca5db156a0d2bbcbde04c538f6fa4267a9b332e19f65fb41c10294d19664b"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_requests.json",
+          "sha256": "0ba6e94985cb93c8d22dc0f392ceaf7f46bbe06975e161c6ddbc1decfee43131"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_requests.json",
+          "sha256": "710804b124fc2fbc0a6be4a245fbe68b9de66887d3380e7c7c1cba5a9bb35c72"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_requests.json",
+          "sha256": "072319ee9e8bb784d46b323813c2452b55729384cd9d3d352c0fa462f8de75f4"
+        }
+      },
+      "dependency_point_count": 3,
+      "official_result_eligible": true,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 3,
+          "communication_condition": "none_in_flight",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "asyncodebench-requests.async-private.v0.3",
+          "source_scenario_id": "commit0-requests.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 3,
+          "communication_condition": "structured_message_and_artifact",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "asyncodebench-requests.async-message.v0.3",
+          "source_scenario_id": "commit0-requests.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 3,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "asyncodebench-requests.serial-specialists.v0.3",
+          "source_scenario_id": "commit0-requests.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "asyncodebench-requests.iterative-single.v0.3",
+          "source_scenario_id": "commit0-requests.iterative-single.v0.3"
+        }
+      },
+      "quality_status": "qualification_ready",
+      "repository": "requests",
+      "source": {
+        "base_ref": "origin/commit0_combined",
+        "base_sha": "0e5a01d0ed71fd20b6a72cafe92b9a917ce93d7b",
+        "benchmark": "Commit0",
+        "overlay_count": 3,
+        "overlays": [
+          {
+            "path": "data/overlays/commit0/requests/0001-syntax-bootstrap.patch",
+            "rationale": "Restore only mechanical import/parse prerequisites so the stripped Requests source can collect tests: the SOCKS import fallback body and placeholder definitions for internally imported _copy_cookie_jar, default_hooks, and super_len. No SOCKS fallback function, adapter behavior, session behavior, request preparation, response handling, cookie behavior, hook dispatch, body-length behavior, or utility behavior is supplied.",
+            "sha256": "56d1a39303d1b3cf438bec1dae55e5ad5723d6e17cb94a87388a441d888f9651"
+          },
+          {
+            "path": "data/overlays/commit0/requests/0002-status-codes-bootstrap.patch",
+            "rationale": "Restore only the missing status_codes._init symbol and the five redirect aliases needed by requests.models.REDIRECT_STATI during package import. The full status-code lookup table is not populated by the overlay.",
+            "sha256": "f8c49572a6daf5e7d4e65cb44e0787d6f7e69f559fd947d6441584db3fbaa661"
+          },
+          {
+            "path": "data/overlays/commit0/requests/0003-utils-import-bootstrap.patch",
+            "rationale": "Make extract_zipped_paths return its input path so adapter TLS context preload receives a filesystem path during package import. Zip extraction and path-materialization behavior remain unfinished.",
+            "sha256": "9f7f3012f0ff45c2c15e3b5fae529afd918a02e1831870b32af80f447e1b7c43"
+          }
+        ],
+        "repository": "requests"
+      },
+      "source_task_id": "commit0:requests",
+      "task_id": "asyncodebench:requests"
+    },
+    {
+      "annotation_status": {
+        "adjudication_complete": false,
+        "adjudication_required": false,
+        "annotator_a_complete": true,
+        "annotator_b_complete": false,
+        "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
+        "human_annotations_agree": false,
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
+      },
+      "artifacts": {
+        "adjudication_template": {
+          "path": "manifests/annotations/asyncodebench_v0.3/simpy/adjudication.template.json",
+          "sha256": "d4e2ae5bd45f0f48543bd30b234180652d27f0af8133754b3d327e99e00dee84"
+        },
+        "annotation_a": {
+          "path": "manifests/annotations/asyncodebench_v0.3/simpy/annotator_a.json",
+          "sha256": "b44d283ca709d89eb15091f33d6c5de72c090877e03cd51bfe420842fca4ad7e"
+        },
+        "annotation_audit": {
+          "path": "manifests/annotations/asyncodebench_v0.3/simpy/annotator_codex_audit.json",
+          "sha256": "2ba08f882a606016c5b691b6e9f9f9dbee1cc60da5e487381658b0d384966550"
+        },
+        "annotation_b": {
+          "path": "manifests/annotations/asyncodebench_v0.3/simpy/annotator_b.json",
+          "sha256": "7a5f8624fa6272b7e63687b5a79fb35663c117404b85e1986d1f4a3c4494c2b4"
+        },
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_simpy_async_metrics.json",
+          "sha256": "7e62f62e792e5062ee9c149e1da5af1d77356f14230dfc2b2a30f6e2fe1a4b3b"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_simpy.json",
+          "sha256": "36405f20b704d6605293c0ceac1720ba13c9186323ce414ece7603f30941f07c"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_simpy.json",
+          "sha256": "5d64712e164ca168a0813fba4439272cd205378fcb0ae80591e0cc80e015d8cf"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_simpy.json",
+          "sha256": "fc82b75edbe1c24f5b9e5acad775cd9ea4dbcac3cc603a9ac70bb43e23a059d9"
+        }
+      },
+      "dependency_point_count": 3,
+      "official_result_eligible": true,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 4,
+          "communication_condition": "none_in_flight",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "asyncodebench-simpy.async-private.v0.3",
+          "source_scenario_id": "commit0-simpy.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 4,
+          "communication_condition": "structured_message_and_artifact",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "asyncodebench-simpy.async-message.v0.3",
+          "source_scenario_id": "commit0-simpy.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 4,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "asyncodebench-simpy.serial-specialists.v0.3",
+          "source_scenario_id": "commit0-simpy.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "asyncodebench-simpy.iterative-single.v0.3",
+          "source_scenario_id": "commit0-simpy.iterative-single.v0.3"
+        }
+      },
+      "quality_status": "qualification_ready",
+      "repository": "simpy",
+      "source": {
+        "base_ref": "origin/commit0_combined",
+        "base_sha": "25496719af798e5a276289279651873ea5b6e7d1",
+        "benchmark": "Commit0",
+        "overlay_count": 0,
+        "overlays": [],
+        "repository": "simpy"
+      },
+      "source_task_id": "commit0:simpy",
+      "task_id": "asyncodebench:simpy"
+    },
+    {
+      "annotation_status": {
+        "adjudication_complete": false,
+        "adjudication_required": false,
+        "annotator_a_complete": true,
+        "annotator_b_complete": false,
+        "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
+        "human_annotations_agree": false,
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
+      },
+      "artifacts": {
+        "adjudication_template": {
+          "path": "manifests/annotations/asyncodebench_v0.3/parsel/adjudication.template.json",
+          "sha256": "d25384f1ce2d502ad5232486f34a832fca71105bd9e98053c977fbfe3d145783"
+        },
+        "annotation_a": {
+          "path": "manifests/annotations/asyncodebench_v0.3/parsel/annotator_a.json",
+          "sha256": "821f326760eb939ea5f0c0104b0c1d5b2930e6715c68219880efc08ffbc09a4e"
+        },
+        "annotation_audit": {
+          "path": "manifests/annotations/asyncodebench_v0.3/parsel/annotator_codex_audit.json",
+          "sha256": "cf246e4effeb093c222a7104ef2839cb3c049dde48333ff605e05aaedefcb3b0"
+        },
+        "annotation_b": {
+          "path": "manifests/annotations/asyncodebench_v0.3/parsel/annotator_b.json",
+          "sha256": "5b2ade201f57aa0766c2bbfa228c749f03c38509b2427696e395a87867ac0e23"
+        },
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_parsel_async_metrics.json",
+          "sha256": "ae098befad71cf7ddeddd420ddde9d1c732ee29b5ca76b4b9153233ef1165a3a"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_parsel.json",
+          "sha256": "605a81f854cb3cbef549c802bb514393911349d3a82bebdd61854c971f2ca2df"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_parsel.json",
+          "sha256": "55f74ed58ea559e5498cb36949088b8220720f360c3908affc776039dc9ffccd"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_parsel.json",
+          "sha256": "82af8292b2cad4bf7859b4aefc2ac3fffe0fda29de68e9e5bcc0c84ec022d96e"
+        }
+      },
+      "dependency_point_count": 2,
+      "official_result_eligible": true,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 3,
+          "communication_condition": "none_in_flight",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "asyncodebench-parsel.async-private.v0.3",
+          "source_scenario_id": "commit0-parsel.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 3,
+          "communication_condition": "structured_message_and_artifact",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "asyncodebench-parsel.async-message.v0.3",
+          "source_scenario_id": "commit0-parsel.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 3,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "asyncodebench-parsel.serial-specialists.v0.3",
+          "source_scenario_id": "commit0-parsel.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "asyncodebench-parsel.iterative-single.v0.3",
+          "source_scenario_id": "commit0-parsel.iterative-single.v0.3"
+        }
+      },
+      "quality_status": "qualification_ready",
+      "repository": "parsel",
+      "source": {
+        "base_ref": "origin/commit0_combined",
+        "base_sha": "7e73d60665ef2e3ddfe3c1bb01eed981cd317c6f",
+        "benchmark": "Commit0",
+        "overlay_count": 1,
+        "overlays": [
+          {
+            "path": "data/overlays/commit0/parsel/0001-xpathfuncs-setup-bootstrap.patch",
+            "rationale": "Expose only the package-import setup() hook that parsel.__init__ calls, delegating to the already stripped set_xpathfunc('has-class', has_class) implementation. No XPath extension registration behavior, has-class semantics, selector behavior, CSS translation, or utility behavior is supplied.",
+            "sha256": "05da149bfc8d5508fb42a77cdbc15c8b3aee017056b38401883fab325e4006a8"
+          }
+        ],
+        "repository": "parsel"
+      },
+      "source_task_id": "commit0:parsel",
+      "task_id": "asyncodebench:parsel"
+    },
+    {
+      "annotation_status": {
+        "adjudication_complete": false,
+        "adjudication_required": false,
+        "annotator_a_complete": true,
+        "annotator_b_complete": false,
+        "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
+        "human_annotations_agree": false,
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
+      },
+      "artifacts": {
+        "adjudication_template": {
+          "path": "manifests/annotations/asyncodebench_v0.3/filesystem_spec/adjudication.template.json",
+          "sha256": "00ad07739143bccc820d149b26cef36bf563cc0dc3ab540ad28d7baa842d7d1d"
+        },
+        "annotation_a": {
+          "path": "manifests/annotations/asyncodebench_v0.3/filesystem_spec/annotator_a.json",
+          "sha256": "370db319b7a9ca603a7ad8ff036b005f9b0f611d9d35b812c2d41d5eb4492e56"
+        },
+        "annotation_audit": {
+          "path": "manifests/annotations/asyncodebench_v0.3/filesystem_spec/annotator_codex_audit.json",
+          "sha256": "2b8a8d5eb67bc6810bc65c27400fac7121aaffec2cf19898983301e24d9fb98c"
+        },
+        "annotation_b": {
+          "path": "manifests/annotations/asyncodebench_v0.3/filesystem_spec/annotator_b.json",
+          "sha256": "76797bb5762fa6c75693bda1019bd333fe1ba60fe10fe70097b61e668beaaea8"
+        },
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_filesystem_spec_async_metrics.json",
+          "sha256": "ac3f202a9f3edeeaeb1f569f58502cc9d3b5b6a3605b0052241aa7d922d833a6"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_filesystem_spec.json",
+          "sha256": "b2224f13b008a9cc882bdda9c390dae8dbbfe8cbd5cce2441f7ba1d7dbc26e96"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_filesystem_spec.json",
+          "sha256": "cf3e5577945b58d84730352768ed7641913c8d90223330b1631d6d0ca1617d9f"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_filesystem_spec.json",
+          "sha256": "a21bc9cc3f5550b69d7b1a516224cba022e2377410dc8348a345b0a759f1914f"
+        }
+      },
+      "dependency_point_count": 2,
+      "official_result_eligible": true,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 3,
+          "communication_condition": "none_in_flight",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "asyncodebench-filesystem-spec.async-private.v0.3",
+          "source_scenario_id": "commit0-filesystem-spec.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 3,
+          "communication_condition": "structured_message_and_artifact",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "asyncodebench-filesystem-spec.async-message.v0.3",
+          "source_scenario_id": "commit0-filesystem-spec.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 3,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "asyncodebench-filesystem-spec.serial-specialists.v0.3",
+          "source_scenario_id": "commit0-filesystem-spec.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "asyncodebench-filesystem-spec.iterative-single.v0.3",
+          "source_scenario_id": "commit0-filesystem-spec.iterative-single.v0.3"
+        }
+      },
+      "quality_status": "qualification_ready",
+      "repository": "filesystem_spec",
+      "source": {
+        "base_ref": "origin/commit0_combined",
+        "base_sha": "0d34761c18d98009d76a1c19246606026c0e44a0",
+        "benchmark": "Commit0",
+        "overlay_count": 4,
+        "overlays": [
+          {
+            "path": "data/overlays/commit0/filesystem_spec/0001-version-bootstrap.patch",
+            "rationale": "Restore only the hatch-vcs generated fsspec._version module needed by fsspec.__init__ during direct checkout test execution. No filesystem, registry, core, utility, cache, or compression behavior is supplied.",
+            "sha256": "65c24451d258655b6af03f696543d51c6be1dbe710a0dd6bdebf1d1ecaef7e54"
+          },
+          {
+            "path": "data/overlays/commit0/filesystem_spec/0002-utils-import-bootstrap.patch",
+            "rationale": "Expose only missing utility symbols imported by public modules and tests: is_exception, isfilelike, get_protocol, _unstrip_protocol, setup_logging, and nullcontext. The functions are intentionally unfinished placeholders.",
+            "sha256": "9002018d1df90601b464ec3025df15a834218e705dbbe1cbb2c0b9296f7d92cb"
+          },
+          {
+            "path": "data/overlays/commit0/filesystem_spec/0003-compression-import-bootstrap.patch",
+            "rationale": "Expose only import-time compression callables noop_file, unzip, and zstandard_file so compression.py can import. Compression registration and codec behavior remain unfinished.",
+            "sha256": "a8c13b8dc4267cb12e2f95da9b46457c49d3c18ba24af7c07754206d6f129c25"
+          },
+          {
+            "path": "data/overlays/commit0/filesystem_spec/0004-core-import-bootstrap.patch",
+            "rationale": "Expose only missing core symbols get_compression and _expand_paths required by local imports and public tests. Path expansion and compression inference behavior remain unfinished.",
+            "sha256": "3fb8eec337c914e7591e63192d5c3cd23b2ca6d56b2e43386b4c5bee53a59fdc"
+          }
+        ],
+        "repository": "filesystem_spec"
+      },
+      "source_task_id": "commit0:filesystem_spec",
+      "task_id": "asyncodebench:filesystem_spec"
+    },
+    {
+      "annotation_status": {
+        "adjudication_complete": false,
+        "adjudication_required": false,
+        "annotator_a_complete": true,
+        "annotator_b_complete": false,
+        "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
+        "human_annotations_agree": false,
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
+      },
+      "artifacts": {
+        "adjudication_template": {
+          "path": "manifests/annotations/asyncodebench_v0.3/marshmallow/adjudication.template.json",
+          "sha256": "b524163186fcae91b888880894d4decd81dc2c5b6e7248e25735e09319a0657b"
+        },
+        "annotation_a": {
+          "path": "manifests/annotations/asyncodebench_v0.3/marshmallow/annotator_a.json",
+          "sha256": "819917857b2216f017e5d4d71ea6667444096d8a51020fdeb277b7df6dddaaec"
+        },
+        "annotation_audit": {
+          "path": "manifests/annotations/asyncodebench_v0.3/marshmallow/annotator_codex_audit.json",
+          "sha256": "53fe896b0de435805a5827bb3b8618bff9e8fc0702ba1d1ce08f51117899221d"
+        },
+        "annotation_b": {
+          "path": "manifests/annotations/asyncodebench_v0.3/marshmallow/annotator_b.json",
+          "sha256": "f2537013983567fd5a1a72383aff0cda3d808623bad5291cf3211b0add8e864b"
+        },
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_marshmallow_async_metrics.json",
+          "sha256": "138564fcc6909caaa0f8297b3e010df63949ea07f87ebfe07afdd2eac9c2e139"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_marshmallow.json",
+          "sha256": "f94abbbdbf6479b9b0faa964851b0f73edcae24374f955304679779a6adca46d"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_marshmallow.json",
+          "sha256": "fad980aa4833b273bb4c1907f769780f2663cc15a0705d09e7450a2adda322a0"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_marshmallow.json",
+          "sha256": "19cd43370098f3e8401febe97412159dfada89a1a99c3a837a74c9edaca592b3"
+        }
+      },
+      "dependency_point_count": 3,
+      "official_result_eligible": true,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 3,
+          "communication_condition": "none_in_flight",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "asyncodebench-marshmallow.async-private.v0.3",
+          "source_scenario_id": "commit0-marshmallow.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 3,
+          "communication_condition": "structured_message_and_artifact",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "asyncodebench-marshmallow.async-message.v0.3",
+          "source_scenario_id": "commit0-marshmallow.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 3,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "asyncodebench-marshmallow.serial-specialists.v0.3",
+          "source_scenario_id": "commit0-marshmallow.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "asyncodebench-marshmallow.iterative-single.v0.3",
+          "source_scenario_id": "commit0-marshmallow.iterative-single.v0.3"
+        }
+      },
+      "quality_status": "qualification_ready",
+      "repository": "marshmallow",
+      "source": {
+        "base_ref": "origin/commit0_combined",
+        "base_sha": "bd290d2b49f5030a2369aedc5538cffa4815982d",
+        "benchmark": "Commit0",
+        "overlay_count": 4,
+        "overlays": [
+          {
+            "path": "data/overlays/commit0/marshmallow/0001-utils-import-bootstrap.patch",
+            "rationale": "Expose only missing public utility symbols imported by fields/schema tests: timestamp helpers, ISO helpers, text coercion, awareness checks, and unknown-parameter validation. Most helper bodies remain intentionally unfinished stubs.",
+            "sha256": "e6a6a2a8021511d4a79bbfb762b30c5f6a1062c3cfbe2c41552c4efed2f08fde"
+          },
+          {
+            "path": "data/overlays/commit0/marshmallow/0002-schema-import-bootstrap.patch",
+            "rationale": "Allow SchemaMeta class construction by returning empty field/hook structures from stripped metaclass helpers. Field declaration, schema option, load, dump, and hook execution behavior remains unfinished.",
+            "sha256": "2854256b9b5ce69abe09c772803891821faf0b1ff430ec8b0bb79d1707dd17f6"
+          },
+          {
+            "path": "data/overlays/commit0/marshmallow/0003-utils-collection-bootstrap.patch",
+            "rationale": "Provide only the minimal iterable collection predicate needed for public schema fixtures and Nested field construction to import. Full utility behavior remains unfinished.",
+            "sha256": "a2083367dea1122c592a595b1bd9bc2480810a57737102906c74277f61b614b3"
+          },
+          {
+            "path": "data/overlays/commit0/marshmallow/0004-decorators-import-bootstrap.patch",
+            "rationale": "Make public decorators return the decorated function with minimal hook metadata so test modules can collect. Processor invocation, validation, load, and dump behavior remains unfinished.",
+            "sha256": "b6bd30a7f8643ad4b26652707467b633ddf5c43d884210d2188d01d7d7a3614a"
+          }
+        ],
+        "repository": "marshmallow"
+      },
+      "source_task_id": "commit0:marshmallow",
+      "task_id": "asyncodebench:marshmallow"
+    },
+    {
+      "annotation_status": {
+        "adjudication_complete": false,
+        "adjudication_required": false,
+        "annotator_a_complete": true,
+        "annotator_b_complete": false,
+        "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
+        "human_annotations_agree": false,
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
+      },
+      "artifacts": {
+        "adjudication_template": {
+          "path": "manifests/annotations/asyncodebench_v0.3/graphene/adjudication.template.json",
+          "sha256": "874e91e0e7954caff5abf8b2a665a77da9ed766f540a73ed60885088469a07ed"
+        },
+        "annotation_a": {
+          "path": "manifests/annotations/asyncodebench_v0.3/graphene/annotator_a.json",
+          "sha256": "36fb093a134de4c9a906067eb0d5c3e826069aac7a3cc5ac419f0c7f0f9ba6ea"
+        },
+        "annotation_audit": {
+          "path": "manifests/annotations/asyncodebench_v0.3/graphene/annotator_codex_audit.json",
+          "sha256": "1d702faa99ae2caf90bdb08a71c9e02e7c40eb7a323c4a2bf52f0309fe5b4752"
+        },
+        "annotation_b": {
+          "path": "manifests/annotations/asyncodebench_v0.3/graphene/annotator_b.json",
+          "sha256": "cc2c4539c3ce1a2af6df69cc3372c4231c780aec6c062fa02b295f309f6b36b1"
+        },
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_graphene_async_metrics.json",
+          "sha256": "7185bddae58451042063c8efc5adf07c925452dbd5e027547b7fb8ef4173004e"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_graphene.json",
+          "sha256": "0e7fb4fac8a606e94d6ed42bea02a2d4887b0adddf9310b79eff7bf7ae20c5ee"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_graphene.json",
+          "sha256": "1a6c8641c8d402b8541843c37d664e20c6c64f39ea02edc668d377ed5e4177bc"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_graphene.json",
+          "sha256": "b90148ed3ef451b3a5ede722751e2a6540de93fe683c250a19058c0821224699"
+        }
+      },
+      "dependency_point_count": 3,
+      "official_result_eligible": true,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 3,
+          "communication_condition": "private_concurrent_workspaces",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "asyncodebench-graphene.async-private.v0.3",
+          "source_scenario_id": "commit0-graphene.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 3,
+          "communication_condition": "asynchronous_message_handoff",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "asyncodebench-graphene.async-message.v0.3",
+          "source_scenario_id": "commit0-graphene.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 3,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "asyncodebench-graphene.serial-specialists.v0.3",
+          "source_scenario_id": "commit0-graphene.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "asyncodebench-graphene.iterative-single.v0.3",
+          "source_scenario_id": "commit0-graphene.iterative-single.v0.3"
+        }
+      },
+      "quality_status": "qualification_ready",
+      "repository": "graphene",
+      "source": {
+        "base_ref": "origin/commit0_combined",
+        "base_sha": "ec2d3f476a7fa94a7a2ffc3c145422b0c3b7e71a",
+        "benchmark": "Commit0",
+        "overlay_count": 11,
+        "overlays": [
+          {
+            "path": "data/overlays/commit0/graphene/0001-types-utils-import-bootstrap.patch",
+            "rationale": "Expose only missing type utility symbols needed for package import and test class construction. Field extraction intentionally returns an empty structure, so object/input metadata behavior remains unfinished.",
+            "sha256": "b440d6ad5764ed3ad3fabc83e2f3ead96e84fa3440d2927fca7dda0fb2e627ca"
+          },
+          {
+            "path": "data/overlays/commit0/graphene/0002-subclass-meta-syntax-bootstrap.patch",
+            "rationale": "Repair a stripped f-string syntax placeholder in subclass_with_meta so public modules can parse. No metaclass behavior is supplied.",
+            "sha256": "f687a691798797a17235d2515cc5692148e02b0822bee246404a54ebc81c2976"
+          },
+          {
+            "path": "data/overlays/commit0/graphene/0003-props-import-bootstrap.patch",
+            "rationale": "Expose only the class-construction Meta attribute reader needed by public graphene type tests. This bootstrap is intentionally flagged for human review because it is less trivial than a pure pass stub.",
+            "sha256": "9d16540505bdffaff1da63215c6ea30c575f5eb948bb3f7ae443bf0c8d57e958"
+          },
+          {
+            "path": "data/overlays/commit0/graphene/0004-utils-import-bootstrap.patch",
+            "rationale": "Expose missing utility symbols imported by public modules. Helper bodies remain intentionally unfinished placeholders.",
+            "sha256": "ce15d97fd1d5243a3a095b81404914f602091f36d9126f3de9898655f77ad483"
+          },
+          {
+            "path": "data/overlays/commit0/graphene/0005-scalars-class-bootstrap.patch",
+            "rationale": "Expose scalar coercion function names required by scalar class definitions. Scalar coercion and serialization behavior remains unfinished.",
+            "sha256": "a3f1c3d1afd0c99cd795516caf604afff19c667724cfa692a962da5051ee3d91"
+          },
+          {
+            "path": "data/overlays/commit0/graphene/0006-base-options-bootstrap.patch",
+            "rationale": "Expose BaseOptions.freeze for metaclass construction. Option freezing behavior remains unfinished.",
+            "sha256": "dc40335e51f73cb595035c711fa8153b6b6300fc5d57f0a2118a121279dc678b"
+          },
+          {
+            "path": "data/overlays/commit0/graphene/0007-enum-class-bootstrap.patch",
+            "rationale": "Expose enum helper functions needed for enum class construction. Enum value equality/hash behavior remains unfinished.",
+            "sha256": "e9d584e79f4abec6fd7af34e5841e17b4b3a59f1a12692097636ecd6c97a4d6e"
+          },
+          {
+            "path": "data/overlays/commit0/graphene/0008-argument-field-import-bootstrap.patch",
+            "rationale": "Expose to_arguments and warn_deprecation import-time symbols. Argument conversion and deprecation warning behavior remains unfinished.",
+            "sha256": "eabaafa7bd9b8b789e9abccfc3668fe5394826cf8fdabb8c7efab121b874b57b"
+          },
+          {
+            "path": "data/overlays/commit0/graphene/0009-resolver-import-bootstrap.patch",
+            "rationale": "Expose resolver names imported by schema and field code. Default resolving behavior remains unfinished.",
+            "sha256": "00f7079b233680cf9f540270bacf7963fa88cb3bd7c098dee996a1e5f3f0c327"
+          },
+          {
+            "path": "data/overlays/commit0/graphene/0010-relay-mutation-import-bootstrap.patch",
+            "rationale": "Expose ClientIDMutation.mutate so relay mutation subclasses can be constructed during package import. Mutation behavior remains unfinished.",
+            "sha256": "5d80d14f50438a88f8f3a225de8920baedea7e088c09daa1f00f4f8a35859108"
+          },
+          {
+            "path": "data/overlays/commit0/graphene/0011-resolve-only-args-import-bootstrap.patch",
+            "rationale": "Expose resolve_only_args imported by relay mutation code. Resolver adaptation behavior remains unfinished.",
+            "sha256": "e8eacc348068858aeb7129731927888ab08fdc11893e0c35de6fc37693871350"
+          }
+        ],
+        "repository": "graphene"
+      },
+      "source_task_id": "commit0:graphene",
+      "task_id": "asyncodebench:graphene"
+    },
+    {
+      "annotation_status": {
+        "adjudication_complete": false,
+        "adjudication_required": false,
+        "annotator_a_complete": true,
+        "annotator_b_complete": false,
+        "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
+        "human_annotations_agree": false,
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
+      },
+      "artifacts": {
+        "adjudication_template": {
+          "path": "manifests/annotations/asyncodebench_v0.3/imapclient/adjudication.template.json",
+          "sha256": "5f531a3766f93e5967b580950c62c339c519252f2167d26872670f9ea1dd628b"
+        },
+        "annotation_a": {
+          "path": "manifests/annotations/asyncodebench_v0.3/imapclient/annotator_a.json",
+          "sha256": "71baf8cab2950ac00213c4947a186739b294c2be9daf451ae7eb811092a0ca15"
+        },
+        "annotation_audit": {
+          "path": "manifests/annotations/asyncodebench_v0.3/imapclient/annotator_codex_audit.json",
+          "sha256": "4658c92d1a8f4e4fed631e3fa2639a437d9a0603f79a4e11ac603ea944828523"
+        },
+        "annotation_b": {
+          "path": "manifests/annotations/asyncodebench_v0.3/imapclient/annotator_b.json",
+          "sha256": "48d966bde307dba465332e8f70ce9aee5f5c421d0e18969b09e3116e7ded1f4a"
+        },
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_imapclient_async_metrics.json",
+          "sha256": "21c5af0979dad7e861ea44bfc14626491e9fa35a29713d062bdb47116bc734f1"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_imapclient.json",
+          "sha256": "06c817e45b851d0228be3a62b69d99c6af0d5ba09f94632c01a6d3614508649c"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_imapclient.json",
+          "sha256": "a0c444a586653e4acc5c863559962fa7b88a4f0d08421fb77f1039eedc1a6c01"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_imapclient.json",
+          "sha256": "1d8ae125a4dbf6b73fc1c12d1c4e378b666b18a42d3e933ce0453e563fce770c"
+        }
+      },
+      "dependency_point_count": 3,
+      "official_result_eligible": true,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 3,
+          "communication_condition": "private_concurrent_workspaces",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "asyncodebench-imapclient.async-private.v0.3",
+          "source_scenario_id": "commit0-imapclient.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 3,
+          "communication_condition": "asynchronous_message_handoff",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "asyncodebench-imapclient.async-message.v0.3",
+          "source_scenario_id": "commit0-imapclient.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 3,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "asyncodebench-imapclient.serial-specialists.v0.3",
+          "source_scenario_id": "commit0-imapclient.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "asyncodebench-imapclient.iterative-single.v0.3",
+          "source_scenario_id": "commit0-imapclient.iterative-single.v0.3"
+        }
+      },
+      "quality_status": "qualification_ready",
+      "repository": "imapclient",
+      "source": {
+        "base_ref": "origin/commit0_combined",
+        "base_sha": "7ca5a23640bcb0b102673eaaf5eaa6e7fcebd76b",
+        "benchmark": "Commit0",
+        "overlay_count": 5,
+        "overlays": [
+          {
+            "path": "data/overlays/commit0/imapclient/0001-util-import-bootstrap.patch",
+            "rationale": "Expose only util symbols imported by lexer/client modules and public tests: assert_imap_protocol, to_bytes, to_unicode, and chunk. The helper bodies remain unfinished placeholders.",
+            "sha256": "8afc48b65849df4e8acc8c652f43e9780bafe285be9e0caf4016d85c1cce5513"
+          },
+          {
+            "path": "data/overlays/commit0/imapclient/0002-class-import-bootstrap.patch",
+            "rationale": "Allow public class/module construction by making require_capability an identity decorator and exposing datetime_to_native as an unfinished placeholder. Capability checks and datetime normalization remain unfinished.",
+            "sha256": "c653d4c2c2744d36ed4845c86a5ecb5b8fdc68571eae40b2d0784ad940ee0fd7"
+          },
+          {
+            "path": "data/overlays/commit0/imapclient/0003-iteritems-import-bootstrap.patch",
+            "rationale": "Expose only the iteritems name used by _dict_bytes_normaliser during class construction. Dictionary normalization behavior remains unfinished.",
+            "sha256": "0dccd8a093d770de51e9a1f7503f56ec08f1b11ec482f6528d5d7e69eed2595e"
+          },
+          {
+            "path": "data/overlays/commit0/imapclient/0004-public-helper-import-bootstrap.patch",
+            "rationale": "Expose version string, quota parsing, and search normalization helper names imported by public tests. The helper bodies remain unfinished placeholders.",
+            "sha256": "b55139f9dc0dcbe7362af9668a9c1e43bd2dd9883337436e3f27f04b232c8745"
+          },
+          {
+            "path": "data/overlays/commit0/imapclient/0005-text-helper-import-bootstrap.patch",
+            "rationale": "Expose text-list and parenthesized-string helper names imported by public utility tests. Text normalization behavior remains unfinished.",
+            "sha256": "f27ec1e2ada7b6a9cac80a4aa1dd938b6f8a65ada959ea5e0f74003b531d9e3c"
+          }
+        ],
+        "repository": "imapclient"
+      },
+      "source_task_id": "commit0:imapclient",
+      "task_id": "asyncodebench:imapclient"
+    },
+    {
+      "annotation_status": {
+        "adjudication_complete": false,
+        "adjudication_required": false,
+        "annotator_a_complete": true,
+        "annotator_b_complete": false,
+        "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
+        "human_annotations_agree": false,
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
+      },
+      "artifacts": {
+        "adjudication_template": {
+          "path": "manifests/annotations/asyncodebench_v0.3/pexpect/adjudication.template.json",
+          "sha256": "ac0c01c777ac42723d08d11576f8bf69a36c7a57c5ecc518bb637741d2ccd2a2"
+        },
+        "annotation_a": {
+          "path": "manifests/annotations/asyncodebench_v0.3/pexpect/annotator_a.json",
+          "sha256": "3417ccee911e29767155c3628338b9abe33d706f44d8f7fef3b16b4b6589ce23"
+        },
+        "annotation_audit": {
+          "path": "manifests/annotations/asyncodebench_v0.3/pexpect/annotator_codex_audit.json",
+          "sha256": "8e0bebf1601e77c708d3a56fad88eb3084c9d265b3302bcdd426a4ed29038454"
+        },
+        "annotation_b": {
+          "path": "manifests/annotations/asyncodebench_v0.3/pexpect/annotator_b.json",
+          "sha256": "7fdffa9e0d1c467ff0fa5dd606a40c48dfc0183b2799be5770589c35e1da7f62"
+        },
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_pexpect_async_metrics.json",
+          "sha256": "d2e3464378553f05df0c358c12621f1fceba53a55cf496666799dd91a6dad44f"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_pexpect.json",
+          "sha256": "57a200544754856f0a4bfe9e0a5d0fa4cb3d2ecd56aba9237720e57b9942b248"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_pexpect.json",
+          "sha256": "dd2331a5c9e3e876cd9f90a8d0afd4aa02ff4a9dd42648dc4fd6485e1d514f69"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_pexpect.json",
+          "sha256": "3c41cd2a846d3b413da09ce3606287ff3c38800bf86ed74e8bc90fd2811b967a"
+        }
+      },
+      "dependency_point_count": 3,
+      "official_result_eligible": true,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 4,
+          "communication_condition": "private_concurrent_workspaces",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "asyncodebench-pexpect.async-private.v0.3",
+          "source_scenario_id": "commit0-pexpect.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 4,
+          "communication_condition": "asynchronous_message_handoff",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "asyncodebench-pexpect.async-message.v0.3",
+          "source_scenario_id": "commit0-pexpect.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 4,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "asyncodebench-pexpect.serial-specialists.v0.3",
+          "source_scenario_id": "commit0-pexpect.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "asyncodebench-pexpect.iterative-single.v0.3",
+          "source_scenario_id": "commit0-pexpect.iterative-single.v0.3"
+        }
+      },
+      "quality_status": "qualification_ready",
+      "repository": "pexpect",
+      "source": {
+        "base_ref": "origin/commit0_combined",
+        "base_sha": "21b5908ea5b9b38ca996fec50dc449bff5c2c82f",
+        "benchmark": "Commit0",
+        "overlay_count": 1,
+        "overlays": [
+          {
+            "path": "data/overlays/commit0/pexpect/0001-spawnbase-buffer-property-bootstrap.patch",
+            "rationale": "Expose only SpawnBase._get_buffer and SpawnBase._set_buffer placeholders so the stripped class-level buffer property can bind during public test collection. Buffer semantics remain unfinished.",
+            "sha256": "4d83742e578221f6f9d737b48574cb001b6f51042f2e00e5d781d7c3c75401c9"
+          }
+        ],
+        "repository": "pexpect"
+      },
+      "source_task_id": "commit0:pexpect",
+      "task_id": "asyncodebench:pexpect"
+    },
+    {
+      "annotation_status": {
+        "adjudication_complete": false,
+        "adjudication_required": false,
+        "annotator_a_complete": true,
+        "annotator_b_complete": false,
+        "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
+        "human_annotations_agree": false,
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
+      },
+      "artifacts": {
+        "adjudication_template": {
+          "path": "manifests/annotations/asyncodebench_v0.3/flask/adjudication.template.json",
+          "sha256": "5cc82adb962904ecc0692f0e0b9ce11f67d315a4105e09355db14770dc735cfb"
+        },
+        "annotation_a": {
+          "path": "manifests/annotations/asyncodebench_v0.3/flask/annotator_a.json",
+          "sha256": "785c7f709b53fbc46a12ec8f1a590c22fc6eae9f3b3db5a6c6b8039781530aa2"
+        },
+        "annotation_audit": {
+          "path": "manifests/annotations/asyncodebench_v0.3/flask/annotator_codex_audit.json",
+          "sha256": "0d694501a1b509c3bd071c83786ef62f52d86d6fe9f63191b05055a52283d80a"
+        },
+        "annotation_b": {
+          "path": "manifests/annotations/asyncodebench_v0.3/flask/annotator_b.json",
+          "sha256": "fd00b8eb52ef80a0e20e5b62072c5af3242f00699157cf10a348b7ec1adb89d8"
+        },
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_flask_async_metrics.json",
+          "sha256": "1d835acc0c8d1ecf9cd6e49b2581ca42a16072d9198364649f95d993654eec1f"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_flask.json",
+          "sha256": "43de76d569074bce9f120610e87ecb2e8911bed66bfe5a97cd1dab25c7223e9c"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_flask.json",
+          "sha256": "be8c0093ceb3d03bd3b3b3e89d965df393c2ebd1ecad0c87a8aa2f4ed1364e9e"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_flask.json",
+          "sha256": "6491757be2710e2408360a4f5a7efd58c287483f42e62bc96dfa49f06bcdaabc"
+        }
+      },
+      "dependency_point_count": 3,
+      "official_result_eligible": true,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 4,
+          "communication_condition": "private_concurrent_workspaces",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "asyncodebench-flask.async-private.v0.3",
+          "source_scenario_id": "commit0-flask.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 4,
+          "communication_condition": "asynchronous_message_handoff",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "asyncodebench-flask.async-message.v0.3",
+          "source_scenario_id": "commit0-flask.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 4,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "asyncodebench-flask.serial-specialists.v0.3",
+          "source_scenario_id": "commit0-flask.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "asyncodebench-flask.iterative-single.v0.3",
+          "source_scenario_id": "commit0-flask.iterative-single.v0.3"
+        }
+      },
+      "quality_status": "qualification_ready",
+      "repository": "flask",
+      "source": {
+        "base_ref": "origin/commit0_combined",
+        "base_sha": "af126af63a288df1d4edfe07e82a3b241aa4567a",
+        "benchmark": "Commit0",
+        "overlay_count": 11,
+        "overlays": [
+          {
+            "path": "data/overlays/commit0/flask/0001-json-provider-default-bootstrap.patch",
+            "rationale": "Bootstrap-only patch that removes import, class construction, or syntax blockers so public Flask tests can collect; it does not implement scoped Flask runtime behavior.",
+            "sha256": "fc74676eaba5570012dc8e89ec2a10a61d5904045a909b688b62b9176e8b0dfd"
+          },
+          {
+            "path": "data/overlays/commit0/flask/0002-cli-version-callback-bootstrap.patch",
+            "rationale": "Bootstrap-only patch that removes import, class construction, or syntax blockers so public Flask tests can collect; it does not implement scoped Flask runtime behavior.",
+            "sha256": "f5844df5f46ac1859a4d05818d0a56cbbed3401ea0c7ec161cf5adca596db574"
+          },
+          {
+            "path": "data/overlays/commit0/flask/0003-cli-option-callbacks-bootstrap.patch",
+            "rationale": "Bootstrap-only patch that removes import, class construction, or syntax blockers so public Flask tests can collect; it does not implement scoped Flask runtime behavior.",
+            "sha256": "20d99792cfdbf2607ad5db5628b5e5e92fdeb784f659f32d579d48a8b3b3e6d5"
+          },
+          {
+            "path": "data/overlays/commit0/flask/0004-cli-with-appcontext-bootstrap.patch",
+            "rationale": "Bootstrap-only patch that removes import, class construction, or syntax blockers so public Flask tests can collect; it does not implement scoped Flask runtime behavior.",
+            "sha256": "bbf9c55c5feec914d6d87cdc037335a0305c89a4de1cc4977aaab8d47038cd62"
+          },
+          {
+            "path": "data/overlays/commit0/flask/0005-helper-split-blueprint-bootstrap.patch",
+            "rationale": "Bootstrap-only patch that removes import, class construction, or syntax blockers so public Flask tests can collect; it does not implement scoped Flask runtime behavior.",
+            "sha256": "ff344fb93b7877448db457ad9e9d8c181dbd156aab838cfe2c2a1ad2e88ea56c"
+          },
+          {
+            "path": "data/overlays/commit0/flask/0006-scaffold-setupmethod-bootstrap.patch",
+            "rationale": "Bootstrap-only patch that removes import, class construction, or syntax blockers so public Flask tests can collect; it does not implement scoped Flask runtime behavior.",
+            "sha256": "631d18cdfff142c9a942ede5e6423de7dbede8051a5cd3c4f2e057e999ff3bc3"
+          },
+          {
+            "path": "data/overlays/commit0/flask/0007-sansio-app-timedelta-bootstrap.patch",
+            "rationale": "Bootstrap-only patch that removes import, class construction, or syntax blockers so public Flask tests can collect; it does not implement scoped Flask runtime behavior.",
+            "sha256": "112c9ea24671b4ff419912e8d295e3b3bda8e67e82483d6a61b0afb6272ca6c6"
+          },
+          {
+            "path": "data/overlays/commit0/flask/0008-json-tag-pass-methods-bootstrap.patch",
+            "rationale": "Bootstrap-only patch that removes import, class construction, or syntax blockers so public Flask tests can collect; it does not implement scoped Flask runtime behavior.",
+            "sha256": "c8f9405ea832a71a73f4b40b1bc3767448bd1763d9e30d4f6b56cb51db6c4e0d"
+          },
+          {
+            "path": "data/overlays/commit0/flask/0009-session-null-fail-bootstrap.patch",
+            "rationale": "Bootstrap-only patch that removes import, class construction, or syntax blockers so public Flask tests can collect; it does not implement scoped Flask runtime behavior.",
+            "sha256": "b8591ed5f3373a4333f1a6af92773c5f3782624c96c9e0ac1cadbbc0e53168af"
+          },
+          {
+            "path": "data/overlays/commit0/flask/0010-testing-base-url-fstring-bootstrap.patch",
+            "rationale": "Bootstrap-only patch that removes import, class construction, or syntax blockers so public Flask tests can collect; it does not implement scoped Flask runtime behavior.",
+            "sha256": "58100b0bab357068d0dd40add37cde9d690f9eb3902a143a2bd2e757d111b1b7"
+          },
+          {
+            "path": "data/overlays/commit0/flask/0011-conftest-monkeypatch-sentinel-bootstrap.patch",
+            "rationale": "Bootstrap-only evaluator compatibility patch that removes dependence on the unstable package-level _pytest.monkeypatch.notset export in tests/conftest.py so public Flask tests remain stable across pytest minor versions. It preserves pytest MonkeyPatch's real missing-value sentinel and does not modify Flask implementation files or supply scoped Flask runtime behavior.",
+            "sha256": "5678881b4022e089eb26d961b0674e6058f8874c384cc7a8f2875601ed08678c"
+          }
+        ],
+        "repository": "flask"
+      },
+      "source_task_id": "commit0:flask",
+      "task_id": "asyncodebench:flask"
+    },
+    {
+      "annotation_status": {
+        "adjudication_complete": false,
+        "adjudication_required": false,
+        "annotator_a_complete": true,
+        "annotator_b_complete": false,
+        "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
+        "human_annotations_agree": false,
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
+      },
+      "artifacts": {
+        "adjudication_template": {
+          "path": "manifests/annotations/asyncodebench_v0.3/python_rsa/adjudication.template.json",
+          "sha256": "c1e3ded0d004806ac5d10a2d6ee91bcafa86f83c35ab076624475f6c1c9a096c"
+        },
+        "annotation_a": {
+          "path": "manifests/annotations/asyncodebench_v0.3/python_rsa/annotator_a.json",
+          "sha256": "e9dffce25669ac8d106570f406f92868771bcdd42e917f8d55c38827bdb3abc2"
+        },
+        "annotation_audit": {
+          "path": "manifests/annotations/asyncodebench_v0.3/python_rsa/annotator_codex_audit.json",
+          "sha256": "f535a6ebafa1f2c11f780f011790d6eef8ade4ec53fa9baadbef9ebdd2eb55cd"
+        },
+        "annotation_b": {
+          "path": "manifests/annotations/asyncodebench_v0.3/python_rsa/annotator_b.json",
+          "sha256": "16cda280f92f37095185de7bdcdcc2e7a1f1285441c4a5fa056d306eac394ab2"
+        },
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_python_rsa_async_metrics.json",
+          "sha256": "005dcfe9f2ec36efb3cf0dc1d614b1e1b94e1be333bff9b6814baaa1240c9077"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_python_rsa.json",
+          "sha256": "9a299997429ff58878bec0eb00dab770a7e67758b6ffcc590a3e4a85e38fcde1"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_python_rsa.json",
+          "sha256": "90e0cb9ec5ff6671803628133f986f6af1ce174c3cdd9fe74e1ed735d8a5a219"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_python_rsa.json",
+          "sha256": "8201fed08ad97db6fc577fd57736c66684857f692d65695462ba94c3b77b5c2e"
+        }
+      },
+      "dependency_point_count": 3,
+      "official_result_eligible": true,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 4,
+          "communication_condition": "none_in_flight",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "asyncodebench-python-rsa.async-private.v0.3",
+          "source_scenario_id": "commit0-python-rsa.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 4,
+          "communication_condition": "structured_message_and_artifact",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "asyncodebench-python-rsa.async-message.v0.3",
+          "source_scenario_id": "commit0-python-rsa.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 4,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "asyncodebench-python-rsa.serial-specialists.v0.3",
+          "source_scenario_id": "commit0-python-rsa.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "asyncodebench-python-rsa.iterative-single.v0.3",
+          "source_scenario_id": "commit0-python-rsa.iterative-single.v0.3"
+        }
+      },
+      "quality_status": "qualification_ready",
+      "repository": "python-rsa",
+      "source": {
+        "base_ref": "origin/commit0_combined",
+        "base_sha": "228b947d61f06612107205ab369a017ff63f9a8f",
+        "benchmark": "Commit0",
+        "overlay_count": 0,
+        "overlays": [],
+        "repository": "python-rsa"
+      },
+      "source_task_id": "commit0:python-rsa",
+      "task_id": "asyncodebench:python-rsa"
+    },
+    {
+      "annotation_status": {
+        "adjudication_complete": false,
+        "adjudication_required": false,
+        "annotator_a_complete": true,
+        "annotator_b_complete": false,
+        "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
+        "human_annotations_agree": false,
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
+      },
+      "artifacts": {
+        "adjudication_template": {
+          "path": "manifests/annotations/asyncodebench_v0.3/cookiecutter/adjudication.template.json",
+          "sha256": "4ced9ad8ffc9de70679dc927148552200b8eeb897b9ca9663ca88341deb4b390"
+        },
+        "annotation_a": {
+          "path": "manifests/annotations/asyncodebench_v0.3/cookiecutter/annotator_a.json",
+          "sha256": "0a497ec9f2adae8c1aa1cc50c6e20a389359f0b85cd13acf332367927adb01b1"
+        },
+        "annotation_audit": {
+          "path": "manifests/annotations/asyncodebench_v0.3/cookiecutter/annotator_codex_audit.json",
+          "sha256": "8ecd5e724d3c0bc0abdfeaafe8f5a494c5203718bd269b25ebe14e5902b49e81"
+        },
+        "annotation_b": {
+          "path": "manifests/annotations/asyncodebench_v0.3/cookiecutter/annotator_b.json",
+          "sha256": "06e26a9852e7ba00a363d6d58ba95022dacec3fc376c48a47931b6c2478295ee"
+        },
+        "metrics": {
+          "path": "manifests/pilot/v0.3/metrics/commit0_cookiecutter_async_metrics.json",
+          "sha256": "78b5f849e4e3943b82ab8be300bd59fde8ad67534b6ee24913532e814ad8a346"
+        },
+        "quality": {
+          "path": "manifests/pilot/v0.3/quality/commit0_cookiecutter.json",
+          "sha256": "93d2a4722f514ab8f332c554dcd096fef8af672aeb8a3c86f765593507a59963"
+        },
+        "scenarios": {
+          "path": "manifests/pilot/v0.3/scenarios/commit0_cookiecutter.json",
+          "sha256": "64b6cdcecf67bc315c2365c5ec1f022f860303dd42ffa43889f6f7c4cdaa6b40"
+        },
+        "task": {
+          "path": "manifests/pilot/v0.3/tasks/commit0_cookiecutter.json",
+          "sha256": "c082787fc9cedd9f01c4b33be434eb45db2738d0bc60b493a792fe6d9e02ba07"
+        }
+      },
+      "dependency_point_count": 3,
+      "official_result_eligible": true,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 4,
+          "communication_condition": "none_in_flight",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "asyncodebench-cookiecutter.async-private.v0.3",
+          "source_scenario_id": "commit0-cookiecutter.async-private.v0.3"
+        },
+        "caid_manager": {
+          "agent_count": 4,
+          "communication_condition": "structured_message_and_artifact",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "asyncodebench-cookiecutter.async-message.v0.3",
+          "source_scenario_id": "commit0-cookiecutter.async-message.v0.3"
+        },
+        "serial_specialists": {
+          "agent_count": 4,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "asyncodebench-cookiecutter.serial-specialists.v0.3",
+          "source_scenario_id": "commit0-cookiecutter.serial-specialists.v0.3"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "asyncodebench-cookiecutter.iterative-single.v0.3",
+          "source_scenario_id": "commit0-cookiecutter.iterative-single.v0.3"
+        }
+      },
+      "quality_status": "qualification_ready",
+      "repository": "cookiecutter",
+      "source": {
+        "base_ref": "origin/commit0_combined",
+        "base_sha": "c7a8c70a666270053d848f5664413af1af7a987f",
+        "benchmark": "Commit0",
+        "overlay_count": 0,
+        "overlays": [],
+        "repository": "cookiecutter"
+      },
+      "source_task_id": "commit0:cookiecutter",
+      "task_id": "asyncodebench:cookiecutter"
+    },
+    {
+      "annotation_status": {
+        "adjudication_complete": false,
+        "adjudication_required": false,
+        "annotator_a_complete": true,
+        "annotator_b_complete": false,
+        "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
+        "human_annotations_agree": null,
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
+      },
+      "artifacts": {
+        "annotation_a": {
+          "path": "manifests/annotations/pr_hard_v0.4/apache_tvm_20018/annotator_a.json",
+          "sha256": "a1cb3cef116287f1c19082bb255ab2d88d6c754ed93daeb91f3d0ef7d2453157"
+        },
+        "metrics": {
+          "path": "manifests/candidates/pr_hard_v0.4/metrics/apache_tvm_20018_async_metrics.json",
+          "sha256": "1a703bb5ddf5ea5a61986b6ea55431ba3fb507e4e1f87c58ead963263be18a08"
+        },
+        "qualification": {
+          "path": "manifests/candidates/pr_hard_v0.4/qualification/apache_tvm_20018.json",
+          "sha256": "35b4b6cf86232b6510db57d186476f0d3424859e32b818bc7d716bf428c058ae"
+        },
+        "scenarios": {
+          "path": "manifests/candidates/pr_hard_v0.4/scenarios/apache_tvm_20018.json",
+          "sha256": "5aaf320a4165596e2be6c1ec1c32b69060bc83b73197c7f60ba42ce002596d86"
+        },
+        "task": {
+          "path": "manifests/candidates/pr_hard_v0.4/tasks/apache_tvm_20018.json",
+          "sha256": "3119887cf2d10360ecf1f4ac133f3794f159fe0961e9e95b2b63342586f58f69"
+        }
+      },
+      "dependency_point_count": 2,
+      "official_result_eligible": true,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 3,
+          "communication_condition": "none_in_flight",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "pr-hard-apache-tvm-20018.async-private.v0.4",
+          "source_scenario_id": "pr-hard-apache-tvm-20018.async-private.v0.4"
+        },
+        "caid_manager": {
+          "agent_count": 3,
+          "communication_condition": "structured_message_and_artifact",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "pr-hard-apache-tvm-20018.async-message.v0.4",
+          "source_scenario_id": "pr-hard-apache-tvm-20018.async-message.v0.4"
+        },
+        "serial_specialists": {
+          "agent_count": 3,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "pr-hard-apache-tvm-20018.serial-specialists.v0.4",
+          "source_scenario_id": "pr-hard-apache-tvm-20018.serial-specialists.v0.4"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "pr-hard-apache-tvm-20018.iterative-single.v0.4",
+          "source_scenario_id": "pr-hard-apache-tvm-20018.iterative-single.v0.4"
+        }
+      },
+      "quality_status": "qualification_ready",
+      "repository": "apache/tvm",
+      "source": {
+        "base_sha": "302aaf9f961a6e0a2c5cc23dc87e51fbaabd1e42",
+        "overlay_count": 1,
+        "overlays": [
+          {
+            "path": "data/overlays/pr_hard/apache_tvm_20018/0001-public-regression-tests.patch",
+            "policy": "test_only_answer_free_sanitized",
+            "sanitization_notes": "Excluded a comment-only CUDA hunk that directly narrated the legacy implementation failure; executable upstream tests and assertions are unchanged.",
+            "sha256": "4d7f24a5fca3967028012742367c608f809f136536db797876976e3ca66eb7ab"
+          }
+        ],
+        "repository": "apache/tvm",
+        "transformation": "pinned incomplete repository plus answer-free public test overlays"
+      },
+      "source_task_id": "pr-hard:apache-tvm-20018",
+      "task_id": "asyncodebench:apache-tvm-20018"
+    },
+    {
+      "annotation_status": {
+        "adjudication_complete": false,
+        "adjudication_required": false,
+        "annotator_a_complete": true,
+        "annotator_b_complete": false,
+        "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
+        "human_annotations_agree": null,
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
+      },
+      "artifacts": {
+        "annotation_a": {
+          "path": "manifests/annotations/pr_hard_v0.4/apache_tvm_20073/annotator_a.json",
+          "sha256": "fd1ecbda5fd952f716d16af1aa596ab221c7d16b8ca2bdca7855e63272bf2712"
+        },
+        "metrics": {
+          "path": "manifests/candidates/pr_hard_v0.4/metrics/apache_tvm_20073_async_metrics.json",
+          "sha256": "fc1de46fec4061ee827dca068833bfd72ad4fb32285e40a21898a11bc5a916e0"
+        },
+        "qualification": {
+          "path": "manifests/candidates/pr_hard_v0.4/qualification/apache_tvm_20073.json",
+          "sha256": "11a8409fcb55ddb97acccad485d0af7c449e34a96939c71ca0d39077fd0a3b9a"
+        },
+        "scenarios": {
+          "path": "manifests/candidates/pr_hard_v0.4/scenarios/apache_tvm_20073.json",
+          "sha256": "6ab02ff383a755299ba9ad5bafcca17707a9434c18bd0f32f3a26e5d11d1cc28"
+        },
+        "task": {
+          "path": "manifests/candidates/pr_hard_v0.4/tasks/apache_tvm_20073.json",
+          "sha256": "fd371ad96c2ae8f026461a5374d71f57365331a0b9049f12378501167c829de3"
+        }
+      },
+      "dependency_point_count": 2,
+      "official_result_eligible": true,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 3,
+          "communication_condition": "none_in_flight",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "pr-hard-apache-tvm-20073.async-private.v0.4",
+          "source_scenario_id": "pr-hard-apache-tvm-20073.async-private.v0.4"
+        },
+        "caid_manager": {
+          "agent_count": 3,
+          "communication_condition": "structured_message_and_artifact",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "pr-hard-apache-tvm-20073.async-message.v0.4",
+          "source_scenario_id": "pr-hard-apache-tvm-20073.async-message.v0.4"
+        },
+        "serial_specialists": {
+          "agent_count": 3,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "pr-hard-apache-tvm-20073.serial-specialists.v0.4",
+          "source_scenario_id": "pr-hard-apache-tvm-20073.serial-specialists.v0.4"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "pr-hard-apache-tvm-20073.iterative-single.v0.4",
+          "source_scenario_id": "pr-hard-apache-tvm-20073.iterative-single.v0.4"
+        }
+      },
+      "quality_status": "qualification_ready",
+      "repository": "apache/tvm",
+      "source": {
+        "base_sha": "62fb780bb0a8da62e3808f60a2343f6fd1d4b01f",
+        "overlay_count": 1,
+        "overlays": [
+          {
+            "path": "data/overlays/pr_hard/apache_tvm_20073/0001-public-regression-tests.patch",
+            "policy": "test_only_answer_free",
+            "sha256": "9fdc39a78fdea5254633c73f11e87198b193bcaede742e2ac883bf0e947b1940"
+          }
+        ],
+        "repository": "apache/tvm",
+        "transformation": "pinned incomplete repository plus answer-free public test overlays"
+      },
+      "source_task_id": "pr-hard:apache-tvm-20073",
+      "task_id": "asyncodebench:apache-tvm-20073"
+    },
+    {
+      "annotation_status": {
+        "adjudication_complete": false,
+        "adjudication_required": false,
+        "annotator_a_complete": true,
+        "annotator_b_complete": false,
+        "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
+        "human_annotations_agree": null,
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
+      },
+      "artifacts": {
+        "annotation_a": {
+          "path": "manifests/annotations/pr_hard_v0.4/apache_tvm_20107/annotator_a.json",
+          "sha256": "85e63ebd8328a40fe44d0bc15e54a7648ddfc6228f42c2d11b3f50bd11a1b5e4"
+        },
+        "metrics": {
+          "path": "manifests/candidates/pr_hard_v0.4/metrics/apache_tvm_20107_async_metrics.json",
+          "sha256": "852dbfdddc0db55b2da9882ec265fd5b3b9ce9587b25dce91bd9d6287f849b3a"
+        },
+        "qualification": {
+          "path": "manifests/candidates/pr_hard_v0.4/qualification/apache_tvm_20107.json",
+          "sha256": "1aa5983d55e864bfd8edf0c2a4176411f1bb3d92cfe6ebf2c7b9afaa29f31220"
+        },
+        "scenarios": {
+          "path": "manifests/candidates/pr_hard_v0.4/scenarios/apache_tvm_20107.json",
+          "sha256": "9d28eff8265b71562a7f39750b0853cd8a04379a1f09c45f7a7834e1e280b715"
+        },
+        "task": {
+          "path": "manifests/candidates/pr_hard_v0.4/tasks/apache_tvm_20107.json",
+          "sha256": "ffcfedd01e8dcb3200e4c87d4bb49ac64cabbbbe3bd2da6085d30be5df804684"
+        }
+      },
+      "dependency_point_count": 2,
+      "official_result_eligible": true,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 3,
+          "communication_condition": "none_in_flight",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "pr-hard-apache-tvm-20107.async-private.v0.4",
+          "source_scenario_id": "pr-hard-apache-tvm-20107.async-private.v0.4"
+        },
+        "caid_manager": {
+          "agent_count": 3,
+          "communication_condition": "structured_message_and_artifact",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "pr-hard-apache-tvm-20107.async-message.v0.4",
+          "source_scenario_id": "pr-hard-apache-tvm-20107.async-message.v0.4"
+        },
+        "serial_specialists": {
+          "agent_count": 3,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "pr-hard-apache-tvm-20107.serial-specialists.v0.4",
+          "source_scenario_id": "pr-hard-apache-tvm-20107.serial-specialists.v0.4"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "pr-hard-apache-tvm-20107.iterative-single.v0.4",
+          "source_scenario_id": "pr-hard-apache-tvm-20107.iterative-single.v0.4"
+        }
+      },
+      "quality_status": "qualification_ready",
+      "repository": "apache/tvm",
+      "source": {
+        "base_sha": "0468e13a1450a4429758003612aa2b3d080c1f13",
+        "overlay_count": 1,
+        "overlays": [
+          {
+            "path": "data/overlays/pr_hard/apache_tvm_20107/0001-public-regression-tests.patch",
+            "policy": "test_only_answer_free",
+            "sha256": "2bf2a42a33f4d71da3eab1b6508c14a1e0185aace965ecc74235db3391ee1684"
+          }
+        ],
+        "repository": "apache/tvm",
+        "transformation": "pinned incomplete repository plus answer-free public test overlays"
+      },
+      "source_task_id": "pr-hard:apache-tvm-20107",
+      "task_id": "asyncodebench:apache-tvm-20107"
+    },
+    {
+      "annotation_status": {
+        "adjudication_complete": false,
+        "adjudication_required": false,
+        "annotator_a_complete": true,
+        "annotator_b_complete": false,
+        "automated_audit_complete": true,
+        "automated_audit_counts_as_human": false,
+        "completed_human_review_count": 1,
+        "human_annotations_agree": null,
+        "human_automated_audit_agree": true,
+        "human_review_complete": true,
+        "human_review_passed": true,
+        "policy_id": "single-human-plus-automated-audit-v1",
+        "required_human_annotation_artifact": "annotation_a",
+        "required_human_review_count": 1,
+        "secondary_human_annotation_required": false,
+        "status": "complete_pass"
+      },
+      "artifacts": {
+        "annotation_a": {
+          "path": "manifests/annotations/pr_hard_v0.4/apache_tvm_20153/annotator_a.json",
+          "sha256": "eba518453ea4abb1115802957754a2698830b659f2e67ea1e6bc269c9ea95f43"
+        },
+        "metrics": {
+          "path": "manifests/candidates/pr_hard_v0.4/metrics/apache_tvm_20153_async_metrics.json",
+          "sha256": "7d9a7589500285abf64204ecd6080607cb0a3fb539cbc4bb142bf09d7f50d143"
+        },
+        "qualification": {
+          "path": "manifests/candidates/pr_hard_v0.4/qualification/apache_tvm_20153.json",
+          "sha256": "e577c5ae6032294484c52abeeefa870171a6d95edff00ca20b967e4f311d4af8"
+        },
+        "scenarios": {
+          "path": "manifests/candidates/pr_hard_v0.4/scenarios/apache_tvm_20153.json",
+          "sha256": "bcef4908b819d2966470dca2c9990c474e5380c60110f6e8b0157f34b14fd17b"
+        },
+        "task": {
+          "path": "manifests/candidates/pr_hard_v0.4/tasks/apache_tvm_20153.json",
+          "sha256": "4924d78951a1cae51c805612d19530098b4a9b5828e67e8b7dedb0a1f6bdb91b"
+        }
+      },
+      "dependency_point_count": 2,
+      "official_result_eligible": true,
+      "parallelizability": "partially_parallelizable",
+      "protocols": {
+        "async_private": {
+          "agent_count": 3,
+          "communication_condition": "none_in_flight",
+          "concurrent_execution": true,
+          "execution_mode": "async_private",
+          "scenario_id": "pr-hard-apache-tvm-20153.async-private.v0.4",
+          "source_scenario_id": "pr-hard-apache-tvm-20153.async-private.v0.4"
+        },
+        "caid_manager": {
+          "agent_count": 3,
+          "communication_condition": "structured_message_and_artifact",
+          "concurrent_execution": true,
+          "execution_mode": "async_message",
+          "scenario_id": "pr-hard-apache-tvm-20153.async-message.v0.4",
+          "source_scenario_id": "pr-hard-apache-tvm-20153.async-message.v0.4"
+        },
+        "serial_specialists": {
+          "agent_count": 3,
+          "communication_condition": "completed_artifact_handoff",
+          "concurrent_execution": false,
+          "execution_mode": "serial_specialists",
+          "scenario_id": "pr-hard-apache-tvm-20153.serial-specialists.v0.4",
+          "source_scenario_id": "pr-hard-apache-tvm-20153.serial-specialists.v0.4"
+        },
+        "single": {
+          "agent_count": 1,
+          "communication_condition": "not_applicable",
+          "concurrent_execution": false,
+          "execution_mode": "iterative_single",
+          "scenario_id": "pr-hard-apache-tvm-20153.iterative-single.v0.4",
+          "source_scenario_id": "pr-hard-apache-tvm-20153.iterative-single.v0.4"
+        }
+      },
+      "quality_status": "qualification_ready",
+      "repository": "apache/tvm",
+      "source": {
+        "base_sha": "a35aca6a0ae5a61c486cb9a61c36b09be45f81af",
+        "overlay_count": 2,
+        "overlays": [
+          {
+            "path": "data/overlays/pr_hard/apache_tvm_20153/0001-public-regression-tests.patch",
+            "policy": "test_only_answer_free_sanitized",
+            "sanitization_notes": "Selected the upstream dedicated regression file and removed one explanatory implementation hint; all test functions and assertions are retained.",
+            "sha256": "2533917b23c7d481d706390776009f02ca350ff7e32dc54aabfe8dece517de07"
+          },
+          {
+            "path": "data/overlays/pr_hard/apache_tvm_20153/0002-public-regression-updates.patch",
+            "policy": "test_only_answer_free_sanitized",
+            "sanitization_notes": "Retained the upstream behavior and assertions while shortening one explanatory implementation comment.",
+            "sha256": "7b7c45225f51ebb423e8beb14c5c642bfc9b8ec75b9a732462d9521458084318"
+          }
+        ],
+        "repository": "apache/tvm",
+        "transformation": "pinned incomplete repository plus answer-free public test overlays"
+      },
+      "source_task_id": "pr-hard:apache-tvm-20153",
+      "task_id": "asyncodebench:apache-tvm-20153"
+    }
+  ],
+  "validated_baseline_bundle_count": 0,
+  "validated_baseline_registry": {
+    "path": "manifests/release/v0.4/validated_baselines.json",
+    "sha256": "f9d33c2eb9712858b337277f2695a50be8341811e6b659cb79a60297b2c06553"
+  }
+}

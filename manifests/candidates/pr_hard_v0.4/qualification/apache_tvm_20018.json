@@ -1,0 +1,158 @@
+{
+  "schema_version": "pr-hard-qualification-v0.4",
+  "task_id": "pr-hard:apache-tvm-20018",
+  "qualified_at": "2026-08-27",
+  "automated_status": "passed",
+  "human_review": {
+    "status": "complete_pass",
+    "counts_as_completed_human_review": true,
+    "annotation_file": "manifests/annotations/pr_hard_v0.4/apache_tvm_20018/annotator_a.json",
+    "annotator_id": "pz0512",
+    "parallelizability_label": "partially_parallelizable",
+    "reviewed_at": "2026-08-29"
+  },
+  "provenance": {
+    "base_sha": "302aaf9f961a6e0a2c5cc23dc87e51fbaabd1e42",
+    "gold_sha": "9bfefb7e4b2f13f92b59ed4755bc83d856369c40",
+    "gold_first_parent_is_base": true,
+    "production_diff": {
+      "files": 28,
+      "additions": 180,
+      "deletions": 139,
+      "matches_editable_paths": true
+    }
+  },
+  "source_integrity": {
+    "public_overlays": [
+      {
+        "path": "data/overlays/pr_hard/apache_tvm_20018/0001-public-regression-tests.patch",
+        "sha256": "4d7f24a5fca3967028012742367c608f809f136536db797876976e3ca66eb7ab"
+      }
+    ],
+    "test_only": true,
+    "apply_cleanly_in_order": true,
+    "model_visible_git_history": false,
+    "model_visible_gold_patch": false,
+    "model_trajectory_used_for_construction": false
+  },
+  "environment": {
+    "registry": "configs/environments/pr_hard_tvm.v0.4.json",
+    "profile": "tvm-cpu-llvm-source-build",
+    "conda_lock_sha256": "1c44901e30620de95c78a35e6d72230868ffdbcf206bda6143706e1ba0e83618",
+    "requirements_lock_sha256": "b2279a1089af16e16e267f554e009617883c995ce891ffdf69dc73f5060d1fb0",
+    "recursive_submodule_manifest_sha256": "da5a428050d02f03535fa7ad7704208f4d13442eeb530300e885498fd6344e35",
+    "tvm_ffi_sha": "5411a642d98bba14d4cb1e19a793c5b6758be019",
+    "configure": [
+      "cmake",
+      "-S",
+      ".",
+      "-B",
+      "build",
+      "-G",
+      "Ninja",
+      "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
+      "-DUSE_LLVM=llvm-config",
+      "-DUSE_CUDA=OFF",
+      "-DUSE_GTEST=OFF"
+    ],
+    "cold_build_elapsed_seconds": 549,
+    "cold_build_timing_method": "filesystem_birthtime_delta_from_CMakeCache_to_libtvm_compiler",
+    "gpu_execution_required": false
+  },
+  "evaluator_runs": [
+    {
+      "stage": "base_focused",
+      "expected": "red",
+      "exit_code": 1,
+      "collected": 8,
+      "duration_seconds": 5.64,
+      "outcomes": {"passed": 0, "failed": 8},
+      "notes": "All eight selectors collected and failed at intended missing Return schema, Script, transform, or target-emission behavior; no setup or collection error occurred."
+    },
+    {
+      "stage": "gold_focused",
+      "expected": "green",
+      "exit_code": 0,
+      "collected": 8,
+      "duration_seconds": 5.56,
+      "outcomes": {"passed": 8},
+      "notes": "The exact upstream production state passes all core, Script, legality, and emission selectors."
+    },
+    {
+      "stage": "gold_role_local",
+      "expected": "green",
+      "exit_code": 0,
+      "collected": 8,
+      "duration_seconds": 5.56,
+      "outcomes": {"passed": 8},
+      "notes": "The prefix ablation is base 0/8, Return IR core 3/8, Return IR core plus Script 5/8, and complete integration 8/8. A backend patch applied before its Script producer fails at the retired legacy-return contract, as predicted for this chain topology."
+    },
+    {
+      "stage": "gold_regression",
+      "expected": "green",
+      "exit_code": 0,
+      "collected": 785,
+      "duration_seconds": 59.86,
+      "outcomes": {"passed": 782, "skipped": 0, "xfailed": 3},
+      "notes": "All 14 selected CPU/LLVM upstream modules passed; three pre-existing expected failures remained xfailed. A comment-only CUDA hunk and its fully skipped GPU module are excluded from the public overlay and final evaluator."
+    }
+  ],
+  "role_local_observability": [
+    {
+      "subproblem_id": "return_ir_core",
+      "base_status": "base_red",
+      "selectors": [
+        "tests/python/tirx-base/test_tir_base.py::test_return_accepts_expr_and_roundtrips",
+        "tests/python/tirx-base/test_tir_base.py::test_return_stmt_functor_traversal_and_mutation",
+        "tests/python/tirx/transform/test_stmt_functor.py::test_return"
+      ],
+      "finding": "The first-class node, FFI constructor, JSON/hash behavior, and traversal/mutation are independently observable and core-only passes exactly these three selectors."
+    },
+    {
+      "subproblem_id": "return_script_surface",
+      "base_status": "base_red",
+      "selectors": [
+        "tests/python/tvmscript/test_tvmscript_syntax_sugar.py::test_return_statement",
+        "tests/python/tvmscript/test_tvmscript_printer_tir.py::test_return_statement"
+      ],
+      "finding": "After the IR core is present, adding the Script role raises the focused result from 3/8 to 5/8 while lowering and codegen remain red."
+    },
+    {
+      "subproblem_id": "return_lowering_codegen_integration",
+      "base_status": "base_red",
+      "selectors": [
+        "tests/python/tirx-transform/test_tir_transform_make_packed_api.py::test_return_from_parallel_scope_is_rejected",
+        "tests/python/tirx-transform/test_tir_transform_split_host_device.py::test_device_kernel_nonzero_return_is_rejected",
+        "tests/python/tirx-base/test_tir_base.py::test_return_const"
+      ],
+      "finding": "The complete downstream integration raises the focused result from 5/8 to 8/8 and exercises legality plus compiled return-value behavior."
+    }
+  ],
+  "dependency_checkers": [
+    {
+      "dependency_id": "return-ir-to-script-surface",
+      "upstream": "passed",
+      "downstream": "passed",
+      "integrated": "passed",
+      "finding": "Core-only passes 3/8; core plus Script passes exactly 5/8, establishing that the Script surface consumes the new Return schema and visitor contract."
+    },
+    {
+      "dependency_id": "script-return-to-lowering-codegen",
+      "upstream": "passed",
+      "downstream": "passed",
+      "integrated": "passed",
+      "finding": "Core plus Script passes 5/8; complete integration passes 8/8. Applying legacy-retirement/backend changes before the Script migration produces the predicted stale-contract build/import failure."
+    }
+  ],
+  "runtime_package_validation": {
+    "validated_at": "2026-08-27",
+    "seed_commit": "65dc737ffbcc0a0d9efcd70ac4a286abdfb51b7a",
+    "seed_commit_count": 1,
+    "seed_has_remotes": false,
+    "task_local_ffi_version": "0.1.13.dev34+g5411a642d",
+    "task_local_ffi_editable": false,
+    "base_focused": {"passed": 0, "failed": 8},
+    "gold_regression": {"passed": 782, "skipped": 0}
+  },
+  "remaining_gates": []
+}

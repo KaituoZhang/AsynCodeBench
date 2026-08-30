@@ -10,6 +10,12 @@ from openhands.sdk import Agent, Conversation, LLMSummarizingCondenser
 from openhands.tools.preset.default import get_default_tools
 
 from core.dependency_probes import write_dependency_probe_checkpoint
+from core.workspace_isolation import (
+    WORKSPACE_ISOLATION_POLICY_VERSION,
+    build_workspace_guard_hook,
+    private_remote_workspace,
+    uses_task_specific_workspace_isolation,
+)
 from core.utils import (
     PanelVisualizer,
     build_subagent_prompt,
@@ -17,6 +23,14 @@ from core.utils import (
     extract_conversation_metrics,
     serialize_event,
 )
+
+
+def task_metrics_manifest_path(task_module):
+    """Return a task's explicit metrics manifest instead of guessing by repo name."""
+    manifest_paths = getattr(task_module, "manifest_paths", {})
+    if isinstance(manifest_paths, dict):
+        return manifest_paths.get("metrics")
+    return None
 
 
 def _is_ambiguous_run_trigger_timeout(error):
@@ -472,6 +486,7 @@ class SubAgentRunner:
         self.output_logger = output_logger
         self.agent = None
         self.conversation = None
+        self.conversation_workspace = None
         self.result = None
         self.instruction_time = None
         self.completed_rounds = 0
@@ -510,6 +525,34 @@ class SubAgentRunner:
 
     def setup(self):
         self.log("Setting up subagent...")
+        isolate_workspace = uses_task_specific_workspace_isolation(self.task_module)
+        conversation_workspace = self.workspace
+        conversation_options = {}
+        worktree_path = self.subagent.worktree_path or self.subagent.submission_path
+        if isolate_workspace:
+            if self.conversation:
+                try:
+                    self.conversation.close()
+                except Exception:
+                    pass
+            if self.conversation_workspace:
+                try:
+                    self.conversation_workspace.client.close()
+                except Exception:
+                    pass
+            if not worktree_path:
+                raise RuntimeError(
+                    f"{self.subagent.engineer_id} has no private worktree path"
+                )
+            self.conversation_workspace = private_remote_workspace(
+                self.workspace,
+                worktree_path,
+            )
+            conversation_workspace = self.conversation_workspace
+            conversation_options["hook_config"] = build_workspace_guard_hook(
+                worktree_path,
+                self.task_module.get_work_dir(),
+            )
         tools = get_default_tools(enable_browser=False)
         condenser_llm = self.llm.model_copy(update={"usage_id": "condenser"})
         condenser = LLMSummarizingCondenser(
@@ -526,14 +569,31 @@ class SubAgentRunner:
         )
         self.conversation = Conversation(
             agent=self.agent,
-            workspace=self.workspace,
+            workspace=conversation_workspace,
             max_iteration_per_run=self.max_iterations,
             visualizer=PanelVisualizer(),
+            **conversation_options,
         )
         self.instruction_time = datetime.now()
         self.last_saved_event_count = 0
         self.conversation_round = self.subagent.current_round
-        self.log("Subagent ready")
+        if isolate_workspace and self.output_logger:
+            self.output_logger.log_event(
+                event_type="subagent_workspace_isolation",
+                source=self.subagent.engineer_id,
+                content={
+                    "policy_version": WORKSPACE_ISOLATION_POLICY_VERSION,
+                    "private_worktree": worktree_path,
+                    "integrated_repository": self.task_module.get_work_dir(),
+                    "default_working_directory": worktree_path,
+                    "pre_tool_use_guard": True,
+                },
+                round_num=self.subagent.current_round,
+            )
+        if isolate_workspace:
+            self.log(f"Subagent ready (isolated workspace: {worktree_path})")
+        else:
+            self.log("Subagent ready")
 
     def clone_for_subagent(self, subagent):
         """Create another runner with the same implementation and settings."""
@@ -558,7 +618,7 @@ class SubAgentRunner:
         return self.result
 
     def build_first_round_prompt(self):
-        return build_subagent_prompt(
+        prompt = build_subagent_prompt(
             prompts=self.prompts,
             submission_path=self.subagent.worktree_path or self.subagent.submission_path,
             task_node_id=self.subagent.task_node_id,
@@ -572,6 +632,13 @@ class SubAgentRunner:
             test_cmd=getattr(self.subagent, 'test_cmd', 'pytest'),
             test_dir=getattr(self.subagent, 'test_dir', 'tests/'),
         )
+        if uses_task_specific_workspace_isolation(self.task_module):
+            prompt += (
+                "\n\nWorkspace rule for this task: every command and edit must "
+                f"remain inside {self.subagent.worktree_path}. Never access the "
+                "integrated repository or a sibling specialist worktree.\n"
+            )
+        return prompt
 
     def build_followup_prompt(self):
         template = self.prompts.get("followup_prompt", "")
@@ -870,6 +937,11 @@ class SubAgentRunner:
                 self.conversation.close()
             except Exception:
                 pass
+        if self.conversation_workspace:
+            try:
+                self.conversation_workspace.client.close()
+            except Exception:
+                pass
 
 
 async def run_subagents_parallel(runners, manager=None, task_module=None, output_logger=None, enable_background_exploration=True, max_subagents=4):
@@ -933,12 +1005,18 @@ async def run_subagents_parallel(runners, manager=None, task_module=None, output
         return result.stdout.strip() if result.exit_code == 0 else None
 
     def write_probe(workspace, output_dir, repo_name, workspace_path, **kwargs):
+        source_build = None
+        refresh = getattr(task_module, "refresh_source_build", None)
+        if refresh is not None:
+            source_build = refresh(workspace, workspace_path)
         return write_dependency_probe_checkpoint(
             workspace=workspace,
             output_dir=output_dir,
             repo_name=repo_name,
             workspace_path=workspace_path,
             logical_step=next_probe_step(),
+            metrics_path=task_metrics_manifest_path(task_module),
+            source_build=source_build,
             **kwargs,
         )
 

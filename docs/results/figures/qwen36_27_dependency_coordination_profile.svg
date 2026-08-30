@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1860" height="720" viewBox="0 0 1860 720">
+<rect width="100%" height="100%" fill="#f7f9fc"/>
+<text x="48" y="50" font-family="Inter,Arial,sans-serif" font-size="29" font-weight="700" fill="#172033" text-anchor="start">AsynCodeBench Dependency Metrics on the Unified 20-Task Suite</text>
+<text x="48" y="80" font-family="Inter,Arial,sans-serif" font-size="16" font-weight="400" fill="#596579" text-anchor="start">Task-macro ADPR and strict-checkpoint timing; unresolved dependencies receive run-local T+1-based penalties</text>
+<rect x="40" y="115" width="348" height="525" rx="13" fill="#ffffff" stroke="#dce2ec"/>
+<text x="62" y="153" font-family="Inter,Arial,sans-serif" font-size="20" font-weight="700" fill="#172033" text-anchor="start">ADPR ↑</text>
+<text x="62" y="205" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#667085" text-anchor="start">Single</text>
+<rect x="62" y="219" width="280" height="27" rx="5" fill="#edf0f5"/>
+<rect x="62" y="219" width="111.999999999986" height="27" rx="5" fill="#667085"/>
+<text x="352" y="240" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">40.0%</text>
+<text x="62" y="303" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#3366ad" text-anchor="start">Serial</text>
+<rect x="62" y="317" width="280" height="27" rx="5" fill="#edf0f5"/>
+<rect x="62" y="317" width="128.333333333324" height="27" rx="5" fill="#3366ad"/>
+<text x="352" y="338" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">45.8%</text>
+<text x="62" y="401" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#d2872c" text-anchor="start">Async private</text>
+<rect x="62" y="415" width="280" height="27" rx="5" fill="#edf0f5"/>
+<rect x="62" y="415" width="53.666666666648005" height="27" rx="5" fill="#d2872c"/>
+<text x="352" y="436" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">19.2%</text>
+<text x="62" y="499" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#268368" text-anchor="start">CAID</text>
+<rect x="62" y="513" width="280" height="27" rx="5" fill="#edf0f5"/>
+<rect x="62" y="513" width="214.666666666676" height="27" rx="5" fill="#268368"/>
+<text x="352" y="534" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">76.7%</text>
+<text x="62" y="605" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="500" fill="#687386" text-anchor="start">higher is better</text>
+<rect x="402" y="115" width="348" height="525" rx="13" fill="#ffffff" stroke="#dce2ec"/>
+<text x="424" y="153" font-family="Inter,Arial,sans-serif" font-size="20" font-weight="700" fill="#172033" text-anchor="start">Unresolved ↓</text>
+<text x="424" y="205" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#667085" text-anchor="start">Single</text>
+<rect x="424" y="219" width="280" height="27" rx="5" fill="#edf0f5"/>
+<rect x="424" y="219" width="168.0" height="27" rx="5" fill="#667085"/>
+<text x="714" y="240" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">1.50</text>
+<text x="424" y="303" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#3366ad" text-anchor="start">Serial</text>
+<rect x="424" y="317" width="280" height="27" rx="5" fill="#edf0f5"/>
+<rect x="424" y="317" width="156.79999999999998" height="27" rx="5" fill="#3366ad"/>
+<text x="714" y="338" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">1.40</text>
+<text x="424" y="401" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#d2872c" text-anchor="start">Async private</text>
+<rect x="424" y="415" width="280" height="27" rx="5" fill="#edf0f5"/>
+<rect x="424" y="415" width="240.79999999999998" height="27" rx="5" fill="#d2872c"/>
+<text x="714" y="436" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">2.15</text>
+<text x="424" y="499" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#268368" text-anchor="start">CAID</text>
+<rect x="424" y="513" width="280" height="27" rx="5" fill="#edf0f5"/>
+<rect x="424" y="513" width="56.0" height="27" rx="5" fill="#268368"/>
+<text x="714" y="534" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">0.50</text>
+<text x="424" y="605" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="500" fill="#687386" text-anchor="start">lower is better</text>
+<rect x="764" y="115" width="348" height="525" rx="13" fill="#ffffff" stroke="#dce2ec"/>
+<text x="786" y="153" font-family="Inter,Arial,sans-serif" font-size="20" font-weight="700" fill="#172033" text-anchor="start">DRE ↑</text>
+<text x="786" y="205" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#667085" text-anchor="start">Single</text>
+<rect x="786" y="219" width="280" height="27" rx="5" fill="#edf0f5"/>
+<rect x="786" y="219" width="111.999999999986" height="27" rx="5" fill="#667085"/>
+<text x="1076" y="240" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">40.0%</text>
+<text x="786" y="303" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#3366ad" text-anchor="start">Serial</text>
+<rect x="786" y="317" width="280" height="27" rx="5" fill="#edf0f5"/>
+<rect x="786" y="317" width="55.4014814814594" height="27" rx="5" fill="#3366ad"/>
+<text x="1076" y="338" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">19.8%</text>
+<text x="786" y="401" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#d2872c" text-anchor="start">Async private</text>
+<rect x="786" y="415" width="280" height="27" rx="5" fill="#edf0f5"/>
+<rect x="786" y="415" width="35.423076923066006" height="27" rx="5" fill="#d2872c"/>
+<text x="1076" y="436" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">12.7%</text>
+<text x="786" y="499" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#268368" text-anchor="start">CAID</text>
+<rect x="786" y="513" width="280" height="27" rx="5" fill="#edf0f5"/>
+<rect x="786" y="513" width="51.632665112651004" height="27" rx="5" fill="#268368"/>
+<text x="1076" y="534" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">18.4%</text>
+<text x="786" y="605" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="500" fill="#687386" text-anchor="start">higher is better</text>
+<rect x="1126" y="115" width="348" height="525" rx="13" fill="#ffffff" stroke="#dce2ec"/>
+<text x="1148" y="153" font-family="Inter,Arial,sans-serif" font-size="20" font-weight="700" fill="#172033" text-anchor="start">DRS-P ↓</text>
+<text x="1148" y="205" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#667085" text-anchor="start">Single</text>
+<rect x="1148" y="219" width="280" height="27" rx="5" fill="#edf0f5"/>
+<rect x="1148" y="219" width="37.333333333344996" height="27" rx="5" fill="#667085"/>
+<text x="1438" y="240" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">1.60</text>
+<text x="1148" y="303" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#3366ad" text-anchor="start">Serial</text>
+<rect x="1148" y="317" width="280" height="27" rx="5" fill="#edf0f5"/>
+<rect x="1148" y="317" width="156.6444444444483" height="27" rx="5" fill="#3366ad"/>
+<text x="1438" y="338" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">6.71</text>
+<text x="1148" y="401" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#d2872c" text-anchor="start">Async private</text>
+<rect x="1148" y="415" width="280" height="27" rx="5" fill="#edf0f5"/>
+<rect x="1148" y="415" width="231.11666666671334" height="27" rx="5" fill="#d2872c"/>
+<text x="1438" y="436" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">9.91</text>
+<text x="1148" y="499" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#268368" text-anchor="start">CAID</text>
+<rect x="1148" y="513" width="280" height="27" rx="5" fill="#edf0f5"/>
+<rect x="1148" y="513" width="207.78333333325168" height="27" rx="5" fill="#268368"/>
+<text x="1438" y="534" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">8.90</text>
+<text x="1148" y="605" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="500" fill="#687386" text-anchor="start">lower is better</text>
+<rect x="1488" y="115" width="348" height="525" rx="13" fill="#ffffff" stroke="#dce2ec"/>
+<text x="1510" y="153" font-family="Inter,Arial,sans-serif" font-size="20" font-weight="700" fill="#172033" text-anchor="start">CAIL-P ↓</text>
+<text x="1510" y="205" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#667085" text-anchor="start">Single</text>
+<rect x="1510" y="219" width="280" height="27" rx="5" fill="#edf0f5"/>
+<rect x="1510" y="219" width="36.75" height="27" rx="5" fill="#667085"/>
+<text x="1800" y="240" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">1.05</text>
+<text x="1510" y="303" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#3366ad" text-anchor="start">Serial</text>
+<rect x="1510" y="317" width="280" height="27" rx="5" fill="#edf0f5"/>
+<rect x="1510" y="317" width="148.92499999999475" height="27" rx="5" fill="#3366ad"/>
+<text x="1800" y="338" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">4.25</text>
+<text x="1510" y="401" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#d2872c" text-anchor="start">Async private</text>
+<rect x="1510" y="415" width="280" height="27" rx="5" fill="#edf0f5"/>
+<rect x="1510" y="415" width="224.17500000008752" height="27" rx="5" fill="#d2872c"/>
+<text x="1800" y="436" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">6.41</text>
+<text x="1510" y="499" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#268368" text-anchor="start">CAID</text>
+<rect x="1510" y="513" width="280" height="27" rx="5" fill="#edf0f5"/>
+<rect x="1510" y="513" width="136.38333333334677" height="27" rx="5" fill="#268368"/>
+<text x="1800" y="534" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">3.90</text>
+<text x="1510" y="605" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="500" fill="#687386" text-anchor="start">lower is better</text>
+<text x="48" y="683" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="500" fill="#596579" text-anchor="start">DRS-P and CAIL-P must be read with ADPR, DRE, and checkpoint count because protocols observe different numbers of checkpoints.</text>
+</svg>

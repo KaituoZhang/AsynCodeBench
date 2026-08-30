@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1540" height="700" viewBox="0 0 1540 700">
+<rect width="100%" height="100%" fill="#f7f9fc"/>
+<text x="48" y="50" font-family="Inter,Arial,sans-serif" font-size="29" font-weight="700" fill="#172033" text-anchor="start">Coordination Diagnostics on the Unified 20-Task Suite</text>
+<text x="48" y="80" font-family="Inter,Arial,sans-serif" font-size="16" font-weight="400" fill="#596579" text-anchor="start">These process metrics explain dependency outcomes; they do not replace ADPR or final evaluation</text>
+<rect x="40" y="115" width="360" height="500" rx="13" fill="#ffffff" stroke="#dce2ec"/>
+<text x="62" y="153" font-family="Inter,Arial,sans-serif" font-size="20" font-weight="700" fill="#172033" text-anchor="start">FSAR ↓</text>
+<text x="62" y="178" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="400" fill="#687386" text-anchor="start">Failed subagent attempts</text>
+<text x="62" y="225" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#667085" text-anchor="start">Single</text>
+<rect x="62" y="237" width="290" height="25" rx="5" fill="#edf0f5"/>
+<rect x="62" y="237" width="0.0" height="25" rx="5" fill="#667085"/>
+<text x="365" y="255" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">0.0%</text>
+<text x="62" y="313" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#3366ad" text-anchor="start">Serial</text>
+<rect x="62" y="325" width="290" height="25" rx="5" fill="#edf0f5"/>
+<rect x="62" y="325" width="26.583333333314002" height="25" rx="5" fill="#3366ad"/>
+<text x="365" y="343" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">9.2%</text>
+<text x="62" y="401" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#d2872c" text-anchor="start">Async private</text>
+<rect x="62" y="413" width="290" height="25" rx="5" fill="#edf0f5"/>
+<rect x="62" y="413" width="74.9166666666715" height="25" rx="5" fill="#d2872c"/>
+<text x="365" y="431" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">25.8%</text>
+<text x="62" y="489" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#268368" text-anchor="start">CAID</text>
+<rect x="62" y="501" width="290" height="25" rx="5" fill="#edf0f5"/>
+<rect x="62" y="501" width="70.325" height="25" rx="5" fill="#268368"/>
+<text x="365" y="519" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">24.2%</text>
+<rect x="415" y="115" width="360" height="500" rx="13" fill="#ffffff" stroke="#dce2ec"/>
+<text x="437" y="153" font-family="Inter,Arial,sans-serif" font-size="20" font-weight="700" fill="#172033" text-anchor="start">IFR ↓</text>
+<text x="437" y="178" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="400" fill="#687386" text-anchor="start">Runs with integration failure</text>
+<text x="437" y="225" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#667085" text-anchor="start">Single</text>
+<rect x="437" y="237" width="290" height="25" rx="5" fill="#edf0f5"/>
+<rect x="437" y="237" width="0.0" height="25" rx="5" fill="#667085"/>
+<text x="740" y="255" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">0.0%</text>
+<text x="437" y="313" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#3366ad" text-anchor="start">Serial</text>
+<rect x="437" y="325" width="290" height="25" rx="5" fill="#edf0f5"/>
+<rect x="437" y="325" width="217.5" height="25" rx="5" fill="#3366ad"/>
+<text x="740" y="343" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">75.0%</text>
+<text x="437" y="401" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#d2872c" text-anchor="start">Async private</text>
+<rect x="437" y="413" width="290" height="25" rx="5" fill="#edf0f5"/>
+<rect x="437" y="413" width="261.0" height="25" rx="5" fill="#d2872c"/>
+<text x="740" y="431" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">90.0%</text>
+<text x="437" y="489" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#268368" text-anchor="start">CAID</text>
+<rect x="437" y="501" width="290" height="25" rx="5" fill="#edf0f5"/>
+<rect x="437" y="501" width="87.0" height="25" rx="5" fill="#268368"/>
+<text x="740" y="519" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">30.0%</text>
+<rect x="790" y="115" width="360" height="500" rx="13" fill="#ffffff" stroke="#dce2ec"/>
+<text x="812" y="153" font-family="Inter,Arial,sans-serif" font-size="20" font-weight="700" fill="#172033" text-anchor="start">SVR ↓</text>
+<text x="812" y="178" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="400" fill="#687386" text-anchor="start">Out-of-scope attempts</text>
+<text x="812" y="225" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#667085" text-anchor="start">Single</text>
+<text x="1115" y="252" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#718096" text-anchor="end">N/A</text>
+<rect x="812" y="237" width="290" height="25" rx="5" fill="#edf0f5"/>
+<text x="812" y="313" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#3366ad" text-anchor="start">Serial</text>
+<rect x="812" y="325" width="290" height="25" rx="5" fill="#edf0f5"/>
+<rect x="812" y="325" width="36.249999999985505" height="25" rx="5" fill="#3366ad"/>
+<text x="1115" y="343" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">12.5%</text>
+<text x="812" y="401" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#d2872c" text-anchor="start">Async private</text>
+<rect x="812" y="413" width="290" height="25" rx="5" fill="#edf0f5"/>
+<rect x="812" y="413" width="97.8749999999855" height="25" rx="5" fill="#d2872c"/>
+<text x="1115" y="431" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">33.7%</text>
+<text x="812" y="489" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#268368" text-anchor="start">CAID</text>
+<rect x="812" y="501" width="290" height="25" rx="5" fill="#edf0f5"/>
+<rect x="812" y="501" width="102.9500000000145" height="25" rx="5" fill="#268368"/>
+<text x="1115" y="519" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">35.5%</text>
+<rect x="1165" y="115" width="360" height="500" rx="13" fill="#ffffff" stroke="#dce2ec"/>
+<text x="1187" y="153" font-family="Inter,Arial,sans-serif" font-size="20" font-weight="700" fill="#172033" text-anchor="start">MRR†</text>
+<text x="1187" y="178" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="400" fill="#687386" text-anchor="start">Conditional manager recovery</text>
+<text x="1187" y="225" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#667085" text-anchor="start">Single</text>
+<text x="1490" y="252" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#718096" text-anchor="end">N/A</text>
+<rect x="1187" y="237" width="290" height="25" rx="5" fill="#edf0f5"/>
+<text x="1187" y="313" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#3366ad" text-anchor="start">Serial</text>
+<rect x="1187" y="325" width="290" height="25" rx="5" fill="#edf0f5"/>
+<rect x="1187" y="325" width="226.79487179487924" height="25" rx="5" fill="#3366ad"/>
+<text x="1490" y="343" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">78.2%</text>
+<text x="1187" y="401" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#d2872c" text-anchor="start">Async private</text>
+<rect x="1187" y="413" width="290" height="25" rx="5" fill="#edf0f5"/>
+<rect x="1187" y="413" width="87.0" height="25" rx="5" fill="#d2872c"/>
+<text x="1490" y="431" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">30.0%</text>
+<text x="1187" y="489" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="650" fill="#268368" text-anchor="start">CAID</text>
+<rect x="1187" y="501" width="290" height="25" rx="5" fill="#edf0f5"/>
+<rect x="1187" y="501" width="102.88095238095929" height="25" rx="5" fill="#268368"/>
+<text x="1490" y="519" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#263247" text-anchor="end">35.5%</text>
+<text x="48" y="660" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="500" fill="#596579" text-anchor="start">† MRR is conditional on detected failure/repair opportunities; high MRR is not evidence of a clean trajectory.</text>
+</svg>

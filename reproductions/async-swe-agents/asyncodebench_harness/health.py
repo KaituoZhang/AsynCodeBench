@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 from pathlib import Path
 
 REQUIRED_HEALTH_FILES = (
@@ -182,8 +183,19 @@ def inspect_run(run_dir: Path) -> dict[str, object]:
     )
     report_metadata = report.get("asyncodebench", {})
     evaluator_source = report_metadata.get("final_evaluator_source")
+    run_metadata = (
+        _read_json(run_dir / "run_metadata.json", hard_failures, "invalid_run_metadata")
+        if (run_dir / "run_metadata.json").is_file()
+        else {}
+    )
+    candidate_lane = run_metadata.get("candidate_lane", {})
+    expected_evaluator = (
+        "pr_hard_v0.4_manifest"
+        if candidate_lane.get("kind") == "pr_hard_v0.4"
+        else "asyncodebench_manifest"
+    )
     evaluator_eligible = True
-    if evaluator_source != "asyncodebench_manifest":
+    if evaluator_source != expected_evaluator:
         hard_failures.append(f"wrong_evaluator:{evaluator_source}")
         evaluator_eligible = False
 
@@ -267,6 +279,57 @@ def inspect_run(run_dir: Path) -> dict[str, object]:
         observations.append("model_trajectory_stuck")
     if "<|tool_call>" in combined:
         observations.append("raw_tool_call_emitted")
+
+    is_20018_caid = (
+        run_metadata.get("task_id") == "pr-hard:apache-tvm-20018"
+        and run_metadata.get("protocol") == "caid_manager"
+    )
+    if is_20018_caid:
+        patch_path = run_dir / "patch.diff"
+        if not patch_path.is_file():
+            hard_failures.append("missing_patch_diff")
+        else:
+            patch_text = _read_text(patch_path)
+            if "# Patch generation failed:" in patch_text:
+                hard_failures.append("patch_generation_failed")
+            elif "diff --git " in patch_text:
+                patch_validation = subprocess.run(
+                    ["git", "apply", "--numstat", str(patch_path.resolve())],
+                    cwd=run_dir,
+                    capture_output=True,
+                    text=True,
+                    timeout=30,
+                    check=False,
+                )
+                if patch_validation.returncode != 0:
+                    hard_failures.append("invalid_patch_diff")
+
+        for filename, field in (
+            ("scope_validation.jsonl", "main_workspace_status_before_merge"),
+            ("manager_workspace_validation.jsonl", "main_workspace_status"),
+        ):
+            path = run_dir / filename
+            if not path.is_file():
+                continue
+            records = _read_jsonl(path, hard_failures, f"invalid_{path.stem}")
+            remediated = [
+                record
+                for record in records
+                if record.get(field) and record.get("remediated")
+            ]
+            contaminated = [
+                record
+                for record in records
+                if record.get(field) and not record.get("remediated")
+            ]
+            if remediated:
+                observations.append(
+                    f"manager_workspace_writes_rejected:{path.name}:{len(remediated)}"
+                )
+            if contaminated:
+                hard_failures.append(
+                    f"integrated_workspace_contamination:{path.name}:{len(contaminated)}"
+                )
 
     checkpoints = (
         _read_jsonl(

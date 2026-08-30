@@ -1,0 +1,193 @@
+diff --git a/tests/python/ir/test_node_reflection.py b/tests/python/ir/test_node_reflection.py
+index 29e222c6db..b1f0744fb1 100644
+--- a/tests/python/ir/test_node_reflection.py
++++ b/tests/python/ir/test_node_reflection.py
+@@ -59,7 +59,7 @@ _LEGACY_RELAX_VAR_JSON = """{
+     {"type": "ffi.String", "data": "legacy"},
+     {"type": "relax.expr.Var", "data": {"span": 1, "ty": 3, "name_hint": 6}},
+     {"type": "ffi.Array", "data": [7, 7]},
+-    {"type": "relax.expr.Tuple", "data": {"span": 1, "ty": 5, "fields": 8}}
++    {"type": "ir.Tuple", "data": {"span": 1, "ty": 5, "fields": 8}}
+   ],
+   "metadata": {"tvm_version": "0.26.dev0"}
+ }"""
+diff --git a/tests/python/tirx-base/test_tir_constructor.py b/tests/python/tirx-base/test_tir_constructor.py
+index 4be31c0174..6dd7410750 100644
+--- a/tests/python/tirx-base/test_tir_constructor.py
++++ b/tests/python/tirx-base/test_tir_constructor.py
+@@ -171,6 +171,24 @@ def test_expr_constructor():
+     )
+     assert not expr_deep_equal(x_with_attrs, x_with_other_attrs)
+ 
++    tuple_arg = tvm.ir.Tuple([attr_arg, tvm.tirx.IntImm("int32", 1)])
++    same_tuple_arg = tvm.ir.Tuple([attr_arg, tvm.tirx.IntImm("int32", 1)])
++    different_tuple_arg = tvm.ir.Tuple([attr_arg, tvm.tirx.IntImm("int32", 2)])
++
++    def call_with(arg):
++        return tvm.ir.Call(
++            "tirx.call_extern",
++            [tvm.tirx.StringImm("tuple_arg"), arg],
++            ret_ty="int32",
++        )
++
++    assert expr_deep_equal(call_with(tuple_arg), call_with(same_tuple_arg))
++    assert not expr_deep_equal(call_with(tuple_arg), call_with(different_tuple_arg))
++    assert not expr_deep_equal(
++        call_with(tuple_arg),
++        call_with(tvm.ir.TupleGetItem(same_tuple_arg, 0)),
++    )
++
+     cond0 = tvm.tirx.Var("cond0", "bool")
+     cond1 = tvm.tirx.Var("cond1", "bool")
+     inner_if = tvm.ir.Call(
+diff --git a/tests/python/tirx-base/test_tir_expr_functor.py b/tests/python/tirx-base/test_tir_expr_functor.py
+index 96bb500111..b342782d48 100644
+--- a/tests/python/tirx-base/test_tir_expr_functor.py
++++ b/tests/python/tirx-base/test_tir_expr_functor.py
+@@ -18,7 +18,7 @@
+ import tvm
+ import tvm.testing
+ from tvm import tirx as tir
+-from tvm.ir import Call, Op
++from tvm.ir import Call, Op, Tuple, TupleGetItem
+ from tvm.ir.base import assert_structural_equal
+ from tvm.tirx.expr import (
+     EQ,
+@@ -111,6 +111,19 @@ class ASTPrinter(ExprVisitor):
+             self.visit_expr(idx)
+         self.log.pop_scope()
+ 
++    def visit_tuple_(self, op: Tuple) -> None:
++        self.log.add("Tuple")
++        self.log.push_scope()
++        for field in op.fields:
++            self.visit_expr(field)
++        self.log.pop_scope()
++
++    def visit_tuple_get_item_(self, op: TupleGetItem) -> None:
++        self.log.add("TupleGetItem")
++        self.log.push_scope()
++        self.visit_expr(op.tuple_value)
++        self.log.pop_scope()
++
+     def visit_let_(self, op: Let) -> None:
+         self.log.add("Let")
+         self.log.push_scope()
+@@ -339,6 +352,16 @@ class ASTPostPrinterMutator(ExprMutator):
+         self.log.add("ProducerLoad")
+         return result
+ 
++    def visit_tuple_(self, op: Tuple) -> tir.Expr:
++        result = super().visit_tuple_(op)
++        self.log.add("Tuple")
++        return result
++
++    def visit_tuple_get_item_(self, op: TupleGetItem) -> tir.Expr:
++        result = super().visit_tuple_get_item_(op)
++        self.log.add("TupleGetItem")
++        return result
++
+     def visit_let_(self, op: Let) -> tir.Expr:
+         result = super().visit_let_(op)
+         self.log.add("Let")
+@@ -524,6 +547,24 @@ def test_string_imm():
+     basic_check(tir.StringImm("hello"), "StringImm", "StringImm")
+ 
+ 
++def test_tuple():
++    tuple_node = Tuple([n, tir.IntImm("int32", 10)])
++    basic_check(
++        tuple_node,
++        "\n".join(["Tuple", "\tVar", "\tIntImm"]),
++        "\n".join(["Var", "IntImm", "Tuple"]),
++    )
++
++
++def test_tuple_get_item():
++    tuple_get_item = TupleGetItem(Tuple([n, m]), 1)
++    basic_check(
++        tuple_get_item,
++        "\n".join(["TupleGetItem", "\tTuple", "\t\tVar", "\t\tVar"]),
++        "\n".join(["Var", "Var", "Tuple", "TupleGetItem"]),
++    )
++
++
+ def test_add():
+     add_node = tir.Add(n, m)
+     basic_check(add_node, "\n".join(["Add", "\tVar", "\tVar"]), "\n".join(["Var", "Var", "Add"]))
+diff --git a/tests/python/tirx-transform/test_tir_functor.py b/tests/python/tirx-transform/test_tir_functor.py
+index 8b463c19a8..14d439219f 100644
+--- a/tests/python/tirx-transform/test_tir_functor.py
++++ b/tests/python/tirx-transform/test_tir_functor.py
+@@ -19,6 +19,7 @@
+ import tvm
+ import tvm.testing
+ from tvm import tirx
++from tvm.ir import Tuple, TupleGetItem
+ from tvm.tirx import (
+     EQ,
+     LT,
+@@ -415,6 +416,23 @@ def test_nested_expressions():
+     assert counter.mul_count == 1  # one mul
+ 
+ 
++def test_tuple_default_traversal_and_mutation():
++    x = Var("x", ty="int32")
++    y = Var("y", ty="int32")
++    expr = TupleGetItem(Tuple([x, y]), 1)
++
++    counter = SimpleExprCounter()
++    counter.visit_expr(expr)
++    assert counter.var_count == 2
++
++    replacer = VariableReplacer({"x": 1, "y": 2})
++    result = replacer.visit_expr(expr)
++    assert isinstance(result, TupleGetItem)
++    assert isinstance(result.tuple_value, Tuple)
++    assert result.tuple_value.fields[0].value == 1
++    assert result.tuple_value.fields[1].value == 2
++
++
+ def test_simple_mutations():
+     """Test simple expression mutations"""
+     x = Var("x", ty="int32")
+diff --git a/tests/python/tirx/test_parser_printer.py b/tests/python/tirx/test_parser_printer.py
+index 0e523c29cd..580d77ce34 100644
+--- a/tests/python/tirx/test_parser_printer.py
++++ b/tests/python/tirx/test_parser_printer.py
+@@ -1240,6 +1240,35 @@ def test_let_annotation_syntax():
+     assert_structural_equal(test, from_source(code))
+ 
+ 
++def test_tuple_let_binding_and_traversal():
++    @T.prim_func
++    def from_list(x: T.int32, y: T.float32) -> T.int32:
++        pair: T.let = [x, (y,)]
++        return pair[0]
++
++    @T.prim_func
++    def from_tuple(x: T.int32, y: T.float32) -> T.int32:
++        pair: T.let = (x, (y,))
++        return pair[0]
++
++    def tuple_value(func):
++        visited = []
++        tvm.tirx.stmt_functor.post_order_visit(func.body, visited.append)
++        bind = next(node for node in visited if isinstance(node, tvm.tirx.Bind))
++        return bind.value
++
++    list_value = tuple_value(from_list)
++    tuple_value = tuple_value(from_tuple)
++    assert isinstance(list_value, tvm.ir.Tuple)
++    assert isinstance(list_value.fields[1], tvm.ir.Tuple)
++    assert_structural_equal(list_value, tuple_value, map_free_vars=True)
++
++    code = from_list.script()
++    assert "pair: T.let[T.Tuple(T.int32, T.Tuple(T.float32))] = x, (y,)" in code
++    assert from_source(code).script() == code
++    assert_structural_equal(from_list, from_source(code))
++
++
+ def test_annotation_syntax_comprehensive():
+     """Comprehensive test for scalar annotation, T.let, banned annotations, and bare assignment."""
+ 

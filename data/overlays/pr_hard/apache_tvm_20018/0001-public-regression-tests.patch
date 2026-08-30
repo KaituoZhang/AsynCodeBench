@@ -1,0 +1,593 @@
+diff --git a/tests/python/codegen/test_target_codegen_llvm.py b/tests/python/codegen/test_target_codegen_llvm.py
+index 9de6b73bb..64f77c4ac 100644
+--- a/tests/python/codegen/test_target_codegen_llvm.py
++++ b/tests/python/codegen/test_target_codegen_llvm.py
+@@ -941,15 +941,15 @@ def test_llvm_order_functions():
+     class Module:
+         @T.prim_func(s_tir=True)
+         def Danny(v: T.float32) -> T.float32:
+-            T.ret(T.call_extern("float32", "Dave", v))
++            return T.call_extern("float32", "Dave", v)
+ 
+         @T.prim_func(s_tir=True)
+         def Sammy(v: T.float32) -> T.float32:
+-            T.ret(T.call_extern("float32", "Eve", v))
++            return T.call_extern("float32", "Eve", v)
+ 
+         @T.prim_func(s_tir=True)
+         def Kirby(v: T.float32) -> T.float32:
+-            T.ret(T.call_extern("float32", "Fred", v))
++            return T.call_extern("float32", "Fred", v)
+ 
+     ir_text = tvm.tirx.build(Module, target="llvm").inspect_source("ll")
+     # Skip functions whose names start with _.
+diff --git a/tests/python/relax/test_transform_compute_prim_value.py b/tests/python/relax/test_transform_compute_prim_value.py
+index 37a4fafcb..db5e1e7f7 100644
+--- a/tests/python/relax/test_transform_compute_prim_value.py
++++ b/tests/python/relax/test_transform_compute_prim_value.py
+@@ -43,7 +43,7 @@ def test_prim_value_in_assert_condition():
+         @T.prim_func(private=True, s_tir=True)
+         def compute_symbolic_expr(N: T.int64) -> T.bool:
+             T.func_attr({"tirx.is_host_func": True})
+-            T.ret(N % 16 == 0)
++            return N % 16 == 0
+ 
+     After = tvm.relax.transform.ComputePrimValue()(Before)
+     tvm.ir.assert_structural_equal(After, Expected)
+@@ -76,7 +76,7 @@ def test_prim_value_in_branch_condition():
+         @T.prim_func(private=True, s_tir=True)
+         def compute_symbolic_expr(N: T.int64) -> T.bool:
+             T.func_attr({"tirx.is_host_func": True})
+-            T.ret(N % 16 == 0)
++            return N % 16 == 0
+ 
+     After = tvm.relax.transform.ComputePrimValue()(Before)
+     tvm.ir.assert_structural_equal(After, Expected)
+diff --git a/tests/python/s_tir/analysis/test_s_tir_analysis_is_pure_function.py b/tests/python/s_tir/analysis/test_s_tir_analysis_is_pure_function.py
+index a10ad9675..23f624c65 100644
+--- a/tests/python/s_tir/analysis/test_s_tir_analysis_is_pure_function.py
++++ b/tests/python/s_tir/analysis/test_s_tir_analysis_is_pure_function.py
+@@ -48,19 +48,19 @@ class TestNoOp(CheckPureFunction):
+ class TestReturnValue(CheckPureFunction):
+     @T.prim_func(s_tir=True)
+     def func() -> T.int32:
+-        T.ret(42)
++        return 42
+ 
+ 
+ class TestComputeValueAndReturn(CheckPureFunction):
+     @T.prim_func(s_tir=True)
+     def func(N: T.int32, M: T.int32) -> T.int32:
+-        T.ret(N * M)
++        return N * M
+ 
+ 
+ class TestReadBufferArgument(CheckPureFunction):
+     @T.prim_func(s_tir=True)
+     def func(A: T.Buffer(16, "float32")) -> T.float32:
+-        T.ret(A[0])
++        return A[0]
+ 
+ 
+ class TestWriteToBufferArgument(CheckImpureFunction):
+@@ -78,13 +78,13 @@ class TestWriteToInternalAllocation(CheckPureFunction):
+         for i, j in T.grid(16, 16):
+             Sum[()] = Sum[()] + A[i, j]
+ 
+-        T.ret(Sum[()])
++        return Sum[()]
+ 
+ 
+ class TestCallPureBuiltin(CheckPureFunction):
+     @T.prim_func(s_tir=True)
+     def func(x: T.float32) -> T.float32:
+-        T.ret(T.cos(x))
++        return T.cos(x)
+ 
+ 
+ class TestCallPureExtern(CheckPureFunction):
+diff --git a/tests/python/tirx-base/test_tir_base.py b/tests/python/tirx-base/test_tir_base.py
+index 477062c49..62af878e0 100644
+--- a/tests/python/tirx-base/test_tir_base.py
++++ b/tests/python/tirx-base/test_tir_base.py
+@@ -19,6 +19,7 @@ import itertools
+ 
+ import numpy as np
+ import pytest
++import tvm_ffi
+ 
+ import tvm
+ from tvm import tirx
+@@ -50,8 +51,7 @@ def test_scalar_add():
+         lhs = tirx.Cast(lhs_type, lhs_input)
+         rhs = tirx.Cast(rhs_type, rhs_input)
+         output = lhs + rhs
+-        output = tirx.ret(output)
+-        output = tirx.Evaluate(output)
++        output = tirx.Return(output)
+         func = tirx.PrimFunc([lhs_input, rhs_input], output)
+         func = build_tir_func(func)
+         out = func(1.0, 2.0)
+@@ -92,22 +92,54 @@ def test_cast_between_types():
+                 assignment_helper(store_dtype, value_dtype)
+ 
+ 
+-def test_ret_const():
++def test_return_const():
+     a = tirx.const(0)
+-    b = tirx.ret(a)
+-    b = tirx.Evaluate(b)
++    b = tirx.Return(a)
+     func = tirx.PrimFunc([], b)
+     func = build_tir_func(func)
+     out = func()
+     assert out == 0
+ 
+ 
++def test_return_accepts_expr_and_roundtrips():
++    value = tvm.relax.ShapeExpr([2, 3])
++    span = tvm.ir.Span(tvm.ir.SourceName("return_test"), 1, 1, 1, 9)
++    stmt = tirx.Return(value, span)
++
++    assert stmt.value.same_as(value)
++    assert stmt.span.same_as(span)
++    assert not tvm.ir.is_prim_expr(stmt.value)
++
++    restored = tvm.ir.load_json(tvm.ir.save_json(stmt))
++    tvm.ir.assert_structural_equal(restored, stmt)
++    assert tvm_ffi.structural_hash(restored) == tvm_ffi.structural_hash(stmt)
++
++    with pytest.raises(tvm.error.InternalError):
++        tirx.Return(None)
++
++
++def test_return_stmt_functor_traversal_and_mutation():
++    x = tirx.Var("x", "int32")
++    span = tvm.ir.Span(tvm.ir.SourceName("return_test"), 1, 1, 1, 9)
++    stmt = tirx.Return(x + 1, span)
++    visited = []
++
++    tirx.stmt_functor.post_order_visit(stmt, visited.append)
++    assert any(node.same_as(x) for node in visited)
++    assert any(isinstance(node, tirx.Return) for node in visited)
++
++    rewritten = tirx.stmt_functor.substitute(stmt, {x: tirx.IntImm("int32", 4)})
++    expected = tirx.Return(tirx.Add(tirx.IntImm("int32", 4), tirx.IntImm("int32", 1)), span)
++    tvm.ir.assert_structural_equal(rewritten, expected)
++    assert rewritten.span.same_as(span)
++
++
+ def test_control_flow_jump():
+     @T.prim_func(s_tir=True)
+     def func(a: T.float32, b: T.float32):
+         if True:
+-            T.evaluate(T.ret(a))
+-        T.evaluate(T.ret(b))
++            return a
++        return b
+ 
+     func = build_tir_func(func)
+     out = func(1.0, 2.0)
+@@ -191,7 +223,7 @@ def test_eq_ops():
+ 
+ if __name__ == "__main__":
+     test_scalar_add()
+-    test_ret_const()
++    test_return_const()
+     test_control_flow_jump()
+     test_exception()
+     test_eq_ops()
+diff --git a/tests/python/tirx-base/test_tir_imm_values.py b/tests/python/tirx-base/test_tir_imm_values.py
+index d2bd44f81..2d9048f7d 100644
+--- a/tests/python/tirx-base/test_tir_imm_values.py
++++ b/tests/python/tirx-base/test_tir_imm_values.py
+@@ -153,7 +153,7 @@ def test_tir_too_large_literal_f64():
+     # object is still constructed, and eval to infinity.
+     @T.prim_func(s_tir=True)
+     def imm_overflow_fp64() -> T.float64:
+-        T.evaluate(T.ret(T.float64(1.7976e309), dtype="float64"))
++        return T.float64(1.7976e309)
+ 
+     f = tvm.compile(imm_overflow_fp64, target="llvm")
+     assert math.isinf(f())
+@@ -321,23 +321,23 @@ def test_tir_int8_const_fold():
+ 
+     @T.prim_func(s_tir=True)
+     def imm_multiply(x: T.int8, y: T.int8) -> T.int8:
+-        T.evaluate(T.ret(x * y, dtype="int8"))
++        return x * y
+ 
+     @T.prim_func(s_tir=True)
+     def imm_add(x: T.int8, y: T.int8) -> T.int8:
+-        T.evaluate(T.ret(x + y, dtype="int8"))
++        return x + y
+ 
+     @T.prim_func(s_tir=True)
+     def imm_sub(x: T.int8, y: T.int8) -> T.int8:
+-        T.evaluate(T.ret(x - y, dtype="int8"))
++        return x - y
+ 
+     @T.prim_func(s_tir=True)
+     def imm_truncdiv(x: T.int8, y: T.int8) -> T.int8:
+-        T.evaluate(T.ret(T.truncdiv(x, y), dtype="int8"))
++        return T.truncdiv(x, y)
+ 
+     @T.prim_func(s_tir=True)
+     def imm_floordiv(x: T.int8, y: T.int8) -> T.int8:
+-        T.evaluate(T.ret(T.floordiv(x, y), dtype="int8"))
++        return T.floordiv(x, y)
+ 
+     fmul = tvm.compile(imm_multiply, target="llvm")
+     fadd = tvm.compile(imm_add, target="llvm")
+@@ -377,23 +377,23 @@ def test_tir_uint8_const_fold():
+ 
+     @T.prim_func(s_tir=True)
+     def imm_multiply(x: T.uint8, y: T.uint8) -> T.uint8:
+-        T.evaluate(T.ret(x * y, dtype="uint8"))
++        return x * y
+ 
+     @T.prim_func(s_tir=True)
+     def imm_add(x: T.uint8, y: T.uint8) -> T.uint8:
+-        T.evaluate(T.ret(x + y, dtype="uint8"))
++        return x + y
+ 
+     @T.prim_func(s_tir=True)
+     def imm_sub(x: T.uint8, y: T.uint8) -> T.uint8:
+-        T.evaluate(T.ret(x - y, dtype="uint8"))
++        return x - y
+ 
+     @T.prim_func(s_tir=True)
+     def imm_truncdiv(x: T.uint8, y: T.uint8) -> T.uint8:
+-        T.evaluate(T.ret(T.truncdiv(x, y), dtype="uint8"))
++        return T.truncdiv(x, y)
+ 
+     @T.prim_func(s_tir=True)
+     def imm_floordiv(x: T.uint8, y: T.uint8) -> T.uint8:
+-        T.evaluate(T.ret(T.floordiv(x, y), dtype="uint8"))
++        return T.floordiv(x, y)
+ 
+     fmul = tvm.compile(imm_multiply, target="llvm")
+     fadd = tvm.compile(imm_add, target="llvm")
+@@ -442,31 +442,31 @@ def test_tir_int32_const_fold():
+ 
+     @T.prim_func(s_tir=True)
+     def imm_multiply(x: T.int32, y: T.int32) -> T.int32:
+-        T.evaluate(T.ret(x * y, dtype="int32"))
++        return x * y
+ 
+     @T.prim_func(s_tir=True)
+     def imm_add(x: T.int32, y: T.int32) -> T.int32:
+-        T.evaluate(T.ret(x + y, dtype="int32"))
++        return x + y
+ 
+     @T.prim_func(s_tir=True)
+     def imm_sub(x: T.int32, y: T.int32) -> T.int32:
+-        T.evaluate(T.ret(x - y, dtype="int32"))
++        return x - y
+ 
+     @T.prim_func(s_tir=True)
+     def imm_truncdiv(x: T.int32, y: T.int32) -> T.int32:
+-        T.evaluate(T.ret(T.truncdiv(x, y), dtype="int32"))
++        return T.truncdiv(x, y)
+ 
+     @T.prim_func(s_tir=True)
+     def imm_truncmod(x: T.int32, y: T.int32) -> T.int32:
+-        T.evaluate(T.ret(T.truncmod(x, y), dtype="int32"))
++        return T.truncmod(x, y)
+ 
+     @T.prim_func(s_tir=True)
+     def imm_floordiv(x: T.int32, y: T.int32) -> T.int32:
+-        T.evaluate(T.ret(T.floordiv(x, y), dtype="int32"))
++        return T.floordiv(x, y)
+ 
+     @T.prim_func(s_tir=True)
+     def imm_floormod(x: T.int32, y: T.int32) -> T.int32:
+-        T.evaluate(T.ret(T.floormod(x, y), dtype="int32"))
++        return T.floormod(x, y)
+ 
+     fmul = tvm.compile(imm_multiply, target="llvm")
+     fadd = tvm.compile(imm_add, target="llvm")
+@@ -530,23 +530,23 @@ def test_tir_uint32_const_fold():
+ 
+     @T.prim_func(s_tir=True)
+     def imm_multiply(x: T.uint32, y: T.uint32) -> T.uint32:
+-        T.evaluate(T.ret(x * y, dtype="uint32"))
++        return x * y
+ 
+     @T.prim_func(s_tir=True)
+     def imm_add(x: T.uint32, y: T.uint32) -> T.uint32:
+-        T.evaluate(T.ret(x + y, dtype="uint32"))
++        return x + y
+ 
+     @T.prim_func(s_tir=True)
+     def imm_sub(x: T.uint32, y: T.uint32) -> T.uint32:
+-        T.evaluate(T.ret(x - y, dtype="uint32"))
++        return x - y
+ 
+     @T.prim_func(s_tir=True)
+     def imm_truncdiv(x: T.uint32, y: T.uint32) -> T.uint32:
+-        T.evaluate(T.ret(T.truncdiv(x, y), dtype="uint32"))
++        return T.truncdiv(x, y)
+ 
+     @T.prim_func(s_tir=True)
+     def imm_floordiv(x: T.uint32, y: T.uint32) -> T.uint32:
+-        T.evaluate(T.ret(T.floordiv(x, y), dtype="uint32"))
++        return T.floordiv(x, y)
+ 
+     fmul = tvm.compile(imm_multiply, target="llvm")
+     fadd = tvm.compile(imm_add, target="llvm")
+diff --git a/tests/python/tirx-base/test_tir_specialize.py b/tests/python/tirx-base/test_tir_specialize.py
+index c29f26d38..a1428348d 100644
+--- a/tests/python/tirx-base/test_tir_specialize.py
++++ b/tests/python/tirx-base/test_tir_specialize.py
+@@ -341,11 +341,11 @@ def test_specialization_updates_ty():
+ 
+     @T.prim_func(private=True, s_tir=True)
+     def before(n: T.int32) -> T.int32:
+-        T.ret(n * 10)
++        return n * 10
+ 
+     @T.prim_func(private=True, s_tir=True)
+     def expected() -> T.int32:
+-        T.ret(50)
++        return 50
+ 
+     ty_before = tvm.relax.FuncType([tvm.ir.PrimType("int32")], tvm.ir.PrimType("int32"))
+     tvm.ir.assert_structural_equal(before.ty, ty_before)
+diff --git a/tests/python/tirx-transform/test_tir_inline_private_functions.py b/tests/python/tirx-transform/test_tir_inline_private_functions.py
+index 13a4a0521..fc6c060e9 100644
+--- a/tests/python/tirx-transform/test_tir_inline_private_functions.py
++++ b/tests/python/tirx-transform/test_tir_inline_private_functions.py
+@@ -195,7 +195,7 @@ class TestInlineCallOccurringInExpression(BaseTestCase):
+             cos = T.cos(T.cast(i, "float32"))
+             sin = T.sin(T.cast(i, "float32"))
+             retval = cos * cos + sin * sin
+-            T.ret(retval)
++            return retval
+ 
+     @I.ir_module(s_tir=True)
+     class Expected:
+diff --git a/tests/python/tirx-transform/test_tir_transform_make_packed_api.py b/tests/python/tirx-transform/test_tir_transform_make_packed_api.py
+index 7ac26d37a..4b69f9333 100644
+--- a/tests/python/tirx-transform/test_tir_transform_make_packed_api.py
++++ b/tests/python/tirx-transform/test_tir_transform_make_packed_api.py
+@@ -219,6 +219,19 @@ def test_pointer_return():
+     assert 4 in return_type_indices  # ffi::TypeIndex::kTVMFFIOpaquePtr
+ 
+ 
++def test_return_from_parallel_scope_is_rejected():
++    """A parallel loop cannot return from its enclosing function."""
++
++    i = tirx.Var("i", "int32")
++    body = tirx.For(i, 0, 1, tirx.ForKind.PARALLEL, tirx.Return(i))
++    func = tirx.PrimFunc([], body, tvm.ir.PrimType("int32"))
++    func = func.with_attr("global_symbol", "main")
++    func = func.with_attr("target", tvm.target.Target("llvm", host="llvm"))
++
++    with pytest.raises(tvm.error.InternalError, match="Return cannot be used in parallel scope"):
++        tvm.tirx.transform.MakePackedAPI()(tvm.IRModule({"main": func}))
++
++
+ def test_int_parameter():
+     """Int parameter emits type check accepting int or bool."""
+ 
+diff --git a/tests/python/tirx-transform/test_tir_transform_split_host_device.py b/tests/python/tirx-transform/test_tir_transform_split_host_device.py
+index 79c082917..8a026c7a8 100644
+--- a/tests/python/tirx-transform/test_tir_transform_split_host_device.py
++++ b/tests/python/tirx-transform/test_tir_transform_split_host_device.py
+@@ -15,6 +15,8 @@
+ # specific language governing permissions and limitations
+ # under the License.
+ 
++import pytest
++
+ import tvm
+ import tvm.testing
+ from tvm.script import ir as I
+@@ -116,12 +118,31 @@ def test_split_host_device_on_cpu():
+                 }
+             )
+             T.evaluate(n)
+-            T.ret(0)
++            return 0
+ 
+     After = tvm.tirx.transform.SplitHostDevice()(Before)
+     tvm.ir.assert_structural_equal(After, Expected)
+ 
+ 
++def test_device_kernel_nonzero_return_is_rejected():
++    """A device kernel may only return the zero success code."""
++
++    device_target = tvm.target.Target({"kind": "cuda", "arch": "sm_100a"})
++    target = tvm.target.Target(device_target, host="llvm")
++    body = tvm.tirx.AttrStmt(
++        device_target,
++        "target",
++        0,
++        tvm.tirx.Return(tvm.tirx.IntImm("int32", 1)),
++    )
++    func = tvm.tirx.PrimFunc([], body)
++    func = func.with_attr("global_symbol", "main")
++    func = func.with_attr("target", target)
++
++    with pytest.raises(tvm.error.InternalError, match="successful return"):
++        tvm.tirx.transform.SplitHostDevice()(tvm.IRModule({"main": func}))
++
++
+ def test_split_host_device_without_func_host_attribute():
+     """Like test_split_host_device, but no host specified in the host's target
+ 
+diff --git a/tests/python/tirx/transform/test_stmt_functor.py b/tests/python/tirx/transform/test_stmt_functor.py
+index aee9a7825..393cfa47a 100644
+--- a/tests/python/tirx/transform/test_stmt_functor.py
++++ b/tests/python/tirx/transform/test_stmt_functor.py
+@@ -98,6 +98,12 @@ class ASTPrinter(StmtVisitor):
+         self.visit_stmt(op.body)
+         self.log.pop_scope()
+ 
++    def visit_return_(self, op):
++        self.log.add("Return")
++        self.log.push_scope()
++        self.visit_expr(op.value)
++        self.log.pop_scope()
++
+     def visit_buffer_store_(self, op):
+         self.log.add("BufferStore")
+         self.log.push_scope()
+@@ -256,6 +262,11 @@ class ASTPrinterMutator(StmtMutator):
+         self.log.add("While")
+         return result
+ 
++    def visit_return_(self, op):
++        result = super().visit_return_(op)
++        self.log.add("Return")
++        return result
++
+     def visit_buffer_store_(self, op):
+         result = super().visit_buffer_store_(op)
+         self.log.add("BufferStore")
+@@ -641,6 +652,9 @@ def create_test_statements():
+     # While loop
+     while_loop = tir.While(tir.LT(x, int_imm), evaluate_stmt)
+ 
++    # Return
++    return_stmt = tir.Return(add_expr)
++
+     # Buffer operations
+     buffer_var = tir.Var("buf", "handle")
+     buffer = tir.decl_buffer((10,), "int32", buffer_var.name)
+@@ -685,6 +699,7 @@ def create_test_statements():
+         "let": let_stmt,
+         "for": for_loop,
+         "while": while_loop,
++        "return": return_stmt,
+         "buffer_store": buffer_store,
+         "seq_stmt": seq_stmt,
+         "block_realize": block_realize,
+@@ -758,6 +773,16 @@ def test_while():
+     )
+ 
+ 
++def test_return():
++    """Test return statement."""
++    return_stmt = create_test_statements()["return"]
++    basic_check(
++        return_stmt,
++        "\n".join(["Return", "\tAdd", "\t\tVar", "\t\tIntImm"]),
++        "\n".join(["Var", "IntImm", "Add", "Return"]),
++    )
++
++
+ def test_buffer_store():
+     """Test buffer store statement."""
+     buffer_store = create_test_statements()["buffer_store"]
+diff --git a/tests/python/tvmscript/test_tvmscript_parser_tir.py b/tests/python/tvmscript/test_tvmscript_parser_tir.py
+index fd1f6a790..157e59f59 100644
+--- a/tests/python/tvmscript/test_tvmscript_parser_tir.py
++++ b/tests/python/tvmscript/test_tvmscript_parser_tir.py
+@@ -407,7 +407,7 @@ def test_inferred_ty_with_prim_args():
+ 
+     @T.prim_func(s_tir=True)
+     def func(M: T.int32, N: T.int32) -> T.int32:
+-        T.ret(M * N)
++        return M * N
+ 
+     expected = tvm.relax.FuncType(
+         [
+@@ -425,7 +425,7 @@ def test_inferred_ty_with_buffer_args():
+ 
+     @T.prim_func(s_tir=True)
+     def func(A: T.Buffer([16, 16], "float32"), B: T.Buffer([256], "int32")) -> T.float32:
+-        T.ret(T.float32(42.0))
++        return T.float32(42.0)
+ 
+     expected = tvm.relax.FuncType(
+         [
+@@ -452,7 +452,7 @@ def test_inferred_ty_with_internal_allocation():
+         for i, j in T.grid(16, 16):
+             Sum[()] = Sum[()] + A[i, j]
+ 
+-        T.ret(Sum[()])
++        return Sum[()]
+ 
+     expected = tvm.relax.FuncType(
+         [
+diff --git a/tests/python/tvmscript/test_tvmscript_printer_tir.py b/tests/python/tvmscript/test_tvmscript_printer_tir.py
+index a6c822eed..c29b99eaa 100644
+--- a/tests/python/tvmscript/test_tvmscript_printer_tir.py
++++ b/tests/python/tvmscript/test_tvmscript_printer_tir.py
+@@ -910,7 +910,7 @@ def test_return_statement():
+ 
+     @T.prim_func(s_tir=True)
+     def func():
+-        T.evaluate(T.ret(5))
++        return T.int32(5)
+ 
+     expected_output = """
+ # from tvm.script import tirx as T
+@@ -921,6 +921,7 @@ def func():
+     return 5
+     """
+     _assert_print(func, expected_output)
++    assert func.script(verbose_expr=True, syntax_sugar=False).strip() == expected_output.strip()
+ 
+ 
+ CUSTOM_FLOAT_DTYPES = [
+diff --git a/tests/python/tvmscript/test_tvmscript_roundtrip.py b/tests/python/tvmscript/test_tvmscript_roundtrip.py
+index 08bf42dec..71aedaecb 100644
+--- a/tests/python/tvmscript/test_tvmscript_roundtrip.py
++++ b/tests/python/tvmscript/test_tvmscript_roundtrip.py
+@@ -3013,7 +3013,7 @@ def subroutine_call_returning_int():
+ 
+         @T.prim_func(s_tir=True)
+         def subroutine(x: T.float32) -> T.float32:
+-            T.ret(x * x)
++            return x * x
+ 
+     return mod
+ 
+@@ -3091,7 +3091,7 @@ def subroutine_call_without_arguments():
+ def return_zero():
+     @T.prim_func(s_tir=True)
+     def func() -> T.int32:
+-        T.ret(0)
++        return 0
+ 
+     return func
+ 
+@@ -3099,7 +3099,7 @@ def return_zero():
+ def return_zero_private():
+     @T.prim_func(private=True, s_tir=True)
+     def func() -> T.int32:
+-        T.ret(0)
++        return 0
+ 
+     return func
+ 
+@@ -3108,7 +3108,7 @@ def return_zero_private_with_attr():
+     @T.prim_func(private=True, s_tir=True)
+     def func() -> T.int32:
+         T.func_attr({"greeting": "hello"})
+-        T.ret(0)
++        return 0
+ 
+     return func
+ 
+diff --git a/tests/python/tvmscript/test_tvmscript_syntax_sugar.py b/tests/python/tvmscript/test_tvmscript_syntax_sugar.py
+index 615043919..57354f72d 100644
+--- a/tests/python/tvmscript/test_tvmscript_syntax_sugar.py
++++ b/tests/python/tvmscript/test_tvmscript_syntax_sugar.py
+@@ -506,11 +506,11 @@ def test_foldable_boolean_in_assert():
+ 
+ 
+ def test_return_statement():
+-    """A python `return` statement uses `T.ret`"""
++    """A Python `return` statement creates a first-class Return node."""
+ 
+     @T.prim_func(s_tir=True)
+     def explicit():
+-        T.evaluate(T.ret(5))
++        T.Return(T.int32(5))
+ 
+     @T.prim_func(s_tir=True)
+     def implicit():

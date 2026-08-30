@@ -1,0 +1,107 @@
+{
+  "schema_version": "pr-hard-async-metrics-v0.4",
+  "task_id": "pr-hard:apache-tvm-20018",
+  "metric_annotation_id": "pr-hard-apache-tvm-20018.async-metrics.v0.4",
+  "aggregate_metrics": {
+    "primary_async_dependency_ids": [
+      "return-ir-to-script-surface",
+      "script-return-to-lowering-codegen"
+    ],
+    "ADPR_denominator": "All dependency_points for this candidate.",
+    "minimum_success_condition_for_task_level_async_dependency_resolution": "Both chain dependency points pass in the final integrated workspace."
+  },
+  "source_task_record": "manifests/candidates/pr_hard_v0.4/tasks/apache_tvm_20018.json",
+  "source_quality_record": "manifests/candidates/pr_hard_v0.4/qualification/apache_tvm_20018.json",
+  "dependency_points": [
+    {
+      "dependency_id": "return-ir-to-script-surface",
+      "dependency_type": "interface_dependency",
+      "producer_subproblem": "return_ir_core",
+      "consumer_subproblem": "return_script_surface",
+      "producer_agent": "return_core_agent",
+      "consumer_agent": "return_script_agent",
+      "producer_files": [
+        "include/tvm/tirx/stmt.h",
+        "include/tvm/tirx/stmt_functor.h",
+        "python/tvm/tirx/__init__.py",
+        "python/tvm/tirx/stmt.py",
+        "python/tvm/tirx/stmt_functor.py",
+        "src/tirx/ir/stmt.cc",
+        "src/tirx/ir/stmt_functor.cc",
+        "src/tirx/ir/tir_visitor_with_path.cc",
+        "src/tirx/ir/tir_visitor_with_path.h"
+      ],
+      "consumer_files": [
+        "include/tvm/tirx/script/builder/ir.h",
+        "python/tvm/tirx/script/builder/ir.py",
+        "python/tvm/tirx/script/parser/parser.py",
+        "src/tirx/script/builder/ir.cc",
+        "src/tirx/script/printer/stmt.cc"
+      ],
+      "contract_summary": "TVMScript construction, parsing, and rendering consume the first-class Return node, its value field, FFI constructor, visitor dispatch, and structural semantics.",
+      "stale_failure_mode": "The Script layer may emit the removed legacy return intrinsic, fail to construct Return, or print a form that cannot round-trip through the new node contract.",
+      "upstream_probe_tests": [
+        "tests/python/tirx-base/test_tir_base.py::test_return_accepts_expr_and_roundtrips",
+        "tests/python/tirx-base/test_tir_base.py::test_return_stmt_functor_traversal_and_mutation",
+        "tests/python/tirx/transform/test_stmt_functor.py::test_return"
+      ],
+      "downstream_probe_tests": [
+        "tests/python/tvmscript/test_tvmscript_syntax_sugar.py::test_return_statement",
+        "tests/python/tvmscript/test_tvmscript_printer_tir.py::test_return_statement"
+      ],
+      "integrated_probe_tests": [
+        "tests/python/tvmscript/test_tvmscript_syntax_sugar.py::test_return_statement",
+        "tests/python/tvmscript/test_tvmscript_printer_tir.py::test_return_statement"
+      ],
+      "metrics_enabled": ["ADPR", "DRS", "CAIL", "SAD"]
+    },
+    {
+      "dependency_id": "script-return-to-lowering-codegen",
+      "dependency_type": "integration_contract",
+      "producer_subproblem": "return_script_surface",
+      "consumer_subproblem": "return_lowering_codegen_integration",
+      "producer_agent": "return_script_agent",
+      "consumer_agent": "return_backend_agent",
+      "producer_files": [
+        "include/tvm/tirx/script/builder/ir.h",
+        "python/tvm/tirx/script/builder/ir.py",
+        "python/tvm/tirx/script/parser/parser.py",
+        "src/tirx/script/builder/ir.cc",
+        "src/tirx/script/printer/stmt.cc"
+      ],
+      "consumer_files": [
+        "include/tvm/tirx/builtin.h",
+        "include/tvm/tirx/op.h",
+        "python/tvm/tirx/op.py",
+        "src/relax/op/tensor/inspect.cc",
+        "src/relax/transform/compute_prim_value.cc",
+        "src/target/llvm/codegen_llvm.cc",
+        "src/target/llvm/codegen_llvm.h",
+        "src/target/source/codegen_c.cc",
+        "src/target/source/codegen_c.h",
+        "src/tirx/op/builtin.cc",
+        "src/tirx/op/op.cc",
+        "src/tirx/transform/make_packed_api.cc",
+        "src/tirx/transform/split_host_device.cc",
+        "src/tirx/transform/storage_rewrite.cc"
+      ],
+      "contract_summary": "Return statements emitted and round-tripped by TVMScript must be accepted by legality and host/device transforms, migrated away from the legacy intrinsic contract, and emitted as valid C/LLVM terminators.",
+      "stale_failure_mode": "A downstream implementation may retire the legacy intrinsic before the Script producer migrates, miss Return legality in parallel/device scopes, or emit malformed target control flow.",
+      "upstream_probe_tests": [
+        "tests/python/tvmscript/test_tvmscript_syntax_sugar.py::test_return_statement",
+        "tests/python/tvmscript/test_tvmscript_printer_tir.py::test_return_statement"
+      ],
+      "downstream_probe_tests": [
+        "tests/python/tirx-transform/test_tir_transform_make_packed_api.py::test_return_from_parallel_scope_is_rejected",
+        "tests/python/tirx-transform/test_tir_transform_split_host_device.py::test_device_kernel_nonzero_return_is_rejected",
+        "tests/python/tirx-base/test_tir_base.py::test_return_const"
+      ],
+      "integrated_probe_tests": [
+        "tests/python/tirx-transform/test_tir_transform_make_packed_api.py::test_return_from_parallel_scope_is_rejected",
+        "tests/python/tirx-transform/test_tir_transform_split_host_device.py::test_device_kernel_nonzero_return_is_rejected",
+        "tests/python/tirx-base/test_tir_base.py::test_return_const"
+      ],
+      "metrics_enabled": ["ADPR", "DRS", "CAIL", "SAD"]
+    }
+  ]
+}

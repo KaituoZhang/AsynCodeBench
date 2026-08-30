@@ -1,5 +1,6 @@
 import json
 import shlex
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -57,6 +58,7 @@ class Manager:
         self.analysis_end_time = None
         self.delegation_start_time = None
         self.delegation_end_time = None
+        self.worktree_preparation_seconds = 0.0
 
         # Cumulative time tracking for operations during parallel execution
         self.assign_task_total_time = 0.0
@@ -211,6 +213,10 @@ class Manager:
         self.log(f"Setting up agent in {mode} mode...")
         self.conversation_mode = mode
         tools = get_default_tools(enable_browser=False)
+        if mode != "single_agent" and getattr(
+            self.task, "manager_must_be_read_only", False
+        ):
+            tools = [tool for tool in tools if getattr(tool, "name", "") != "file_editor"]
 
         format_args = self.task.get_prompt_format_args(self.config)
         condenser_llm = self.llm.model_copy(update={"usage_id": "condenser"})
@@ -638,6 +644,17 @@ class Manager:
             else:
                 subagent.status = "ready"
                 self.log(f"  {engineer_id}: {subagent.worktree_path} (branch: {subagent.branch_name})")
+                preparer = getattr(self.task, "prepare_worktree_runtime", None)
+                if preparer is not None:
+                    started = time.monotonic()
+                    try:
+                        preparer(self.workspace, subagent.worktree_path)
+                    finally:
+                        self.worktree_preparation_seconds += time.monotonic() - started
+                else:
+                    validator = getattr(self.task, "validate_worktree_runtime", None)
+                    if validator is not None:
+                        validator(self.workspace, subagent.worktree_path)
 
             subagents.append(subagent)
 
