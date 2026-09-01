@@ -360,12 +360,20 @@ def _candidate_contract_checks(run_dir, expected, metadata):
 def _final_test_payload(report):
     summary = report.get("summary", {})
     metadata = report.get("asyncodebench", {})
+    failed_collectors = [
+        collector
+        for collector in report.get("collectors", []) or []
+        if isinstance(collector, dict) and collector.get("outcome") == "failed"
+    ]
     passed = int(summary.get("passed", 0) or 0)
     failed = int(summary.get("failed", 0) or 0)
     errors = int(summary.get("error", summary.get("errors", 0)) or 0)
     collected = int(summary.get("collected", summary.get("total", 0)) or 0)
     synthetic = bool(metadata.get("synthetic_summary"))
     failure_kind = metadata.get("evaluation_failure_kind")
+    if failed_collectors:
+        errors = max(errors, len(failed_collectors))
+        failure_kind = failure_kind or "collection_failed"
     success = (
         report.get("exitcode") == 0
         and collected > 0
@@ -375,7 +383,7 @@ def _final_test_payload(report):
     )
     if success:
         outcome = "passed"
-    elif synthetic and failure_kind:
+    elif failure_kind:
         outcome = f"model_failure:{failure_kind}"
     else:
         outcome = "failed"

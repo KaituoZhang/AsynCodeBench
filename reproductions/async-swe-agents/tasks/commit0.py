@@ -50,6 +50,18 @@ def normalize_evaluator_report(
     )
     synthetic_summary = not summary_is_valid
 
+    # pytest-json-report can emit a structurally valid report even when every
+    # selected module fails during collection.  In that case its summary is
+    # commonly {"total": 0, "collected": 0}; the actual failures live only in
+    # the collector records.  Preserve the real report, but surface those
+    # failures as model-produced evaluator evidence instead of silently
+    # turning them into a zero-test instrumentation failure.
+    failed_collectors = [
+        collector
+        for collector in report_data.get("collectors", []) or []
+        if isinstance(collector, dict) and collector.get("outcome") == "failed"
+    ]
+
     if synthetic_summary:
         normalized_test_output = test_output.lower()
         collection_markers = (
@@ -89,6 +101,14 @@ def normalize_evaluator_report(
         report_data.setdefault("collectors", [])
         report_data.setdefault("tests", [])
         report_data.setdefault("warnings", [])
+    elif failed_collectors:
+        failure_kind = "collection_failed"
+        summary["error"] = max(
+            int(summary.get("error", 0) or 0), len(failed_collectors)
+        )
+        summary["total"] = max(
+            int(summary.get("total", 0) or 0), len(failed_collectors)
+        )
     else:
         failure_kind = None
 
@@ -104,7 +124,7 @@ def normalize_evaluator_report(
             "synthetic_summary": synthetic_summary,
         }
     )
-    if synthetic_summary:
+    if synthetic_summary or failed_collectors:
         metadata.update(
             {
                 "evaluation_failure_kind": failure_kind,

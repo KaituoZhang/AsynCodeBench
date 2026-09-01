@@ -203,6 +203,11 @@ def inspect_run(run_dir: Path) -> dict[str, object]:
     failure_kind = report_metadata.get("evaluation_failure_kind")
     summary = report.get("summary", {})
     collected = int(summary.get("collected", summary.get("total", 0)) or 0)
+    failed_collectors = [
+        collector
+        for collector in report.get("collectors", []) or []
+        if isinstance(collector, dict) and collector.get("outcome") == "failed"
+    ]
     if synthetic_summary:
         if failure_kind in MODEL_EVALUATOR_FAILURES:
             observations.append(f"model_evaluator_failure:{failure_kind}")
@@ -212,6 +217,8 @@ def inspect_run(run_dir: Path) -> dict[str, object]:
         else:
             hard_failures.append(f"evaluator_instrumentation_failure:{failure_kind}")
             evaluator_eligible = False
+    elif failure_kind == "collection_failed" or failed_collectors:
+        observations.append("model_evaluator_failure:collection_failed")
     elif collected <= 0:
         hard_failures.append("evaluator_zero_collected")
         evaluator_eligible = False

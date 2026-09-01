@@ -1,5 +1,7 @@
+import json
 import shlex
 
+from asyncodebench_harness.results import _final_test_payload
 from tasks.commit0 import Commit0Task, normalize_evaluator_report
 
 
@@ -153,6 +155,46 @@ def test_existing_pytest_summary_is_preserved_and_annotated():
     assert report["asyncodebench"]["canonical_test_restore"] == {
         "restored_paths": ["tests/test_api.py"]
     }
+
+
+def test_valid_json_report_with_failed_collectors_is_collection_failure():
+    report, counts = normalize_evaluator_report(
+        json.dumps(
+            {
+                "summary": {"total": 0, "collected": 0},
+                "collectors": [
+                    {"nodeid": "", "outcome": "passed"},
+                    {
+                        "nodeid": "tests/test_api.py",
+                        "outcome": "failed",
+                        "longrepr": "ImportError while importing test module",
+                    },
+                ],
+            }
+        ),
+        exit_code=1,
+        test_output="ERROR collecting tests/test_api.py",
+        work_dir="/workspace/example_repo",
+        test_cmd="python -m pytest -q",
+        test_targets=["tests/test_api.py"],
+        evaluator_source="asyncodebench_manifest",
+        timeout_seconds=900,
+    )
+
+    assert counts == {"passed": 0, "failed": 0, "error": 1}
+    assert report["summary"] == {"total": 1, "collected": 0, "error": 1}
+    assert report["asyncodebench"]["synthetic_summary"] is False
+    assert report["asyncodebench"]["evaluation_failure_kind"] == (
+        "collection_failed"
+    )
+    assert report["asyncodebench"]["collection_failed"] is True
+    assert report["asyncodebench"]["report_was_missing"] is False
+    assert report["asyncodebench"]["report_was_invalid"] is False
+
+    final_test = _final_test_payload(report)
+    assert final_test["outcome"] == "model_failure:collection_failed"
+    assert final_test["errors"] == 1
+    assert final_test["evaluation_failure_kind"] == "collection_failed"
 
 
 def test_timeout_without_report_keeps_timeout_classification():

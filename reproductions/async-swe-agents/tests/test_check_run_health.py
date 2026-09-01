@@ -146,6 +146,35 @@ def test_model_induced_collection_failure_remains_valid_evidence(tmp_path):
     assert "model_evaluator_failure:collection_failed" in result["observations"]
 
 
+def test_failed_collectors_in_real_report_remain_valid_evidence(tmp_path):
+    run_dir = create_run(tmp_path)
+    report_path = run_dir / "report.json"
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    report.update(
+        {
+            "exitcode": 1,
+            "summary": {"total": 0, "collected": 0},
+            "collectors": [
+                {"nodeid": "", "outcome": "passed"},
+                {
+                    "nodeid": "tests/test_api.py",
+                    "outcome": "failed",
+                    "longrepr": "ImportError while importing test module",
+                },
+            ],
+        }
+    )
+    report["asyncodebench"]["synthetic_summary"] = False
+    report_path.write_text(json.dumps(report), encoding="utf-8")
+
+    result = inspect_run(run_dir)
+
+    assert result["status"] == "valid"
+    assert result["eligibility"]["functional_metrics"] is True
+    assert "evaluator_zero_collected" not in result["hard_failures"]
+    assert "model_evaluator_failure:collection_failed" in result["observations"]
+
+
 def test_zero_model_execution_is_invalid(tmp_path):
     run_dir = create_run(tmp_path)
     (run_dir / "cost.json").write_text(
