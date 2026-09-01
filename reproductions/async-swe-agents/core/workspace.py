@@ -19,10 +19,41 @@ from openhands.workspace.docker.workspace import (
 logger = get_logger(__name__)
 
 
+# Agent commands run without a human attached to their terminal.  Interactive
+# pagers can therefore block a benchmark indefinitely (for example, pydoc's
+# ``help()`` and ``git show`` both invoke a pager when they detect a TTY).
+NONINTERACTIVE_PAGER_ENV = {
+    "PAGER": "cat",
+    "GIT_PAGER": "cat",
+    "MANPAGER": "cat",
+    "SYSTEMD_PAGER": "cat",
+}
+
+
 class _HostNetworkPortMixin:
     """Bind the agent server itself to the selected port on host networking."""
 
     def _start_container(self, image: str, context: Any) -> None:
+        # DockerWorkspace forwards named variables from the host environment.
+        # Install deterministic noninteractive values only while constructing
+        # the container, then restore the caller's environment.  Keeping the
+        # names in forward_env also covers the upstream non-host-network path.
+        previous = {key: os.environ.get(key) for key in NONINTERACTIVE_PAGER_ENV}
+        for key, value in NONINTERACTIVE_PAGER_ENV.items():
+            os.environ[key] = value
+            if key not in self.forward_env:
+                self.forward_env.append(key)
+
+        try:
+            return self._start_container_with_pager_env(image, context)
+        finally:
+            for key, value in previous.items():
+                if value is None:
+                    os.environ.pop(key, None)
+                else:
+                    os.environ[key] = value
+
+    def _start_container_with_pager_env(self, image: str, context: Any) -> None:
         if self.network != "host":
             return super()._start_container(image, context)
 
