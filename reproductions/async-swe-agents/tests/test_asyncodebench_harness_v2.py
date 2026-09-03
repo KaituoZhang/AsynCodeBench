@@ -7,10 +7,12 @@ from types import SimpleNamespace
 import pytest
 from config import SubAgentResult, WorkflowConfig
 from core.asyncodebench_manager import AsynCodeBenchManager
+from core.control_plane_guard import control_plane_guard_command
 from core.utils import build_delegation_plan, generate_patch
 from core.workspace_isolation import (
     build_workspace_guard_hook,
     private_remote_workspace,
+    uses_private_subagent_workspace,
     uses_task_specific_workspace_isolation,
     workspace_guard_command,
 )
@@ -29,7 +31,7 @@ def make_task(task_id="asyncodebench:cachetools"):
     return AsynCodeBenchTask(AsynCodeBenchConfig(task_id=task_id))
 
 
-def test_workspace_isolation_repair_is_scoped_to_20018():
+def test_read_only_manager_policy_is_scoped_to_20018():
     assert uses_task_specific_workspace_isolation(
         SimpleNamespace(
             task_id="pr-hard:apache-tvm-20018", active_protocol="caid_manager"
@@ -49,6 +51,22 @@ def test_workspace_isolation_repair_is_scoped_to_20018():
         SimpleNamespace(
             task_id="asyncodebench:cachetools", active_protocol="caid_manager"
         )
+    )
+
+
+@pytest.mark.parametrize(
+    "protocol",
+    ["serial_specialists", "async_private", "caid_manager"],
+)
+def test_all_multi_agent_protocols_use_private_subagent_workspaces(protocol):
+    assert uses_private_subagent_workspace(
+        SimpleNamespace(task_id="asyncodebench:cachetools", active_protocol=protocol)
+    )
+
+
+def test_single_agent_does_not_use_a_private_subagent_workspace():
+    assert not uses_private_subagent_workspace(
+        SimpleNamespace(task_id="asyncodebench:cachetools", active_protocol="single")
     )
 
 
@@ -731,6 +749,53 @@ def run_workspace_guard(tool_name, tool_input):
     )
     assert result.returncode == 0, result.stderr
     return json.loads(result.stdout)
+
+
+def run_control_plane_guard(command):
+    event = {
+        "event_type": "PreToolUse",
+        "tool_name": "terminal",
+        "tool_input": {"command": command},
+    }
+    result = subprocess.run(
+        control_plane_guard_command(),
+        shell=True,
+        input=json.dumps(event),
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    return json.loads(result.stdout)
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "pkill -f python",
+        "sudo killall python3",
+        "kill -9 1",
+        "kill -- -1",
+    ],
+)
+def test_control_plane_guard_blocks_broad_or_server_kills(command):
+    decision = run_control_plane_guard(command)
+
+    assert decision["decision"] == "deny"
+    assert "control-plane protection" in decision["reason"]
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "python -m pytest -q",
+        "ps aux",
+        "kill 43210",
+        "timeout 10 python -c 'print(1)'",
+    ],
+)
+def test_control_plane_guard_allows_normal_commands_and_exact_child_kill(command):
+    assert run_control_plane_guard(command)["decision"] == "allow"
 
 
 @pytest.mark.parametrize(

@@ -8,13 +8,30 @@ import shlex
 from openhands.sdk.hooks import HookConfig, HookDefinition, HookMatcher
 from openhands.sdk.workspace import RemoteWorkspace
 
-
-WORKSPACE_ISOLATION_POLICY_VERSION = "private-worktree-v1"
+WORKSPACE_ISOLATION_POLICY_VERSION = "private-worktree-v2"
 WORKSPACE_ISOLATION_TASK_ID = "pr-hard:apache-tvm-20018"
+PRIVATE_SUBAGENT_PROTOCOLS = frozenset(
+    {"serial_specialists", "async_private", "caid_manager"}
+)
+
+
+def uses_private_subagent_workspace(task_module) -> bool:
+    """Place every specialist conversation in its assigned private worktree.
+
+    This is the execution contract for all multi-agent protocols.  Keeping it
+    separate from ``uses_task_specific_workspace_isolation`` is intentional:
+    the latter also makes the CAID manager read-only and remains a narrowly
+    scoped compatibility policy for TVM 20018.
+    """
+
+    return (
+        getattr(task_module, "active_protocol", None)
+        in PRIVATE_SUBAGENT_PROTOCOLS
+    )
 
 
 def uses_task_specific_workspace_isolation(task_module) -> bool:
-    """Keep the isolation repair scoped to 20018's CAID condition."""
+    """Keep the read-only-manager policy scoped to 20018's CAID condition."""
     return (
         getattr(task_module, "task_id", None) == WORKSPACE_ISOLATION_TASK_ID
         and getattr(task_module, "active_protocol", None) == "caid_manager"
@@ -64,7 +81,10 @@ def deny(reason):
 try:
     event = json.load(sys.stdin)
 except Exception as error:
-    deny("AsynCodeBench workspace guard could not parse the tool request: " + str(error))
+    deny(
+        "AsynCodeBench workspace guard could not parse the tool request: "
+        + str(error)
+    )
 
 tool_name = str(event.get("tool_name") or "")
 tool_input = event.get("tool_input") or {}

@@ -11,6 +11,7 @@ from core.subagent import (
     result_requires_fresh_conversation,
     run_conversation_with_trigger_recovery,
     send_conversation_message,
+    wait_for_remote_run_completion,
 )
 
 
@@ -252,6 +253,39 @@ def test_remote_trigger_waits_through_running_state(monkeypatch):
     run_conversation_with_trigger_recovery(conversation, messages.append)
 
     assert len(conversation._client.calls) == 3
+
+
+class FailingPollConversation:
+    def _poll_status_once(self):
+        raise ConnectionError("agent server disappeared")
+
+    def _handle_poll_exception(self, _error):
+        return None
+
+
+def test_remote_polling_fails_after_bounded_consecutive_errors(monkeypatch):
+    monkeypatch.setenv("ASYNCODEBENCH_REMOTE_POLL_FAILURE_LIMIT", "2")
+    monkeypatch.setattr("core.subagent.time.sleep", lambda _seconds: None)
+
+    with pytest.raises(RuntimeError, match="failed 2 consecutive times"):
+        wait_for_remote_run_completion(
+            FailingPollConversation(),
+            lambda _message: None,
+            timeout=3600,
+            poll_interval=5,
+        )
+
+
+def test_rejects_nonpositive_remote_poll_failure_limit(monkeypatch):
+    monkeypatch.setenv("ASYNCODEBENCH_REMOTE_POLL_FAILURE_LIMIT", "0")
+
+    with pytest.raises(ValueError, match="must be positive"):
+        wait_for_remote_run_completion(
+            FailingPollConversation(),
+            lambda _message: None,
+            timeout=3600,
+            poll_interval=5,
+        )
 
 
 def test_remote_trigger_timeout_is_recovered_without_sdk_error_log(monkeypatch):

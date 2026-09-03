@@ -9,12 +9,16 @@ from config import SubAgent, SubAgentResult
 from openhands.sdk import Agent, Conversation, LLMSummarizingCondenser
 from openhands.tools.preset.default import get_default_tools
 
+from core.control_plane_guard import (
+    build_control_plane_guard_hook,
+    combine_hook_configs,
+)
 from core.dependency_probes import write_dependency_probe_checkpoint
 from core.workspace_isolation import (
     WORKSPACE_ISOLATION_POLICY_VERSION,
     build_workspace_guard_hook,
     private_remote_workspace,
-    uses_task_specific_workspace_isolation,
+    uses_private_subagent_workspace,
 )
 from core.utils import (
     PanelVisualizer,
@@ -62,6 +66,10 @@ def remote_message_timeout():
 
 def remote_poll_interval():
     return float(os.getenv("ASYNCODEBENCH_REMOTE_POLL_INTERVAL", "5"))
+
+
+def remote_poll_failure_limit():
+    return int(os.getenv("ASYNCODEBENCH_REMOTE_POLL_FAILURE_LIMIT", "3"))
 
 
 def remote_start_grace_seconds():
@@ -241,6 +249,12 @@ def wait_for_remote_run_completion(conversation, log, timeout, poll_interval):
     observed_running = False
     terminal_status = None
     terminal_first_seen_at = None
+    consecutive_poll_failures = 0
+    poll_failure_limit = remote_poll_failure_limit()
+    if poll_failure_limit <= 0:
+        raise ValueError(
+            "ASYNCODEBENCH_REMOTE_POLL_FAILURE_LIMIT must be positive"
+        )
 
     while True:
         now = time.monotonic()
@@ -255,9 +269,17 @@ def wait_for_remote_run_completion(conversation, log, timeout, poll_interval):
             status = poll_status()
         except Exception as error:
             _handle_remote_poll_exception(conversation, error)
+            consecutive_poll_failures += 1
+            if consecutive_poll_failures >= poll_failure_limit:
+                raise RuntimeError(
+                    "Remote status polling failed "
+                    f"{consecutive_poll_failures} consecutive times; the workspace "
+                    f"agent server may have exited: {error}"
+                ) from error
             terminal_status = None
             terminal_first_seen_at = None
         else:
+            consecutive_poll_failures = 0
             normalized = _normalized_remote_status(status)
             if normalized == "running":
                 observed_running = True
@@ -525,9 +547,11 @@ class SubAgentRunner:
 
     def setup(self):
         self.log("Setting up subagent...")
-        isolate_workspace = uses_task_specific_workspace_isolation(self.task_module)
+        isolate_workspace = uses_private_subagent_workspace(self.task_module)
         conversation_workspace = self.workspace
-        conversation_options = {}
+        conversation_options = {
+            "hook_config": build_control_plane_guard_hook(),
+        }
         worktree_path = self.subagent.worktree_path or self.subagent.submission_path
         if isolate_workspace:
             if self.conversation:
@@ -549,9 +573,12 @@ class SubAgentRunner:
                 worktree_path,
             )
             conversation_workspace = self.conversation_workspace
-            conversation_options["hook_config"] = build_workspace_guard_hook(
-                worktree_path,
-                self.task_module.get_work_dir(),
+            conversation_options["hook_config"] = combine_hook_configs(
+                conversation_options["hook_config"],
+                build_workspace_guard_hook(
+                    worktree_path,
+                    self.task_module.get_work_dir(),
+                ),
             )
         tools = get_default_tools(enable_browser=False)
         condenser_llm = self.llm.model_copy(update={"usage_id": "condenser"})
@@ -632,7 +659,7 @@ class SubAgentRunner:
             test_cmd=getattr(self.subagent, 'test_cmd', 'pytest'),
             test_dir=getattr(self.subagent, 'test_dir', 'tests/'),
         )
-        if uses_task_specific_workspace_isolation(self.task_module):
+        if uses_private_subagent_workspace(self.task_module):
             prompt += (
                 "\n\nWorkspace rule for this task: every command and edit must "
                 f"remain inside {self.subagent.worktree_path}. Never access the "

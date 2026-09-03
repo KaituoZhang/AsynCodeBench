@@ -40,7 +40,7 @@ if [[ -z "${ASYNCODEBENCH_CONDENSER_MAX_TOKENS:-}" \
 fi
 
 model_tag="${MODEL_TAG:?MODEL_TAG is required}"
-run_version="${RUN_VERSION:?RUN_VERSION is required}"
+run_version="${RUN_VERSION_OVERRIDE:-${RUN_VERSION:?RUN_VERSION is required}}"
 
 single_iterations="${SINGLE_ITERATIONS:-100}"
 specialist_iterations="${SPECIALIST_ITERATIONS:-100}"
