@@ -1,7 +1,15 @@
+import subprocess
+import sys
+import time
 from types import SimpleNamespace
 
 import core.workspace as workspace_module
-from core.workspace import AsynCodeBenchDockerWorkspace, NONINTERACTIVE_PAGER_ENV
+import pytest
+from core.workspace import (
+    NONINTERACTIVE_PAGER_ENV,
+    AsynCodeBenchDockerDevWorkspace,
+    AsynCodeBenchDockerWorkspace,
+)
 from openhands.sdk.workspace import RemoteWorkspace
 from openhands.workspace import DockerWorkspace
 
@@ -39,7 +47,9 @@ def test_host_network_workspace_binds_server_to_selected_port(monkeypatch):
         network="host",
         detach_logs=False,
     )
-    run_command = next(command for command in commands if command[:2] == ["docker", "run"])
+    run_command = next(
+        command for command in commands if command[:2] == ["docker", "run"]
+    )
 
     assert run_command[-4:] == ["--host", "0.0.0.0", "--port", "24567"]
     assert run_command[run_command.index("--network") + 1] == "host"
@@ -92,3 +102,58 @@ def test_standard_network_workspace_forwards_noninteractive_pagers(monkeypatch):
         assert workspace_module.os.environ[key] == value
 
     workspace._container_id = None
+
+
+def test_dev_workspace_reuses_locked_agent_server_image(monkeypatch):
+    commands = []
+
+    def fake_execute(command):
+        commands.append(command)
+        return SimpleNamespace(returncode=0, stdout="[]", stderr="")
+
+    monkeypatch.setattr(workspace_module, "execute_command", fake_execute)
+    monkeypatch.delenv("ASYNCODEBENCH_REBUILD_AGENT_SERVER_IMAGE", raising=False)
+
+    image = AsynCodeBenchDockerDevWorkspace._build_image_from_base(
+        base_image="docker.io/wentingzhao/graphene:v0",
+        target="source-minimal",
+        platform="linux/amd64",
+    )
+
+    assert commands == [
+        ["docker", "image", "inspect", "--format", "{{.Id}}", image]
+    ]
+    assert image.startswith("ghcr.io/openhands/agent-server:")
+    assert image.endswith("-source-minimal")
+
+
+def test_build_command_does_not_wait_for_descendant_pipe_eof(monkeypatch):
+    monkeypatch.setenv("ASYNCODEBENCH_AGENT_SERVER_BUILD_TIMEOUT", "10")
+    child_code = (
+        "import subprocess, sys; "
+        "subprocess.Popen([sys.executable, '-c', "
+        "'import time; time.sleep(2)']); "
+        "print('direct child complete')"
+    )
+
+    started = time.monotonic()
+    result = workspace_module._run_agent_server_build_command(
+        [sys.executable, "-c", child_code]
+    )
+    elapsed = time.monotonic() - started
+
+    assert result.returncode == 0
+    assert result.stdout.strip() == "direct child complete"
+    assert elapsed < 1.5
+
+
+def test_build_command_has_bounded_timeout(monkeypatch):
+    monkeypatch.setenv("ASYNCODEBENCH_AGENT_SERVER_BUILD_TIMEOUT", "0.1")
+
+    with pytest.raises(subprocess.CalledProcessError) as exc_info:
+        workspace_module._run_agent_server_build_command(
+            [sys.executable, "-c", "import time; time.sleep(10)"]
+        )
+
+    assert exc_info.value.returncode == 124
+    assert "timed out after 0.1 seconds" in exc_info.value.stderr

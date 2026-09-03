@@ -276,6 +276,56 @@ def test_remote_polling_fails_after_bounded_consecutive_errors(monkeypatch):
         )
 
 
+class TimeoutConversation:
+    def __init__(self, interrupt_error=None):
+        self.interrupt_calls = 0
+        self.interrupt_error = interrupt_error
+
+    def _poll_status_once(self):
+        return "running"
+
+    def interrupt(self):
+        self.interrupt_calls += 1
+        if self.interrupt_error:
+            raise self.interrupt_error
+
+
+def test_wall_clock_timeout_interrupts_remote_run(monkeypatch):
+    timestamps = iter([0.0, 2.0])
+    monkeypatch.setattr("core.subagent.time.monotonic", lambda: next(timestamps))
+    conversation = TimeoutConversation()
+    messages = []
+
+    with pytest.raises(RuntimeError, match="interrupted cleanly"):
+        wait_for_remote_run_completion(
+            conversation,
+            messages.append,
+            timeout=1,
+            poll_interval=5,
+        )
+
+    assert conversation.interrupt_calls == 1
+    assert messages == [
+        "Interrupted budget-exhausted remote run before result collection"
+    ]
+
+
+def test_unconfirmed_timeout_remains_an_infrastructure_failure(monkeypatch):
+    timestamps = iter([0.0, 2.0])
+    monkeypatch.setattr("core.subagent.time.monotonic", lambda: next(timestamps))
+    conversation = TimeoutConversation(interrupt_error=RuntimeError("unavailable"))
+
+    with pytest.raises(RuntimeError, match="may still be running"):
+        wait_for_remote_run_completion(
+            conversation,
+            lambda _message: None,
+            timeout=1,
+            poll_interval=5,
+        )
+
+    assert conversation.interrupt_calls == 1
+
+
 def test_rejects_nonpositive_remote_poll_failure_limit(monkeypatch):
     monkeypatch.setenv("ASYNCODEBENCH_REMOTE_POLL_FAILURE_LIMIT", "0")
 

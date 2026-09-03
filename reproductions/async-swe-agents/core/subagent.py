@@ -217,6 +217,24 @@ def _handle_remote_poll_exception(conversation, error):
     raise error
 
 
+def interrupt_remote_run_after_timeout(conversation, log):
+    """Stop a budget-exhausted remote run before collecting or reusing it."""
+    interrupt = getattr(conversation, "interrupt", None)
+    if not callable(interrupt):
+        log(
+            "Remote run exceeded its wall-clock budget, but this conversation "
+            "does not expose interrupt()"
+        )
+        return False
+    try:
+        interrupt()
+    except Exception as error:
+        log(f"Warning: failed to interrupt budget-exhausted remote run: {error}")
+        return False
+    log("Interrupted budget-exhausted remote run before result collection")
+    return True
+
+
 def wait_for_remote_run_completion(conversation, log, timeout, poll_interval):
     """Wait for a remote run with explicit terminal-state confirmation.
 
@@ -260,6 +278,11 @@ def wait_for_remote_run_completion(conversation, log, timeout, poll_interval):
         now = time.monotonic()
         elapsed = now - started_at
         if elapsed > timeout:
+            if interrupt_remote_run_after_timeout(conversation, log):
+                raise RuntimeError(
+                    f"Run timed out after {timeout} seconds and the remote "
+                    "conversation was interrupted cleanly."
+                )
             raise RuntimeError(
                 f"Run timed out after {timeout} seconds. "
                 "The conversation may still be running on the server."
