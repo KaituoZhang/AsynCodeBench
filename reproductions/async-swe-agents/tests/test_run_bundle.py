@@ -66,7 +66,7 @@ def write_valid_artifacts(path, *, profile_matched=True):
                     "scenario_id": "commit0-example.single.v0.3",
                     "agent_count": 1,
                 }
-            ]
+            ],
         },
         "metrics_snapshot.json": {
             "task_id": "commit0:example",
@@ -75,7 +75,7 @@ def write_valid_artifacts(path, *, profile_matched=True):
                     "dependency_id": "example.contract",
                     "integrated_probe_tests": [SELECTOR],
                 }
-            ]
+            ],
         },
         "quality_snapshot.json": {
             "task_id": "commit0:example",
@@ -192,9 +192,7 @@ def write_valid_artifacts(path, *, profile_matched=True):
             }
         ],
     }
-    FAKE_RELEASE_INDEX_PATH.write_text(
-        json.dumps(release_index), encoding="utf-8"
-    )
+    FAKE_RELEASE_INDEX_PATH.write_text(json.dumps(release_index), encoding="utf-8")
     (path / "protocol.json").write_text(
         json.dumps(
             {
@@ -353,7 +351,7 @@ def test_result_bundle_marks_provider_failure_invalid(tmp_path):
 @pytest.mark.parametrize(
     ("log_text", "failure"),
     [
-        ('Termination: execution_error\nIterations used: 1\n', "execution_error"),
+        ("Termination: execution_error\nIterations used: 1\n", "execution_error"),
         ("Iterations used: 0\n", "zero_model_iterations"),
     ],
 )
@@ -428,6 +426,17 @@ def test_cli_lists_all_official_tasks(capsys):
     tasks = json.loads(capsys.readouterr().out)
     assert len(tasks) == 20
     assert all(item["task_id"].startswith("asyncodebench:") for item in tasks)
+
+
+def test_cli_lists_all_official_images(capsys):
+    assert cli_main(["images", "list", "--json"]) == 0
+
+    images = json.loads(capsys.readouterr().out)
+    assert len(images) == 20
+    assert all(item["task_id"].startswith("asyncodebench:") for item in images)
+    assert all(
+        item["reference"].startswith(("docker.io/", "ghcr.io/")) for item in images
+    )
 
 
 def test_cli_reports_release_and_review_status(capsys):

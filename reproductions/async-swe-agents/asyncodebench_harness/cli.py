@@ -45,6 +45,81 @@ def _release_index():
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _image_registry():
+    path = _repo_root() / "configs" / "environments" / "official_task_images.v0.4.json"
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _selected_image_records(task_selectors):
+    records = _image_registry().get("records", [])
+    if not task_selectors:
+        return records
+    requested = set(task_selectors)
+    selected = [
+        record
+        for record in records
+        if record.get("task_id") in requested
+        or record.get("source_task_id") in requested
+        or str(record.get("task_id", "")).removeprefix("asyncodebench:") in requested
+    ]
+    matched = {
+        value
+        for record in selected
+        for value in (
+            record.get("task_id"),
+            record.get("source_task_id"),
+            str(record.get("task_id", "")).removeprefix("asyncodebench:"),
+        )
+    }
+    missing = requested - matched
+    if missing:
+        raise ValueError(f"Unknown task image selectors: {sorted(missing)}")
+    return selected
+
+
+def _immutable_image_reference(record):
+    digest = record.get("digest")
+    if record.get("status") != "published" or not digest:
+        raise RuntimeError(f"Task image is not published: {record.get('task_id')}")
+    repository = str(record["image"]).rsplit(":", 1)[0]
+    return f"{repository}@{digest}"
+
+
+def _images(args):
+    records = _selected_image_records(args.tasks)
+    if args.action == "list":
+        payload = [
+            {
+                "task_id": record["task_id"],
+                "status": record["status"],
+                "reference": (
+                    _immutable_image_reference(record)
+                    if record["status"] == "published"
+                    else record["image"]
+                ),
+            }
+            for record in records
+        ]
+        if args.json:
+            print(json.dumps(payload, indent=2, sort_keys=True))
+        else:
+            print("TASK ID\tSTATUS\tIMAGE")
+            for item in payload:
+                print(f"{item['task_id']}\t{item['status']}\t{item['reference']}")
+        return 0
+
+    registry = _image_registry()
+    for record in records:
+        reference = _immutable_image_reference(record)
+        completed = subprocess.run(
+            ["docker", "pull", "--platform", registry["platform"], reference],
+            check=False,
+        )
+        if completed.returncode != 0:
+            return completed.returncode
+    return 0
+
+
 def _tasks(args):
     index = _release_index()
     tasks = index.get("tasks", [])
@@ -129,8 +204,7 @@ def _release_status(args):
         if pending_human_review:
             print("pending_human_review=" + ",".join(pending_human_review))
         print(
-            "validated_baseline_bundles="
-            f"{payload['validated_baseline_bundle_count']}"
+            f"validated_baseline_bundles={payload['validated_baseline_bundle_count']}"
         )
     required_ready = {
         None: True,
@@ -143,6 +217,30 @@ def _release_status(args):
 def _run_one(args, protocol, output_dir, run_id):
     if args.dry_run:
         os.environ.setdefault("LITELLM_LOCAL_MODEL_COST_MAP", "True")
+    if args.task.startswith("asyncodebench:apache-tvm-"):
+        if args.release != "v0.4":
+            raise ValueError("The Apache TVM tasks belong to release v0.4")
+        from run_pr_hard import main as run_pr_hard
+
+        source_task_id = args.task.replace("asyncodebench:", "pr-hard:", 1)
+        return run_pr_hard(
+            task_id=source_task_id,
+            protocol=protocol,
+            model=args.model,
+            subagent_model=args.subagent_model,
+            max_iterations=args.max_iterations,
+            sub_iterations=args.sub_iterations,
+            rounds_of_chat=args.rounds_of_chat,
+            output_dir=output_dir,
+            run_id=run_id,
+            runtime_root=args.runtime_root,
+            runtime_backend=args.runtime_backend,
+            runtime_image=args.runtime_image,
+            agent=args.agent,
+            agent_import_path=args.agent_import_path,
+            agent_config_json=args.agent_config_json,
+            dry_run=args.dry_run,
+        )
     from run_asyncodebench import main as run_benchmark
 
     return run_benchmark(
@@ -155,7 +253,9 @@ def _run_one(args, protocol, output_dir, run_id):
         rounds_of_chat=args.rounds_of_chat,
         output_dir=output_dir,
         run_id=run_id,
-        release=args.release,
+        # The first 16 task records retain their v0.3 source manifests inside
+        # the unified v0.4 release.  Their executable content is unchanged.
+        release="v0.3" if args.release == "v0.4" else args.release,
         agent=args.agent,
         agent_import_path=args.agent_import_path,
         agent_config_json=args.agent_config_json,
@@ -389,6 +489,19 @@ def build_parser():
     tasks.add_argument("--json", action="store_true")
     tasks.set_defaults(handler=_tasks)
 
+    images = commands.add_parser(
+        "images", help="List or pull immutable official task images"
+    )
+    images.add_argument("action", choices=("list", "pull"))
+    images.add_argument(
+        "--task",
+        action="append",
+        dest="tasks",
+        help="Task ID or short task name; repeat to select multiple images",
+    )
+    images.add_argument("--json", action="store_true")
+    images.set_defaults(handler=_images)
+
     release_status = commands.add_parser(
         "release-status", help="Show executable and human-review release status"
     )
@@ -406,7 +519,19 @@ def build_parser():
     run.add_argument("--rounds-of-chat", type=int, default=2)
     run.add_argument("--output-dir")
     run.add_argument("--run-id")
-    run.add_argument("--release", default="v0.3")
+    run.add_argument("--release", default="v0.4")
+    run.add_argument(
+        "--runtime-backend",
+        choices=("container", "local"),
+        default="container",
+        help="TVM only: use the published image or a reconstructed local runtime",
+    )
+    run.add_argument("--runtime-root", default="")
+    run.add_argument(
+        "--runtime-image",
+        default="",
+        help="TVM only: explicit development image; official runs use registry digest",
+    )
     run.add_argument("--agent", default="openhands")
     run.add_argument("--agent-import-path")
     run.add_argument("--agent-config-json")

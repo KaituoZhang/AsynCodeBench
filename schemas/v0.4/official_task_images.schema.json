@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://asyncodebench.org/schemas/v0.4/official_task_images.schema.json",
+  "title": "AsynCodeBench official task image registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "release", "platform", "policy", "records"],
+  "properties": {
+    "schema_version": {"const": "asyncodebench-official-task-images-v1"},
+    "release": {"const": "v0.4"},
+    "platform": {"const": "linux/amd64"},
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default_runtime_backend", "immutable_official_references", "local_reconstruction_fallback"],
+      "properties": {
+        "default_runtime_backend": {"const": "container"},
+        "immutable_official_references": {"const": true},
+        "local_reconstruction_fallback": {"const": true}
+      }
+    },
+    "records": {
+      "type": "array",
+      "minItems": 20,
+      "maxItems": 20,
+      "items": {"$ref": "#/$defs/image"}
+    }
+  },
+  "$defs": {
+    "image": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["task_id", "source_task_id", "image", "digest", "status"],
+      "properties": {
+        "task_id": {"type": "string", "pattern": "^asyncodebench:"},
+        "source_task_id": {"type": "string", "minLength": 1},
+        "image": {"type": "string", "pattern": "^(docker\\.io|ghcr\\.io)/.+:[^:@]+$"},
+        "digest": {"type": ["string", "null"], "pattern": "^sha256:[0-9a-f]{64}$"},
+        "status": {"enum": ["published", "pending_publish"]},
+        "runtime_root": {"const": "/opt/asyncodebench/runtime"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "published"}}},
+          "then": {"properties": {"digest": {"type": "string"}}}
+        }
+      ]
+    }
+  }
+}

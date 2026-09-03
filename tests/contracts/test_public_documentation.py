@@ -3,7 +3,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-RELEASE_INDEX = ROOT / "manifests" / "release" / "v0.3" / "task_index.json"
+RELEASE_INDEX = ROOT / "manifests" / "release" / "v0.4" / "task_index.json"
 CURRENT_GUIDES = (
     ROOT / "README",
     ROOT / "docs" / "QUICKSTART.md",
@@ -34,7 +34,7 @@ def test_readme_release_facts_match_machine_readable_index():
 
     assert official_block is not None
     assert official_block.group(1).split() == [
-        task["repository"] for task in index["tasks"]
+        task["task_id"].removeprefix("asyncodebench:") for task in index["tasks"]
     ]
     assert f"**{index['task_count']} official repository-level tasks**" in readme
     assert f"**{index['scenario_count']} task-protocol scenarios**" in readme

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import base64
 import hashlib
-import json
 import os
 import re
 import shlex
@@ -17,6 +16,7 @@ from pathlib import Path
 
 from .asyncodebench import AsynCodeBenchConfig, AsynCodeBenchTask
 from .commit0 import Commit0Config, Commit0Task
+from .task_images import image_record, immutable_image_reference
 
 
 def validate_container_mount_root(path: Path) -> None:
@@ -54,7 +54,8 @@ def build_python_wrapper(base_work_dir: str, environment_path: Path) -> str:
             "fi",
             'export PYTHONPATH="$repo_root/python${PYTHONPATH:+:$PYTHONPATH}"',
             'export TVM_LIBRARY_PATH="$library_root"',
-            'export LD_LIBRARY_PATH="$library_root${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"',
+            "export LD_LIBRARY_PATH=\"$library_root"
+            "${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}\"",
             f'exec {shlex.quote(str(environment_path))}/bin/python "$@"',
             "",
         ]
@@ -68,6 +69,8 @@ class PrHardConfig:
     runtime_root: str = ""
     build_cache_root: str = ""
     base_image: str = "ubuntu:22.04"
+    runtime_backend: str = "local"
+    runtime_image: str = ""
 
 
 class PrHardTask(AsynCodeBenchTask):
@@ -77,9 +80,7 @@ class PrHardTask(AsynCodeBenchTask):
     save_final_tarball = False
     manager_must_be_read_only = False
     worktree_build_command = "cmake --build build --parallel"
-    container_build_cache_root = Path(
-        "/workspace/.asyncodebench-pr-hard-build-cache"
-    )
+    container_build_cache_root = Path("/workspace/.asyncodebench-pr-hard-build-cache")
 
     def __init__(self, config: PrHardConfig):
         source, candidate_name = str(config.task_id).split(":", 1)
@@ -94,9 +95,7 @@ class PrHardTask(AsynCodeBenchTask):
                 "This adapter currently supports pr-hard:apache-tvm-<number>"
             )
         self.pr_hard_config = config
-        self.manager_must_be_read_only = (
-            config.task_id == "pr-hard:apache-tvm-20018"
-        )
+        self.manager_must_be_read_only = config.task_id == "pr-hard:apache-tvm-20018"
         self.asyncodebench_config = AsynCodeBenchConfig(
             task_id=config.task_id,
             release=config.release,
@@ -140,21 +139,39 @@ class PrHardTask(AsynCodeBenchTask):
             "base_sha": self.candidate_record["base_sha"],
             "overlays": overlays,
         }
-        self.runtime_root = Path(
-            config.runtime_root
-            or self._repo_root()
-            / ".cache"
-            / "pr_hard_runtime"
-            / "v0.4"
-            / self.repository_name
-        ).resolve()
+        self.runtime_backend = str(config.runtime_backend).strip().lower()
+        if self.runtime_backend not in {"local", "container"}:
+            raise ValueError("runtime_backend must be 'local' or 'container'")
+        self.image_record = None
+        self.runtime_image = None
+        if self.runtime_backend == "container":
+            self.image_record = image_record(self._repo_root(), config.task_id)
+            self.runtime_image = str(
+                config.runtime_image
+            ).strip() or immutable_image_reference(self.image_record)
+            self.runtime_root = Path(
+                self.image_record.get("runtime_root", "/opt/asyncodebench/runtime")
+            )
+        else:
+            self.runtime_root = Path(
+                config.runtime_root
+                or self._repo_root()
+                / ".cache"
+                / "pr_hard_runtime"
+                / "v0.4"
+                / self.repository_name
+            ).resolve()
         self.seed_path = self.runtime_root / "seed"
         self.environment_path = self.runtime_root / "env"
-        self.build_cache_root = Path(
-            config.build_cache_root
-            or os.getenv("ASYNCODEBENCH_PR_HARD_BUILD_CACHE_ROOT", "")
-            or self._repo_root() / ".cache" / "pr_hard_builds" / "v0.4"
-        ).expanduser().resolve()
+        self.build_cache_root = (
+            Path(
+                config.build_cache_root
+                or os.getenv("ASYNCODEBENCH_PR_HARD_BUILD_CACHE_ROOT", "")
+                or self._repo_root() / ".cache" / "pr_hard_builds" / "v0.4"
+            )
+            .expanduser()
+            .resolve()
+        )
         self.build_cache_run_root = None
         self._validate_runtime_inputs()
 
@@ -168,6 +185,10 @@ class PrHardTask(AsynCodeBenchTask):
         raise ValueError(f"Unknown PR-hard candidate: {task_id}")
 
     def _validate_runtime_inputs(self):
+        if self.runtime_backend == "container":
+            if not self.runtime_image:
+                raise RuntimeError("Container runtime requires an image reference")
+            return
         for path in (self.seed_path, self.environment_path):
             validate_container_mount_root(path)
 
@@ -184,14 +205,34 @@ class PrHardTask(AsynCodeBenchTask):
 
     def get_workspace_config(self):
         build_cache_run_root = self._ensure_build_cache_run_root()
-        return {
-            "base_image": self.pr_hard_config.base_image,
-            "target": "source-minimal",
-            "volumes": [
+        base_image = self.runtime_image or self.pr_hard_config.base_image
+        volumes = [
+            f"{build_cache_run_root}:{self.container_build_cache_root}:rw",
+        ]
+        if self.runtime_backend == "local":
+            volumes[:0] = [
                 f"{self.seed_path}:{self.seed_path}:ro",
                 f"{self.environment_path}:{self.environment_path}:ro",
-                f"{build_cache_run_root}:{self.container_build_cache_root}:rw",
-            ],
+            ]
+        return {
+            "base_image": base_image,
+            "target": "source-minimal",
+            "volumes": volumes,
+        }
+
+    def runtime_distribution(self):
+        if self.runtime_backend == "local":
+            return {
+                "backend": "local_reconstruction",
+                "runtime_root": str(self.runtime_root),
+                "official_image": None,
+            }
+        return {
+            "backend": "container_image",
+            "runtime_root": str(self.runtime_root),
+            "official_image": self.runtime_image,
+            "registry_task_id": self.image_record["task_id"],
+            "digest_pinned": "@sha256:" in str(self.runtime_image),
         }
 
     def _ensure_build_cache_run_root(self) -> Path:
@@ -223,7 +264,7 @@ class PrHardTask(AsynCodeBenchTask):
         return (
             f"mkdir -p {target} && "
             "if [ ! -L build ] || "
-            f"[ \"$(readlink -f build 2>/dev/null || true)\" != {target} ]; then "
+            f'[ "$(readlink -f build 2>/dev/null || true)" != {target} ]; then '
             "rm -rf build && "
             f"ln -s {target} build; "
             "fi"
@@ -251,7 +292,7 @@ class PrHardTask(AsynCodeBenchTask):
                         f"{run_root}:/asyncodebench-build-cache",
                         "--entrypoint",
                         "/bin/sh",
-                        self.pr_hard_config.base_image,
+                        self.runtime_image or self.pr_hard_config.base_image,
                         "-c",
                         "find /asyncodebench-build-cache -mindepth 1 -delete",
                     ],
@@ -320,8 +361,8 @@ class PrHardTask(AsynCodeBenchTask):
             f"cd {quoted_work} && git checkout -b openhands && "
             "git config user.email asyncodebench@example.com && "
             "git config user.name 'AsynCodeBench PR-hard' && "
-            "test \"$(git rev-list --all --count)\" = 1 && "
-            "test -z \"$(git remote)\"",
+            'test "$(git rev-list --all --count)" = 1 && '
+            'test -z "$(git remote)"',
             timeout=300,
         )
         if materialize.exit_code != 0:
@@ -368,8 +409,7 @@ class PrHardTask(AsynCodeBenchTask):
         )
         if configure.exit_code != 0:
             raise RuntimeError(
-                "PR-hard TVM configure failed: "
-                f"{configure.stderr or configure.stdout}"
+                f"PR-hard TVM configure failed: {configure.stderr or configure.stdout}"
             )
         build = workspace.execute_command(
             f"cd {quoted_work} && cmake --build build --parallel",
@@ -377,8 +417,7 @@ class PrHardTask(AsynCodeBenchTask):
         )
         if build.exit_code != 0:
             raise RuntimeError(
-                "PR-hard TVM cold build failed: "
-                f"{build.stderr or build.stdout}"
+                f"PR-hard TVM cold build failed: {build.stderr or build.stdout}"
             )
         status = workspace.execute_command(
             f"cd {quoted_work} && git status --porcelain", timeout=60
@@ -423,11 +462,7 @@ class PrHardTask(AsynCodeBenchTask):
         quoted_worktree = shlex.quote(str(workspace_path))
         configure_timeout = max(
             60,
-            int(
-                os.getenv(
-                    "ASYNCODEBENCH_PR_HARD_CONFIGURE_TIMEOUT_SECONDS", "600"
-                )
-            ),
+            int(os.getenv("ASYNCODEBENCH_PR_HARD_CONFIGURE_TIMEOUT_SECONDS", "600")),
         )
         build_timeout = max(
             60,

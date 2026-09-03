@@ -1,8 +1,8 @@
 # AsynCodeBench Model Experiment Runbook
 
 This is the canonical procedure for evaluating a new model on the current
-16-task AsynCodeBench release. It uses only the native AsynCodeBench harness.
-Legacy `run_commit0_*` commands are not part of this workflow.
+20-task AsynCodeBench v0.4 release. It uses the unified `asyncodebench` CLI.
+Legacy source-specific task IDs are provenance only.
 
 ## 1. Experiment Contract
 
@@ -26,13 +26,14 @@ integration, dependency probes, final evaluation, and result admission.
 
 ## 2. Official Tasks
 
-The release contains exactly 16 tasks:
+The release contains exactly 20 tasks:
 
 ```text
 cachetools       deprecated       portalocker       tinydb
 wcwidth          requests         simpy              parsel
 filesystem_spec  marshmallow      graphene           imapclient
 pexpect          flask            python-rsa         cookiecutter
+apache-tvm-20018 apache-tvm-20073 apache-tvm-20107 apache-tvm-20153
 ```
 
 The scenario manifests declare these specialist counts:
@@ -40,7 +41,7 @@ The scenario manifests declare these specialist counts:
 | Specialists | Tasks |
 | ---: | --- |
 | 2 | `cachetools`, `deprecated`, `portalocker`, `tinydb`, `wcwidth` |
-| 3 | `requests`, `parsel`, `filesystem_spec`, `marshmallow`, `graphene`, `imapclient` |
+| 3 | `requests`, `parsel`, `filesystem_spec`, `marshmallow`, `graphene`, `imapclient`, `apache-tvm-20018`, `apache-tvm-20073`, `apache-tvm-20107`, `apache-tvm-20153` |
 | 4 | `simpy`, `pexpect`, `flask`, `python-rsa`, `cookiecutter` |
 
 Do not add `dulwich`, `fastapi`, `python-progressbar`, `fabric`, or `chardet` to
@@ -48,8 +49,9 @@ an official aggregate. Historical candidate files do not define release
 membership. The authoritative list is:
 
 ```text
-configs/tasks/commit0_official_tasks.v0.3.json
-manifests/release/v0.3/task_index.json
+manifests/release/v0.4/official_tasks.json
+manifests/release/v0.4/task_index.json
+configs/environments/official_task_images.v0.4.json
 ```
 
 Check the machine-readable release status before a campaign:
@@ -58,6 +60,7 @@ Check the machine-readable release status before a campaign:
 cd reproductions/async-swe-agents
 uv run asyncodebench release-status
 uv run asyncodebench tasks
+uv run asyncodebench images list
 ```
 
 Automatic qualification and human review are separate. The command reports the
@@ -66,7 +69,7 @@ of blank annotator forms.
 
 ## 3. Required Files
 
-The native runner consumes these repository-owned artifacts:
+The unified runner consumes these repository-owned artifacts:
 
 ```text
 configs/tasks/commit0_official_tasks.v0.3.json
@@ -77,12 +80,18 @@ manifests/pilot/v0.3/scenarios/
 manifests/pilot/v0.3/metrics/
 manifests/pilot/v0.3/quality/
 manifests/release/v0.3/task_index.json
+manifests/candidates/pr_hard_v0.4/
+manifests/release/v0.4/task_index.json
+configs/environments/official_task_images.v0.4.json
 schemas/release/run_bundle.schema.json
 ```
 
-The `commit0_*` filenames and `commit0:<task>` values inside source manifests
-are provenance. The public runtime ID is always
-`asyncodebench:<repository>`. Native runs do not read `COMMIT0_DATASET_PATH`.
+The v0.3 paths remain the frozen source manifests for the first 16 tasks; the
+v0.4 index composes them with the four compiler tasks. This preserves existing
+bundle checksums while exposing one 20-task release. Source-specific filenames
+and IDs are provenance. The public runtime ID is always
+`asyncodebench:<repository>`, and native runs do not read
+`COMMIT0_DATASET_PATH`.
 
 The runner is located at:
 
@@ -199,6 +208,7 @@ source scripts/env.sh
 uv run asyncodebench doctor
 uv run asyncodebench release-status
 uv run asyncodebench tasks
+uv run asyncodebench images list
 curl -fsS "$LLM_BASE_URL/models"
 ```
 
@@ -432,7 +442,7 @@ argument cannot substitute a different adapter name.
 
 ## 13. Build The Model Aggregate
 
-After generating all 16 task report sets:
+After generating all 20 task report sets:
 
 ```bash
 reproductions/async-swe-agents/.venv/bin/python \

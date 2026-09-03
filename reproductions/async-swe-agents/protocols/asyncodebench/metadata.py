@@ -252,7 +252,7 @@ def build_run_metadata(
         )
         if os.getenv(name) is not None
     }
-    return {
+    metadata = {
         "schema_version": "0.1",
         "harness_version": HARNESS_VERSION,
         "created_at": datetime.now(timezone.utc).isoformat(),
@@ -309,6 +309,9 @@ def build_run_metadata(
         "generation_configuration": _generation_configuration(),
         "environment": safe_environment,
     }
+    if hasattr(task, "runtime_distribution"):
+        metadata["runtime_distribution"] = task.runtime_distribution()
+    return metadata
 
 
 def write_run_metadata(output_dir, metadata):

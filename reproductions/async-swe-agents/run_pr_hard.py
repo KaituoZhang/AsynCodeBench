@@ -9,7 +9,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import fire
-
 from agents import load_agent_adapter
 from config import WorkflowConfig
 from core.asyncodebench_manager import AsynCodeBenchManager
@@ -30,7 +29,6 @@ from run_asyncodebench import (
 from run_infer import run_workflow
 from tasks.pr_hard import PrHardConfig, PrHardTask
 
-
 PROTOCOL_ELIGIBILITY = {
     "single": "iterative_single",
     "serial_specialists": "serial_specialists",
@@ -45,8 +43,7 @@ def _repo_root():
         root = Path(configured).expanduser().resolve()
         if not (root / "manifests").is_dir():
             raise RuntimeError(
-                "ASYNCODEBENCH_ROOT does not contain benchmark manifests: "
-                f"{root}"
+                f"ASYNCODEBENCH_ROOT does not contain benchmark manifests: {root}"
             )
         return root
     return Path(__file__).resolve().parents[2]
@@ -60,7 +57,11 @@ def _candidate_preflight(task_id, protocol, allow_unqualified=False):
     root = _repo_root()
     registry = _read_json(root / "configs/tasks/pr_hard_candidates.v0.4.json")
     candidate = next(
-        (record for record in registry.get("records", []) if record.get("task_id") == task_id),
+        (
+            record
+            for record in registry.get("records", [])
+            if record.get("task_id") == task_id
+        ),
         None,
     )
     if candidate is None:
@@ -72,16 +73,17 @@ def _candidate_preflight(task_id, protocol, allow_unqualified=False):
     failures = []
     qualification_status = candidate.get("qualification_status")
     if qualification_status not in {"pending_human_review", "qualified"}:
-        failures.append(
-            f"qualification_status={qualification_status!r}"
-        )
+        failures.append(f"qualification_status={qualification_status!r}")
     expected_automated_status = (
-        "passed" if qualification_status == "qualified"
+        "passed"
+        if qualification_status == "qualified"
         else "passed_pending_human_review"
     )
     if qualification.get("automated_status") != expected_automated_status:
         failures.append(f"automated_status={qualification.get('automated_status')!r}")
-    expected_remaining_gates = [] if qualification_status == "qualified" else ["human_review"]
+    expected_remaining_gates = (
+        [] if qualification_status == "qualified" else ["human_review"]
+    )
     if qualification.get("remaining_gates") != expected_remaining_gates:
         failures.append(f"remaining_gates={qualification.get('remaining_gates')!r}")
     if qualification_status == "qualified":
@@ -190,6 +192,8 @@ def main(
     run_id=None,
     runtime_root="",
     build_cache_root="",
+    runtime_backend="local",
+    runtime_image="",
     agent="openhands",
     agent_import_path=None,
     agent_config_json=None,
@@ -225,6 +229,8 @@ def main(
             task_id=task_id,
             runtime_root=runtime_root,
             build_cache_root=build_cache_root,
+            runtime_backend=runtime_backend,
+            runtime_image=runtime_image,
         )
     )
     task.set_active_protocol(protocol)
@@ -258,7 +264,9 @@ def main(
             raise ValueError(
                 "Benchmark runs must match the frozen execution profile: "
                 f"manager={expected[0]}, subagent={expected[1]}, rounds={expected[2]}; "
-                f"got manager={observed[0]}, subagent={observed[1]}, rounds={observed[2]}"
+                "got "
+                f"manager={observed[0]}, subagent={observed[1]}, "
+                f"rounds={observed[2]}"
             )
 
     workflow_config = WorkflowConfig(
@@ -288,6 +296,7 @@ def main(
         print(f"[DryRun] subagent_max_iterations={sub_iterations}")
         print(f"[DryRun] max_rounds_chat={rounds_of_chat}")
         print(f"[DryRun] model_visible_seed={task.seed_path}")
+        print(f"[DryRun] runtime_distribution={task.runtime_distribution()}")
         print(f"[DryRun] output_dir={resolved_output}")
         print(f"[DryRun] qualification_status={candidate['qualification_status']}")
         print(f"[DryRun] remaining_gates={qualification.get('remaining_gates', [])}")
@@ -316,6 +325,7 @@ def main(
         "diagnostic_only": bool(qualification_failures),
         "model_visible_history": False,
         "model_visible_gold_patch": False,
+        "runtime_distribution": task.runtime_distribution(),
     }
     write_run_metadata(resolved_output, metadata)
     write_contract_snapshots(resolved_output, task, protocol)

@@ -1,10 +1,9 @@
 import json
-from pathlib import Path
 import subprocess
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
-
 from core.dependency_probes import write_dependency_probe_checkpoint
 from protocols.asyncodebench.runner import AsynCodeBenchProtocolRunner
 from run_pr_hard import _candidate_preflight, _execution_profile
@@ -126,7 +125,9 @@ def test_20107_runtime_exposes_one_public_overlay_and_three_roles(tmp_path) -> N
     }
 
 
-def test_20073_runtime_exposes_one_public_overlay_and_three_join_roles(tmp_path) -> None:
+def test_20073_runtime_exposes_one_public_overlay_and_three_join_roles(
+    tmp_path,
+) -> None:
     runtime_root = tmp_path / "runtime"
     (runtime_root / "seed").mkdir(parents=True)
     (runtime_root / "env").mkdir()
@@ -153,7 +154,9 @@ def test_20073_runtime_exposes_one_public_overlay_and_three_join_roles(tmp_path)
     }
 
 
-def test_20018_runtime_exposes_one_public_overlay_and_three_chain_roles(tmp_path) -> None:
+def test_20018_runtime_exposes_one_public_overlay_and_three_chain_roles(
+    tmp_path,
+) -> None:
     runtime_root = tmp_path / "runtime"
     (runtime_root / "seed").mkdir(parents=True)
     (runtime_root / "env").mkdir()
@@ -201,11 +204,63 @@ def test_runtime_mount_root_must_be_readable_by_container_user(tmp_path) -> None
     validate_container_mount_root(seed)
 
 
+def test_container_runtime_does_not_require_or_mount_active_host_runtime(
+    tmp_path,
+) -> None:
+    image = "local/asyncodebench-tvm-20073:test"
+    task = PrHardTask(
+        PrHardConfig(
+            task_id="pr-hard:apache-tvm-20073",
+            runtime_backend="container",
+            runtime_image=image,
+            runtime_root=str(tmp_path / "must-not-be-used"),
+            build_cache_root=str(tmp_path / "build-cache"),
+        )
+    )
+
+    workspace = task.get_workspace_config()
+    assert workspace["base_image"] == image
+    assert task.seed_path == Path("/opt/asyncodebench/runtime/seed")
+    assert task.environment_path == Path("/opt/asyncodebench/runtime/env")
+    assert len(workspace["volumes"]) == 1
+    assert ".asyncodebench-pr-hard-build-cache" in workspace["volumes"][0]
+    assert str(tmp_path / "must-not-be-used") not in str(workspace)
+    assert task.runtime_distribution() == {
+        "backend": "container_image",
+        "runtime_root": "/opt/asyncodebench/runtime",
+        "official_image": image,
+        "registry_task_id": "asyncodebench:apache-tvm-20073",
+        "digest_pinned": False,
+    }
+
+
+def test_local_runtime_backend_retains_historical_mount_contract(tmp_path) -> None:
+    runtime_root = tmp_path / "runtime"
+    (runtime_root / "seed").mkdir(parents=True)
+    (runtime_root / "env").mkdir()
+    task = PrHardTask(
+        PrHardConfig(
+            task_id="pr-hard:apache-tvm-20073",
+            runtime_backend="local",
+            runtime_root=str(runtime_root),
+            build_cache_root=str(tmp_path / "build-cache"),
+        )
+    )
+
+    workspace = task.get_workspace_config()
+    assert workspace["base_image"] == "ubuntu:22.04"
+    assert workspace["volumes"][:2] == [
+        f"{runtime_root / 'seed'}:{runtime_root / 'seed'}:ro",
+        f"{runtime_root / 'env'}:{runtime_root / 'env'}:ro",
+    ]
+    assert task.runtime_distribution()["backend"] == "local_reconstruction"
+
+
 def test_python_wrapper_resolves_python_from_active_worktree() -> None:
     wrapper = build_python_wrapper("/workspace/base_repo", Path("/runtime/env"))
     assert 'git -C "$PWD" rev-parse --show-toplevel' in wrapper
     assert 'PYTHONPATH="$repo_root/python' in wrapper
-    assert 'library_root=/workspace/base_repo/build/lib' in wrapper
+    assert "library_root=/workspace/base_repo/build/lib" in wrapper
     assert "PYTHONPATH=/workspace/base_repo/python" not in wrapper
 
 
@@ -221,8 +276,8 @@ def test_python_wrapper_uses_worktree_python_and_base_build_lib(tmp_path) -> Non
     python = environment / "bin" / "python"
     python.parent.mkdir(parents=True)
     python.write_text(
-        "#!/bin/sh\nprintf '%s\\n' \"$PYTHONPATH\" \"$TVM_LIBRARY_PATH\" "
-        "\"$LD_LIBRARY_PATH\"\n",
+        '#!/bin/sh\nprintf \'%s\\n\' "$PYTHONPATH" "$TVM_LIBRARY_PATH" '
+        '"$LD_LIBRARY_PATH"\n',
         encoding="utf-8",
     )
     python.chmod(0o755)
@@ -289,7 +344,10 @@ def test_pr_hard_worktree_is_built_before_runtime_import(tmp_path) -> None:
     assert result["status"] == "passed"
     assert len(workspace.commands) == 3
     assert "cmake -S . -B build -G Ninja" in workspace.commands[0][0]
-    assert "ln -s /workspace/.asyncodebench-pr-hard-build-cache/" in workspace.commands[0][0]
+    assert (
+        "ln -s /workspace/.asyncodebench-pr-hard-build-cache/"
+        in workspace.commands[0][0]
+    )
     assert "cmake --build build --parallel" in workspace.commands[1][0]
     assert "python -c" in workspace.commands[2][0]
     assert all("cd /workspace/agent" in command for command, _ in workspace.commands)

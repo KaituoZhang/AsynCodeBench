@@ -13,6 +13,8 @@ MODEL="${LLM_MODEL:?LLM_MODEL is required}"
 SUBAGENT_MODEL="${LLM_SUBAGENT_MODEL:-$MODEL}"
 PYTHON_BIN="${PYTHON_BIN:-$RUNNER_ROOT/.venv/bin/python}"
 RUNTIME_ROOT="${PR_HARD_RUNTIME_ROOT:-$BENCHMARK_ROOT/.cache/pr_hard_runtime/v0.4/apache-tvm-20073}"
+RUNTIME_BACKEND="${PR_HARD_RUNTIME_BACKEND:-container}"
+RUNTIME_IMAGE="${PR_HARD_RUNTIME_IMAGE:-}"
 DRY_RUN="${DRY_RUN:-0}"
 
 for flag in RUN_SINGLE RUN_SERIAL RUN_ASYNC_PRIVATE RUN_CAID; do
@@ -43,11 +45,16 @@ if slots < 3:
     )
 '
 
-"$BENCHMARK_ROOT/.venv-benchmark/bin/python" \
-  "$BENCHMARK_ROOT/scripts/prepare_pr_hard_runtime.py" \
-  --task-id pr-hard:apache-tvm-20073 \
-  --runtime-root "$RUNTIME_ROOT" \
-  --check
+if [[ "$RUNTIME_BACKEND" == "local" ]]; then
+  "$BENCHMARK_ROOT/.venv-benchmark/bin/python" \
+    "$BENCHMARK_ROOT/scripts/prepare_pr_hard_runtime.py" \
+    --task-id pr-hard:apache-tvm-20073 \
+    --runtime-root "$RUNTIME_ROOT" \
+    --check
+elif [[ "$RUNTIME_BACKEND" != "container" ]]; then
+  echo "PR_HARD_RUNTIME_BACKEND must be container or local" >&2
+  exit 2
+fi
 
 if [[ "$DRY_RUN" != "1" ]]; then
   "$PYTHON_BIN" \
@@ -75,8 +82,10 @@ for protocol in "${protocols[@]}"; do
     --model "$MODEL"
     --subagent_model "$SUBAGENT_MODEL"
     --runtime_root "$RUNTIME_ROOT"
+    --runtime_backend "$RUNTIME_BACKEND"
     --run_id "$RUN_ID"
   )
+  [[ -n "$RUNTIME_IMAGE" ]] && args+=(--runtime_image "$RUNTIME_IMAGE")
   [[ "$DRY_RUN" == "1" ]] && args+=(--dry_run True)
   echo "[PR-hard 20073] protocol=$protocol run_id=$RUN_ID model=$MODEL"
   "${args[@]}"

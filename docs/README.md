@@ -7,7 +7,8 @@ Start here when onboarding a collaborator or a new Codex session.
 | Document | Use |
 | --- | --- |
 | [`QUICKSTART.md`](QUICKSTART.md) | Canonical fresh-clone installation, model configuration, dry-run, and first task. |
-| [`MODEL_EXPERIMENT_RUNBOOK.md`](MODEL_EXPERIMENT_RUNBOOK.md) | Main guide for running another model across the official 16 tasks. |
+| [`MODEL_EXPERIMENT_RUNBOOK.md`](MODEL_EXPERIMENT_RUNBOOK.md) | Main guide for running another model across the official 20 tasks. |
+| [`TASK_IMAGE_DISTRIBUTION.md`](TASK_IMAGE_DISTRIBUTION.md) | Immutable Docker images, four compiler-task snapshots, pull/run commands, and source fallback. |
 | [`RESULT_VALIDITY.md`](RESULT_VALIDITY.md) | Canonical run status, per-metric eligibility, official profile, bundle integrity, and legacy-result triage. |
 | [`EVALUATION_METRICS.md`](EVALUATION_METRICS.md) | Metric definitions and post-run analysis rules. |
 | [`ASYNCODEBENCH_HARNESS_V2.md`](ASYNCODEBENCH_HARNESS_V2.md) | Native `task_id`-based runner and protocol guarantees. |
@@ -50,7 +51,7 @@ completion and approval state.
 
 ## Official Experiment Set
 
-The current official model-comparison set contains 16 tasks:
+The current unified v0.4 model-comparison set contains 20 tasks:
 
 ```text
 cachetools
@@ -69,6 +70,10 @@ pexpect
 flask
 python-rsa
 cookiecutter
+apache-tvm-20018
+apache-tvm-20073
+apache-tvm-20107
+apache-tvm-20153
 ```
 
 Excluded from the current official aggregate:

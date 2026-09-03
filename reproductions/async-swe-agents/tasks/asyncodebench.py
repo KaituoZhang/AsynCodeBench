@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .commit0 import Commit0Config, Commit0Task
+from .task_images import image_record, immutable_image_reference
 
 
 @dataclass
@@ -86,9 +87,7 @@ class AsynCodeBenchTask(Commit0Task):
     def _parse_task_id(task_id):
         parts = str(task_id).split(":")
         if len(parts) != 2 or not all(parts):
-            raise ValueError(
-                "task_id must use the form 'asyncodebench:<repository>'"
-            )
+            raise ValueError("task_id must use the form 'asyncodebench:<repository>'")
         return parts
 
     @staticmethod
@@ -118,6 +117,21 @@ class AsynCodeBenchTask(Commit0Task):
     @property
     def official_tasks(self):
         return list(self.official_manifest.get("official_tasks", []))
+
+    def get_docker_image(self):
+        """Use the immutable v0.4 distribution reference for official runs."""
+
+        record = image_record(self._repo_root(), self.public_task_id)
+        return immutable_image_reference(record)
+
+    def runtime_distribution(self):
+        record = image_record(self._repo_root(), self.public_task_id)
+        return {
+            "backend": "container_image",
+            "official_image": immutable_image_reference(record),
+            "registry_task_id": record["task_id"],
+            "digest_pinned": True,
+        }
 
     def set_active_protocol(self, protocol):
         self.active_protocol = protocol
@@ -167,8 +181,7 @@ class AsynCodeBenchTask(Commit0Task):
             # Restore only this setup artifact before the model starts; later
             # scope checks must preserve any actual agent edit to the file.
             workspace.execute_command(
-                f"cd {work_dir} && "
-                "git restore --source=HEAD -- fsspec/_version.py",
+                f"cd {work_dir} && git restore --source=HEAD -- fsspec/_version.py",
                 timeout=60,
             )
         status = workspace.execute_command(

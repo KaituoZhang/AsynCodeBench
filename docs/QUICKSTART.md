@@ -43,8 +43,11 @@ The setup script:
 See [`OPENHANDS_RUNTIME_CONSISTENCY.md`](OPENHANDS_RUNTIME_CONSISTENCY.md) for
 the exact lock and the `dynamic_context` compatibility gate.
 
-Native runs clone and verify their pinned public source repositories directly.
-They do not require a local Commit0 dataset.
+Official v0.4 runs use digest-pinned task images. The first 16 images contain
+the same already-qualified repository environments; the four compiler images
+contain a sanitized one-commit seed and frozen native toolchain. Native runs do
+not require a local source dataset. See
+[`TASK_IMAGE_DISTRIBUTION.md`](TASK_IMAGE_DISTRIBUTION.md).
 
 ## 2. Configure A Model
 
@@ -78,6 +81,7 @@ source scripts/env.sh
 uv run asyncodebench doctor
 uv run asyncodebench release-status --require preview
 uv run asyncodebench tasks
+uv run asyncodebench images list
 
 uv run asyncodebench run \
   --task asyncodebench:cachetools \
@@ -194,7 +198,17 @@ See [`RESULT_VALIDITY.md`](RESULT_VALIDITY.md) for the exact machine-checked
 rules, and see
 [`EVALUATION_METRICS.md`](EVALUATION_METRICS.md) for metric definitions and
 [`MODEL_EXPERIMENT_RUNBOOK.md`](MODEL_EXPERIMENT_RUNBOOK.md) before running all
-16 tasks.
+20 tasks.
+
+The same command also runs one of the four compiler tasks; its immutable image
+is pulled automatically when absent:
+
+```bash
+uv run asyncodebench run \
+  --task asyncodebench:apache-tvm-20018 \
+  --protocol all \
+  --model "$LLM_MODEL"
+```
 
 ## Use A Custom Agent
 

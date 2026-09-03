@@ -1,9 +1,9 @@
 # AsynCodeBench
 
 AsynCodeBench is a dependency-aware benchmark for evaluating asynchronous
-multi-agent software-engineering systems on real Python repositories.
+multi-agent software-engineering systems on real repositories.
 
-**Release status:** `v0.3` Community Preview. The executable release and the
+**Release status:** `v0.4` Community Preview. The executable release and the
 required human review are complete; the stable-release gate remains open for a
 validated public baseline bundle.
 
@@ -28,10 +28,10 @@ readable and reproducible.
 
 ## At A Glance
 
-- **16 official repository-level tasks** derived from public Commit0 tasks;
+- **20 official repository-level tasks**, adapted from public projects;
 - **4 controlled agent protocols** per task;
-- **64 task-protocol scenarios**;
-- **47 executable producer/consumer dependency points** across the official
+- **80 task-protocol scenarios**;
+- **55 executable producer/consumer dependency points** across the official
   tasks;
 - an **AsynCodeBench-native harness** with a built-in OpenHands agent and a
   public bring-your-own-agent adapter;
@@ -92,10 +92,12 @@ penalty policy.
 
 The following table is an initial descriptive evaluation of
 `openrouter/deepseek/deepseek-v4-flash-0731` with the built-in OpenHands
-adapter. It covers all 16 official tasks and all four protocols under the
-`asyncodebench-v0.3-standard-100` execution profile. All 64 selected run
-bundles passed the released official-aggregate admission checks. The harness
-revision was `ddebb7d`, and each task-protocol cell was run once.
+adapter. This historical snapshot covers the first 16 tasks and all four
+protocols under the unchanged `asyncodebench-v0.3-standard-100` execution
+profile. All 64 selected run bundles passed their released admission checks.
+It is retained as an initial subset result, not presented as a complete v0.4
+20-task baseline. The harness revision was `ddebb7d`, and each task-protocol
+cell was run once.
 
 | Protocol | Successful tasks | Mean test pass rate | Mean ADPR | Mean unresolved dependencies | Mean penalized DRS | Mean penalized CAIL | Mean tokens | Mean runtime |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -131,13 +133,13 @@ cachetools       deprecated       portalocker       tinydb
 wcwidth          requests         simpy              parsel
 filesystem_spec  marshmallow      graphene           imapclient
 pexpect          flask            python-rsa         cookiecutter
+apache-tvm-20018 apache-tvm-20073 apache-tvm-20107 apache-tvm-20153
 ```
 
 The executable release list is frozen in
-[`configs/tasks/commit0_official_tasks.v0.3.json`](configs/tasks/commit0_official_tasks.v0.3.json).
+[`manifests/release/v0.4/official_tasks.json`](manifests/release/v0.4/official_tasks.json).
 The harness rejects tasks outside this list. Historical or excluded candidates
-are retained under `archive/non_official/` for provenance and are not part of
-official aggregates.
+are retained for provenance and are not part of official aggregates.
 
 ## Benchmark Artifacts
 
@@ -156,22 +158,23 @@ For each official task, AsynCodeBench supplies:
   secondary-review/adjudication forms for auditing labels;
 - contract tests validating cross-file consistency.
 
-The active artifacts are under `manifests/pilot/v0.3/`. The directory name is
-retained for artifact compatibility; the official 16-task set is selected by
-the release config above, not by enumerating every historical JSON file in that
-directory.
+The first 16 frozen task artifacts remain under `manifests/pilot/v0.3/`; the
+four compiler task artifacts are under `manifests/candidates/pr_hard_v0.4/`.
+These source-specific paths are retained for artifact and historical result
+compatibility. The public release treats all 20 as
+`asyncodebench:<repository>` tasks.
 
-[`manifests/release/v0.3/task_index.json`](manifests/release/v0.3/task_index.json)
+[`manifests/release/v0.4/task_index.json`](manifests/release/v0.4/task_index.json)
 is the machine-readable release inventory. It checksum-pins every runtime
 manifest, annotation/audit/template file, source SHA, and bootstrap overlay for
-all 16 tasks.
+all 20 tasks.
 
 Human-review completion is reported separately from automatic qualification.
 The release policy requires one completed human approval in `annotator_a.json`
 per task, plus the separately identified automated audit. The automated audit
 does not count as a human reviewer. At the current checkout, the automated
-audit is complete for 16/16 tasks and the required human approval is complete
-for 16/16 tasks. See
+audit is complete for 20/20 tasks and the required human approval is complete
+for 20/20 tasks. See
 [`docs/HUMAN_REVIEW.md`](docs/HUMAN_REVIEW.md).
 
 No current native model result bundle is committed as a public baseline yet.
@@ -188,9 +191,9 @@ cd reproductions/async-swe-agents
 uv run asyncodebench release-status --require preview
 ```
 
-`--require stable` intentionally exits nonzero until all 16 tasks receive one
-human approval and at least one checksum-validated baseline bundle is
-registered in `manifests/release/v0.3/validated_baselines.json`.
+`--require stable` intentionally exits nonzero until at least one
+checksum-validated baseline bundle is registered in
+`manifests/release/v0.4/validated_baselines.json`.
 
 ## Runtime Architecture
 
@@ -215,6 +218,14 @@ reproductions/async-swe-agents/run_asyncodebench.py
 
 Legacy Commit0-named runner scripts remain only for reproducing historical
 experiments. New runs should use the native entry point or wrapper below.
+
+All 20 official environments are recorded in
+[`configs/environments/official_task_images.v0.4.json`](configs/environments/official_task_images.v0.4.json)
+and consumed by immutable digest. The four compiler images are built from
+independent, read-only, answer-free runtime snapshots; the production fixes,
+upstream history, build caches, and prior outputs are not included. See
+[`docs/TASK_IMAGE_DISTRIBUTION.md`](docs/TASK_IMAGE_DISTRIBUTION.md) for pull,
+verification, publication, and local reconstruction instructions.
 
 ## Quick Start
 
@@ -257,11 +268,10 @@ LLM_SUBAGENT_MODEL=
 SDK_SOURCE_DIR=/absolute/path/to/AsynCodeBench/reproductions/software-agent-sdk
 ```
 
-Native runs do not require a local Commit0 `load_from_disk` dataset. The harness
-loads the curated record from this repository, clones the pinned public source,
-verifies its SHA, applies only checksum-pinned bootstrap overlays, and executes
-the AsynCodeBench task, protocol, scope, probe, and evaluator contracts.
-`COMMIT0_DATASET_PATH` is retained only for legacy reproduction scripts.
+Native runs do not require a local source dataset. The harness loads the curated
+record from this repository and uses the digest-pinned official image while it
+executes the AsynCodeBench task, protocol, scope, checker, and evaluator
+contracts. Source reconstruction remains an independent audit fallback.
 
 ### 3. Dry-run all four protocols
 
@@ -276,6 +286,13 @@ scripts/run_asyncodebench_all_protocols_env.sh cachetools
 The dry-run must report `task_id=asyncodebench:cachetools`, the curated base
 SHA, four protocol scenarios, manifest-defined agent counts, writable paths,
 integration order, and the selected agent adapter.
+
+List or prefetch immutable task images with:
+
+```bash
+uv run asyncodebench images list
+uv run asyncodebench images pull --task apache-tvm-20018
+```
 
 ### 4. Run one complete task
 
@@ -297,6 +314,15 @@ tool-parser, and concurrency checks in
 [`docs/LOCAL_VLLM_EXPERIMENT_RUNBOOK.md`](docs/LOCAL_VLLM_EXPERIMENT_RUNBOOK.md)
 before spending GPU time.
 
+The same public entry point runs a compiler task:
+
+```bash
+uv run asyncodebench run \
+  --task asyncodebench:apache-tvm-20018 \
+  --protocol all \
+  --model "$LLM_MODEL"
+```
+
 ## Outputs
 
 Native runs are written to:
@@ -305,6 +331,12 @@ Native runs are written to:
 reproductions/async-swe-agents/outputs/asyncodebench/v0.3/
   <model>/<task>/<protocol>/<run-version>/
 ```
+
+The frozen first-16 runner keeps its compatible `v0.3` output path. Compiler
+task runs retain `outputs/pr_hard/v0.4/` so already completed runs and analysis
+scripts remain addressable. This storage distinction is provenance only; both
+sets belong to the same v0.4 public task inventory. Pass `--output-dir` to the
+unified CLI when a campaign needs one custom root.
 
 A formal run includes:
 
