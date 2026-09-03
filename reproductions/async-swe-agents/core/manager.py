@@ -30,6 +30,7 @@ from core.utils import (
     load_prompts,
     serialize_event,
 )
+from core.workspace_isolation import uses_read_only_manager_policy
 
 
 class Manager:
@@ -214,9 +215,7 @@ class Manager:
         self.log(f"Setting up agent in {mode} mode...")
         self.conversation_mode = mode
         tools = get_default_tools(enable_browser=False)
-        if mode != "single_agent" and getattr(
-            self.task, "manager_must_be_read_only", False
-        ):
+        if mode != "single_agent" and uses_read_only_manager_policy(self.task):
             tools = [tool for tool in tools if getattr(tool, "name", "") != "file_editor"]
 
         format_args = self.task.get_prompt_format_args(self.config)

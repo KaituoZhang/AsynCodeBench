@@ -26,6 +26,9 @@ class AsynCodeBenchTask(Commit0Task):
     """Materialize and evaluate one manifest-defined AsynCodeBench task."""
 
     PUBLIC_NAMESPACE = "asyncodebench"
+    # Under CAID, the manager is the coordination/control plane. Production
+    # changes must arrive only as scope-validated specialist artifacts.
+    manager_must_be_read_only = True
 
     def __init__(self, config: AsynCodeBenchConfig):
         self.asyncodebench_config = config

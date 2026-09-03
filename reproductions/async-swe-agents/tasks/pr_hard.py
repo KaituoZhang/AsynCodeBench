@@ -78,7 +78,7 @@ class PrHardTask(AsynCodeBenchTask):
 
     PUBLIC_NAMESPACE = "pr-hard"
     save_final_tarball = False
-    manager_must_be_read_only = False
+    manager_must_be_read_only = True
     worktree_build_command = "cmake --build build --parallel"
     container_build_cache_root = Path("/workspace/.asyncodebench-pr-hard-build-cache")
 
@@ -95,7 +95,7 @@ class PrHardTask(AsynCodeBenchTask):
                 "This adapter currently supports pr-hard:apache-tvm-<number>"
             )
         self.pr_hard_config = config
-        self.manager_must_be_read_only = config.task_id == "pr-hard:apache-tvm-20018"
+        self.manager_must_be_read_only = True
         self.asyncodebench_config = AsynCodeBenchConfig(
             task_id=config.task_id,
             release=config.release,

@@ -20,8 +20,9 @@ The four `--protocol` values are:
   upstream handoffs.
 - `async_private`: specialists begin from the same base in private worktrees;
   their artifacts are integrated after independent execution.
-- `caid_manager`: a manager delegates, reviews, and integrates work under the
-  AsynCodeBench manifest gates.
+- `caid_manager`: a read-only manager delegates, reviews, and integrates
+  scope-validated specialist artifacts under the AsynCodeBench manifest gates;
+  only specialists may modify production code in their private worktrees.
 
 `static_commit0.py` and the `run_commit0_*` scripts are retained only for
 historical v1 reproduction. They are not public entry points for new official

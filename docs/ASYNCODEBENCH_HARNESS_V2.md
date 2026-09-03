@@ -46,8 +46,10 @@ The four supported protocols are:
   and receive structured completed-artifact handoffs;
 - `async_private`: specialists execute concurrently from the same base without
   in-flight communication, then artifacts are integrated in dependency order;
-- `caid_manager`: the CAID manager coordinates multiple private-worktree agents
-  using the AsynCodeBench task specification and dependency context.
+- `caid_manager`: a read-only CAID manager coordinates multiple
+  private-worktree agents using the AsynCodeBench task specification and
+  dependency context. Production edits must arrive through scope-validated
+  specialist artifacts.
 
 ## What Is Native
 
@@ -94,6 +96,10 @@ Harness v2 adds runner-enforced behavior in
    reassignment decisions must map exactly to the active `async_message`
    scenario. Invalid manager output is rejected or replaced by a provenance-
    recorded manifest fallback.
+7. The CAID manager is the read-only coordination plane for every official
+   task. Its file editor is removed, its prompts prohibit implementation, and
+   phase-boundary cleanliness checks reject or restore any out-of-band writes.
+   Programmatic integration of accepted specialist commits remains enabled.
 
 The dry-run also reports `shared_writable_paths`. This matters for the current
 `marshmallow` manifest, where two assignments own `src/marshmallow/schema.py`

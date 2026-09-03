@@ -9,6 +9,7 @@ from openhands.sdk.hooks import HookConfig, HookDefinition, HookMatcher
 from openhands.sdk.workspace import RemoteWorkspace
 
 WORKSPACE_ISOLATION_POLICY_VERSION = "private-worktree-v2"
+READ_ONLY_MANAGER_POLICY_VERSION = "caid-manager-read-only-v1"
 WORKSPACE_ISOLATION_TASK_ID = "pr-hard:apache-tvm-20018"
 PRIVATE_SUBAGENT_PROTOCOLS = frozenset(
     {"serial_specialists", "async_private", "caid_manager"}
@@ -20,8 +21,9 @@ def uses_private_subagent_workspace(task_module) -> bool:
 
     This is the execution contract for all multi-agent protocols.  Keeping it
     separate from ``uses_task_specific_workspace_isolation`` is intentional:
-    the latter also makes the CAID manager read-only and remains a narrowly
-    scoped compatibility policy for TVM 20018.
+    the latter remains a narrowly scoped patch-export compatibility policy for
+    TVM 20018. Manager write authority is governed independently by
+    ``uses_read_only_manager_policy``.
     """
 
     return (
@@ -31,10 +33,24 @@ def uses_private_subagent_workspace(task_module) -> bool:
 
 
 def uses_task_specific_workspace_isolation(task_module) -> bool:
-    """Keep the read-only-manager policy scoped to 20018's CAID condition."""
+    """Keep the patch-export compatibility policy scoped to TVM 20018."""
     return (
         getattr(task_module, "task_id", None) == WORKSPACE_ISOLATION_TASK_ID
         and getattr(task_module, "active_protocol", None) == "caid_manager"
+    )
+
+
+def uses_read_only_manager_policy(task_module) -> bool:
+    """Require the CAID manager to coordinate without implementing code.
+
+    All native AsynCodeBench CAID runs use specialists as the only production
+    code writers.  The explicit task capability keeps this helper from
+    changing unrelated workflows that also happen to use ``Manager``.
+    """
+
+    return (
+        getattr(task_module, "active_protocol", None) == "caid_manager"
+        and bool(getattr(task_module, "manager_must_be_read_only", False))
     )
 
 

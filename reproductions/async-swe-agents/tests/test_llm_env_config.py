@@ -82,3 +82,50 @@ def test_single_agent_uses_history_condenser(monkeypatch):
     manager.setup(mode="single_agent")
 
     assert captured["condenser"] is condenser
+
+
+def test_read_only_multi_agent_manager_has_no_file_editor(monkeypatch):
+    captured = {}
+    condenser = object()
+    tools = [
+        SimpleNamespace(name="terminal"),
+        SimpleNamespace(name="file_editor"),
+    ]
+
+    class FakeLLM:
+        max_input_tokens = 131072
+        max_output_tokens = 32768
+
+        def model_copy(self, update):
+            assert update == {"usage_id": "condenser"}
+            return self
+
+    monkeypatch.setattr("core.manager.get_default_tools", lambda **_: tools)
+    monkeypatch.setattr(
+        "core.manager.LLMSummarizingCondenser", lambda **_: condenser
+    )
+    monkeypatch.setattr(
+        "core.manager.Agent", lambda **kwargs: captured.update(kwargs) or object()
+    )
+    monkeypatch.setattr("core.manager.Conversation", lambda **_: object())
+    monkeypatch.setattr("core.manager.PanelVisualizer", lambda: object())
+
+    task = SimpleNamespace(
+        manager_must_be_read_only=True,
+        active_protocol="caid_manager",
+        get_work_dir=lambda: "/workspace/repo",
+        get_prompt_format_args=lambda config: {},
+    )
+    config = SimpleNamespace(manager_max_iterations=100)
+    manager = Manager(
+        FakeLLM(),
+        object(),
+        task,
+        config,
+        None,
+        prompts={"user_instruction": ""},
+    )
+
+    manager.setup(mode="multi_agent")
+
+    assert [tool.name for tool in captured["tools"]] == ["terminal"]

@@ -10,7 +10,10 @@ from tasks.asyncodebench import AsynCodeBenchTask
 
 from core.manager import Manager
 from core.utils import build_delegation_plan
-from core.workspace_isolation import uses_task_specific_workspace_isolation
+from core.workspace_isolation import (
+    READ_ONLY_MANAGER_POLICY_VERSION,
+    uses_read_only_manager_policy,
+)
 
 
 class AsynCodeBenchManager(Manager):
@@ -20,10 +23,8 @@ class AsynCodeBenchManager(Manager):
         super().__init__(*args, **kwargs)
         if not isinstance(self.task, AsynCodeBenchTask):
             raise TypeError("AsynCodeBenchManager requires AsynCodeBenchTask")
-        self.task_specific_workspace_isolation = (
-            uses_task_specific_workspace_isolation(self.task)
-        )
-        if self.task_specific_workspace_isolation:
+        self.read_only_manager_policy = uses_read_only_manager_policy(self.task)
+        if self.read_only_manager_policy:
             self.prompts = dict(self.prompts)
             self.prompts["user_instruction"] = (
                 self.prompts.get("user_instruction", "")
@@ -54,6 +55,7 @@ class AsynCodeBenchManager(Manager):
             "main_workspace_status": dirty,
             "passed": not dirty,
             "policy": "manager_is_read_only_outside_committed_artifact_merges",
+            "policy_version": READ_ONLY_MANAGER_POLICY_VERSION,
             "attribution": (
                 "none"
                 if not dirty
@@ -152,6 +154,7 @@ class AsynCodeBenchManager(Manager):
             "passed": not rejected_paths and not changed_head,
             "remediated": remediated,
             "policy": "reject_and_restore_manager_final_review_writes",
+            "policy_version": READ_ONLY_MANAGER_POLICY_VERSION,
         }
         path = Path(self.config.output_dir) / "manager_workspace_validation.jsonl"
         with path.open("a", encoding="utf-8") as stream:
@@ -239,6 +242,7 @@ class AsynCodeBenchManager(Manager):
             "passed": not dirty,
             "remediated": remediated,
             "policy": "reject_and_restore_uncommitted_out_of_band_writes",
+            "policy_version": READ_ONLY_MANAGER_POLICY_VERSION,
         }
         path = Path(self.config.output_dir) / "manager_workspace_validation.jsonl"
         with path.open("a", encoding="utf-8") as stream:
@@ -247,7 +251,7 @@ class AsynCodeBenchManager(Manager):
 
     def scan_and_analyze(self):
         result = super().scan_and_analyze()
-        if self.task_specific_workspace_isolation:
+        if self.read_only_manager_policy:
             self.assert_manager_workspace_clean("scan_and_analyze")
         return result
 
@@ -350,12 +354,12 @@ class AsynCodeBenchManager(Manager):
     def delegate_tasks(self):
         super().delegate_tasks()
         result = self.enforce_manifest_delegation()
-        if self.task_specific_workspace_isolation:
+        if self.read_only_manager_policy:
             self.assert_manager_workspace_clean("delegate_tasks")
         return result
 
     def final_review_all(self, subagent_results, max_iterations=30):
-        if not self.task_specific_workspace_isolation:
+        if not self.read_only_manager_policy:
             return super().final_review_all(
                 subagent_results, max_iterations=max_iterations
             )

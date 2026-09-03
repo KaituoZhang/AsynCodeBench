@@ -13,6 +13,7 @@ from core.workspace_isolation import (
     build_workspace_guard_hook,
     private_remote_workspace,
     uses_private_subagent_workspace,
+    uses_read_only_manager_policy,
     uses_task_specific_workspace_isolation,
     workspace_guard_command,
 )
@@ -31,7 +32,7 @@ def make_task(task_id="asyncodebench:cachetools"):
     return AsynCodeBenchTask(AsynCodeBenchConfig(task_id=task_id))
 
 
-def test_read_only_manager_policy_is_scoped_to_20018():
+def test_20018_patch_export_compatibility_policy_remains_task_specific():
     assert uses_task_specific_workspace_isolation(
         SimpleNamespace(
             task_id="pr-hard:apache-tvm-20018", active_protocol="caid_manager"
@@ -52,6 +53,57 @@ def test_read_only_manager_policy_is_scoped_to_20018():
             task_id="asyncodebench:cachetools", active_protocol="caid_manager"
         )
     )
+
+
+@pytest.mark.parametrize(
+    "task_id",
+    [
+        "asyncodebench:cachetools",
+        "asyncodebench:tinydb",
+        "pr-hard:apache-tvm-20018",
+        "pr-hard:apache-tvm-20153",
+    ],
+)
+def test_all_asyncodebench_caid_managers_are_read_only(task_id):
+    assert uses_read_only_manager_policy(
+        SimpleNamespace(
+            task_id=task_id,
+            active_protocol="caid_manager",
+            manager_must_be_read_only=True,
+        )
+    )
+
+
+@pytest.mark.parametrize(
+    "protocol",
+    ["single", "serial_specialists", "async_private"],
+)
+def test_read_only_manager_policy_does_not_change_other_protocols(protocol):
+    assert not uses_read_only_manager_policy(
+        SimpleNamespace(
+            task_id="asyncodebench:cachetools",
+            active_protocol=protocol,
+            manager_must_be_read_only=True,
+        )
+    )
+
+
+def test_official_task_declares_read_only_caid_manager():
+    task = make_task()
+    assert task.manager_must_be_read_only is True
+    task.set_active_protocol("caid_manager")
+    assert uses_read_only_manager_policy(task)
+
+
+def test_native_caid_manager_enables_read_only_prompts(tmp_path):
+    task = make_task()
+    task.set_active_protocol("caid_manager")
+    manager = make_manager(task, LocalWorkspace(), tmp_path / "output", tmp_path)
+
+    assert manager.read_only_manager_policy is True
+    assert "remain read-only" in manager.prompts["user_instruction"]
+    assert "read-only inspection only" in manager.prompts["scan_analysis"]
+    assert "final review is read-only" in manager.prompts["manager_final_review_all"]
 
 
 @pytest.mark.parametrize(
