@@ -85,7 +85,137 @@ def _immutable_image_reference(record):
     return f"{repository}@{digest}"
 
 
+def _openhands_derived_image_references(records):
+    """Find only OpenHands images derived from the selected task repositories."""
+    completed = subprocess.run(
+        [
+            "docker",
+            "image",
+            "ls",
+            "--filter",
+            "reference=ghcr.io/openhands/agent-server:*",
+            "--format",
+            "{{.Repository}}\t{{.Tag}}",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode != 0:
+        detail = completed.stderr.strip() or completed.stdout.strip()
+        raise RuntimeError(f"Could not list local OpenHands images: {detail}")
+
+    # OpenHands encodes the source-image repository in its derived tag. Match
+    # the complete repository token, independent of whether the source was
+    # supplied by a mutable tag or an immutable digest.
+    repository_tokens = {
+        str(record["image"]).rsplit(":", 1)[0].replace("/", "_s_")
+        for record in records
+    }
+    references = set()
+    for line in completed.stdout.splitlines():
+        fields = line.strip().split("\t", 1)
+        if len(fields) != 2:
+            continue
+        repository, tag = fields
+        if repository != "ghcr.io/openhands/agent-server" or tag == "<none>":
+            continue
+        if any(token in tag for token in repository_tokens):
+            references.add(f"{repository}:{tag}")
+    return sorted(references)
+
+
+def _local_image_exists(reference):
+    completed = subprocess.run(
+        ["docker", "image", "inspect", reference],
+        check=False,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    return completed.returncode == 0
+
+
+def _remove_image_references(references, *, dry_run):
+    result = {"planned": [], "removed": [], "missing": [], "failed": []}
+    for reference in dict.fromkeys(references):
+        if not _local_image_exists(reference):
+            result["missing"].append(reference)
+            continue
+        result["planned"].append(reference)
+        if dry_run:
+            continue
+        completed = subprocess.run(
+            ["docker", "image", "rm", reference],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if completed.returncode == 0:
+            result["removed"].append(reference)
+        else:
+            result["failed"].append(
+                {
+                    "reference": reference,
+                    "error": completed.stderr.strip() or completed.stdout.strip(),
+                }
+            )
+    return result
+
+
+def _remove_images(args, records):
+    derived = (
+        [] if args.base_only else _openhands_derived_image_references(records)
+    )
+    official = []
+    for record in records:
+        official.extend((record["image"], _immutable_image_reference(record)))
+    result = _remove_image_references([*derived, *official], dry_run=args.dry_run)
+    payload = {
+        "action": "remove",
+        "dry_run": args.dry_run,
+        "selected_task_ids": [record["task_id"] for record in records],
+        "include_openhands_derived_images": not args.base_only,
+        **result,
+        "outputs_preserved": True,
+    }
+    if args.json:
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        label = "Would remove" if args.dry_run else "Removed"
+        references = result["planned"] if args.dry_run else result["removed"]
+        print(f"{label} {len(references)} local image reference(s):")
+        for reference in references:
+            print(f"- {reference}")
+        print(f"Already absent: {len(result['missing'])}")
+        print("Experiment outputs preserved: yes")
+        for failure in result["failed"]:
+            print(
+                f"Failed to remove {failure['reference']}: {failure['error']}",
+                file=sys.stderr,
+            )
+    return 1 if result["failed"] else 0
+
+
 def _images(args):
+    if args.action == "remove":
+        if args.all and args.tasks:
+            print(
+                "images remove accepts either --all or --task, not both",
+                file=sys.stderr,
+            )
+            return 2
+        if not args.all and not args.tasks:
+            print("images remove requires --task ... or --all", file=sys.stderr)
+            return 2
+        if args.all and not args.yes and not args.dry_run:
+            print(
+                "images remove --all requires --yes (or use --dry-run)",
+                file=sys.stderr,
+            )
+            return 2
+        records = _selected_image_records(None if args.all else args.tasks)
+        return _remove_images(args, records)
+
     records = _selected_image_records(args.tasks)
     if args.action == "list":
         payload = [
@@ -490,14 +620,34 @@ def build_parser():
     tasks.set_defaults(handler=_tasks)
 
     images = commands.add_parser(
-        "images", help="List or pull immutable official task images"
+        "images", help="List, pull, or safely remove official task images"
     )
-    images.add_argument("action", choices=("list", "pull"))
+    images.add_argument("action", choices=("list", "pull", "remove"))
     images.add_argument(
         "--task",
         action="append",
         dest="tasks",
         help="Task ID or short task name; repeat to select multiple images",
+    )
+    images.add_argument(
+        "--all",
+        action="store_true",
+        help="Remove all official task images; valid only with the remove action",
+    )
+    images.add_argument(
+        "--yes",
+        action="store_true",
+        help="Required confirmation for images remove --all",
+    )
+    images.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show matching local images without deleting them",
+    )
+    images.add_argument(
+        "--base-only",
+        action="store_true",
+        help="Do not remove matching OpenHands agent-server derived images",
     )
     images.add_argument("--json", action="store_true")
     images.set_defaults(handler=_images)

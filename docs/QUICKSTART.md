@@ -90,6 +90,16 @@ uv run asyncodebench run \
   --dry-run
 ```
 
+After preserving the desired run bundles, preview and remove only the official
+task images and their matching OpenHands derived images with:
+
+```bash
+uv run asyncodebench images remove --all --dry-run
+uv run asyncodebench images remove --all --yes
+```
+
+This cleanup does not delete `outputs/` or invoke a global Docker prune.
+
 To dry-run all four protocols with the campaign wrapper:
 
 ```bash

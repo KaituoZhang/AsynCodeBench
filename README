@@ -292,6 +292,8 @@ List or prefetch immutable task images with:
 ```bash
 uv run asyncodebench images list
 uv run asyncodebench images pull --task apache-tvm-20018
+uv run asyncodebench images remove --all --dry-run
+uv run asyncodebench images remove --all --yes
 ```
 
 ### 4. Run one complete task

@@ -52,6 +52,44 @@ uv run asyncodebench run \
 The harness still records source-specific provenance internally. Users do not
 need to select a separate benchmark or dataset lane.
 
+## Safe local cleanup
+
+The benchmark CLI can remove downloaded task images without touching run
+bundles or anything under `outputs/`. By default it also removes OpenHands
+agent-server images derived from the selected task images, because those
+derived images otherwise keep the task layers on disk.
+
+Preview the exact matches first:
+
+```bash
+uv run asyncodebench images remove --all --dry-run
+```
+
+Remove one task and its matching OpenHands derived images:
+
+```bash
+uv run asyncodebench images remove --task apache-tvm-20018
+```
+
+Remove all 20 official task images after a campaign:
+
+```bash
+uv run asyncodebench images remove --all --yes
+```
+
+Use `--base-only` to leave OpenHands derived images in place. The command
+matches only exact official registry references and OpenHands tags that encode
+the complete selected source-image repository. It does not run `docker system
+prune`, does not use forced removal, and Docker will refuse to delete an image
+that is still required by a running container. Model-server images, unrelated
+Docker projects, source checkouts, and experiment outputs are outside its
+scope.
+
+The four compiler task images occupy about 9.04 GB after shared-layer
+deduplication. Allow at least 25--30 GB free for sequential compiler runs and
+about 60 GB when running all four concurrently, because temporary native build
+products and OpenHands derived images require additional working space.
+
 ## Why the four compiler images are safe
 
 The compiler images are built only from a separate immutable snapshot made by

@@ -2,6 +2,7 @@ import hashlib
 import json
 from types import SimpleNamespace
 
+import asyncodebench_harness.cli as cli_module
 import asyncodebench_harness.results as results_module
 import pytest
 from agents import OpenHandsAgentAdapter
@@ -437,6 +438,80 @@ def test_cli_lists_all_official_images(capsys):
     assert all(
         item["reference"].startswith(("docker.io/", "ghcr.io/")) for item in images
     )
+
+
+def test_cli_image_remove_requires_an_explicit_scope(capsys):
+    assert cli_main(["images", "remove"]) == 2
+    assert "requires --task ... or --all" in capsys.readouterr().err
+
+    assert cli_main(["images", "remove", "--all"]) == 2
+    assert "requires --yes" in capsys.readouterr().err
+
+
+def test_cli_image_remove_dry_run_preserves_outputs(monkeypatch, capsys):
+    derived = "ghcr.io/openhands/agent-server:derived-tvm-20018"
+    monkeypatch.setattr(
+        cli_module,
+        "_openhands_derived_image_references",
+        lambda records: [derived],
+    )
+    monkeypatch.setattr(cli_module, "_local_image_exists", lambda reference: True)
+
+    assert (
+        cli_main(
+            [
+                "images",
+                "remove",
+                "--task",
+                "apache-tvm-20018",
+                "--dry-run",
+                "--json",
+            ]
+        )
+        == 0
+    )
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["dry_run"] is True
+    assert payload["outputs_preserved"] is True
+    assert payload["removed"] == []
+    assert payload["planned"][0] == derived
+    assert any(reference.endswith(":v0.4.0") for reference in payload["planned"])
+    assert any("@sha256:" in reference for reference in payload["planned"])
+
+
+def test_cli_image_remove_deletes_derived_before_official(monkeypatch, capsys):
+    derived = "ghcr.io/openhands/agent-server:derived-tvm-20018"
+    removed = []
+
+    monkeypatch.setattr(
+        cli_module,
+        "_openhands_derived_image_references",
+        lambda records: [derived],
+    )
+    monkeypatch.setattr(cli_module, "_local_image_exists", lambda reference: True)
+
+    def fake_run(command, **kwargs):
+        assert command[:3] == ["docker", "image", "rm"]
+        removed.append(command[-1])
+        return SimpleNamespace(returncode=0, stdout="", stderr="")
+
+    monkeypatch.setattr(cli_module.subprocess, "run", fake_run)
+    assert (
+        cli_main(
+            [
+                "images",
+                "remove",
+                "--task",
+                "apache-tvm-20018",
+                "--json",
+            ]
+        )
+        == 0
+    )
+    payload = json.loads(capsys.readouterr().out)
+    assert removed[0] == derived
+    assert payload["removed"] == removed
+    assert payload["outputs_preserved"] is True
 
 
 def test_cli_reports_release_and_review_status(capsys):
