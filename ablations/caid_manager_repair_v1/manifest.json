@@ -1,0 +1,62 @@
+{
+  "schema_version": "asyncodebench-caid-repair-ablation-v1",
+  "ablation_id": "caid-manager-repair-historical-v1",
+  "status": "frozen_historical_ablation",
+  "primary_condition": "caid_manager_read_only",
+  "ablation_condition": "caid_manager_writable_repair",
+  "model": "Qwen3.6-27B",
+  "selected_task_cells": 20,
+  "writable_manager_task_cells": 19,
+  "read_only_manager_exceptions": [
+    "apache-tvm-20018"
+  ],
+  "frozen_result_index": {
+    "path": "docs/results/qwen36_27_frozen_result_index.v1.json",
+    "sha256": "03368eb0db07edc3876ea4547b0ef50075efc2ba38b2b16d492431ab71fae6aa"
+  },
+  "runner_revisions": {
+    "ddebb7d7b18c12eba63275df4c8b7350af392c69": {
+      "tasks": [
+        "cachetools"
+      ],
+      "manager_policy": "writable_repair"
+    },
+    "3d110b25df70adfe71b8ce06c259336691866377": {
+      "tasks": [
+        "deprecated",
+        "portalocker",
+        "tinydb",
+        "wcwidth",
+        "requests",
+        "simpy",
+        "parsel",
+        "filesystem_spec",
+        "graphene",
+        "imapclient",
+        "pexpect",
+        "python-rsa",
+        "cookiecutter"
+      ],
+      "manager_policy": "writable_repair"
+    },
+    "6d2d1af74d09acd1376ca68d9df376c4fe5c0416": {
+      "tasks": [
+        "marshmallow",
+        "flask",
+        "apache-tvm-20073",
+        "apache-tvm-20107",
+        "apache-tvm-20153",
+        "apache-tvm-20018"
+      ],
+      "manager_policy": "writable_repair_except_task_specific_guard",
+      "task_policy_overrides": {
+        "apache-tvm-20018": "read_only"
+      }
+    }
+  },
+  "interpretation": {
+    "descriptive_use": "Tests whether manager-authored repair can mitigate failed handoffs and incomplete integration in the frozen campaign.",
+    "causal_limit": "The frozen campaign is not a uniform single-variable ablation because it spans three runner revisions, contains one read-only task exception, and predates later private-worktree and control-plane hardening.",
+    "required_for_matched_claim": "Rerun CAID-RO and CAID+Repair on one revision with identical task, model, seed, budgets, prompts, and endpoint settings."
+  }
+}
