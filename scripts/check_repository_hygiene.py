@@ -16,7 +16,11 @@ SECRET_PATTERNS = {
     "assigned_api_key": re.compile(
         r"(?:LLM_API_KEY|OPENAI_API_KEY)\s*=\s*(?!"
         r"(?:your|put_|YOUR|PUT_|local-|dummy|empty|EMPTY|<|\$\{|$))"
-        r"[^\s#]{12,}",
+        # Stop at a literal backslash as well as real whitespace. Test fixtures
+        # often embed ``KEY=test-key\n`` inside Python strings; without this
+        # boundary the scanner consumes the following source text and reports
+        # a false credential.
+        r"[^\s#\\]{12,}",
         re.IGNORECASE,
     ),
 }

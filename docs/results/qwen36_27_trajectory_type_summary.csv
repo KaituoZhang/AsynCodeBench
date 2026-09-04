@@ -1,0 +1,17 @@
+dependency_type,protocol,edge_count,final_closed_edges,micro_ADPR,final_open_edges,producer_stranded_edges,consumer_progress_stranded_edges,local_integrated_progress_stranded_edges,final_checkpoint_closure_edges,regression_edges
+interface_dependency,single,22,11,0.5,11,4,1,0,0,0
+interface_dependency,serial_specialists,22,13,0.5909090909090909,9,6,2,1,0,1
+interface_dependency,async_private,22,7,0.3181818181818182,15,14,6,5,0,0
+interface_dependency,caid_manager,22,18,0.8181818181818182,4,3,1,0,9,1
+shared_api_contract,single,17,8,0.47058823529411764,9,3,1,0,0,0
+shared_api_contract,serial_specialists,17,8,0.47058823529411764,9,7,3,3,0,0
+shared_api_contract,async_private,17,3,0.17647058823529413,14,11,6,4,0,0
+shared_api_contract,caid_manager,17,14,0.8235294117647058,3,3,1,1,10,0
+shared_state_contract,single,7,1,0.14285714285714285,6,0,0,0,0,0
+shared_state_contract,serial_specialists,7,1,0.14285714285714285,6,1,1,0,0,0
+shared_state_contract,async_private,7,0,0.0,7,3,3,2,0,0
+shared_state_contract,caid_manager,7,6,0.8571428571428571,1,1,0,0,5,0
+integration_contract,single,9,5,0.5555555555555556,4,0,0,0,0,0
+integration_contract,serial_specialists,9,5,0.5555555555555556,4,2,2,1,0,0
+integration_contract,async_private,9,2,0.2222222222222222,7,4,3,1,0,0
+integration_contract,caid_manager,9,7,0.7777777777777778,2,1,1,1,3,0

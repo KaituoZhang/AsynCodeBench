@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1042" viewBox="0 0 1600 1042" role="img" aria-labelledby="title desc">
+<title id="title">deprecated dependency graph</title>
+<desc id="desc">Unique artifact nodes connected by all frozen dependency points.</desc>
+<defs>
+<marker id="arrow-if" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+<path d="M 0 0 L 12 6 L 0 12 z" fill="#2563EB"/>
+</marker>
+<marker id="arrow-api" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+<path d="M 0 0 L 12 6 L 0 12 z" fill="#7C3AED"/>
+</marker>
+<marker id="arrow-state" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+<path d="M 0 0 L 12 6 L 0 12 z" fill="#D97706"/>
+</marker>
+<marker id="arrow-int" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+<path d="M 0 0 L 12 6 L 0 12 z" fill="#059669"/>
+</marker>
+</defs>
+<rect x="0" y="0" width="1600" height="1042" fill="#FFFFFF"/>
+<text x="62" y="48" font-size="28" fill="#101828" font-weight="700" text-anchor="start">
+<tspan x="62" dy="0">deprecated — dependency graph</tspan>
+</text>
+<text x="62" y="77" font-size="15" fill="#667085" font-weight="400" text-anchor="start">
+<tspan x="62" dy="0">3 unique subproblem/artifact nodes · 3 directed dependency points</tspan>
+</text>
+<rect x="735" y="42" width="70" height="29" rx="14.5" fill="#EFF6FF" stroke="#2563EB"/>
+<text x="770.0" y="62" font-size="13" fill="#2563EB" font-weight="700" text-anchor="middle">
+<tspan x="770.0" dy="0">IF</tspan>
+</text>
+<rect x="821" y="42" width="70" height="29" rx="14.5" fill="#F5F3FF" stroke="#7C3AED"/>
+<text x="856.0" y="62" font-size="13" fill="#7C3AED" font-weight="700" text-anchor="middle">
+<tspan x="856.0" dy="0">API</tspan>
+</text>
+<rect x="907" y="42" width="92" height="29" rx="14.5" fill="#FFFBEB" stroke="#D97706"/>
+<text x="953.0" y="62" font-size="13" fill="#D97706" font-weight="700" text-anchor="middle">
+<tspan x="953.0" dy="0">STATE</tspan>
+</text>
+<rect x="1015" y="42" width="70" height="29" rx="14.5" fill="#ECFDF5" stroke="#059669"/>
+<text x="1050.0" y="62" font-size="13" fill="#059669" font-weight="700" text-anchor="middle">
+<tspan x="1050.0" dy="0">INT</tspan>
+</text>
+<rect x="42" y="104" width="1516" height="576" rx="22" fill="#FCFCFD" stroke="#EAECF0"/>
+<path class="dependency-edge" data-edge="D1" data-source="classic_warning_core" data-target="sphinx_directive_layer" d="M 393.0 345.0 C 490.44 345.0, 527.56 345.0, 625.0 345.0" stroke="#2563EB" stroke-width="3" fill="none" marker-end="url(#arrow-if)"/>
+<path class="dependency-edge" data-edge="D2" data-source="classic_warning_core" data-target="sphinx_directive_layer" d="M 393.0 435.0 C 490.44 435.0, 527.56 435.0, 625.0 435.0" stroke="#059669" stroke-width="3" fill="none" marker-end="url(#arrow-int)"/>
+<path class="dependency-edge" data-edge="D3" data-source="sphinx_directive_layer" data-target="integration_validation" d="M 963.0 390.0 C 1060.44 390.0, 1097.56 390.0, 1195.0 390.0" stroke="#059669" stroke-width="3" fill="none" marker-end="url(#arrow-int)"/>
+<rect class="graph-node" data-node="classic_warning_core" x="67.0" y="326.0" width="326" height="128" rx="15" fill="#FFFFFF" stroke="#667085" stroke-width="1.8"/>
+<text x="85.0" y="354.0" font-size="17" fill="#101828" font-weight="700" text-anchor="start">
+<tspan x="85.0" dy="0">Classic Warning Core</tspan>
+</text>
+<text x="85.0" y="396.0" font-size="12" fill="#475467" font-weight="400" text-anchor="start">
+<tspan x="85.0" dy="0">deprecated/classic.py</tspan>
+</text>
+<text x="85.0" y="442.0" font-size="11" fill="#98A2B3" font-weight="400" text-anchor="start">
+<tspan x="85.0" dy="0">owner: classic_agent</tspan>
+</text>
+<rect class="graph-node" data-node="sphinx_directive_layer" x="637.0" y="326.0" width="326" height="128" rx="15" fill="#FFFFFF" stroke="#667085" stroke-width="1.8"/>
+<text x="655.0" y="354.0" font-size="17" fill="#101828" font-weight="700" text-anchor="start">
+<tspan x="655.0" dy="0">Sphinx Directive Layer</tspan>
+</text>
+<text x="655.0" y="396.0" font-size="12" fill="#475467" font-weight="400" text-anchor="start">
+<tspan x="655.0" dy="0">deprecated/sphinx.py</tspan>
+</text>
+<text x="655.0" y="442.0" font-size="11" fill="#98A2B3" font-weight="400" text-anchor="start">
+<tspan x="655.0" dy="0">owner: sphinx_agent</tspan>
+</text>
+<rect class="graph-node" data-node="integration_validation" x="1207.0" y="326.0" width="326" height="128" rx="15" fill="#FFFFFF" stroke="#667085" stroke-width="1.8"/>
+<text x="1225.0" y="354.0" font-size="17" fill="#101828" font-weight="700" text-anchor="start">
+<tspan x="1225.0" dy="0">Integration Validation</tspan>
+</text>
+<text x="1225.0" y="396.0" font-size="12" fill="#475467" font-weight="400" text-anchor="start">
+<tspan x="1225.0" dy="0">deprecated/__init__.py</tspan>
+<tspan x="1225.0" dy="16">deprecated/sphinx.py</tspan>
+</text>
+<text x="1225.0" y="442.0" font-size="11" fill="#98A2B3" font-weight="400" text-anchor="start">
+<tspan x="1225.0" dy="0">owner: integrator</tspan>
+</text>
+<rect class="edge-label" data-edge="D1" x="457.0" y="329.0" width="104" height="32" rx="16" fill="#EFF6FF" stroke="#2563EB" stroke-width="1.5"/>
+<text x="509.0" y="350.0" font-size="13" fill="#2563EB" font-weight="700" text-anchor="middle">
+<tspan x="509.0" dy="0">D1 · IF</tspan>
+</text>
+<rect class="edge-label" data-edge="D2" x="457.0" y="419.0" width="104" height="32" rx="16" fill="#ECFDF5" stroke="#059669" stroke-width="1.5"/>
+<text x="509.0" y="440.0" font-size="13" fill="#059669" font-weight="700" text-anchor="middle">
+<tspan x="509.0" dy="0">D2 · INT</tspan>
+</text>
+<rect class="edge-label" data-edge="D3" x="1027.0" y="374.0" width="104" height="32" rx="16" fill="#ECFDF5" stroke="#059669" stroke-width="1.5"/>
+<text x="1079.0" y="395.0" font-size="13" fill="#059669" font-weight="700" text-anchor="middle">
+<tspan x="1079.0" dy="0">D3 · INT</tspan>
+</text>
+<text x="62" y="716" font-size="20" fill="#101828" font-weight="700" text-anchor="start">
+<tspan x="62" dy="0">Dependency contracts</tspan>
+</text>
+<line x1="62" y1="725" x2="1538" y2="725" stroke="#EAECF0"/>
+<rect x="62" y="742" width="92" height="30" rx="15" fill="#EFF6FF" stroke="#2563EB"/>
+<text x="108" y="762" font-size="12" fill="#2563EB" font-weight="700" text-anchor="middle">
+<tspan x="108" dy="0">D1 · IF</tspan>
+</text>
+<text x="174" y="758" font-size="13" fill="#475467" font-weight="600" text-anchor="start">
+<tspan x="174" dy="0">deprecated.classic_to_sphinx.warning_message_contract</tspan>
+</text>
+<text x="174" y="784" font-size="14" fill="#344054" font-weight="400" text-anchor="start">
+<tspan x="174" dy="0">SphinxAdapter must consume ClassicAdapter&#x27;s configured and bare decorator behavior, warning category/action handling,</tspan>
+<tspan x="174" dy="20">reason/version fields, and warning-message construction while adding Sphinx-specific directive behavior.</tspan>
+</text>
+<line x1="62" y1="811" x2="1538" y2="811" stroke="#EAECF0"/>
+<rect x="62" y="828" width="92" height="30" rx="15" fill="#ECFDF5" stroke="#059669"/>
+<text x="108" y="848" font-size="12" fill="#059669" font-weight="700" text-anchor="middle">
+<tspan x="108" dy="0">D2 · INT</tspan>
+</text>
+<text x="174" y="844" font-size="13" fill="#475467" font-weight="600" text-anchor="start">
+<tspan x="174" dy="0">deprecated.classic_to_sphinx.class_identity_contract</tspan>
+</text>
+<text x="174" y="870" font-size="14" fill="#344054" font-weight="400" text-anchor="start">
+<tspan x="174" dy="0">Classic class decorator and metaclass behavior must remain compatible with Sphinx class decorators so class identity, isinstance</tspan>
+<tspan x="174" dy="20">behavior, and construction semantics are preserved.</tspan>
+</text>
+<line x1="62" y1="897" x2="1538" y2="897" stroke="#EAECF0"/>
+<rect x="62" y="914" width="92" height="30" rx="15" fill="#ECFDF5" stroke="#059669"/>
+<text x="108" y="934" font-size="12" fill="#059669" font-weight="700" text-anchor="middle">
+<tspan x="108" dy="0">D3 · INT</tspan>
+</text>
+<text x="174" y="930" font-size="13" fill="#475467" font-weight="600" text-anchor="start">
+<tspan x="174" dy="0">deprecated.sphinx_to_integration.docstring_reference_contract</tspan>
+</text>
+<text x="174" y="956" font-size="14" fill="#344054" font-weight="400" text-anchor="start">
+<tspan x="174" dy="0">Sphinx directive factories must append wrapped directives to function and class docstrings and strip Sphinx cross-reference</tspan>
+<tspan x="174" dy="20">syntax from emitted warning text while preserving the public package API.</tspan>
+</text>
+<text x="1552" y="1022" font-size="12" fill="#98A2B3" font-weight="400" text-anchor="end">
+<tspan x="1552" dy="0">Source: AsynCodeBench v0.4 frozen async-metrics annotations</tspan>
+</text>
+</svg>

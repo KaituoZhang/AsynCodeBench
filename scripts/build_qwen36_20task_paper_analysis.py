@@ -560,6 +560,19 @@ def write_report(
     async_loss = contrast_lookup["Async visibility loss"]
     recovery = contrast_lookup["CAID recovery"]
     caid = lookup["caid_manager"]
+    control_protocols = ("single", "serial_specialists", "async_private")
+    caid_only_tasks = [
+        row["task"]
+        for row in task_rows
+        if row["caid_manager_success"]
+        and not any(row[f"{protocol}_success"] for protocol in control_protocols)
+    ]
+    caid_regressions = [
+        row["task"]
+        for row in task_rows
+        if not row["caid_manager_success"]
+        and any(row[f"{protocol}_success"] for protocol in control_protocols)
+    ]
     lines = [
         "# Qwen3.6-27B: Unified 20-Task AsynCodeBench Analysis",
         "",
@@ -603,13 +616,19 @@ def write_report(
         "",
         "![Coordination diagnostics](figures/qwen36_27_20task_coordination_diagnostics.svg)",
         "",
-        "## RQ1. Does asynchronous visibility loss hurt dependency resolution?",
+        "## CAID-centered outcome summary",
+        "",
+        f'CAID is the strongest complete condition in these selected runs: it solves {caid["successful_tasks"]}/20 tasks and resolves {int(caid["resolved_edge_instances"])}/{int(caid["edge_instances"])} dependency edges. It uniquely solves {len(caid_only_tasks)} tasks that none of the three controls solve: {", ".join(f"`{task}`" for task in caid_only_tasks)}.',
+        "",
+        f'CAID has one observed regression against the controls: {", ".join(f"`{task}`" for task in caid_regressions)}. This effectiveness--boundary pattern should organize the paper results; the following pairwise contrasts are supporting analyses rather than standalone paper RQs.',
+        "",
+        "## Supporting contrast A. Serial versus Async private",
         "",
         f'Compared with Serial, Async private changes ADPR by {async_loss["ADPR_delta"] * 100:+.1f} percentage points, DRE by {async_loss["DRE_delta"] * 100:+.1f} points, unresolved dependencies by {async_loss["unresolved_dependency_delta"]:+.2f}, DRS-P by {async_loss["DRS_penalized_delta"]:+.2f}, and CAIL-P by {async_loss["CAIL_penalized_delta"]:+.2f}. FSAR rises by {async_loss["FSAR_delta"] * 100:+.1f} points and IFR by {async_loss["IFR_delta"] * 100:+.1f} points.',
         "",
         f'Async private uses {async_loss["runtime_ratio"]:.2f}× the Serial runtime ({(async_loss["runtime_ratio"] - 1) * 100:+.1f}%) but closes dependencies less reliably and later. The speed benefit is therefore accompanied by a measurable coordination penalty.',
         "",
-        "## RQ2. Can manager-mediated coordination recover the loss?",
+        "## Supporting contrast B. Async private versus CAID",
         "",
         f'Compared with Async private, CAID changes ADPR by {recovery["ADPR_delta"] * 100:+.1f} percentage points, reduces unresolved dependencies by {-recovery["unresolved_dependency_delta"]:.2f}, changes DRE by {recovery["DRE_delta"] * 100:+.1f} points, DRS-P by {recovery["DRS_penalized_delta"]:+.2f}, and CAIL-P by {recovery["CAIL_penalized_delta"]:+.2f}. IFR falls by {-recovery["IFR_delta"] * 100:.1f} points.',
         "",
@@ -644,11 +663,12 @@ def write_report(
             "",
             "## Paper-ready findings",
             "",
-            "1. Naive asynchronous isolation reduces ADPR and DRE while increasing unresolved dependencies, DRS-P, CAIL-P, FSAR, and IFR relative to Serial, even though it reduces runtime.",
-            "2. CAID recovers much of the lost dependency closure and integration lag, but requires substantially more tokens and runtime and retains artifact/scope failures.",
+            f'1. CAID is the strongest overall condition: {caid["successful_tasks"]}/20 solved tasks, {int(caid["resolved_edge_instances"])}/{int(caid["edge_instances"])} resolved edges, and {len(caid_only_tasks)} CAID-only task successes.',
+            "2. The CAID gain is conditional rather than universal: it resolves 45/47 edges on the 16 non-compiler tasks but 0/8 compiler/IR edges, while Serial alone solves `apache-tvm-20018`.",
             "3. Final pass rate alone is insufficient: ADPR identifies whether labeled cross-agent contracts close, while DRS/CAIL/DRE reveal when and how efficiently they close.",
-            "4. Strict SAD/SAR remains unreported rather than imputed. This is an instrumentation limitation, not evidence of zero stale assumptions.",
-            "5. In task `apache-tvm-20018`, all five CAID specialist attempts reach the fixed 100-iteration cap without solving the task, providing a concrete capability/cost-boundary case study.",
+            "4. Serial versus Async private and Async private versus CAID remain useful controlled contrasts, but they support the overall effectiveness analysis rather than defining separate paper RQs.",
+            "5. Strict SAD/SAR remains unreported rather than imputed. This is an instrumentation limitation, not evidence of zero stale assumptions.",
+            "6. In task `apache-tvm-20018`, all five CAID specialist attempts reach the fixed 100-iteration cap without solving the task, providing a concrete capability/cost-boundary case study.",
             "",
             "Do not claim seed-level statistical significance or strict SAD/SAR values from these single selected runs. Use the heuristic stale-assumption candidates only for audited case studies.",
             "",

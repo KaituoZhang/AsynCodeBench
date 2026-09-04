@@ -7,6 +7,10 @@ sessions, and public reproduction. Use it together with:
 - `docs/MODEL_EXPERIMENT_RUNBOOK.md` for the official tasks and evaluation flow.
 - `docs/VLLM_QWEN_LOCAL_RUNBOOK.md` for the tested Qwen3.6-27B configuration and
   model-specific failure history.
+- `docs/DEVSTRAL_SMALL2_LOCAL_RUNBOOK.md` for the single-A100 Devstral Small 2
+  candidate profile, server wrapper, and smoke gates.
+- `docs/QWEN3_CODER_NEXT_LOCAL_RUNBOOK.md` for the validated two-A100
+  Qwen3-Coder-Next FP8 profile and its NCCL compatibility incident.
 - `docs/EVALUATION_METRICS.md` for ADPR, DRS, CAIL, FSAR, IFR, and aggregation.
 
 Local inference is not a drop-in replacement for a remote API. A valid local

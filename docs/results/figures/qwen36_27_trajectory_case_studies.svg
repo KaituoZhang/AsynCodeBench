@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="700" viewBox="0 0 1320 700">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="55" y="44" font-family="Inter,Arial,sans-serif" font-size="23" fill="#253047" text-anchor="start" font-weight="700">Why final outcome and first-passage metrics are insufficient</text>
+<text x="55" y="71" font-family="Inter,Arial,sans-serif" font-size="14" fill="#596579" text-anchor="start" font-weight="400">Each cell is an integrated-workspace state U/D/I: upstream, downstream, integrated contract.</text>
+<rect x="45" y="90" width="1230" height="155" rx="12" fill="#f8fafc" stroke="#dce2ea"/>
+<text x="70" y="119" font-family="Inter,Arial,sans-serif" font-size="17" fill="#253047" text-anchor="start" font-weight="700">python-rsa · Serial</text>
+<text x="70" y="144" font-family="Inter,Arial,sans-serif" font-size="13" fill="#596579" text-anchor="start" font-weight="400">First closure at step 4; regression at step 6; recovered by step 8</text>
+<rect x="365.0" y="160" width="104.0" height="58" rx="8" fill="#dc8b32"/>
+<text x="417.0" y="185" font-family="Inter,Arial,sans-serif" font-size="17" fill="#ffffff" text-anchor="middle" font-weight="700">100</text>
+<text x="417.0" y="206" font-family="Inter,Arial,sans-serif" font-size="10" fill="#ffffff" text-anchor="middle" font-weight="400">step 2</text>
+<text x="475" y="195" font-family="Inter,Arial,sans-serif" font-size="17" fill="#8590a2" text-anchor="middle" font-weight="400">→</text>
+<rect x="481.0" y="160" width="104.0" height="58" rx="8" fill="#2f8f68"/>
+<text x="533.0" y="185" font-family="Inter,Arial,sans-serif" font-size="17" fill="#ffffff" text-anchor="middle" font-weight="700">111</text>
+<text x="533.0" y="206" font-family="Inter,Arial,sans-serif" font-size="10" fill="#ffffff" text-anchor="middle" font-weight="400">step 4</text>
+<text x="591" y="195" font-family="Inter,Arial,sans-serif" font-size="17" fill="#8590a2" text-anchor="middle" font-weight="400">→</text>
+<rect x="597.0" y="160" width="104.0" height="58" rx="8" fill="#dc8b32"/>
+<text x="649.0" y="185" font-family="Inter,Arial,sans-serif" font-size="17" fill="#ffffff" text-anchor="middle" font-weight="700">100</text>
+<text x="649.0" y="206" font-family="Inter,Arial,sans-serif" font-size="10" fill="#ffffff" text-anchor="middle" font-weight="400">step 6</text>
+<text x="707" y="195" font-family="Inter,Arial,sans-serif" font-size="17" fill="#8590a2" text-anchor="middle" font-weight="400">→</text>
+<rect x="713.0" y="160" width="104.0" height="58" rx="8" fill="#2f8f68"/>
+<text x="765.0" y="185" font-family="Inter,Arial,sans-serif" font-size="17" fill="#ffffff" text-anchor="middle" font-weight="700">111</text>
+<text x="765.0" y="206" font-family="Inter,Arial,sans-serif" font-size="10" fill="#ffffff" text-anchor="middle" font-weight="400">step 8</text>
+<text x="823" y="195" font-family="Inter,Arial,sans-serif" font-size="17" fill="#8590a2" text-anchor="middle" font-weight="400">→</text>
+<rect x="829.0" y="160" width="104.0" height="58" rx="8" fill="#2f8f68"/>
+<text x="881.0" y="185" font-family="Inter,Arial,sans-serif" font-size="17" fill="#ffffff" text-anchor="middle" font-weight="700">111</text>
+<text x="881.0" y="206" font-family="Inter,Arial,sans-serif" font-size="10" fill="#ffffff" text-anchor="middle" font-weight="400">step 9</text>
+<text x="70" y="197" font-family="Inter,Arial,sans-serif" font-size="14" fill="#2f8f68" text-anchor="start" font-weight="700">final: closed</text>
+<text x="70" y="220" font-family="Inter,Arial,sans-serif" font-size="12" fill="#596579" text-anchor="start" font-weight="400">first / stable closure: 4 / 8</text>
+<rect x="45" y="275" width="1230" height="155" rx="12" fill="#f8fafc" stroke="#dce2ea"/>
+<text x="70" y="304" font-family="Inter,Arial,sans-serif" font-size="17" fill="#253047" text-anchor="start" font-weight="700">cookiecutter · CAID</text>
+<text x="70" y="329" font-family="Inter,Arial,sans-serif" font-size="13" fill="#596579" text-anchor="start" font-weight="400">First closure at step 6; later regression; stable closure only at final step 11</text>
+<rect x="365.0" y="345" width="104.0" height="58" rx="8" fill="#c8ccd3"/>
+<text x="417.0" y="370" font-family="Inter,Arial,sans-serif" font-size="17" fill="#364153" text-anchor="middle" font-weight="700">000</text>
+<text x="417.0" y="391" font-family="Inter,Arial,sans-serif" font-size="10" fill="#596579" text-anchor="middle" font-weight="400">step 2</text>
+<text x="475" y="380" font-family="Inter,Arial,sans-serif" font-size="17" fill="#8590a2" text-anchor="middle" font-weight="400">→</text>
+<rect x="481.0" y="345" width="104.0" height="58" rx="8" fill="#4f82bd"/>
+<text x="533.0" y="370" font-family="Inter,Arial,sans-serif" font-size="17" fill="#ffffff" text-anchor="middle" font-weight="700">010</text>
+<text x="533.0" y="391" font-family="Inter,Arial,sans-serif" font-size="10" fill="#ffffff" text-anchor="middle" font-weight="400">step 4</text>
+<text x="591" y="380" font-family="Inter,Arial,sans-serif" font-size="17" fill="#8590a2" text-anchor="middle" font-weight="400">→</text>
+<rect x="597.0" y="345" width="104.0" height="58" rx="8" fill="#2f8f68"/>
+<text x="649.0" y="370" font-family="Inter,Arial,sans-serif" font-size="17" fill="#ffffff" text-anchor="middle" font-weight="700">111</text>
+<text x="649.0" y="391" font-family="Inter,Arial,sans-serif" font-size="10" fill="#ffffff" text-anchor="middle" font-weight="400">step 6</text>
+<text x="707" y="380" font-family="Inter,Arial,sans-serif" font-size="17" fill="#8590a2" text-anchor="middle" font-weight="400">→</text>
+<rect x="713.0" y="345" width="104.0" height="58" rx="8" fill="#dc8b32"/>
+<text x="765.0" y="370" font-family="Inter,Arial,sans-serif" font-size="17" fill="#ffffff" text-anchor="middle" font-weight="700">100</text>
+<text x="765.0" y="391" font-family="Inter,Arial,sans-serif" font-size="10" fill="#ffffff" text-anchor="middle" font-weight="400">step 8</text>
+<text x="823" y="380" font-family="Inter,Arial,sans-serif" font-size="17" fill="#8590a2" text-anchor="middle" font-weight="400">→</text>
+<rect x="829.0" y="345" width="104.0" height="58" rx="8" fill="#dc8b32"/>
+<text x="881.0" y="370" font-family="Inter,Arial,sans-serif" font-size="17" fill="#ffffff" text-anchor="middle" font-weight="700">100</text>
+<text x="881.0" y="391" font-family="Inter,Arial,sans-serif" font-size="10" fill="#ffffff" text-anchor="middle" font-weight="400">step 10</text>
+<text x="939" y="380" font-family="Inter,Arial,sans-serif" font-size="17" fill="#8590a2" text-anchor="middle" font-weight="400">→</text>
+<rect x="945.0" y="345" width="104.0" height="58" rx="8" fill="#2f8f68"/>
+<text x="997.0" y="370" font-family="Inter,Arial,sans-serif" font-size="17" fill="#ffffff" text-anchor="middle" font-weight="700">111</text>
+<text x="997.0" y="391" font-family="Inter,Arial,sans-serif" font-size="10" fill="#ffffff" text-anchor="middle" font-weight="400">step 11</text>
+<text x="70" y="382" font-family="Inter,Arial,sans-serif" font-size="14" fill="#2f8f68" text-anchor="start" font-weight="700">final: closed</text>
+<text x="70" y="405" font-family="Inter,Arial,sans-serif" font-size="12" fill="#596579" text-anchor="start" font-weight="400">first / stable closure: 6 / 11</text>
+<rect x="45" y="460" width="1230" height="155" rx="12" fill="#f8fafc" stroke="#dce2ea"/>
+<text x="70" y="489" font-family="Inter,Arial,sans-serif" font-size="17" fill="#253047" text-anchor="start" font-weight="700">apache-tvm-20107 · CAID</text>
+<text x="70" y="514" font-family="Inter,Arial,sans-serif" font-size="13" fill="#596579" text-anchor="start" font-weight="400">Producer remains ready, but the consumer contract never closes</text>
+<rect x="365.0" y="530" width="104.0" height="58" rx="8" fill="#dc8b32"/>
+<text x="417.0" y="555" font-family="Inter,Arial,sans-serif" font-size="17" fill="#ffffff" text-anchor="middle" font-weight="700">100</text>
+<text x="417.0" y="576" font-family="Inter,Arial,sans-serif" font-size="10" fill="#ffffff" text-anchor="middle" font-weight="400">step 2</text>
+<text x="475" y="565" font-family="Inter,Arial,sans-serif" font-size="17" fill="#8590a2" text-anchor="middle" font-weight="400">→</text>
+<rect x="481.0" y="530" width="104.0" height="58" rx="8" fill="#dc8b32"/>
+<text x="533.0" y="555" font-family="Inter,Arial,sans-serif" font-size="17" fill="#ffffff" text-anchor="middle" font-weight="700">100</text>
+<text x="533.0" y="576" font-family="Inter,Arial,sans-serif" font-size="10" fill="#ffffff" text-anchor="middle" font-weight="400">step 4</text>
+<text x="591" y="565" font-family="Inter,Arial,sans-serif" font-size="17" fill="#8590a2" text-anchor="middle" font-weight="400">→</text>
+<rect x="597.0" y="530" width="104.0" height="58" rx="8" fill="#dc8b32"/>
+<text x="649.0" y="555" font-family="Inter,Arial,sans-serif" font-size="17" fill="#ffffff" text-anchor="middle" font-weight="700">100</text>
+<text x="649.0" y="576" font-family="Inter,Arial,sans-serif" font-size="10" fill="#ffffff" text-anchor="middle" font-weight="400">step 6</text>
+<text x="707" y="565" font-family="Inter,Arial,sans-serif" font-size="17" fill="#8590a2" text-anchor="middle" font-weight="400">→</text>
+<rect x="713.0" y="530" width="104.0" height="58" rx="8" fill="#dc8b32"/>
+<text x="765.0" y="555" font-family="Inter,Arial,sans-serif" font-size="17" fill="#ffffff" text-anchor="middle" font-weight="700">100</text>
+<text x="765.0" y="576" font-family="Inter,Arial,sans-serif" font-size="10" fill="#ffffff" text-anchor="middle" font-weight="400">step 8</text>
+<text x="823" y="565" font-family="Inter,Arial,sans-serif" font-size="17" fill="#8590a2" text-anchor="middle" font-weight="400">→</text>
+<rect x="829.0" y="530" width="104.0" height="58" rx="8" fill="#dc8b32"/>
+<text x="881.0" y="555" font-family="Inter,Arial,sans-serif" font-size="17" fill="#ffffff" text-anchor="middle" font-weight="700">100</text>
+<text x="881.0" y="576" font-family="Inter,Arial,sans-serif" font-size="10" fill="#ffffff" text-anchor="middle" font-weight="400">step 10</text>
+<text x="939" y="565" font-family="Inter,Arial,sans-serif" font-size="17" fill="#8590a2" text-anchor="middle" font-weight="400">→</text>
+<rect x="945.0" y="530" width="104.0" height="58" rx="8" fill="#dc8b32"/>
+<text x="997.0" y="555" font-family="Inter,Arial,sans-serif" font-size="17" fill="#ffffff" text-anchor="middle" font-weight="700">100</text>
+<text x="997.0" y="576" font-family="Inter,Arial,sans-serif" font-size="10" fill="#ffffff" text-anchor="middle" font-weight="400">step 11</text>
+<text x="70" y="567" font-family="Inter,Arial,sans-serif" font-size="14" fill="#b05f22" text-anchor="start" font-weight="700">final: open</text>
+<text x="70" y="590" font-family="Inter,Arial,sans-serif" font-size="12" fill="#596579" text-anchor="start" font-weight="400">first / stable closure: — / —</text>
+<text x="55" y="678" font-family="Inter,Arial,sans-serif" font-size="12" fill="#667085" text-anchor="start" font-weight="400">000 blocked · 100 producer-ready · 010 consumer-only · 110 both sides ready but integration open · 111 contract closed</text>
+</svg>

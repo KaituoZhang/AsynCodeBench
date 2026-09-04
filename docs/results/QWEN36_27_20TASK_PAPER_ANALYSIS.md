@@ -50,13 +50,19 @@ DRS-P and CAIL-P apply the benchmark's run-local `T+1`-based unresolved penaltie
 
 ![Coordination diagnostics](figures/qwen36_27_20task_coordination_diagnostics.svg)
 
-## RQ1. Does asynchronous visibility loss hurt dependency resolution?
+## CAID-centered outcome summary
+
+CAID is the strongest complete condition in these selected runs: it solves 14/20 tasks and resolves 45/55 dependency edges. It uniquely solves 8 tasks that none of the three controls solve: `requests`, `parsel`, `filesystem_spec`, `marshmallow`, `graphene`, `imapclient`, `pexpect`, `cookiecutter`.
+
+CAID has one observed regression against the controls: `apache-tvm-20018`. This effectiveness--boundary pattern should organize the paper results; the following pairwise contrasts are supporting analyses rather than standalone paper RQs.
+
+## Supporting contrast A. Serial versus Async private
 
 Compared with Serial, Async private changes ADPR by -26.7 percentage points, DRE by -7.1 points, unresolved dependencies by +0.75, DRS-P by +3.19, and CAIL-P by +2.15. FSAR rises by +16.7 points and IFR by +15.0 points.
 
 Async private uses 0.75× the Serial runtime (-25.3%) but closes dependencies less reliably and later. The speed benefit is therefore accompanied by a measurable coordination penalty.
 
-## RQ2. Can manager-mediated coordination recover the loss?
+## Supporting contrast B. Async private versus CAID
 
 Compared with Async private, CAID changes ADPR by +57.5 percentage points, reduces unresolved dependencies by 1.65, changes DRE by +5.8 points, DRS-P by -1.00, and CAIL-P by -2.51. IFR falls by 60.0 points.
 
@@ -106,11 +112,12 @@ Each cell is `final success; A=ADPR; E=DRE; R=DRS-P; L=CAIL-P`.
 
 ## Paper-ready findings
 
-1. Naive asynchronous isolation reduces ADPR and DRE while increasing unresolved dependencies, DRS-P, CAIL-P, FSAR, and IFR relative to Serial, even though it reduces runtime.
-2. CAID recovers much of the lost dependency closure and integration lag, but requires substantially more tokens and runtime and retains artifact/scope failures.
+1. CAID is the strongest overall condition: 14/20 solved tasks, 45/55 resolved edges, and 8 CAID-only task successes.
+2. The CAID gain is conditional rather than universal: it resolves 45/47 edges on the 16 non-compiler tasks but 0/8 compiler/IR edges, while Serial alone solves `apache-tvm-20018`.
 3. Final pass rate alone is insufficient: ADPR identifies whether labeled cross-agent contracts close, while DRS/CAIL/DRE reveal when and how efficiently they close.
-4. Strict SAD/SAR remains unreported rather than imputed. This is an instrumentation limitation, not evidence of zero stale assumptions.
-5. In task `apache-tvm-20018`, all five CAID specialist attempts reach the fixed 100-iteration cap without solving the task, providing a concrete capability/cost-boundary case study.
+4. Serial versus Async private and Async private versus CAID remain useful controlled contrasts, but they support the overall effectiveness analysis rather than defining separate paper RQs.
+5. Strict SAD/SAR remains unreported rather than imputed. This is an instrumentation limitation, not evidence of zero stale assumptions.
+6. In task `apache-tvm-20018`, all five CAID specialist attempts reach the fixed 100-iteration cap without solving the task, providing a concrete capability/cost-boundary case study.
 
 Do not claim seed-level statistical significance or strict SAD/SAR values from these single selected runs. Use the heuristic stale-assumption candidates only for audited case studies.
 

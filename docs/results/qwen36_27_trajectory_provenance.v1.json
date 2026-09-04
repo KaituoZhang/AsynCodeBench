@@ -1,0 +1,21 @@
+{
+  "schema_version": "qwen36-27-trajectory-analysis.v1",
+  "source_index": "docs/results/qwen36_27_frozen_result_index.v1.json",
+  "run_count": 80,
+  "edge_trajectory_count": 220,
+  "state_observation_count": 1326,
+  "raw_checkpoint_record_count": 546,
+  "canonical_checkpoint_count": 486,
+  "duplicate_checkpoint_record_count": 60,
+  "conflicting_duplicate_checkpoint_identity_count": 0,
+  "canonicalization": "keep last record per checkpoint_id; sort by logical_step, recorded_at, raw index; assign dense canonical step",
+  "outputs": [
+    "docs/results/qwen36_27_trajectory_per_edge.csv",
+    "docs/results/qwen36_27_trajectory_states.csv",
+    "docs/results/qwen36_27_trajectory_protocol_summary.csv",
+    "docs/results/qwen36_27_trajectory_type_summary.csv",
+    "docs/results/QWEN36_27_TRAJECTORY_ANALYSIS.md",
+    "docs/results/figures/qwen36_27_trajectory_outcome_profile.svg",
+    "docs/results/figures/qwen36_27_trajectory_case_studies.svg"
+  ]
+}
