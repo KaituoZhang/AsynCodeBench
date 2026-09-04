@@ -19,6 +19,7 @@ from openhands.workspace.docker.workspace import (
     check_port_available,
     find_available_tcp_port,
 )
+from pydantic import Field
 
 logger = get_logger(__name__)
 
@@ -150,7 +151,8 @@ class _HostNetworkPortMixin:
                     os.environ[key] = value
 
     def _start_container_with_pager_env(self, image: str, context: Any) -> None:
-        if self.network != "host":
+        cpu_limit = getattr(self, "cpu_limit", None)
+        if self.network != "host" and cpu_limit is None:
             return super()._start_container(image, context)
 
         self._image_name = image
@@ -162,11 +164,20 @@ class _HostNetworkPortMixin:
             raise RuntimeError("Could not allocate an agent-server port")
         if not check_port_available(self.host_port):
             raise RuntimeError(f"Port {self.host_port} is not available")
-        if self.extra_ports:
+        if self.network == "host" and self.extra_ports:
             raise ValueError(
                 "extra_ports is unsupported with host networking; "
                 "AsynCodeBench disables VSCode and VNC"
             )
+        if self.network != "host" and self.extra_ports:
+            if not check_port_available(self.host_port + 1):
+                raise RuntimeError(
+                    f"Port {self.host_port + 1} is not available for VSCode"
+                )
+            if not check_port_available(self.host_port + 2):
+                raise RuntimeError(
+                    f"Port {self.host_port + 2} is not available for VNC"
+                )
 
         docker_ver = execute_command(["docker", "version"]).returncode
         if docker_ver != 0:
@@ -181,7 +192,25 @@ class _HostNetworkPortMixin:
             logger.info(f"Adding volume mount: {volume}")
         if self.enable_gpu:
             flags += ["--gpus", "all"]
-        flags += ["--network", "host"]
+        if cpu_limit is not None:
+            if cpu_limit <= 0:
+                raise ValueError("cpu_limit must be positive")
+            flags += ["--cpus", f"{cpu_limit:g}"]
+        if self.network == "host":
+            flags += ["--network", "host"]
+            container_port = self.host_port
+        else:
+            flags += ["-p", f"{self.host_port}:8000"]
+            if self.extra_ports:
+                flags += [
+                    "-p",
+                    f"{self.host_port + 1}:8001",
+                    "-p",
+                    f"{self.host_port + 2}:8002",
+                ]
+            if self.network:
+                flags += ["--network", self.network]
+            container_port = 8000
 
         run_cmd = [
             "docker",
@@ -199,7 +228,7 @@ class _HostNetworkPortMixin:
             "--host",
             "0.0.0.0",
             "--port",
-            str(self.host_port),
+            str(container_port),
         ]
         proc = execute_command(run_cmd)
         if proc.returncode != 0:
@@ -207,8 +236,9 @@ class _HostNetworkPortMixin:
 
         self._container_id = proc.stdout.strip()
         logger.info(
-            f"Started host-network container {self._container_id} "
-            f"on port {self.host_port}"
+            f"Started container {self._container_id} on host port "
+            f"{self.host_port} (network={self.network or 'default'}, "
+            f"cpu_limit={cpu_limit or 'unlimited'})"
         )
         if self.detach_logs:
             self._logs_thread = threading.Thread(
@@ -228,9 +258,13 @@ class _HostNetworkPortMixin:
 class AsynCodeBenchDockerWorkspace(_HostNetworkPortMixin, DockerWorkspace):
     """DockerWorkspace with correct host-network port binding."""
 
+    cpu_limit: float | None = Field(default=None, gt=0)
+
 
 class AsynCodeBenchDockerDevWorkspace(_HostNetworkPortMixin, DockerDevWorkspace):
     """DockerDevWorkspace with correct host-network port binding."""
+
+    cpu_limit: float | None = Field(default=None, gt=0)
 
     @staticmethod
     def _build_image_from_base(

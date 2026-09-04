@@ -334,9 +334,17 @@ def test_result_bundle_detects_instrumentation_tampering(tmp_path):
 
 def test_result_bundle_marks_provider_failure_invalid(tmp_path):
     write_valid_artifacts(tmp_path)
-    log = next(tmp_path.glob("run_*.log"))
-    log.write_text(
-        "litellm.InternalServerError: OpenAIException - Connection error.\n",
+    (tmp_path / "outputs.jsonl").write_text(
+        json.dumps(
+            {
+                "event_type": "agent_response",
+                "content": {
+                    "actual_iterations": 1,
+                    "error": "InternalServerError - OpenAIException - Connection error",
+                },
+            }
+        )
+        + "\n",
         encoding="utf-8",
     )
 
@@ -419,6 +427,68 @@ def test_empty_generation_configuration_is_not_official(tmp_path):
     assert bundle["provenance"]["generation_configuration_recorded"] is False
     assert bundle["eligibility"]["provenance_complete"] is False
     assert bundle["eligibility"]["official_aggregate"] is False
+
+
+def test_qualified_source_candidate_is_official_aggregate_eligible():
+    eligibility = results_module._eligibility(
+        {
+            "status": "valid",
+            "eligibility": {
+                "functional_metrics": True,
+                "dependency_metrics": True,
+                "efficiency_metrics": True,
+            },
+        },
+        {"matched": True},
+        {"required_fields_complete": True},
+        {
+            "kind": "pr_hard_v0.4",
+            "official_result_eligible": True,
+            "qualification_status": "qualified",
+            "remaining_gates": [],
+            "diagnostic_only": False,
+        },
+    )
+
+    assert eligibility["official_aggregate"] is True
+
+
+@pytest.mark.parametrize(
+    "candidate_lane",
+    [
+        {
+            "kind": "pr_hard_v0.4",
+            "official_result_eligible": False,
+            "qualification_status": "needs_revision",
+            "remaining_gates": ["human_review"],
+            "diagnostic_only": True,
+        },
+        {
+            "kind": "pr_hard_v0.4",
+            "official_result_eligible": True,
+            "qualification_status": "qualified",
+            "remaining_gates": ["human_review"],
+            "diagnostic_only": False,
+        },
+        {"kind": "unknown"},
+    ],
+)
+def test_unqualified_or_malformed_source_candidate_is_not_official(candidate_lane):
+    eligibility = results_module._eligibility(
+        {
+            "status": "valid",
+            "eligibility": {
+                "functional_metrics": True,
+                "dependency_metrics": True,
+                "efficiency_metrics": True,
+            },
+        },
+        {"matched": True},
+        {"required_fields_complete": True},
+        candidate_lane,
+    )
+
+    assert eligibility["official_aggregate"] is False
 
 
 def test_cli_lists_all_official_tasks(capsys):

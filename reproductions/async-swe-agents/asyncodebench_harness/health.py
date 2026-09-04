@@ -32,8 +32,10 @@ HARD_ERROR_PATTERNS = {
         re.IGNORECASE,
     ),
     "provider_or_transport_error": re.compile(
-        r"LLMServiceUnavailableError|APIConnectionError|AuthenticationError|"
-        r"RateLimitError|(?:OpenAIException|InternalServerError)\s*-\s*"
+        r"(?:LLMServiceUnavailableError|APIConnectionError|AuthenticationError|"
+        r"RateLimitError)\s*(?::|-)|"
+        r"OpenrouterException\s*-\s*Unable to get json response|"
+        r"(?:OpenAIException|InternalServerError)\s*-\s*"
         r"Connection error|"
         r"(?:httpx|httpcore)\.(?:Connect|Read|Write|Pool)Error",
         re.IGNORECASE,
@@ -47,6 +49,12 @@ HARD_ERROR_PATTERNS = {
     "remote_execution_timeout": re.compile(
         r"Run timed out after .*conversation may still be running",
         re.IGNORECASE,
+    ),
+    "solution_source_leakage": re.compile(
+        r"(?:api\.github\.com/repos/apache/tvm/pulls/\d+|"
+        r"github\.com/apache/tvm/pull/\d+\.patch).{0,2000}"
+        r"(?:bytes\s+\d+|IDENTICAL TO REFERENCE HEAD|byte-identical)",
+        re.IGNORECASE | re.DOTALL,
     ),
 }
 
@@ -95,6 +103,57 @@ def _read_jsonl(path: Path, hard_failures: list[str], code: str) -> list[dict]:
 
 def _dedupe(values: list[str]) -> list[str]:
     return list(dict.fromkeys(values))
+
+
+def _structured_error_text(run_dir: Path) -> str:
+    """Extract only machine-owned error fields from execution records.
+
+    Agent thoughts and terminal output legitimately discuss exception class
+    names while debugging. Scanning those free-form fields caused healthy runs
+    to be rejected when a model merely mentioned, for example,
+    ``AuthenticationError``. Provider failures are therefore detected only
+    from fields whose schema says they are an error or termination reason.
+    """
+
+    values: list[str] = []
+    error_keys = {
+        "error",
+        "error_message",
+        "exception",
+        "termination_reason",
+    }
+
+    def collect(value, key: str | None = None) -> None:
+        if isinstance(value, dict):
+            for child_key, child_value in value.items():
+                collect(child_value, str(child_key).lower())
+        elif isinstance(value, list):
+            for child in value:
+                collect(child, key)
+        elif key in error_keys and value is not None:
+            values.append(str(value))
+
+    for filename in ("outputs.jsonl", "agent_adapter_executions.jsonl"):
+        path = run_dir / filename
+        if not path.is_file():
+            continue
+        for line in _read_text(path).splitlines():
+            if not line.strip():
+                continue
+            try:
+                collect(json.loads(line))
+            except json.JSONDecodeError:
+                # Artifact validity is checked separately by inspect_run.
+                continue
+    for path in sorted((run_dir / "agent_events").glob("*.jsonl")):
+        for line in _read_text(path).splitlines():
+            if not line.strip():
+                continue
+            try:
+                collect(json.loads(line))
+            except json.JSONDecodeError:
+                continue
+    return "\n".join(values)
 
 
 def _expected_probe_selectors(metrics: dict) -> set[str]:
@@ -194,6 +253,18 @@ def inspect_run(run_dir: Path) -> dict[str, object]:
         if candidate_lane.get("kind") == "pr_hard_v0.4"
         else "asyncodebench_manifest"
     )
+    constraints = run_metadata.get("workspace_constraints")
+    if candidate_lane.get("kind") == "pr_hard_v0.4" and isinstance(
+        constraints, dict
+    ):
+        if constraints.get("cpu_limit") != 28:
+            hard_failures.append("wrong_workspace_cpu_limit")
+        if constraints.get("build_parallel_jobs") != 28:
+            hard_failures.append("wrong_build_parallel_jobs")
+        if not constraints.get("deny_agent_network"):
+            hard_failures.append("missing_agent_network_guard")
+        if constraints.get("agent_network_policy") != "agent-terminal-egress-v1":
+            hard_failures.append("wrong_agent_network_policy")
     evaluator_eligible = True
     if evaluator_source != expected_evaluator:
         hard_failures.append(f"wrong_evaluator:{evaluator_source}")
@@ -279,8 +350,14 @@ def inspect_run(run_dir: Path) -> dict[str, object]:
     if adapter_execution.is_file():
         scan_files.append(adapter_execution)
     combined = "\n".join(_read_text(path) for path in scan_files if path.is_file())
+    structured_errors = _structured_error_text(run_dir)
     for code, pattern in HARD_ERROR_PATTERNS.items():
-        if pattern.search(combined):
+        haystack = (
+            structured_errors
+            if code == "provider_or_transport_error"
+            else combined
+        )
+        if pattern.search(haystack):
             hard_failures.append(code)
     if re.search(r"Remote conversation got stuck", combined, re.IGNORECASE):
         observations.append("model_trajectory_stuck")

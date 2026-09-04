@@ -149,6 +149,7 @@ async def run_workflow_inner(
             platform="linux/amd64",
             detach_logs=False,
             network=workspace_network,
+            cpu_limit=workspace_config.get("cpu_limit"),
             volumes=workspace_config.get("volumes", []),
         )
     else:
@@ -158,6 +159,7 @@ async def run_workflow_inner(
             platform=detect_platform(),
             detach_logs=False,
             network=workspace_network,
+            cpu_limit=workspace_config.get("cpu_limit"),
             volumes=workspace_config.get("volumes", []),
         )
 

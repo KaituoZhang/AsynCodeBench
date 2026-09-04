@@ -267,6 +267,14 @@ def build_run_metadata(
         # model is configured. Record the effective model, not the nullable
         # user input, so campaign lineage remains unambiguous.
         "subagent_model": workflow_config.subagent_model or workflow_config.model,
+        "workspace_constraints": {
+            "cpu_limit": getattr(task, "workspace_cpu_limit", None),
+            "build_parallel_jobs": getattr(task, "build_parallel_jobs", None),
+            "deny_agent_network": bool(
+                getattr(task, "deny_agent_network", False)
+            ),
+            "agent_network_policy": getattr(task, "agent_network_policy", None),
+        },
         "agent_adapter": agent_adapter
         or {
             "name": "openhands",

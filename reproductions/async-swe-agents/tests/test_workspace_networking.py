@@ -104,6 +104,43 @@ def test_standard_network_workspace_forwards_noninteractive_pagers(monkeypatch):
     workspace._container_id = None
 
 
+def test_cpu_limited_workspace_passes_docker_quota(monkeypatch):
+    commands = []
+
+    def fake_execute(command):
+        commands.append(command)
+        stdout = "container-id\n" if command[:2] == ["docker", "run"] else ""
+        return SimpleNamespace(returncode=0, stdout=stdout, stderr="")
+
+    monkeypatch.setattr(workspace_module, "execute_command", fake_execute)
+    monkeypatch.setattr(workspace_module, "check_port_available", lambda _port: True)
+    monkeypatch.setattr(
+        AsynCodeBenchDockerWorkspace,
+        "_wait_for_health",
+        lambda *_args, **_kwargs: None,
+    )
+    monkeypatch.setattr(
+        RemoteWorkspace,
+        "model_post_init",
+        lambda *_args, **_kwargs: None,
+    )
+
+    workspace = AsynCodeBenchDockerWorkspace(
+        server_image="example/agent-server:test",
+        host_port=24568,
+        cpu_limit=28,
+        detach_logs=False,
+    )
+    run_command = next(
+        command for command in commands if command[:2] == ["docker", "run"]
+    )
+
+    assert run_command[run_command.index("--cpus") + 1] == "28"
+    assert run_command[run_command.index("-p") + 1] == "24568:8000"
+    assert run_command[-1] == "8000"
+    workspace._container_id = None
+
+
 def test_dev_workspace_reuses_locked_agent_server_image(monkeypatch):
     commands = []
 

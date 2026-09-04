@@ -78,6 +78,13 @@ The following invalidate a formal run:
 This prevents one missing metric family from being silently treated as a zero
 or from contaminating unrelated statistics.
 
+A qualified source-candidate lane may enter the unified official aggregate
+only when its run metadata records `official_result_eligible=true`,
+`qualification_status=qualified`, an empty `remaining_gates` list, and
+`diagnostic_only=false`. Merely running through a candidate adapter does not
+exclude a task after promotion, while incomplete and diagnostic candidates
+continue to fail closed.
+
 ## Aggregate Admission
 
 The per-task summarizer revalidates each native bundle's schema, checksums,

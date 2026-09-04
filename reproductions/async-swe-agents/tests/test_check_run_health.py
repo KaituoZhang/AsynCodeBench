@@ -92,16 +92,59 @@ def test_source_code_connection_error_text_is_not_transport_failure(tmp_path):
     assert "provider_or_transport_error" not in result["hard_failures"]
 
 
-def test_openai_connection_error_is_transport_failure(tmp_path):
-    run_dir = create_run(
-        tmp_path,
-        "litellm.InternalServerError: OpenAIException - Connection error.\n",
+def test_structured_openai_connection_error_is_transport_failure(tmp_path):
+    run_dir = create_run(tmp_path)
+    (run_dir / "outputs.jsonl").write_text(
+        json.dumps(
+            {
+                "event_type": "agent_response",
+                "content": {
+                    "error": "InternalServerError - OpenAIException - Connection error"
+                },
+            }
+        )
+        + "\n",
+        encoding="utf-8",
     )
 
     result = inspect_run(run_dir)
 
     assert result["status"] == "invalid"
     assert "provider_or_transport_error" in result["hard_failures"]
+
+
+def test_model_reasoning_about_authentication_error_is_not_provider_failure(tmp_path):
+    run_dir = create_run(tmp_path)
+    event_path = run_dir / "agent_events" / "engineer_1_events.jsonl"
+    event_path.write_text(
+        json.dumps(
+            {
+                "event": "model_response",
+                "content": "The code should raise AuthenticationError: on bad input",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    result = inspect_run(run_dir)
+
+    assert result["status"] == "valid"
+    assert "provider_or_transport_error" not in result["hard_failures"]
+
+
+def test_downloaded_upstream_tvm_patch_is_solution_leakage(tmp_path):
+    run_dir = create_run(
+        tmp_path,
+        "urllib.request.urlopen("
+        "'https://github.com/apache/tvm/pull/20153.patch')\n"
+        "bytes 74979\nIDENTICAL TO REFERENCE HEAD\n",
+    )
+
+    result = inspect_run(run_dir)
+
+    assert result["status"] == "invalid"
+    assert "solution_source_leakage" in result["hard_failures"]
 
 
 def test_canonical_test_restore_is_recorded_as_model_behavior(tmp_path):

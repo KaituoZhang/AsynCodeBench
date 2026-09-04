@@ -323,6 +323,7 @@ def test_pr_hard_build_cache_is_host_backed_and_run_isolated(tmp_path) -> None:
 
     config = task.get_workspace_config()
 
+    assert config["cpu_limit"] == 28
     cache_mount = config["volumes"][-1]
     host_path, container_path, mode = cache_mount.rsplit(":", 2)
     host_root = Path(host_path)
@@ -343,6 +344,7 @@ def test_pr_hard_worktree_is_built_before_runtime_import(tmp_path) -> None:
 
     assert result["status"] == "passed"
     assert len(workspace.commands) == 3
+    assert "cmake --build build --parallel 28" in workspace.commands[1][0]
     assert "cmake -S . -B build -G Ninja" in workspace.commands[0][0]
     assert (
         "ln -s /workspace/.asyncodebench-pr-hard-build-cache/"

@@ -79,8 +79,16 @@ class PrHardTask(AsynCodeBenchTask):
     PUBLIC_NAMESPACE = "pr-hard"
     save_final_tarball = False
     manager_must_be_read_only = True
-    worktree_build_command = "cmake --build build --parallel"
-    container_build_cache_root = Path("/workspace/.asyncodebench-pr-hard-build-cache")
+    deny_agent_network = True
+    agent_network_policy = "agent-terminal-egress-v1"
+    workspace_cpu_limit = 28
+    build_parallel_jobs = 28
+    worktree_build_command = (
+        f"cmake --build build --parallel {build_parallel_jobs}"
+    )
+    container_build_cache_root = Path(
+        "/workspace/.asyncodebench-pr-hard-build-cache"
+    )
 
     def __init__(self, config: PrHardConfig):
         source, candidate_name = str(config.task_id).split(":", 1)
@@ -217,6 +225,7 @@ class PrHardTask(AsynCodeBenchTask):
         return {
             "base_image": base_image,
             "target": "source-minimal",
+            "cpu_limit": self.workspace_cpu_limit,
             "volumes": volumes,
         }
 
@@ -412,7 +421,8 @@ class PrHardTask(AsynCodeBenchTask):
                 f"PR-hard TVM configure failed: {configure.stderr or configure.stdout}"
             )
         build = workspace.execute_command(
-            f"cd {quoted_work} && cmake --build build --parallel",
+            f"cd {quoted_work} && cmake --build build "
+            f"--parallel {self.build_parallel_jobs}",
             timeout=1800,
         )
         if build.exit_code != 0:
@@ -522,7 +532,8 @@ class PrHardTask(AsynCodeBenchTask):
                     f"{status.stdout}{status.stderr}"
                 )
         build = workspace.execute_command(
-            f"cd {shlex.quote(work_dir)} && cmake --build build --parallel",
+            f"cd {shlex.quote(work_dir)} && cmake --build build "
+            f"--parallel {self.build_parallel_jobs}",
             timeout=1800,
         )
         if build.exit_code != 0:

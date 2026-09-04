@@ -14,6 +14,7 @@ from core.control_plane_guard import (
     combine_hook_configs,
 )
 from core.dependency_probes import write_dependency_probe_checkpoint
+from core.network_guard import build_network_guard_hook
 from core.workspace_isolation import (
     WORKSPACE_ISOLATION_POLICY_VERSION,
     build_workspace_guard_hook,
@@ -575,6 +576,11 @@ class SubAgentRunner:
         conversation_options = {
             "hook_config": build_control_plane_guard_hook(),
         }
+        if getattr(self.task_module, "deny_agent_network", False):
+            conversation_options["hook_config"] = combine_hook_configs(
+                conversation_options["hook_config"],
+                build_network_guard_hook(),
+            )
         worktree_path = self.subagent.worktree_path or self.subagent.submission_path
         if isolate_workspace:
             if self.conversation:

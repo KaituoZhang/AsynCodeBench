@@ -499,6 +499,29 @@ def _provenance(metadata, profile):
     }
 
 
+def _candidate_lane_official_eligible(candidate_lane):
+    """Return whether a source candidate has entered the unified release.
+
+    The PR-hard adapter remains useful for reconstructing the four TVM source
+    tasks, even after those tasks have passed qualification and entered the
+    unified v0.4 release.  Treat the lane as official only when the run metadata
+    records every release gate explicitly; malformed, diagnostic, or unfinished
+    candidate records continue to fail closed.
+    """
+
+    if not candidate_lane:
+        return True
+    if not isinstance(candidate_lane, dict):
+        return False
+    return (
+        candidate_lane.get("kind") == "pr_hard_v0.4"
+        and candidate_lane.get("official_result_eligible") is True
+        and candidate_lane.get("qualification_status") == "qualified"
+        and candidate_lane.get("remaining_gates") == []
+        and candidate_lane.get("diagnostic_only") is False
+    )
+
+
 def _eligibility(health, profile_metadata, provenance, candidate_lane=None):
     values = dict(health.get("eligibility", {}))
     values["official_profile"] = bool(profile_metadata.get("matched"))
@@ -510,7 +533,7 @@ def _eligibility(health, profile_metadata, provenance, candidate_lane=None):
         and values.get("efficiency_metrics", False)
         and values["official_profile"]
         and values["provenance_complete"]
-        and not candidate_lane
+        and _candidate_lane_official_eligible(candidate_lane)
     )
     return values
 

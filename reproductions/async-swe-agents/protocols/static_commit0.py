@@ -117,6 +117,7 @@ class StaticCommit0ProtocolRunner:
                     platform="linux/amd64",
                     detach_logs=False,
                     network=workspace_network,
+                    cpu_limit=workspace_config.get("cpu_limit"),
                     volumes=workspace_config.get("volumes", []),
                 )
             return AsynCodeBenchDockerWorkspace(
@@ -125,6 +126,7 @@ class StaticCommit0ProtocolRunner:
                 platform=detect_platform(),
                 detach_logs=False,
                 network=workspace_network,
+                cpu_limit=workspace_config.get("cpu_limit"),
                 volumes=workspace_config.get("volumes", []),
             )
         finally:

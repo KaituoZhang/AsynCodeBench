@@ -9,7 +9,11 @@ from openhands.sdk import Agent, Conversation, LLMSummarizingCondenser
 from openhands.sdk.context import AgentContext
 from openhands.tools.preset.default import get_default_tools
 
-from core.control_plane_guard import build_control_plane_guard_hook
+from core.control_plane_guard import (
+    build_control_plane_guard_hook,
+    combine_hook_configs,
+)
+from core.network_guard import build_network_guard_hook
 from core.subagent import (
     classify_conversation_termination,
     condenser_max_tokens,
@@ -242,12 +246,18 @@ class Manager:
                 condenser=condenser,
             )
 
+        hook_config = build_control_plane_guard_hook()
+        if getattr(self.task, "deny_agent_network", False):
+            hook_config = combine_hook_configs(
+                hook_config,
+                build_network_guard_hook(),
+            )
         self.conversation = Conversation(
             agent=self.agent,
             workspace=self.workspace,
             max_iteration_per_run=self.config.manager_max_iterations,
             visualizer=PanelVisualizer(),
-            hook_config=build_control_plane_guard_hook(),
+            hook_config=hook_config,
         )
         self.conversation_needs_reset = False
         self.log("Agent ready")
