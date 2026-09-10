@@ -108,7 +108,7 @@ function tasksPage() {
   render();
 }
 
-const taskCard = t => `<a class="task-card" href="/tasks/${t.id}/"><div class="task-card-top"><span class="repo-tag">${t.category}</span><span class="task-arrow">↗</span></div><h2>${t.id}</h2><p>${t.summary}</p><div class="task-meta"><span>${t.domain}</span><span>${t.agents} specialists</span><span>${t.deps} dependencies</span></div></a>`;
+const taskCard = t => `<a class="task-card" href="/tasks/task.html?id=${t.id}"><div class="task-card-top"><span class="repo-tag">${t.category}</span><span class="task-arrow">↗</span></div><h2>${t.id}</h2><p>${t.summary}</p><div class="task-meta"><span>${t.domain}</span><span>${t.agents} specialists</span><span>${t.deps} dependencies</span></div></a>`;
 
 async function taskPage(id) {
   const task = TASKS.find(t=>t.id===id);
@@ -192,7 +192,7 @@ const page = document.documentElement.dataset.page;
 if (page === "home") home();
 else if (page === "tasks") tasksPage();
 else if (page === "run") runPage();
-else if (page === "task") taskPage(document.documentElement.dataset.task);
+else if (page === "task") taskPage(document.documentElement.dataset.task || new URLSearchParams(location.search).get("id"));
 else notFound();
 fixRepositoryLinks();
 wireCopies();
