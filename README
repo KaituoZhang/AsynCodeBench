@@ -58,7 +58,7 @@ fixed:
 | `single` | One iterative agent owns the complete task. |
 | `serial_specialists` | Manifest-defined specialists run in dependency order and receive completed upstream handoffs. |
 | `async_private` | Specialists run concurrently from the same base in private workspaces, without in-flight communication. |
-| `caid_manager` | A manager coordinates asynchronous private-worktree specialists under manifest-validated delegation and scope rules. |
+| `async_manager` | A manager coordinates asynchronous private-worktree specialists under manifest-validated delegation and scope rules. |
 
 This controlled design separates three effects that are often conflated:
 
@@ -104,7 +104,7 @@ cell was run once.
 | `single` | 16/16 (100.0%) | 0.990 | 1.000 | 0.000 | 1.000 | 0.000 | 1.685M | 909.5s |
 | `serial_specialists` | 10/16 (62.5%) | 0.750 | 0.698 | 0.875 | 6.121 | 2.590 | 3.696M | 2286.6s |
 | `async_private` | 8/16 (50.0%) | 0.748 | 0.698 | 0.875 | 7.131 | 5.037 | 4.004M | 1246.6s |
-| `caid_manager` | 13/16 (81.3%) | 0.922 | 0.885 | 0.250 | 7.292 | 2.669 | 6.452M | 2034.0s |
+| `async_manager` | 13/16 (81.3%) | 0.922 | 0.885 | 0.250 | 7.292 | 2.669 | 6.452M | 2034.0s |
 
 Penalized DRS and CAIL assign each unresolved dependency the run-specific
 `T + 1` penalty. Because checkpoint counts differ across protocols, these
