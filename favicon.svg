@@ -1,17 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="AsynCodeBench">
-  <defs>
-    <linearGradient id="g" x1="6" y1="4" x2="26" y2="28" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#2f9d75"/>
-      <stop offset="1" stop-color="#1f7a5c"/>
-    </linearGradient>
-  </defs>
-  <rect width="32" height="32" rx="8" fill="url(#g)"/>
-  <path
-    fill="none"
-    stroke="#fff"
-    stroke-width="2.4"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    d="M11.2 10.5 7.2 16l4 5.5M14.2 22.5 17.8 9.5M20.8 10.5l4 5.5-4 5.5"
-  />
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="18" fill="#17211b"/><path d="M17 43 29 18h6l12 25h-7l-2.5-6H26L23.5 43H17Zm11.5-12h6.5l-3.2-7.9L28.5 31Z" fill="#d9f56e"/></svg>
