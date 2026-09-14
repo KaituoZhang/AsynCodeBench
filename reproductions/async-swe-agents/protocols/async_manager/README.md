@@ -6,6 +6,22 @@ checker, evaluator, and Docker contracts are reused from `caid_manager`; only
 the manager execution and integration policy is new. The shared public CLI,
 schema, validator, and campaign tooling all recognize `async_manager`.
 
+## Live progress logging
+
+Each online intervention prints its triggering specialist/checkpoint, explains
+that integration processing is serialized at that boundary, emits a periodic
+heartbeat while the remote manager turn is running, and reports the final
+status, iteration count, and changed/rejected path counts. This logging is
+observability-only: it does not poll or mutate the conversation and does not
+change prompts, scheduling, budgets, integration, checkpoints, or metrics.
+
+The default heartbeat interval is 60 seconds. Operators may change only the
+display frequency, for example:
+
+```bash
+export ASYNCODEBENCH_MANAGER_HEARTBEAT_SECONDS=30
+```
+
 ## Semantics
 
 One persistent logical manager analyzes the task, delegates specialists,

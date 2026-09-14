@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+import time
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -514,6 +515,37 @@ def test_online_manager_integrates_real_scoped_patch(tmp_path, monkeypatch):
     assert not git(repository, "status", "--porcelain")
     assert (output / record["patch"]).is_file()
     assert mode.read_text(encoding="utf-8").strip() == "observe"
+
+
+def test_online_manager_emits_progress_heartbeat_without_touching_execution(
+    monkeypatch,
+):
+    manager = OnlineManager.__new__(OnlineManager)
+    messages = []
+    calls = []
+    manager.log = messages.append
+    manager.send_message = lambda prompt: calls.append(("send", prompt))
+
+    def run_active():
+        calls.append(("run", None))
+        time.sleep(0.045)
+
+    manager.run_active_conversation = run_active
+    monkeypatch.setenv("ASYNCODEBENCH_MANAGER_HEARTBEAT_SECONDS", "0.01")
+    evidence = {
+        "specialist": {"agent_id": "engineer_2", "round": 1},
+        "dependency_checkpoint": {
+            "checkpoint_id": "integration_after_merge:engineer_2:round1"
+        },
+    }
+
+    manager._run_intervention_turn_with_heartbeat(3, evidence, "repair")
+
+    assert calls == [("send", "repair"), ("run", None)]
+    assert any("Online intervention #3 starting" in item for item in messages)
+    assert any("Online intervention #3 still running" in item for item in messages)
+    assert any("conversation returned" in item for item in messages)
+    assert any("completed results are consumed after" in item for item in messages)
 
 
 def test_online_manager_does_not_integrate_partial_patch_after_fatal_error(

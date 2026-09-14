@@ -4,9 +4,14 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
+import os
 import shlex
+import sys
+import threading
 import time
 import uuid
+from contextlib import suppress
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 
@@ -38,6 +43,8 @@ from protocols.asyncodebench.ordering import path_in_scope
 PROTECTED_PARTS = frozenset(
     {".git", "tests", "test", "checkers", "manifests", "evaluators"}
 )
+DEFAULT_HEARTBEAT_SECONDS = 60.0
+HEARTBEAT_ENV = "ASYNCODEBENCH_MANAGER_HEARTBEAT_SECONDS"
 
 
 def dump(path, value) -> None:
@@ -406,6 +413,115 @@ class OnlineManager(AsynCodeBenchManager):
             ),
         }
 
+    def _heartbeat_seconds(self) -> float:
+        """Return a safe, observability-only heartbeat interval."""
+
+        raw = os.getenv(HEARTBEAT_ENV, str(DEFAULT_HEARTBEAT_SECONDS))
+        try:
+            interval = float(raw)
+        except (TypeError, ValueError):
+            interval = DEFAULT_HEARTBEAT_SECONDS
+            self.log(
+                f"Ignoring invalid {HEARTBEAT_ENV}={raw!r}; "
+                f"using {DEFAULT_HEARTBEAT_SECONDS:g}s"
+            )
+        if not math.isfinite(interval) or interval <= 0:
+            interval = DEFAULT_HEARTBEAT_SECONDS
+            self.log(
+                f"Ignoring non-positive {HEARTBEAT_ENV}={raw!r}; "
+                f"using {DEFAULT_HEARTBEAT_SECONDS:g}s"
+            )
+        return interval
+
+    def _progress_log(self, message: str) -> None:
+        """Emit a heartbeat line immediately, including under redirected stdout."""
+
+        self.log(message)
+        with suppress(AttributeError, OSError):
+            sys.stdout.flush()
+
+    @staticmethod
+    def _intervention_trigger_label(evidence: dict) -> tuple[str, str]:
+        specialist = evidence.get("specialist", {})
+        checkpoint = evidence.get("dependency_checkpoint", {})
+        agent = specialist.get("agent_id") or "unknown-agent"
+        round_num = specialist.get("round") or "?"
+        checkpoint_id = checkpoint.get("checkpoint_id") or "unknown-checkpoint"
+        return f"{agent}:round{round_num}", checkpoint_id
+
+    def _run_intervention_turn_with_heartbeat(
+        self, sequence: int, evidence: dict, prompt: str
+    ) -> None:
+        """Run one manager turn while emitting protocol-local progress logs.
+
+        The heartbeat thread only writes human-readable log messages. It does
+        not poll or mutate the conversation, scheduler, workspace, or metrics.
+        """
+
+        trigger, checkpoint_id = self._intervention_trigger_label(evidence)
+        interval = self._heartbeat_seconds()
+        stopped = threading.Event()
+        started = time.monotonic()
+
+        self._progress_log(
+            f"Online intervention #{sequence} starting: trigger={trigger}, "
+            f"checkpoint={checkpoint_id}"
+        )
+        self._progress_log(
+            "Integration processing is serialized at this checkpoint; "
+            "in-flight specialists may continue remotely, while completed "
+            "results are consumed after this intervention"
+        )
+
+        def emit_heartbeat() -> None:
+            heartbeat = 0
+            while not stopped.wait(interval):
+                heartbeat += 1
+                elapsed = time.monotonic() - started
+                self._progress_log(
+                    f"Online intervention #{sequence} still running: "
+                    f"elapsed={elapsed:.0f}s, heartbeat={heartbeat}, "
+                    f"trigger={trigger}, checkpoint={checkpoint_id}"
+                )
+
+        thread = threading.Thread(
+            target=emit_heartbeat,
+            name=f"async-manager-heartbeat-{sequence}",
+            daemon=True,
+        )
+        thread.start()
+        try:
+            self.send_message(prompt)
+            self.run_active_conversation()
+        except BaseException:
+            elapsed = time.monotonic() - started
+            self._progress_log(
+                f"Online intervention #{sequence} conversation exited with "
+                f"an error after {elapsed:.1f}s; validating recovery state"
+            )
+            raise
+        else:
+            elapsed = time.monotonic() - started
+            self._progress_log(
+                f"Online intervention #{sequence} conversation returned after "
+                f"{elapsed:.1f}s; validating scoped workspace changes"
+            )
+        finally:
+            stopped.set()
+            thread.join(timeout=1.0)
+
+    def _log_intervention_result(self, record: dict) -> None:
+        self._progress_log(
+            f"Online intervention #{record['sequence']} finalized: "
+            f"status={record.get('status', 'unknown')}, "
+            f"accepted={record.get('accepted', False)}, "
+            f"duration={record.get('duration', 0.0):.1f}s, "
+            f"iterations={record.get('iterations', 0)}/"
+            f"{record.get('max_iterations', '?')}, "
+            f"changed_paths={len(record.get('changed_paths', []))}, "
+            f"rejected_paths={len(record.get('rejected_paths', []))}"
+        )
+
     def _changed_paths(self) -> list[str]:
         self.task._clean_transient_test_artifacts(self.workspace, self.manager_worktree)
         status = self._command(
@@ -532,8 +648,7 @@ class OnlineManager(AsynCodeBenchManager):
         execution_error = None
         self._set_mode("intervene")
         try:
-            self.send_message(prompt)
-            self.run_active_conversation()
+            self._run_intervention_turn_with_heartbeat(sequence, evidence, prompt)
         except Exception as error:
             execution_error = f"{type(error).__name__}: {error}"
             self.log(f"Online intervention ended with: {execution_error}")
@@ -626,12 +741,15 @@ class OnlineManager(AsynCodeBenchManager):
         }
         if fatal_execution_error:
             record["status"] = "execution_error"
+            self._log_intervention_result(record)
             return record
         if violations:
             record["status"] = "scope_rejected"
+            self._log_intervention_result(record)
             return record
         if not changed:
             record["status"] = "no_change"
+            self._log_intervention_result(record)
             return record
 
         commit_message = "Async-Manager online intervention " + str(sequence)
@@ -666,6 +784,7 @@ class OnlineManager(AsynCodeBenchManager):
             event, commit, sequence
         )
         self.accepted_interventions += 1
+        self._log_intervention_result(record)
         return record
 
     def finalize_intervention_record(
