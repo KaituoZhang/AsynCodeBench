@@ -1,0 +1,19 @@
+An online integration event has just occurred. You are the same persistent
+manager that analyzed and delegated this run.
+
+Inspect the event evidence and current manager worktree. Decide whether a
+small production-code intervention is needed now to repair a cross-specialist
+contract, recover a rejected artifact's intent, or prevent an integration
+regression.
+
+During this event only, the file editor may modify production paths in the
+declared manager scope. Terminal commands remain read-only and may be used for
+inspection and tests. Do not modify tests, checkers, manifests, evaluators,
+harness files, or Git metadata. Do not commit, merge, reset, or access another
+worktree; the harness owns integration.
+
+If no intervention is justified, make no edits. Prefer the smallest coherent
+patch. Finish with a concise explanation of the decision.
+
+Event evidence:
+{event_json}
