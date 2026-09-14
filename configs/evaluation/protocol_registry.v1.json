@@ -1,0 +1,35 @@
+{
+  "benchmark": "AsynCodeBench",
+  "description": "Public protocol registry. The online Async-Manager reuses the released CAID specialist decomposition while defining a distinct intervention and integration policy.",
+  "protocols": {
+    "async_manager": {
+      "display_name": "Async-Manager",
+      "execution_profile": "configs/evaluation/official_execution_profile.v3.json",
+      "implementation": "reproductions/async-swe-agents/protocols/async_manager",
+      "official": true,
+      "policy": "async-manager-online-v1",
+      "scenario_source_protocol": "caid_manager"
+    },
+    "async_private": {
+      "display_name": "Async-Private",
+      "execution_profile": "configs/evaluation/official_execution_profile.v2.json",
+      "official": true
+    },
+    "caid_manager": {
+      "display_name": "Async-RO-Manager",
+      "execution_profile": "configs/evaluation/official_execution_profile.v2.json",
+      "official": true
+    },
+    "serial_specialists": {
+      "display_name": "Serial",
+      "execution_profile": "configs/evaluation/official_execution_profile.v2.json",
+      "official": true
+    },
+    "single": {
+      "display_name": "Single",
+      "execution_profile": "configs/evaluation/official_execution_profile.v2.json",
+      "official": true
+    }
+  },
+  "schema_version": "asyncodebench-protocol-registry-v1"
+}

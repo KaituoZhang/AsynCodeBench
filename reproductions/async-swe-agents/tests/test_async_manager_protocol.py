@@ -6,16 +6,16 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import core.subagent as subagent_module
-from async_manager_extension import POLICY, PROTOCOL
-from async_manager_extension.campaign import trajectory_metrics
-from async_manager_extension.checkpoint_bridge import online_checkpoint_bridge
-from async_manager_extension.guard import guard_command
-from async_manager_extension.manager import OnlineManager, safe_production_path
-from async_manager_extension.terminal_guard import POLICY as TERMINAL_POLICY
-from async_manager_extension.terminal_guard import command as terminal_guard_command
+from protocols.async_manager import POLICY, PROTOCOL
+from protocols.async_manager.campaign import trajectory_metrics
+from protocols.async_manager.checkpoint_bridge import online_checkpoint_bridge
+from protocols.async_manager.guard import guard_command
+from protocols.async_manager.manager import OnlineManager, safe_production_path
+from protocols.async_manager.terminal_guard import POLICY as TERMINAL_POLICY
+from protocols.async_manager.terminal_guard import command as terminal_guard_command
 from run_async_manager import (
     FROZEN_BASE_REVISION,
-    assert_frozen_base_unchanged,
+    assert_legacy_execution_unchanged,
     async_manager_profile,
 )
 
@@ -77,18 +77,21 @@ def run_hook(command: str, event: dict) -> dict:
     return json.loads(result.stdout)
 
 
-def test_profile_is_additive_and_pins_frozen_base():
+def test_profile_is_official_and_pins_frozen_base():
     profile = async_manager_profile()
     assert profile["protocol"] == PROTOCOL
     assert profile["policy"] == POLICY
     assert profile["base_protocol"] == "caid_manager"
-    assert profile["official_four_protocol_aggregate"] is False
+    assert profile["official_five_protocol_aggregate"] is True
     assert len(FROZEN_BASE_REVISION) == 40
 
 
 def test_prompt_templates_render_without_treating_json_as_format_fields():
     prompt_path = (
-        Path(__file__).resolve().parents[1] / "async_manager_extension" / "prompts.json"
+        Path(__file__).resolve().parents[1]
+        / "protocols"
+        / "async_manager"
+        / "prompts.json"
     )
     prompts = json.loads(prompt_path.read_text(encoding="utf-8"))
     rendered = prompts["assign_task"].format(
@@ -141,7 +144,21 @@ def test_campaign_trajectory_metrics_use_only_integrated_states():
 
 def test_existing_protocol_implementation_paths_are_unchanged():
     root = Path(__file__).resolve().parents[3]
-    assert_frozen_base_unchanged(root)
+    assert_legacy_execution_unchanged(root)
+
+
+def test_async_manager_is_registered_as_a_public_protocol():
+    from asyncodebench_harness.protocol_registry import (
+        SUPPORTED_PROTOCOLS,
+        load_protocol_registry,
+    )
+    from run_asyncodebench import SUPPORTED_PROTOCOLS as RUNNER_PROTOCOLS
+
+    registry = load_protocol_registry()
+    assert PROTOCOL in SUPPORTED_PROTOCOLS
+    assert PROTOCOL in RUNNER_PROTOCOLS
+    assert registry["protocols"][PROTOCOL]["official"] is True
+    assert registry["protocols"][PROTOCOL]["scenario_source_protocol"] == "caid_manager"
 
 
 def test_phase_guard_allows_only_scoped_intervention_edits(tmp_path):
@@ -225,7 +242,7 @@ def test_terminal_session_recovery_preserves_logical_manager_accounting(monkeypa
     setup_modes = []
     manager.setup = lambda mode: setup_modes.append(mode)
     monkeypatch.setattr(
-        "async_manager_extension.manager.extract_conversation_metrics",
+        "protocols.async_manager.manager.extract_conversation_metrics",
         lambda _conversation: {
             "cost": 0.5,
             "prompt_tokens": 10,
@@ -383,11 +400,11 @@ def test_online_manager_integrates_real_scoped_patch(tmp_path, monkeypatch):
 
     manager.run_active_conversation = run_active
     monkeypatch.setattr(
-        "async_manager_extension.manager.extract_conversation_metrics",
+        "protocols.async_manager.manager.extract_conversation_metrics",
         lambda _conversation: {"cost": 0.0, "total_tokens": 0},
     )
     monkeypatch.setattr(
-        "async_manager_extension.manager.count_llm_iterations", lambda _events: 0
+        "protocols.async_manager.manager.count_llm_iterations", lambda _events: 0
     )
     event = {
         "subagent_result": SimpleNamespace(
@@ -481,11 +498,11 @@ def test_online_manager_does_not_integrate_partial_patch_after_fatal_error(
 
     manager.run_active_conversation = fail_after_partial_edit
     monkeypatch.setattr(
-        "async_manager_extension.manager.extract_conversation_metrics",
+        "protocols.async_manager.manager.extract_conversation_metrics",
         lambda _conversation: {"cost": 0.0, "total_tokens": 0},
     )
     monkeypatch.setattr(
-        "async_manager_extension.manager.count_llm_iterations", lambda _events: 0
+        "protocols.async_manager.manager.count_llm_iterations", lambda _events: 0
     )
     event = {
         "subagent_result": SimpleNamespace(

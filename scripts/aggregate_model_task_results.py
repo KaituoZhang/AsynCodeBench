@@ -31,7 +31,9 @@ OFFICIAL_TASKS = [
     "python-rsa",
     "cookiecutter",
 ]
-MODE_ORDER = ["single", "serial_specialists", "async_private", "caid_manager"]
+LEGACY_MODE_ORDER = ["single", "serial_specialists", "async_private", "caid_manager"]
+FIVE_PROTOCOL_MODE_ORDER = [*LEGACY_MODE_ORDER, "async_manager"]
+MODE_ORDER = FIVE_PROTOCOL_MODE_ORDER
 MODE_ALIASES = {"CAID_multi": "caid_manager"}
 DISPLAY_METRICS = [
     "final_success",
@@ -58,6 +60,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--model-tag", required=True)
     parser.add_argument("--tasks", nargs="*", default=OFFICIAL_TASKS)
     parser.add_argument(
+        "--protocol-set",
+        choices=("auto", "legacy-four", "official-five"),
+        default="auto",
+        help="Infer four/five rows from inputs, or require one protocol set.",
+    )
+    parser.add_argument(
         "--allow-ineligible",
         action="store_true",
         help=(
@@ -67,6 +75,25 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     return parser.parse_args()
+
+
+def resolve_mode_order(args: argparse.Namespace) -> list[str]:
+    if args.protocol_set == "legacy-four":
+        return LEGACY_MODE_ORDER
+    if args.protocol_set == "official-five":
+        return FIVE_PROTOCOL_MODE_ORDER
+    first = args.input_dir / f"{args.tasks[0]}_{args.model_tag}_metrics_table.csv"
+    if not first.is_file():
+        raise FileNotFoundError(first)
+    observed = [
+        MODE_ALIASES.get(row.get("mode"), row.get("mode"))
+        for row in csv.DictReader(first.open(encoding="utf-8"))
+    ]
+    if observed == LEGACY_MODE_ORDER:
+        return LEGACY_MODE_ORDER
+    if observed == FIVE_PROTOCOL_MODE_ORDER:
+        return FIVE_PROTOCOL_MODE_ORDER
+    raise ValueError(f"Cannot infer protocol set from {first}: {observed}")
 
 
 def as_float(value: Any) -> float | None:
@@ -93,6 +120,12 @@ def sha256_file(path: Path) -> str:
         for chunk in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def configured_execution_profile(relative_path: str) -> tuple[str, str]:
+    path = Path(__file__).resolve().parents[1] / relative_path
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    return payload["profile_id"], sha256_file(path)
 
 
 def average(rows: list[dict[str, Any]], field: str) -> float | None:
@@ -280,13 +313,49 @@ def validate_campaign_lineage(args: argparse.Namespace, rows: list[dict[str, Any
         )
         for row in rows
     }
-    if len(execution_profiles) != 1 or any(
+    profiles_complete = not any(
         not profile_id or not profile_sha256
         for profile_id, profile_sha256 in execution_profiles
-    ):
+    )
+    compatible_five_protocol_profiles = False
+    if MODE_ORDER == FIVE_PROTOCOL_MODE_ORDER and profiles_complete:
+        legacy_profile = configured_execution_profile(
+            "configs/evaluation/official_execution_profile.v2.json"
+        )
+        manager_profile = configured_execution_profile(
+            "configs/evaluation/official_execution_profile.v3.json"
+        )
+        compatible_five_protocol_profiles = execution_profiles == {
+            legacy_profile,
+            manager_profile,
+        } and all(
+            (
+                row["mode"] == "async_manager"
+                and (
+                    row.get("execution_profile_id"),
+                    row.get("execution_profile_sha256"),
+                )
+                == manager_profile
+            )
+            or (
+                row["mode"] != "async_manager"
+                and (
+                    row.get("execution_profile_id"),
+                    row.get("execution_profile_sha256"),
+                )
+                == legacy_profile
+            )
+            for row in rows
+        )
+    invalid_profile_set = (
+        len(execution_profiles) != 1 and not compatible_five_protocol_profiles
+    ) or not profiles_complete
+    if invalid_profile_set:
         raise ValueError(
-            "Official aggregate requires one bundle-recorded execution profile "
-            f"ID and SHA256; found {execution_profiles}"
+            "Official aggregate requires one execution profile ID and SHA256, "
+            "or the registered v2/v3 profile pair for the five-protocol "
+            "comparison; found "
+            f"{execution_profiles}"
         )
 
     for task in args.tasks:
@@ -527,6 +596,13 @@ def write_compact_markdown(
     rows: list[dict[str, Any]],
     tasks: list[str],
 ) -> None:
+    protocol_labels = {
+        "single": "Single",
+        "serial_specialists": "Serial",
+        "async_private": "Async-private",
+        "caid_manager": "Async-RO-Manager",
+        "async_manager": "Async-Manager",
+    }
     lines = [
         "# Model Aggregate Metrics",
         "",
@@ -572,8 +648,12 @@ def write_compact_markdown(
             "",
             "## Per-Task Core Results",
             "",
-            "| Task | Single pass / ADPR | Serial pass / ADPR | Async-private pass / ADPR | CAID pass / ADPR |",
-            "| --- | ---: | ---: | ---: | ---: |",
+            "| Task | "
+            + " | ".join(
+                f"{protocol_labels[mode]} pass / ADPR" for mode in MODE_ORDER
+            )
+            + " |",
+            "| --- | " + " | ".join("---:" for _ in MODE_ORDER) + " |",
         ]
     )
     indexed = {(row["task"], row["mode"]): row for row in rows}
@@ -606,7 +686,8 @@ def write_grouped_display_csv(
         "single": "Single",
         "serial_specialists": "Serial",
         "async_private": "Async Private",
-        "caid_manager": "CAID Manager",
+        "caid_manager": "Async RO Manager",
+        "async_manager": "Async Manager",
     }
     indexed = {(row["task"], row["mode"]): row for row in rows}
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -632,7 +713,9 @@ def write_grouped_display_csv(
 
 
 def main() -> int:
+    global MODE_ORDER
     args = parse_args()
+    MODE_ORDER = resolve_mode_order(args)
     rows = load_rows(args)
     validate_campaign_lineage(args, rows)
     summaries = summary_rows(rows)

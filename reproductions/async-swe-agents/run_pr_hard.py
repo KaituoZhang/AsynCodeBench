@@ -34,6 +34,7 @@ PROTOCOL_ELIGIBILITY = {
     "serial_specialists": "serial_specialists",
     "async_private": "async_private",
     "caid_manager": "async_message",
+    "async_manager": "async_message",
 }
 
 
@@ -203,6 +204,29 @@ def main(
     if protocol not in SUPPORTED_PROTOCOLS:
         choices = ", ".join(sorted(SUPPORTED_PROTOCOLS))
         raise ValueError(f"Unsupported protocol={protocol!r}; choose from: {choices}")
+    if protocol == "async_manager":
+        from run_async_manager import main as run_online_manager
+
+        return run_online_manager(
+            task_id=task_id,
+            model=model,
+            subagent_model=subagent_model,
+            max_iterations=max_iterations,
+            max_subagents=max_subagents,
+            sub_iterations=sub_iterations,
+            rounds_of_chat=rounds_of_chat,
+            output_dir=output_dir,
+            run_id=run_id,
+            runtime_root=runtime_root,
+            build_cache_root=build_cache_root,
+            runtime_backend=runtime_backend,
+            runtime_image=runtime_image,
+            agent=agent,
+            agent_import_path=agent_import_path,
+            agent_config_json=agent_config_json,
+            dry_run=dry_run,
+            allow_unqualified=allow_unqualified,
+        )
     model = model or os.getenv("LLM_MODEL")
     if not model:
         raise ValueError("A model is required via --model or LLM_MODEL")

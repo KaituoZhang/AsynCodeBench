@@ -141,6 +141,11 @@ class AsynCodeBenchTask(Commit0Task):
 
     def scenario_for(self, protocol=None):
         protocol = protocol or self.active_protocol
+        # Async-Manager is a distinct execution protocol over the exact same
+        # released specialist decomposition as Async-RO-Manager. Keeping this
+        # alias centralized avoids duplicating or mutating the task manifests.
+        if protocol == "async_manager":
+            protocol = "caid_manager"
         execution_mode = {
             "single": "iterative_single",
             "caid_manager": "async_message",

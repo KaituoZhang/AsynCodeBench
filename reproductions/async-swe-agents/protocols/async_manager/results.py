@@ -8,15 +8,14 @@ from pathlib import Path
 from asyncodebench_harness.health import inspect_run
 from asyncodebench_harness.results import (
     REQUIRED_ARTIFACTS,
-    _artifact_inventory,
     _cross_artifact_checks,
-    _final_test_payload,
-    _provenance,
     _release_contract_checks,
     _sha256,
+    build_run_bundle,
+    validate_run_bundle,
 )
 
-from async_manager_extension import POLICY, PROTOCOL
+from protocols.async_manager import POLICY, PROTOCOL
 
 REQUIRED_EXTENSION_ARTIFACTS = (
     "async_manager_profile_snapshot.json",
@@ -83,10 +82,7 @@ def validate(directory, verify_inventory=True):
     cross, _, _, _ = _cross_artifact_checks(directory, expected)
     issues.extend(cross)
 
-    # Task content and specialist decomposition are exactly the released CAID
-    # scenario.  The new protocol intentionally remains outside the old index.
-    release_contract = dict(expected, protocol="caid_manager")
-    release_issues, _ = _release_contract_checks(directory, release_contract, metadata)
+    release_issues, _ = _release_contract_checks(directory, expected, metadata)
     issues.extend(release_issues)
     health = inspect_run(directory)
     issues.extend(health["hard_failures"] + health["review_flags"])
@@ -94,7 +90,7 @@ def validate(directory, verify_inventory=True):
     profile = json.loads(
         (directory / "async_manager_profile_snapshot.json").read_text(encoding="utf-8")
     )
-    extension = metadata.get("async_manager_extension", {})
+    extension = metadata.get("async_manager_protocol", {})
     if profile.get("protocol") != PROTOCOL or profile.get("policy") != POLICY:
         issues.append("invalid_async_manager_profile")
     if extension.get("policy") != POLICY:
@@ -168,9 +164,19 @@ def validate(directory, verify_inventory=True):
             bundle = json.loads(bundle_path.read_text(encoding="utf-8"))
             if (
                 bundle.get("protocol") != PROTOCOL
-                or bundle.get("schema_version") != POLICY
+                or bundle.get("schema_version") != "0.2"
             ):
                 issues.append("bundle_identity_mismatch")
+            expected_online_manager = {
+                "policy": POLICY,
+                "events": len(records),
+                "accepted": accepted,
+                "scope_rejected": sum(
+                    row.get("status") == "scope_rejected" for row in records
+                ),
+            }
+            if bundle.get("online_manager") != expected_online_manager:
+                issues.append("online_manager_summary_mismatch")
             for name, info in bundle.get("artifacts", {}).items():
                 path = directory / name
                 if not path.is_file() or _sha256(path) != info["sha256"]:
@@ -178,30 +184,20 @@ def validate(directory, verify_inventory=True):
     return sorted(set(issues))
 
 
-def finalize(directory):
+def finalize(directory, *, task, agent_adapter):
     directory = Path(directory)
     issues = validate(directory, verify_inventory=False)
-    metadata = json.loads((directory / "run_metadata.json").read_text(encoding="utf-8"))
-    profile = json.loads(
-        (directory / "execution_profile_snapshot.json").read_text(encoding="utf-8")
-    )
-    report = (
-        json.loads((directory / "report.json").read_text(encoding="utf-8"))
-        if (directory / "report.json").exists()
-        else {}
-    )
     records = _load_interventions(directory, [])
-    bundle = {
-        "schema_version": POLICY,
-        "benchmark": "AsynCodeBench",
-        **{key: metadata[key] for key in ("task_id", "release", "protocol", "model")},
-        "status": "invalid" if issues else "valid",
-        "instrumentation": {"valid": not issues, "issues": issues},
-        "eligibility": {
-            "official_aggregate": False,
-            "async_manager_comparison": not issues,
-        },
-        "online_manager": {
+    if issues:
+        raise RuntimeError(
+            "Async-Manager result validation failed: " + "; ".join(issues)
+        )
+    _, bundle = build_run_bundle(
+        task,
+        directory,
+        PROTOCOL,
+        agent_adapter,
+        protocol_details={
             "policy": POLICY,
             "events": len(records),
             "accepted": sum(bool(row.get("accepted")) for row in records),
@@ -209,13 +205,11 @@ def finalize(directory):
                 row.get("status") == "scope_rejected" for row in records
             ),
         },
-        "provenance": _provenance(metadata, profile),
-        "final_test": _final_test_payload(report),
-        "artifacts": _artifact_inventory(directory),
-    }
-    dump(directory / "run_bundle.json", bundle)
-    if issues:
+    )
+    validation = validate_run_bundle(directory)
+    if not validation["valid"]:
         raise RuntimeError(
-            "Async-Manager result validation failed: " + "; ".join(issues)
+            "Async-Manager standard bundle validation failed: "
+            + "; ".join(validation["issues"])
         )
     return bundle

@@ -11,6 +11,12 @@ from pathlib import Path
 from jsonschema import Draft202012Validator
 
 from .health import inspect_run
+from .protocol_registry import (
+    SUPPORTED_PROTOCOLS,
+    load_protocol_registry,
+    protocol_registry_path,
+    scenario_source_protocol,
+)
 
 RUN_BUNDLE_SCHEMA_VERSION = "0.2"
 REQUIRED_ARTIFACTS = (
@@ -28,12 +34,7 @@ REQUIRED_ARTIFACTS = (
     "cost.json",
     "runtime.txt",
 )
-PROTOCOLS = {
-    "single",
-    "serial_specialists",
-    "async_private",
-    "caid_manager",
-}
+PROTOCOLS = SUPPORTED_PROTOCOLS
 SNAPSHOT_TO_METADATA_KEY = {
     "task_snapshot.json": "task",
     "scenario_manifest_snapshot.json": "scenario",
@@ -263,7 +264,9 @@ def _release_contract_checks(run_dir, expected, metadata):
     if task_record.get("source_task_id") != expected.get("source_task_id"):
         issues.append("release_source_task_id_mismatch")
 
-    protocol_record = task_record.get("protocols", {}).get(expected.get("protocol"))
+    requested_protocol = expected.get("protocol")
+    contract_protocol = scenario_source_protocol(requested_protocol)
+    protocol_record = task_record.get("protocols", {}).get(contract_protocol)
     if not isinstance(protocol_record, dict):
         issues.append("protocol_not_in_release_index")
     else:
@@ -297,18 +300,44 @@ def _release_contract_checks(run_dir, expected, metadata):
     if recorded_source.get("overlays", []) != release_source.get("overlays", []):
         issues.append("release_source_mismatch:overlays")
 
-    release_profile = index.get("execution_profile", {})
     profile_snapshot = run_dir / "execution_profile_snapshot.json"
-    if metadata.get("execution_profile", {}).get("profile_id") != release_profile.get(
-        "profile_id"
-    ):
-        issues.append("release_execution_profile_id_mismatch")
-    if (
-        not profile_snapshot.is_file()
-        or not release_profile.get("sha256")
-        or _sha256(profile_snapshot) != release_profile.get("sha256")
-    ):
-        issues.append("release_execution_profile_checksum_mismatch")
+    if requested_protocol == "async_manager":
+        registry = load_protocol_registry()
+        registry_record = registry["protocols"].get(requested_protocol, {})
+        registered_profile = registry_record.get("execution_profile")
+        registered_profile_path = _repo_root() / str(registered_profile)
+        if registry_record.get("official") is not True:
+            issues.append("protocol_not_official")
+        if registry_record.get("scenario_source_protocol") != contract_protocol:
+            issues.append("protocol_scenario_source_mismatch")
+        if metadata.get("execution_profile", {}).get("path") != registered_profile:
+            issues.append("protocol_execution_profile_path_mismatch")
+        if (
+            not registered_profile_path.is_file()
+            or not profile_snapshot.is_file()
+            or _sha256(profile_snapshot) != _sha256(registered_profile_path)
+        ):
+            issues.append("protocol_execution_profile_checksum_mismatch")
+        registry_path = protocol_registry_path()
+        contract = metadata.get("protocol_contract", {})
+        if (
+            contract.get("path")
+            != registry_path.relative_to(_repo_root()).as_posix()
+            or contract.get("sha256") != _sha256(registry_path)
+        ):
+            issues.append("protocol_registry_contract_mismatch")
+    else:
+        release_profile = index.get("execution_profile", {})
+        if metadata.get("execution_profile", {}).get(
+            "profile_id"
+        ) != release_profile.get("profile_id"):
+            issues.append("release_execution_profile_id_mismatch")
+        if (
+            not profile_snapshot.is_file()
+            or not release_profile.get("sha256")
+            or _sha256(profile_snapshot) != release_profile.get("sha256")
+        ):
+            issues.append("release_execution_profile_checksum_mismatch")
 
     return _dedupe(issues), release_record
 
@@ -538,7 +567,9 @@ def _eligibility(health, profile_metadata, provenance, candidate_lane=None):
     return values
 
 
-def build_run_bundle(task, output_dir, protocol, agent_adapter):
+def build_run_bundle(
+    task, output_dir, protocol, agent_adapter, *, protocol_details=None
+):
     """Freeze artifact checksums and strict result eligibility after a run."""
 
     output_dir = Path(output_dir)
@@ -621,6 +652,8 @@ def build_run_bundle(task, output_dir, protocol, agent_adapter):
         "final_test": _final_test_payload(report),
         "artifacts": artifacts,
     }
+    if protocol_details is not None:
+        payload["online_manager"] = protocol_details
 
     schema_issues = _schema_errors(payload)
     if schema_issues:
@@ -667,6 +700,13 @@ def validate_run_bundle(run_dir, verify_checksums=True):
         issues.append("noncanonical_task_id")
     if bundle.get("protocol") not in PROTOCOLS:
         issues.append("noncanonical_protocol")
+    elif bundle.get("protocol") == "async_manager":
+        # The common validator owns admission for all official protocols. The
+        # protocol-specific verifier adds intervention provenance and cost
+        # consistency checks without rerunning either model or evaluator.
+        from protocols.async_manager.results import validate as validate_online_manager
+
+        issues.extend(validate_online_manager(run_dir, verify_inventory=True))
 
     artifacts = bundle.get("artifacts", {})
     for name in REQUIRED_ARTIFACTS:

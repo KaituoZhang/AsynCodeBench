@@ -2,9 +2,9 @@
 
 ## Status
 
-`async_manager` is a versioned, additive protocol extension built on the frozen
-AsynCodeBench task and evaluation contracts. It does not replace or alter the
-four released protocol identifiers:
+`async_manager` is the fifth official protocol in the public AsynCodeBench
+protocol registry. It is built additively on the frozen task and evaluation
+contracts and does not replace or alter the four earlier protocol identifiers:
 
 - `single`
 - `serial_specialists`
@@ -61,17 +61,17 @@ protocol progress, not raw latency.
 - Model network access inherits the task's existing network policy.
 - The harness owns commits and uses verified fast-forward integration.
 - Existing output directories remain immutable.
-- Formal runs require clean, committed extension sources.
-- Frozen protocol paths are checked against base revision `547a84e` before
-  execution.
+- Formal runs require clean, committed execution sources.
+- Frozen legacy execution engines are checked against base revision `73c9877`
+  before execution.
 - Costs and tokens are summed across all recovered manager transport sessions.
 
 ## Reproduction
 
 See
-`reproductions/async-swe-agents/async_manager_extension/README.md` for the
+`reproductions/async-swe-agents/protocols/async_manager/README.md` for the
 single-task, sharded 20-task, validation, and campaign-summary commands. Every
-completed bundle snapshots the extension profile and exact source files with
+completed bundle snapshots the protocol profile and exact source files with
 SHA-256 hashes.
 
 ## Publication naming
@@ -84,6 +84,11 @@ Recommended display labels are:
 | `caid_manager_repair` | Async-RO-Manager + Final Repair | post-hoc repair ablation |
 | `async_manager` | Async-Manager | online coordination and scoped intervention |
 
-Until a new benchmark release explicitly incorporates the extension, its
-bundles remain outside the frozen four-protocol aggregate and should be reported
-as a separate protocol comparison.
+`configs/evaluation/protocol_registry.v1.json` gives these five protocols equal
+public status. The old four-protocol execution profile and release-index
+checksums remain unchanged so historical bundles continue to validate. New
+`async_manager` runs use `official_execution_profile.v3.json` and are eligible
+for the official five-protocol aggregate when their standard run bundle passes.
+The aggregate tool explicitly admits the registered v2/v3 profile pair: the
+four frozen cells retain v2 provenance and only the new Async-Manager cell uses
+v3, so adding this protocol does not require rerunning completed experiments.

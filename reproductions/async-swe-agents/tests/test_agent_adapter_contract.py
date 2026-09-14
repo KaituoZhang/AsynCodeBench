@@ -219,7 +219,13 @@ def test_custom_adapter_survives_dynamic_runner_cloning(tmp_path):
 
 @pytest.mark.parametrize(
     "protocol",
-    ("single", "serial_specialists", "async_private", "caid_manager"),
+    (
+        "single",
+        "serial_specialists",
+        "async_private",
+        "caid_manager",
+        "async_manager",
+    ),
 )
 def test_all_protocols_route_through_selected_adapter(protocol, tmp_path):
     adapter = RecordingAdapter()

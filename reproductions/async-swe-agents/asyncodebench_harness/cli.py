@@ -10,14 +10,9 @@ from pathlib import Path
 from urllib import error, request
 
 from .health import inspect_run
+from .protocol_registry import PROTOCOL_ORDER
 from .results import validate_run_bundle
 
-PROTOCOL_ORDER = (
-    "single",
-    "serial_specialists",
-    "async_private",
-    "caid_manager",
-)
 LITELLM_PROVIDER_PREFIXES = {
     "anthropic",
     "azure",
@@ -555,6 +550,22 @@ def _doctor(args):
             "name": "official_execution_profile",
             "ok": (
                 _repo_root() / "configs/evaluation/official_execution_profile.v2.json"
+            ).is_file(),
+        }
+    )
+    checks.append(
+        {
+            "name": "five_protocol_execution_profile",
+            "ok": (
+                _repo_root() / "configs/evaluation/official_execution_profile.v3.json"
+            ).is_file(),
+        }
+    )
+    checks.append(
+        {
+            "name": "protocol_registry",
+            "ok": (
+                _repo_root() / "configs/evaluation/protocol_registry.v1.json"
             ).is_file(),
         }
     )

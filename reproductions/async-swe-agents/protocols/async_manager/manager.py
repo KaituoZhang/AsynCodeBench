@@ -29,11 +29,11 @@ from core.workspace_isolation import (
 from openhands.sdk import Agent, Conversation, LLMSummarizingCondenser
 from openhands.sdk.context import AgentContext
 from openhands.tools.preset.default import get_default_tools
-from protocols.asyncodebench.ordering import path_in_scope
 
-from async_manager_extension import POLICY, PROTOCOL
-from async_manager_extension.guard import build_guard
-from async_manager_extension.terminal_guard import build_terminal_guard
+from protocols.async_manager import POLICY, PROTOCOL
+from protocols.async_manager.guard import build_guard
+from protocols.async_manager.terminal_guard import build_terminal_guard
+from protocols.asyncodebench.ordering import path_in_scope
 
 PROTECTED_PARTS = frozenset(
     {".git", "tests", "test", "checkers", "manifests", "evaluators"}

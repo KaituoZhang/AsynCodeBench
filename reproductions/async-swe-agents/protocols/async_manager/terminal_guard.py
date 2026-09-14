@@ -1,7 +1,7 @@
 """Read-only shell policy for an otherwise writable online manager.
 
 The released CAID guard already implements the audited shell parser.  This
-extension reuses that pinned parser while changing its policy identity so a
+protocol reuses that pinned parser while changing its policy identity so a
 denial cannot be mistaken for the Async-RO-Manager protocol.  Production edits
 remain available through the separately phase-gated file editor.
 """

@@ -22,7 +22,7 @@
     "benchmark_task_id": {"pattern": "^asyncodebench:[A-Za-z0-9_.-]+$"},
     "source_task_id": {"type": "string"},
     "protocol": {
-      "enum": ["single", "serial_specialists", "async_private", "caid_manager"]
+      "enum": ["single", "serial_specialists", "async_private", "caid_manager", "async_manager"]
     },
     "scenario_id": {"type": "string", "minLength": 1},
     "agent_id": {"type": "string", "minLength": 1},

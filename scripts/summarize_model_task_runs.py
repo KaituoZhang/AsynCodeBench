@@ -22,7 +22,13 @@ import sys
 from pathlib import Path
 from typing import Any
 
-MODE_ORDER = ["single", "serial_specialists", "async_private", "caid_manager"]
+MODE_ORDER = [
+    "single",
+    "serial_specialists",
+    "async_private",
+    "caid_manager",
+    "async_manager",
+]
 MODE_ALIASES = {"CAID_multi": "caid_manager"}
 INDEXED_PATTERNS = [
     "run_metadata.json",
@@ -83,7 +89,11 @@ def parse_args() -> argparse.Namespace:
         action="append",
         required=True,
         metavar="MODE=PATH",
-        help="Protocol run directory. Repeat for single/serial_specialists/async_private/caid_manager.",
+        help=(
+            "Protocol run directory. Repeat for each selected protocol; both "
+            "the historical four-protocol set and the official five-protocol "
+            "set are supported."
+        ),
     )
     parser.add_argument(
         "--allow-invalid-bundle",

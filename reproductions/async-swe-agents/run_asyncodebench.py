@@ -15,6 +15,7 @@ if any(argument in {"--dry_run", "--dry-run"} for argument in sys.argv[1:]):
 
 import fire
 from agents import load_agent_adapter
+from asyncodebench_harness.protocol_registry import SUPPORTED_PROTOCOLS
 from asyncodebench_harness.results import build_run_bundle
 from config import WorkflowConfig
 from core.asyncodebench_manager import AsynCodeBenchManager
@@ -28,13 +29,6 @@ from protocols.asyncodebench.ordering import topological_assignments
 from protocols.asyncodebench.profile import execution_profile_metadata
 from run_infer import run_workflow
 from tasks.asyncodebench import AsynCodeBenchConfig, AsynCodeBenchTask
-
-SUPPORTED_PROTOCOLS = {
-    "single",
-    "serial_specialists",
-    "async_private",
-    "caid_manager",
-}
 
 
 def _safe_component(value):
@@ -211,6 +205,29 @@ def main(
     if protocol not in SUPPORTED_PROTOCOLS:
         choices = ", ".join(sorted(SUPPORTED_PROTOCOLS))
         raise ValueError(f"Unsupported protocol={protocol!r}; choose from: {choices}")
+    if protocol == "async_manager":
+        # Lazy import avoids a module cycle: the dedicated engine reuses the
+        # common output and runtime helpers defined above.
+        from run_async_manager import main as run_online_manager
+
+        return run_online_manager(
+            task_id=task_id,
+            model=model,
+            subagent_model=subagent_model,
+            max_iterations=max_iterations,
+            max_subagents=max_subagents,
+            sub_iterations=sub_iterations,
+            rounds_of_chat=rounds_of_chat,
+            output_dir=output_dir,
+            run_id=run_id,
+            release=release,
+            docker_image_prefix=docker_image_prefix,
+            curated_config_path=curated_config_path,
+            agent=agent,
+            agent_import_path=agent_import_path,
+            agent_config_json=agent_config_json,
+            dry_run=dry_run,
+        )
     model = model or os.getenv("LLM_MODEL")
     if not model:
         raise ValueError("A model is required via --model or LLM_MODEL")

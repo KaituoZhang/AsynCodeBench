@@ -33,7 +33,7 @@
     },
     "source_task_id": {"type": "string", "minLength": 1},
     "protocol": {
-      "enum": ["single", "serial_specialists", "async_private", "caid_manager"]
+      "enum": ["single", "serial_specialists", "async_private", "caid_manager", "async_manager"]
     },
     "scenario_id": {
       "type": "string",
@@ -213,6 +213,17 @@
       },
       "additionalProperties": false
     },
+    "online_manager": {
+      "type": "object",
+      "required": ["policy", "events", "accepted", "scope_rejected"],
+      "properties": {
+        "policy": {"const": "async-manager-online-v1"},
+        "events": {"type": "integer", "minimum": 0},
+        "accepted": {"type": "integer", "minimum": 0},
+        "scope_rejected": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
     "artifacts": {
       "type": "object",
       "minProperties": 1,
@@ -242,5 +253,11 @@
       }
     }
   },
+  "allOf": [
+    {
+      "if": {"properties": {"protocol": {"const": "async_manager"}}},
+      "then": {"required": ["online_manager"]}
+    }
+  ],
   "additionalProperties": false
 }

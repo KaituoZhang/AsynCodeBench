@@ -1,10 +1,10 @@
 # Online Async-Manager protocol v1
 
-This directory contains an additive protocol extension. It does not edit or
-register itself in the released `single`, `serial_specialists`,
-`async_private`, or `caid_manager` implementations. The frozen task,
-specialist, checker, evaluator, and Docker contracts are reused from
-`caid_manager`; only the manager execution policy is new.
+This directory contains the implementation of the fifth official protocol in
+`configs/evaluation/protocol_registry.v1.json`. The frozen task, specialist,
+checker, evaluator, and Docker contracts are reused from `caid_manager`; only
+the manager execution and integration policy is new. The shared public CLI,
+schema, validator, and campaign tooling all recognize `async_manager`.
 
 ## Semantics
 
@@ -41,6 +41,23 @@ TVM uses the same entry point:
 
 ```bash
 bash scripts/run_async_manager_env.sh pr-hard:apache-tvm-20153
+```
+
+To run all five official protocols on a TVM task instead:
+
+```bash
+ENV_FILE="$PWD/.env.my-model" RUN_ID=tvm-five-v01 \
+  scripts/run_pr_hard_five_protocols_env.sh apache-tvm-20153
+```
+
+The canonical public CLI is equivalent:
+
+```bash
+./.venv/bin/python run_asyncodebench.py \
+  --task_id asyncodebench:cachetools \
+  --protocol async_manager \
+  --model "$LLM_MODEL" \
+  --run_id async-manager-v01
 ```
 
 Output directories are immutable. Use a new `RUN_ID` after any interruption.
@@ -85,7 +102,7 @@ across shards does not create output collisions.
 Validate and summarize a complete 20-task campaign:
 
 ```bash
-./.venv/bin/python -m async_manager_extension.campaign \
+./.venv/bin/python -m protocols.async_manager.campaign \
   --root outputs \
   --run-id async_manager_v1_s1 \
   --output-dir ../../docs/results/async_manager_v1_s1 \
@@ -96,9 +113,10 @@ This writes JSON, CSV, and Markdown with FSR, macro/micro ADPR, normalized
 penalized DRS/SCS, normalized RC, tokens, runtime, and intervention counts. The
 direction of every paper-facing aggregate is included in the output.
 
-Formal execution rejects an uncommitted extension, any dirty execution-critical
-harness source, or any difference in frozen protocol paths relative to commit
-`547a84e618a2338f3b7bd30cd976d582c42e661c`.
+Formal execution rejects uncommitted execution sources, any dirty
+execution-critical harness source, or any difference in frozen legacy
+execution engines relative to commit
+`73c9877315c920867ba72750826b66421be08bc0`.
 
 ## Result contract
 
@@ -108,8 +126,8 @@ The standard run artifacts remain present. Additional evidence includes:
 - `manager_interventions.jsonl`
 - `manager_interventions/NNNN.prompt.txt`
 - `manager_interventions/NNNN.patch`
-- `extension_sources/`
+- `protocol_sources/`
 
-Bundles use protocol `async_manager`, policy `async-manager-online-v1`, and are
-excluded from the frozen four-protocol aggregate. They are eligible for the
-separate Async-Manager comparison when validation succeeds.
+Bundles use the standard run-bundle schema with protocol `async_manager` and
+policy `async-manager-online-v1`. A valid bundle with matched v3 profile and
+complete provenance is eligible for the official five-protocol aggregate.

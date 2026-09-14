@@ -7,19 +7,30 @@ import json
 import os
 from pathlib import Path
 
-PROFILE_RELATIVE_PATH = Path("configs/evaluation/official_execution_profile.v2.json")
+LEGACY_PROFILE_RELATIVE_PATH = Path(
+    "configs/evaluation/official_execution_profile.v2.json"
+)
+ASYNC_MANAGER_PROFILE_RELATIVE_PATH = Path(
+    "configs/evaluation/official_execution_profile.v3.json"
+)
 
 
 def _repo_root() -> Path:
     return Path(__file__).resolve().parents[4]
 
 
-def profile_path() -> Path:
-    return _repo_root() / PROFILE_RELATIVE_PATH
+def profile_relative_path(protocol: str | None = None) -> Path:
+    if protocol == "async_manager":
+        return ASYNC_MANAGER_PROFILE_RELATIVE_PATH
+    return LEGACY_PROFILE_RELATIVE_PATH
 
 
-def load_official_execution_profile() -> dict:
-    path = profile_path()
+def profile_path(protocol: str | None = None) -> Path:
+    return _repo_root() / profile_relative_path(protocol)
+
+
+def load_official_execution_profile(protocol: str | None = None) -> dict:
+    path = profile_path(protocol)
     try:
         profile = json.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError as exc:
@@ -31,8 +42,8 @@ def load_official_execution_profile() -> dict:
     return profile
 
 
-def profile_sha256() -> str:
-    return hashlib.sha256(profile_path().read_bytes()).hexdigest()
+def profile_sha256(protocol: str | None = None) -> str:
+    return hashlib.sha256(profile_path(protocol).read_bytes()).hexdigest()
 
 
 def _timeout_value(name: str, default: int, minimum: int) -> int:
@@ -62,7 +73,7 @@ def observed_execution_settings(workflow_config, scenario: dict) -> dict:
 
 
 def execution_profile_metadata(task, workflow_config, protocol: str) -> dict:
-    profile = load_official_execution_profile()
+    profile = load_official_execution_profile(protocol)
     scenario = task.scenario_for(protocol)
     observed = observed_execution_settings(workflow_config, scenario)
     expected = dict(profile["protocols"][protocol])
@@ -88,8 +99,8 @@ def execution_profile_metadata(task, workflow_config, protocol: str) -> dict:
     return {
         "profile_id": profile["profile_id"],
         "schema_version": profile["schema_version"],
-        "path": PROFILE_RELATIVE_PATH.as_posix(),
-        "sha256": profile_sha256(),
+        "path": profile_relative_path(protocol).as_posix(),
+        "sha256": profile_sha256(protocol),
         "matched": not deviations,
         "deviations": deviations,
         "observed": observed,

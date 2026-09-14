@@ -43,7 +43,7 @@ RUN_ID="my-model-20153-seed1-$(date -u +%Y%m%dT%H%M%SZ)" \
 scripts/run_pr_hard_20153_all_protocols_env.sh
 ```
 
-Run all four official protocols for one task:
+Run the original four-protocol profile for one task:
 
 ```bash
 ENV_FILE="$PWD/.env" \
@@ -64,6 +64,19 @@ single
 serial_specialists
 async_private
 caid_manager
+async_manager
+```
+
+`caid_manager` is the read-only-manager condition (Async-RO-Manager), while
+`async_manager` is the online, scope-constrained editing manager. Run all five
+official protocols with:
+
+```bash
+ENV_FILE="$PWD/.env" \
+MODEL_TAG=my-model \
+RUN_VERSION=five-protocol-v01 \
+WORKSPACE_PORT_STRATEGY=auto \
+scripts/run_asyncodebench_five_protocols_env.sh cachetools
 ```
 
 Use `DRY_RUN=1` to verify task selection, assignments, integration order, and

@@ -1,4 +1,4 @@
-"""Additive entry point for the online Async-Manager protocol."""
+"""Execution engine for the official online Async-Manager protocol."""
 
 from __future__ import annotations
 
@@ -16,13 +16,13 @@ if any(arg.startswith(("--dry_run", "--dry-run", "--validate")) for arg in sys.a
 
 import fire
 from agents import load_agent_adapter
-from async_manager_extension import BASE_PROTOCOL, POLICY, PROTOCOL
-from async_manager_extension.checkpoint_bridge import online_checkpoint_bridge
-from async_manager_extension.manager import OnlineManager, dump
-from async_manager_extension.results import finalize, validate
+from asyncodebench_harness.protocol_registry import protocol_registry_path
 from config import WorkflowConfig
+from protocols.async_manager import BASE_PROTOCOL, POLICY, PROTOCOL
+from protocols.async_manager.checkpoint_bridge import online_checkpoint_bridge
+from protocols.async_manager.manager import OnlineManager, dump
+from protocols.async_manager.results import finalize, validate
 from protocols.asyncodebench.metadata import (
-    assert_harness_source_clean,
     build_run_metadata,
     write_contract_snapshots,
     write_run_metadata,
@@ -35,41 +35,52 @@ from run_asyncodebench import (
 from run_infer import run_workflow
 from tasks.asyncodebench import AsynCodeBenchConfig, AsynCodeBenchTask
 
-FROZEN_BASE_REVISION = "547a84e618a2338f3b7bd30cd976d582c42e661c"
-FROZEN_PATHS = (
-    "configs/evaluation",
-    "configs/tasks",
-    "manifests/pilot",
-    "manifests/release",
-    "reproductions/async-swe-agents/agents",
-    "reproductions/async-swe-agents/asyncodebench_harness",
+FROZEN_BASE_REVISION = "73c9877315c920867ba72750826b66421be08bc0"
+FROZEN_LEGACY_EXECUTION_PATHS = (
     "reproductions/async-swe-agents/core",
-    "reproductions/async-swe-agents/prompts",
-    "reproductions/async-swe-agents/protocols",
-    "reproductions/async-swe-agents/tasks",
-    "reproductions/async-swe-agents/config.py",
+    "reproductions/async-swe-agents/protocols/asyncodebench/runner.py",
+    "reproductions/async-swe-agents/protocols/static_commit0.py",
     "reproductions/async-swe-agents/run_infer.py",
-    "reproductions/async-swe-agents/run_asyncodebench.py",
-    "reproductions/async-swe-agents/run_pr_hard.py",
 )
 
 
-def extension_sources() -> list[Path]:
+def protocol_sources() -> list[Path]:
     root = Path(__file__).parent
+    repo_root = root.parents[1]
     sources = [Path(__file__)]
     sources.extend(
         sorted(
             path
-            for path in root.joinpath("async_manager_extension").iterdir()
+            for path in root.joinpath("protocols", "async_manager").iterdir()
             if path.is_file()
         )
     )
     sources.extend(sorted(root.joinpath("scripts").glob("run_async_manager*.sh")))
-    return sources
+    sources.extend(
+        [
+            root / "scripts" / "run_asyncodebench_five_protocols_env.sh",
+            root / "scripts" / "run_pr_hard_five_protocols_env.sh",
+            root / "run_asyncodebench.py",
+            root / "run_pr_hard.py",
+            root / "asyncodebench_harness" / "protocol_registry.py",
+            root / "asyncodebench_harness" / "results.py",
+            root / "protocols" / "asyncodebench" / "metadata.py",
+            root / "protocols" / "asyncodebench" / "profile.py",
+            root / "tasks" / "asyncodebench.py",
+            repo_root / "configs" / "evaluation" / "protocol_registry.v1.json",
+            repo_root
+            / "configs"
+            / "evaluation"
+            / "official_execution_profile.v3.json",
+            repo_root / "schemas" / "release" / "agent_request.schema.json",
+            repo_root / "schemas" / "release" / "run_bundle.schema.json",
+        ]
+    )
+    return sorted(set(sources))
 
 
 def async_manager_profile() -> dict:
-    path = Path(__file__).parent / "async_manager_extension" / "profile.json"
+    path = Path(__file__).parent / "protocols" / "async_manager" / "profile.json"
     profile = json.loads(path.read_text(encoding="utf-8"))
     if (
         profile.get("protocol") != PROTOCOL
@@ -80,8 +91,8 @@ def async_manager_profile() -> dict:
     return profile
 
 
-def assert_extension_clean(repo_root: Path) -> None:
-    sources = [str(path.relative_to(repo_root)) for path in extension_sources()]
+def assert_protocol_sources_clean(repo_root: Path) -> None:
+    sources = [str(path.relative_to(repo_root)) for path in protocol_sources()]
     result = subprocess.run(
         [
             "git",
@@ -99,12 +110,12 @@ def assert_extension_clean(repo_root: Path) -> None:
     )
     if result.stdout.strip():
         raise RuntimeError(
-            "Async-Manager extension is uncommitted; commit its exact source "
+            "Async-Manager protocol source is uncommitted; commit its exact source "
             "before a formal run:\n" + result.stdout
         )
 
 
-def assert_frozen_base_unchanged(repo_root: Path) -> None:
+def assert_legacy_execution_unchanged(repo_root: Path) -> None:
     result = subprocess.run(
         [
             "git",
@@ -114,26 +125,27 @@ def assert_frozen_base_unchanged(repo_root: Path) -> None:
             "--exit-code",
             FROZEN_BASE_REVISION,
             "--",
-            *FROZEN_PATHS,
+            *FROZEN_LEGACY_EXECUTION_PATHS,
         ],
         capture_output=True,
         text=True,
     )
     if result.returncode != 0:
         raise RuntimeError(
-            "The online protocol must remain additive, but a frozen benchmark "
-            "path differs from its pinned base revision:\n"
+            "A frozen legacy-protocol execution path differs from its pinned "
+            "base revision; the Async-Manager registration must not change the "
+            "old four execution engines:\n"
             + (result.stdout or result.stderr)
         )
 
 
-def _snapshot_extension(output: Path, repo_root: Path, profile: dict) -> dict:
+def _snapshot_protocol(output: Path, repo_root: Path, profile: dict) -> dict:
     profile_path = output / "async_manager_profile_snapshot.json"
     dump(profile_path, profile)
     source_hashes = {}
-    for source in extension_sources():
+    for source in protocol_sources():
         relative = source.relative_to(repo_root)
-        destination = output / "extension_sources" / relative
+        destination = output / "protocol_sources" / relative
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_bytes(source.read_bytes())
         source_hashes[relative.as_posix()] = hashlib.sha256(
@@ -156,10 +168,24 @@ def main(
     subagent_model=None,
     run_id=None,
     model_tag=None,
+    max_iterations=None,
+    max_subagents=None,
+    sub_iterations=None,
+    rounds_of_chat=None,
+    output_dir=None,
+    release="v0.3",
+    docker_image_prefix="docker.io/wentingzhao/",
+    curated_config_path="",
+    agent="openhands",
+    agent_import_path=None,
+    agent_config_json=None,
     dry_run=False,
     validate_dir=None,
     runtime_root="",
     build_cache_root="",
+    runtime_backend="local",
+    runtime_image="",
+    allow_unqualified=False,
 ):
     if validate_dir:
         issues = validate(validate_dir)
@@ -179,44 +205,88 @@ def main(
         from tasks.pr_hard import PrHardConfig, PrHardTask
 
         candidate, qualification, failures = _candidate_preflight(
-            task_id, BASE_PROTOCOL
+            task_id, PROTOCOL, allow_unqualified=bool(allow_unqualified)
         )
         task = PrHardTask(
             PrHardConfig(
                 task_id=task_id,
                 runtime_root=runtime_root,
                 build_cache_root=build_cache_root,
+                runtime_backend=runtime_backend,
+                runtime_image=runtime_image,
             )
         )
         candidate_lane = {
             "kind": "pr_hard_v0.4",
-            "official_result_eligible": not failures,
+            "official_result_eligible": (
+                candidate.get("qualification_status") == "qualified"
+                and qualification.get("automated_status") == "passed"
+                and qualification.get("human_review", {}).get("status")
+                == "complete_pass"
+                and qualification.get("remaining_gates") == []
+                and not failures
+            ),
             "remaining_gates": qualification.get("remaining_gates", []),
             "qualification_status": candidate["qualification_status"],
             "diagnostic_only": bool(failures),
         }
     else:
-        task = AsynCodeBenchTask(AsynCodeBenchConfig(task_id=task_id))
-    task.set_active_protocol(BASE_PROTOCOL)
+        task = AsynCodeBenchTask(
+            AsynCodeBenchConfig(
+                task_id=task_id,
+                release=release,
+                docker_image_prefix=docker_image_prefix,
+                curated_config_path=curated_config_path,
+            )
+        )
+    task.set_active_protocol(PROTOCOL)
 
-    adapter = load_agent_adapter(agent="openhands")
+    adapter = load_agent_adapter(
+        agent=agent,
+        agent_import_path=agent_import_path,
+        agent_config_json=agent_config_json,
+    )
+    declared_agents = int(task.scenario_for(PROTOCOL)["agent_count"])
+    max_subagents = declared_agents if max_subagents is None else int(max_subagents)
+    if max_subagents != declared_agents:
+        raise ValueError(
+            f"Async-Manager scenario declares {declared_agents} specialists, "
+            f"got max_subagents={max_subagents}"
+        )
+    manager_iterations = int(
+        profile["manager_max_iterations_per_event"]
+        if max_iterations is None
+        else max_iterations
+    )
+    specialist_iterations = int(
+        profile["subagent_max_iterations"]
+        if sub_iterations is None
+        else sub_iterations
+    )
+    chat_rounds = int(
+        profile["max_rounds_chat"]
+        if rounds_of_chat is None
+        else rounds_of_chat
+    )
     config = WorkflowConfig(
         model=model,
         subagent_model=subagent_model,
-        manager_max_iterations=profile["manager_max_iterations_per_event"],
-        subagent_max_iterations=profile["subagent_max_iterations"],
-        max_rounds_chat=profile["max_rounds_chat"],
-        max_subagents=int(task.scenario_for(BASE_PROTOCOL)["agent_count"]),
+        manager_max_iterations=manager_iterations,
+        subagent_max_iterations=specialist_iterations,
+        max_rounds_chat=chat_rounds,
+        max_subagents=max_subagents,
     )
     run_id = run_id or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S.%fZ")
     lane = "pr_hard/v0.4" if candidate_lane else "asyncodebench/v0.3"
     output = (
-        Path("outputs")
+        Path(output_dir)
+        if output_dir
+        else Path("outputs")
         / lane
         / _safe_component(model_tag or os.getenv("MODEL_TAG") or model)
-    )
-    output = (
-        output / task.repository_name / PROTOCOL / _safe_component(run_id)
+        / task.repository_name
+        / PROTOCOL
+        / _safe_component(run_id)
     ).resolve()
     config.output_dir = str(output)
 
@@ -235,7 +305,7 @@ def main(
                     "manager_scope": sorted(
                         {
                             path
-                            for assignment in task.scenario_for(BASE_PROTOCOL)[
+                            for assignment in task.scenario_for(PROTOCOL)[
                                 "assignments"
                             ]
                             for path in assignment["writable_paths"]
@@ -258,9 +328,8 @@ def main(
 
     _assert_openhands_runtime_consistency()
     repo_root = task._repo_root()
-    assert_harness_source_clean(repo_root)
-    assert_extension_clean(repo_root)
-    assert_frozen_base_unchanged(repo_root)
+    assert_protocol_sources_clean(repo_root)
+    assert_legacy_execution_unchanged(repo_root)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.mkdir(exist_ok=False)
 
@@ -268,22 +337,29 @@ def main(
     metadata = build_run_metadata(
         task,
         config,
-        BASE_PROTOCOL,
+        PROTOCOL,
         prompt_path,
         agent_adapter=adapter.public_metadata(),
     )
     metadata["protocol"] = PROTOCOL
-    metadata["async_manager_extension"] = _snapshot_extension(
+    registry_path = protocol_registry_path()
+    metadata["protocol_contract"] = {
+        "path": registry_path.relative_to(repo_root).as_posix(),
+        "sha256": hashlib.sha256(registry_path.read_bytes()).hexdigest(),
+        "official": True,
+    }
+    metadata["async_manager_protocol"] = _snapshot_protocol(
         output, repo_root, profile
     )
     if candidate_lane:
         metadata["candidate_lane"] = candidate_lane
     write_run_metadata(output, metadata)
-    write_contract_snapshots(output, task, BASE_PROTOCOL)
+    write_contract_snapshots(output, task, PROTOCOL)
     protocol = json.loads((output / "protocol.json").read_text(encoding="utf-8"))
     protocol.update(
         protocol=PROTOCOL,
-        async_manager_extension=metadata["async_manager_extension"],
+        protocol_contract=metadata["protocol_contract"],
+        async_manager_protocol=metadata["async_manager_protocol"],
     )
     dump(output / "protocol.json", protocol)
 
@@ -300,7 +376,7 @@ def main(
                 )
             )
         _generate_process_metrics(task, output)
-        finalize(output)
+        finalize(output, task=task, agent_adapter=adapter)
         return result
     except BaseException as error:
         dump(

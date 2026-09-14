@@ -29,8 +29,9 @@ readable and reproducible.
 ## At A Glance
 
 - **20 official repository-level tasks**, adapted from public projects;
-- **4 controlled agent protocols** per task;
-- **80 task-protocol scenarios**;
+- **5 controlled agent protocols** per task;
+- **80 task-protocol scenarios** preserved in the frozen v0.4 release index,
+  plus 20 registry-defined online Async-Manager conditions (**100 total**);
 - **55 executable producer/consumer dependency points** across the official
   tasks;
 - an **AsynCodeBench-native harness** with a built-in OpenHands agent and a
@@ -50,7 +51,7 @@ that cross agent boundaries. Examples include a low-level parser output consumed
 by a public API, a schema contract consumed by nested behavior, or a utility
 normalization rule assumed by downstream logic.
 
-AsynCodeBench compares four conditions while keeping the task and decomposition
+AsynCodeBench compares five conditions while keeping the task and decomposition
 fixed:
 
 | Protocol | Execution and information condition |
@@ -58,7 +59,8 @@ fixed:
 | `single` | One iterative agent owns the complete task. |
 | `serial_specialists` | Manifest-defined specialists run in dependency order and receive completed upstream handoffs. |
 | `async_private` | Specialists run concurrently from the same base in private workspaces, without in-flight communication. |
-| `async_manager` | A manager coordinates asynchronous private-worktree specialists under manifest-validated delegation and scope rules. |
+| `caid_manager` | **Async-RO-Manager:** a read-only manager coordinates asynchronous private-worktree specialists under manifest-validated delegation and scope rules. |
+| `async_manager` | **Async-Manager:** a persistent manager observes each integration checkpoint and may submit harness-validated, scope-constrained production patches during execution. |
 
 This controlled design separates three effects that are often conflated:
 
@@ -273,18 +275,18 @@ record from this repository and uses the digest-pinned official image while it
 executes the AsynCodeBench task, protocol, scope, checker, and evaluator
 contracts. Source reconstruction remains an independent audit fallback.
 
-### 3. Dry-run all four protocols
+### 3. Dry-run all five protocols
 
 ```bash
 ENV_FILE="$PWD/.env.my-model" \
 MODEL_TAG=my-model \
 RUN_VERSION=smoke-v01 \
 DRY_RUN=1 \
-scripts/run_asyncodebench_all_protocols_env.sh cachetools
+scripts/run_asyncodebench_five_protocols_env.sh cachetools
 ```
 
 The dry-run must report `task_id=asyncodebench:cachetools`, the curated base
-SHA, four protocol scenarios, manifest-defined agent counts, writable paths,
+SHA, five protocol conditions, manifest-defined agent counts, writable paths,
 integration order, and the selected agent adapter.
 
 List or prefetch immutable task images with:
@@ -303,10 +305,10 @@ ENV_FILE="$PWD/.env.my-model" \
 MODEL_TAG=my-model \
 RUN_VERSION=official-v01 \
 WORKSPACE_PORT_STRATEGY=auto \
-scripts/run_asyncodebench_all_protocols_env.sh cachetools
+scripts/run_asyncodebench_five_protocols_env.sh cachetools
 ```
 
-The wrapper runs the four protocols sequentially with the official 100-response
+The wrapper runs the five protocols sequentially with the official 100-response
 cap and reads each specialist count from the scenario manifest. Agents may stop
 earlier through `FinishTool`. Output directories are immutable; use a new
 `RUN_VERSION` after an interrupted run.

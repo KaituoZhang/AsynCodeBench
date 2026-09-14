@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 from statistics import mean
 
-from async_manager_extension.results import validate
+from protocols.async_manager.results import validate
 
 EXPECTED_TASKS = frozenset(
     {

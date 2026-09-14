@@ -18,8 +18,19 @@ if [[ "$task_id" != *:* ]]; then
   task_id="asyncodebench:$task_id"
 fi
 
-exec "$runner_root/.venv/bin/python" "$runner_root/run_async_manager.py" \
-  --task_id "$task_id" \
-  --run_id "$requested_run_id" \
-  --model_tag "${requested_tag:-${MODEL_TAG:-${LLM_MODEL:?Set LLM_MODEL}}}" \
-  "$@"
+args=(
+  "$runner_root/.venv/bin/python"
+  "$runner_root/run_async_manager.py"
+  --task_id "$task_id"
+  --run_id "$requested_run_id"
+  --model_tag "${requested_tag:-${MODEL_TAG:-${LLM_MODEL:?Set LLM_MODEL}}}"
+)
+
+if [[ "$task_id" == pr-hard:* ]]; then
+  args+=(--runtime_backend "${RUNTIME_BACKEND:-container}")
+  [[ -z "${RUNTIME_IMAGE:-}" ]] || args+=(--runtime_image "$RUNTIME_IMAGE")
+  [[ -z "${PR_HARD_RUNTIME_ROOT:-}" ]] || args+=(--runtime_root "$PR_HARD_RUNTIME_ROOT")
+  [[ -z "${PR_HARD_BUILD_CACHE_ROOT:-}" ]] || args+=(--build_cache_root "$PR_HARD_BUILD_CACHE_ROOT")
+fi
+
+exec "${args[@]}" "$@"

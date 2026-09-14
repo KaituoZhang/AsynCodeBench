@@ -339,7 +339,7 @@ def write_contract_snapshots(output_dir, task, protocol):
         "scenario_manifest_snapshot.json": task.manifest_paths["scenario"],
         "metrics_snapshot.json": task.manifest_paths["metrics"],
         "quality_snapshot.json": task.manifest_paths["quality"],
-        "execution_profile_snapshot.json": profile_path(),
+        "execution_profile_snapshot.json": profile_path(protocol),
     }
     written = {}
     for filename, source_path in snapshot_sources.items():

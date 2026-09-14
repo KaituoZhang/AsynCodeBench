@@ -1,7 +1,7 @@
 # AsynCodeBench Quickstart
 
 This is the shortest supported path from a fresh clone to one complete
-four-protocol task evaluation.
+five-protocol task evaluation.
 
 ## Requirements
 
@@ -100,7 +100,7 @@ uv run asyncodebench images remove --all --yes
 
 This cleanup does not delete `outputs/` or invoke a global Docker prune.
 
-To dry-run all four protocols with the campaign wrapper:
+To dry-run all five protocols with the campaign wrapper:
 
 ```bash
 
@@ -108,14 +108,22 @@ ENV_FILE="$PWD/.env" \
 MODEL_TAG=my-model \
 RUN_VERSION=smoke-v01 \
 DRY_RUN=1 \
-scripts/run_asyncodebench_all_protocols_env.sh cachetools
+scripts/run_asyncodebench_five_protocols_env.sh cachetools
 ```
 
-The four dry-runs should report:
+For any of the four official TVM tasks, use the parallel five-protocol entry
+point (the digest-pinned container backend is the default):
+
+```bash
+ENV_FILE="$PWD/.env.my-model" RUN_ID=tvm-five-v01 \
+  scripts/run_pr_hard_five_protocols_env.sh apache-tvm-20153
+```
+
+The five dry-runs should report:
 
 ```text
 task_id=asyncodebench:cachetools
-protocol=single | serial_specialists | async_private | caid_manager
+protocol=single | serial_specialists | async_private | caid_manager | async_manager
 official=True
 curated_base_sha=<sha>
 ```
@@ -134,10 +142,10 @@ ENV_FILE="$PWD/.env" \
 MODEL_TAG=my-model \
 RUN_VERSION=official-v01 \
 WORKSPACE_PORT_STRATEGY=auto \
-scripts/run_asyncodebench_all_protocols_env.sh cachetools
+scripts/run_asyncodebench_five_protocols_env.sh cachetools
 ```
 
-The wrapper runs the four protocols sequentially. It reads specialist counts
+The wrapper runs the five protocols sequentially. It reads specialist counts
 from the released scenario manifest and uses the official 100-response cap.
 An interrupted output directory remains immutable evidence; retry with a new
 `RUN_VERSION`.
@@ -149,11 +157,12 @@ RUN_SINGLE=0 \
 RUN_SERIAL=0 \
 RUN_ASYNC_PRIVATE=1 \
 RUN_CAID=0 \
+RUN_ASYNC_MANAGER=0 \
 ENV_FILE="$PWD/.env" \
 MODEL_TAG=my-model \
 RUN_VERSION=async-private-v01 \
 WORKSPACE_PORT_STRATEGY=auto \
-scripts/run_asyncodebench_all_protocols_env.sh cachetools
+scripts/run_asyncodebench_five_protocols_env.sh cachetools
 ```
 
 ## 5. Inspect Results

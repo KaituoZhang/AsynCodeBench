@@ -13,13 +13,26 @@ from contextlib import contextmanager
 
 import core.subagent as subagent_module
 
-from async_manager_extension.manager import OnlineManager
+from protocols.async_manager import PROTOCOL
+from protocols.async_manager.manager import OnlineManager
 
 
 @contextmanager
 def online_checkpoint_bridge():
     original = subagent_module.write_dependency_probe_checkpoint
+    # The frozen CAID workflow constructs specialist adapters with its own
+    # historical protocol ID. During this context only, relabel those requests
+    # with the public protocol actually being executed. Built-in and third-party
+    # adapters then receive the same first-class identity as the run bundle.
+    import run_infer as workflow_module
+
+    original_create_agent_runner = workflow_module.create_agent_runner
     extra_steps = 0
+
+    def create_async_manager_runner(adapter, protocol, **kwargs):
+        if protocol == "caid_manager":
+            protocol = PROTOCOL
+        return original_create_agent_runner(adapter, protocol=protocol, **kwargs)
 
     def write_with_intervention(**kwargs):
         nonlocal extra_steps
@@ -83,10 +96,12 @@ def online_checkpoint_bridge():
         raise RuntimeError("Async-Manager checkpoint bridge is already installed")
     write_with_intervention._async_manager_bridge = True
     subagent_module.write_dependency_probe_checkpoint = write_with_intervention
+    workflow_module.create_agent_runner = create_async_manager_runner
     try:
         yield
     finally:
         subagent_module.write_dependency_probe_checkpoint = original
+        workflow_module.create_agent_runner = original_create_agent_runner
         if OnlineManager.active_instance is not None:
             # A setup failure can occur before run_workflow reaches cleanup.
             OnlineManager.active_instance = None

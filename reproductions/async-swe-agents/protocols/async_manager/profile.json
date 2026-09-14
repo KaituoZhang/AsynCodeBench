@@ -23,5 +23,6 @@
   "integration_policy": "harness_validated_fast_forward_from_current_integrated_head",
   "checkpoint_policy": "specialist_integration_then_state_changing_manager_integration",
   "network_policy": "inherit_task_policy",
-  "official_four_protocol_aggregate": false
+  "official_protocol_registry": "configs/evaluation/protocol_registry.v1.json",
+  "official_five_protocol_aggregate": true
 }
