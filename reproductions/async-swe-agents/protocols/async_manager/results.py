@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -28,6 +29,25 @@ def dump(path, value) -> None:
         json.dumps(value, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
+
+
+def _json_sha256(value) -> str:
+    encoded = json.dumps(
+        value, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _load_json(path: Path, issues: list[str], label: str) -> dict:
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        issues.append(f"invalid_{label}")
+        return {}
+    if not isinstance(value, dict):
+        issues.append(f"invalid_{label}:not_object")
+        return {}
+    return value
 
 
 def _load_interventions(directory: Path, issues: list[str]) -> list[dict]:
@@ -101,8 +121,53 @@ def validate(directory, verify_inventory=True):
         issues.append("async_manager_profile_checksum_mismatch")
     if not metadata.get("execution_profile", {}).get("matched"):
         issues.append("base_execution_profile_mismatch")
-    if not metadata.get("harness_source_state", {}).get("clean", False):
+    harness_state = metadata.get("harness_source_state", {})
+    if not isinstance(harness_state, dict) or not harness_state.get("clean", False):
         issues.append("harness_source_not_clean")
+    else:
+        revision = metadata.get("code_revisions", {}).get("asyncodebench")
+        if harness_state.get("revision") != revision:
+            issues.append("harness_source_revision_mismatch")
+        if harness_state.get("verification") not in {
+            "runtime_preflight_v1",
+            "deterministic_posthoc_recovery_v1",
+        }:
+            issues.append("harness_source_verification_invalid")
+        source_hashes = extension.get("sources", {})
+        if harness_state.get("source_hashes_sha256") != _json_sha256(source_hashes):
+            issues.append("harness_source_hashes_mismatch")
+        checked_paths = harness_state.get("checked_paths")
+        if not isinstance(checked_paths, list) or sorted(checked_paths) != sorted(
+            source_hashes
+        ):
+            issues.append("harness_source_checked_paths_mismatch")
+        if harness_state.get("verification") == "deterministic_posthoc_recovery_v1":
+            recovery_path = directory / "provenance_recovery.json"
+            if not recovery_path.is_file():
+                issues.append("provenance_recovery_record_missing")
+            else:
+                recovery = _load_json(recovery_path, issues, "provenance_recovery")
+                original_metadata = (
+                    directory
+                    / "provenance_recovery"
+                    / "original_run_metadata.json"
+                )
+                if harness_state.get("recovery_record_sha256") != _sha256(
+                    recovery_path
+                ):
+                    issues.append("provenance_recovery_checksum_mismatch")
+                if not original_metadata.is_file():
+                    issues.append("provenance_recovery_original_metadata_missing")
+                elif recovery.get("source_run_metadata_sha256") != _sha256(
+                    original_metadata
+                ):
+                    issues.append("provenance_recovery_original_metadata_mismatch")
+                if recovery.get("recorded_revision") != harness_state.get("revision"):
+                    issues.append("provenance_recovery_revision_mismatch")
+                if recovery.get("source_hashes_sha256") != harness_state.get(
+                    "source_hashes_sha256"
+                ):
+                    issues.append("provenance_recovery_source_hashes_mismatch")
 
     checkpoints = [
         json.loads(line)

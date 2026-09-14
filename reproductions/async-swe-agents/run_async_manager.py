@@ -106,6 +106,7 @@ def protocol_sources() -> list[Path]:
         [
             root / "scripts" / "run_asyncodebench_five_protocols_env.sh",
             root / "scripts" / "run_pr_hard_five_protocols_env.sh",
+            root / "scripts" / "recover_async_manager_bundle.py",
             root / "run_asyncodebench.py",
             root / "run_pr_hard.py",
             root / "asyncodebench_harness" / "protocol_registry.py",
@@ -137,7 +138,14 @@ def async_manager_profile() -> dict:
     return profile
 
 
-def assert_protocol_sources_clean(repo_root: Path) -> None:
+def _source_hashes_sha256(source_hashes: dict[str, str]) -> str:
+    encoded = json.dumps(
+        source_hashes, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def assert_protocol_sources_clean(repo_root: Path) -> dict:
     sources = [str(path.relative_to(repo_root)) for path in protocol_sources()]
     result = subprocess.run(
         [
@@ -159,6 +167,16 @@ def assert_protocol_sources_clean(repo_root: Path) -> None:
             "Async-Manager protocol source is uncommitted; commit its exact source "
             "before a formal run:\n" + result.stdout
         )
+    revision = subprocess.check_output(
+        ["git", "-C", str(repo_root), "rev-parse", "HEAD"], text=True
+    ).strip()
+    return {
+        "schema_version": "async-manager-harness-source-state-v1",
+        "clean": True,
+        "verification": "runtime_preflight_v1",
+        "revision": revision,
+        "checked_paths": sorted(sources),
+    }
 
 
 def assert_legacy_execution_unchanged(repo_root: Path) -> None:
@@ -374,7 +392,7 @@ def main(
 
     _assert_openhands_runtime_consistency()
     repo_root = task._repo_root()
-    assert_protocol_sources_clean(repo_root)
+    harness_source_state = assert_protocol_sources_clean(repo_root)
     assert_legacy_execution_unchanged(repo_root)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.mkdir(exist_ok=False)
@@ -394,9 +412,11 @@ def main(
         "sha256": hashlib.sha256(registry_path.read_bytes()).hexdigest(),
         "official": True,
     }
-    metadata["async_manager_protocol"] = _snapshot_protocol(
-        output, repo_root, profile
+    metadata["async_manager_protocol"] = _snapshot_protocol(output, repo_root, profile)
+    harness_source_state["source_hashes_sha256"] = _source_hashes_sha256(
+        metadata["async_manager_protocol"]["sources"]
     )
+    metadata["harness_source_state"] = harness_source_state
     if candidate_lane:
         metadata["candidate_lane"] = candidate_lane
     write_run_metadata(output, metadata)

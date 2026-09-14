@@ -134,6 +134,24 @@ execution-critical harness source, or any difference in frozen legacy
 execution engines relative to commit
 `73c9877315c920867ba72750826b66421be08bc0`.
 
+### Bundle recovery for the 25152ad metadata omission
+
+Runs started from revision `25152ad` can complete model execution, evaluation,
+and trajectory instrumentation but fail finalization because that runner did
+not copy its successful source preflight into `run_metadata.json`. The raw run
+must not be edited or rerun. Recover it into a new directory with:
+
+```bash
+python scripts/recover_async_manager_bundle.py SOURCE_RUN NEW_RUN_DIRECTORY
+```
+
+Recovery verifies every saved protocol-source checksum against the recorded
+Git revision, preserves the original metadata as evidence, records that neither
+the model nor evaluator was rerun, and then applies the normal bundle
+validator. It refuses an existing destination or a run whose source proof does
+not match. New runs record the source preflight directly and do not need this
+recovery path.
+
 ## Result contract
 
 The standard run artifacts remain present. Additional evidence includes:

@@ -8,6 +8,7 @@ from types import SimpleNamespace
 
 import core.subagent as subagent_module
 import core.workspace as workspace_module
+import pytest
 from protocols.async_manager import POLICY, PROTOCOL
 from protocols.async_manager.campaign import trajectory_metrics
 from protocols.async_manager.checkpoint_bridge import online_checkpoint_bridge
@@ -18,6 +19,7 @@ from protocols.async_manager.terminal_guard import command as terminal_guard_com
 from run_async_manager import (
     FROZEN_BASE_REVISION,
     assert_legacy_execution_unchanged,
+    assert_protocol_sources_clean,
     async_manager_profile,
     prefer_worktree_python_for_pr_hard,
 )
@@ -148,6 +150,27 @@ def test_campaign_trajectory_metrics_use_only_integrated_states():
 def test_existing_protocol_implementation_paths_are_unchanged():
     root = Path(__file__).resolve().parents[3]
     assert_legacy_execution_unchanged(root)
+
+
+def test_source_preflight_returns_auditable_clean_state(tmp_path, monkeypatch):
+    repository = tmp_path / "repository"
+    revision = initialize_repository(repository)
+    source = repository / "pkg" / "module.py"
+    monkeypatch.setattr("run_async_manager.protocol_sources", lambda: [source])
+
+    state = assert_protocol_sources_clean(repository)
+
+    assert state == {
+        "schema_version": "async-manager-harness-source-state-v1",
+        "clean": True,
+        "verification": "runtime_preflight_v1",
+        "revision": revision,
+        "checked_paths": ["pkg/module.py"],
+    }
+
+    source.write_text("VALUE = 2\n", encoding="utf-8")
+    with pytest.raises(RuntimeError, match="protocol source is uncommitted"):
+        assert_protocol_sources_clean(repository)
 
 
 def test_async_manager_is_registered_as_a_public_protocol():
