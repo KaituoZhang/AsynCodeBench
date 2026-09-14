@@ -83,7 +83,7 @@ uv run asyncodebench run \
   --run-id custom-agent-v01
 ```
 
-For all four protocols, pass the same adapter through the wrapper:
+For all five protocols, pass the same adapter through the wrapper:
 
 ```bash
 ASYNCODEBENCH_AGENT_IMPORT_PATH=my_agents.cache_agent:CacheAgent \
@@ -92,7 +92,7 @@ ENV_FILE="$PWD/.env" \
 MODEL_TAG=my-agent-model \
 RUN_VERSION=custom-agent-v01 \
 WORKSPACE_PORT_STRATEGY=auto \
-scripts/run_asyncodebench_all_protocols_env.sh cachetools
+scripts/run_asyncodebench_five_protocols_env.sh cachetools
 ```
 
 The CAID manager remains a benchmark-controlled coordination protocol. The

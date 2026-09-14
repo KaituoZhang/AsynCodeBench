@@ -125,12 +125,13 @@ All new experiments must use the native AsynCodeBench entry point:
 | Single agent | `run_asyncodebench.py --task_id asyncodebench:<task> --protocol single` |
 | Serial specialists | `run_asyncodebench.py --task_id asyncodebench:<task> --protocol serial_specialists` |
 | Async private workspaces | `run_asyncodebench.py --task_id asyncodebench:<task> --protocol async_private` |
-| CAID manager-mediated multi-agent | `run_asyncodebench.py --task_id asyncodebench:<task> --protocol caid_manager` |
+| Read-only manager-mediated multi-agent | `run_asyncodebench.py --task_id asyncodebench:<task> --protocol caid_manager` |
+| Online editable Async-Manager | `run_asyncodebench.py --task_id asyncodebench:<task> --protocol async_manager` |
 
-The model-neutral command for all four conditions is:
+The model-neutral command for all five conditions is:
 
 ```text
-reproductions/async-swe-agents/scripts/run_asyncodebench_all_protocols_env.sh
+reproductions/async-swe-agents/scripts/run_asyncodebench_five_protocols_env.sh
 ```
 
 It loads the task's scenario manifest, verifies the official release, assigns

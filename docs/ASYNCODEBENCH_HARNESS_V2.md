@@ -39,7 +39,8 @@ Run all new experiments from:
 reproductions/async-swe-agents/run_asyncodebench.py
 ```
 
-The four supported protocols are:
+The public registry now exposes five supported protocols. The first four retain
+their frozen v2 semantics; the fifth is additive:
 
 - `single`: one iterative full-task agent;
 - `serial_specialists`: manifest-defined specialists execute in dependency order
@@ -49,7 +50,10 @@ The four supported protocols are:
 - `caid_manager`: a read-only CAID manager coordinates multiple
   private-worktree agents using the AsynCodeBench task specification and
   dependency context. Production edits must arrive through scope-validated
-  specialist artifacts.
+  specialist artifacts;
+- `async_manager`: a persistent online manager observes integration
+  checkpoints and may submit harness-validated, scope-constrained production
+  patches during execution.
 
 ## What Is Native
 
@@ -198,7 +202,7 @@ For every protocol, `max_subagents` defaults to the exact `agent_count` in the
 active scenario. Supplying a different number is rejected so protocol capacity
 cannot silently diverge from the benchmark contract.
 
-The recommended interface runs the same four commands with automatic agent
+The recommended interface runs the same five commands with automatic agent
 counts and collision-resistant workspace ports:
 
 ```bash
@@ -206,7 +210,7 @@ ENV_FILE="$PWD/.env.<model-tag>" \
 MODEL_TAG=<model-tag> \
 RUN_VERSION=official_v01 \
 WORKSPACE_PORT_STRATEGY=auto \
-scripts/run_asyncodebench_all_protocols_env.sh cachetools
+scripts/run_asyncodebench_five_protocols_env.sh cachetools
 ```
 
 ## Low-cost End-to-end Smoke
@@ -221,7 +225,9 @@ source scripts/env.sh
 scripts/run_asyncodebench_v2_smoke.sh
 ```
 
-The script runs all four protocols sequentially on `cachetools`. Failure to
+This historical v2 smoke script runs the frozen four protocols sequentially on
+`cachetools`; the five-protocol dry-run above additionally validates the online
+Async-Manager wiring. Failure to
 solve the coding task in two iterations is expected; the gate is whether Docker,
 model calls, private worktrees, evaluation, checkpoints, snapshots, scope logs,
 and automatic process metrics all complete without instrumentation failure.
