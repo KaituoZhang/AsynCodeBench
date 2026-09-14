@@ -6,6 +6,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import core.subagent as subagent_module
+import core.workspace as workspace_module
 from protocols.async_manager import POLICY, PROTOCOL
 from protocols.async_manager.campaign import trajectory_metrics
 from protocols.async_manager.checkpoint_bridge import online_checkpoint_bridge
@@ -17,6 +18,7 @@ from run_async_manager import (
     FROZEN_BASE_REVISION,
     assert_legacy_execution_unchanged,
     async_manager_profile,
+    prefer_worktree_python_for_pr_hard,
 )
 
 
@@ -272,6 +274,25 @@ def test_online_manager_stops_before_import_when_private_build_fails():
         assert "compiler error" in str(error)
     else:
         raise AssertionError("expected manager runtime preparation to fail")
+
+
+def test_async_manager_pr_hard_path_covers_all_container_python_calls():
+    task = SimpleNamespace(environment_path=Path("/opt/asyncodebench/runtime/env"))
+    assert "PATH" not in workspace_module.NONINTERACTIVE_PAGER_ENV
+
+    with prefer_worktree_python_for_pr_hard(task):
+        path = workspace_module.NONINTERACTIVE_PAGER_ENV["PATH"].split(":")
+        assert path[0] == "/usr/local/bin"
+        assert path[1] == "/opt/asyncodebench/runtime/env/bin"
+
+    assert "PATH" not in workspace_module.NONINTERACTIVE_PAGER_ENV
+
+
+def test_async_manager_core_task_does_not_change_container_path():
+    before = dict(workspace_module.NONINTERACTIVE_PAGER_ENV)
+    with prefer_worktree_python_for_pr_hard(SimpleNamespace()):
+        assert before == workspace_module.NONINTERACTIVE_PAGER_ENV
+    assert before == workspace_module.NONINTERACTIVE_PAGER_ENV
 
 
 def test_terminal_session_recovery_preserves_logical_manager_accounting(monkeypatch):

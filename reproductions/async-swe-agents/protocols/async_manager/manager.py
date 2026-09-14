@@ -168,6 +168,38 @@ class OnlineManager(AsynCodeBenchManager):
                 "Private manager worktree did not synchronize to integrated HEAD"
             )
 
+    def _validate_worktree_runtime_with_wrapper(
+        self, workspace, worktree_path: str, owner: str
+    ) -> None:
+        """Validate a TVM worktree with the image's worktree-aware Python.
+
+        The PR-hard image prepends its runtime environment to ``PATH``, while
+        ``/usr/local/bin/python`` is the wrapper that derives ``PYTHONPATH``
+        from the current Git worktree.  This protocol-local helper deliberately
+        leaves the released task adapter and all legacy protocols unchanged.
+        """
+
+        quoted_worktree = shlex.quote(str(worktree_path))
+        import_check = (
+            "import pathlib, tvm; "
+            "root=pathlib.Path.cwd().resolve(); "
+            "loaded=pathlib.Path(tvm.__file__).resolve(); "
+            "expected=(root/'python').resolve(); "
+            "assert loaded.is_relative_to(expected), "
+            "f'loaded {loaded}, expected beneath {expected}'; "
+            "print(loaded)"
+        )
+        result = workspace.execute_command(
+            f"cd {quoted_worktree} && test -x /usr/local/bin/python && "
+            f"/usr/local/bin/python -c {shlex.quote(import_check)}",
+            timeout=120,
+        )
+        if result.exit_code != 0:
+            raise RuntimeError(
+                f"Async-Manager {owner} worktree runtime isolation check failed for "
+                f"{worktree_path}: {result.stderr or result.stdout}"
+            )
+
     def _prepare_manager_worktree_runtime(self) -> None:
         """Prepare a private runtime without changing legacy task behavior.
 
@@ -198,26 +230,9 @@ class OnlineManager(AsynCodeBenchManager):
                 f"{build.get('output_excerpt', '')}"
             )
 
-        quoted_worktree = shlex.quote(str(self.manager_worktree))
-        import_check = (
-            "import pathlib, tvm; "
-            "root=pathlib.Path.cwd().resolve(); "
-            "loaded=pathlib.Path(tvm.__file__).resolve(); "
-            "expected=(root/'python').resolve(); "
-            "assert loaded.is_relative_to(expected), "
-            "f'loaded {loaded}, expected beneath {expected}'; "
-            "print(loaded)"
+        self._validate_worktree_runtime_with_wrapper(
+            self.workspace, self.manager_worktree, "private-manager"
         )
-        result = self.workspace.execute_command(
-            f"cd {quoted_worktree} && test -x /usr/local/bin/python && "
-            f"/usr/local/bin/python -c {shlex.quote(import_check)}",
-            timeout=120,
-        )
-        if result.exit_code != 0:
-            raise RuntimeError(
-                "Async-Manager private-worktree runtime isolation check failed for "
-                f"{self.manager_worktree}: {result.stderr or result.stdout}"
-            )
         self.log(
             "Manager private-worktree runtime ready in "
             f"{time.monotonic() - started:.1f}s"

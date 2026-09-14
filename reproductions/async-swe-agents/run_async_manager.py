@@ -8,6 +8,7 @@ import json
 import os
 import subprocess
 import sys
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -42,6 +43,51 @@ FROZEN_LEGACY_EXECUTION_PATHS = (
     "reproductions/async-swe-agents/protocols/static_commit0.py",
     "reproductions/async-swe-agents/run_infer.py",
 )
+
+
+@contextmanager
+def prefer_worktree_python_for_pr_hard(task):
+    """Give the new protocol the same worktree-aware Python semantics as v0.4.
+
+    The packaged TVM images put their pinned environment at the front of
+    ``PATH``.  PR-hard creates ``/usr/local/bin/python`` during repository
+    setup so that every bare ``python`` command resolves imports and native
+    libraries from the current Git worktree.  Prepending ``/usr/local/bin`` to
+    the agent-server container PATH restores that intended behavior for the
+    manager, specialists, dependency probes, and evaluator together.
+
+    This is a process-local launch setting used only by ``async_manager``.  It
+    does not modify the shared task adapter or any frozen protocol engine.
+    """
+
+    environment_path = getattr(task, "environment_path", None)
+    if environment_path is None:
+        yield
+        return
+
+    import core.workspace as workspace_module
+
+    setting = workspace_module.NONINTERACTIVE_PAGER_ENV
+    sentinel = object()
+    previous = setting.get("PATH", sentinel)
+    setting["PATH"] = ":".join(
+        [
+            "/usr/local/bin",
+            f"{environment_path}/bin",
+            "/usr/local/sbin",
+            "/usr/sbin",
+            "/usr/bin",
+            "/sbin",
+            "/bin",
+        ]
+    )
+    try:
+        yield
+    finally:
+        if previous is sentinel:
+            setting.pop("PATH", None)
+        else:
+            setting["PATH"] = previous
 
 
 def protocol_sources() -> list[Path]:
@@ -364,7 +410,7 @@ def main(
     dump(output / "protocol.json", protocol)
 
     try:
-        with online_checkpoint_bridge():
+        with prefer_worktree_python_for_pr_hard(task), online_checkpoint_bridge():
             result = asyncio.run(
                 run_workflow(
                     "asyncodebench",
