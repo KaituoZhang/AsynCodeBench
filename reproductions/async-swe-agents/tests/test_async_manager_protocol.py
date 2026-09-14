@@ -219,6 +219,61 @@ def test_safe_production_path_rejects_control_plane_paths():
     assert not safe_production_path("other/module.py", scopes)
 
 
+def test_online_manager_uses_worktree_aware_python_for_pr_hard_runtime():
+    class Workspace:
+        def __init__(self):
+            self.commands = []
+
+        def execute_command(self, command, timeout=60):
+            self.commands.append((command, timeout))
+            return SimpleNamespace(exit_code=0, stdout="tvm.py\n", stderr="")
+
+    class Task:
+        def __init__(self):
+            self.refresh_calls = []
+
+        def refresh_source_build(self, workspace, path):
+            self.refresh_calls.append((workspace, path))
+            return {"status": "passed", "output_excerpt": ""}
+
+    manager = OnlineManager.__new__(OnlineManager)
+    manager.task = Task()
+    manager.workspace = Workspace()
+    manager.manager_worktree = "/workspace/async-manager-test"
+    manager.log = lambda _message: None
+
+    manager._prepare_manager_worktree_runtime()
+
+    assert manager.task.refresh_calls == [
+        (manager.workspace, manager.manager_worktree)
+    ]
+    command, timeout = manager.workspace.commands[-1]
+    assert "cd /workspace/async-manager-test" in command
+    assert "/usr/local/bin/python -c" in command
+    assert timeout == 120
+
+
+def test_online_manager_stops_before_import_when_private_build_fails():
+    class Task:
+        @staticmethod
+        def refresh_source_build(_workspace, _path):
+            return {"status": "build_failed", "output_excerpt": "compiler error"}
+
+    manager = OnlineManager.__new__(OnlineManager)
+    manager.task = Task()
+    manager.workspace = SimpleNamespace()
+    manager.manager_worktree = "/workspace/async-manager-test"
+    manager.log = lambda _message: None
+
+    try:
+        manager._prepare_manager_worktree_runtime()
+    except RuntimeError as error:
+        assert "private-worktree source build failed" in str(error)
+        assert "compiler error" in str(error)
+    else:
+        raise AssertionError("expected manager runtime preparation to fail")
+
+
 def test_terminal_session_recovery_preserves_logical_manager_accounting(monkeypatch):
     class Conversation:
         closed = False

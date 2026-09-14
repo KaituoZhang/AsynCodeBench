@@ -168,6 +168,61 @@ class OnlineManager(AsynCodeBenchManager):
                 "Private manager worktree did not synchronize to integrated HEAD"
             )
 
+    def _prepare_manager_worktree_runtime(self) -> None:
+        """Prepare a private runtime without changing legacy task behavior.
+
+        PR-hard installs a worktree-aware Python wrapper at
+        ``/usr/local/bin/python``. Agent-server environments can place another
+        interpreter earlier on ``PATH``; the legacy validator intentionally
+        uses that ambient ``python``. Select the installed wrapper explicitly
+        for this additive protocol instead of modifying the shared task adapter.
+        """
+
+        refresher = getattr(self.task, "refresh_source_build", None)
+        if refresher is None:
+            preparer = getattr(self.task, "prepare_worktree_runtime", None)
+            if preparer is not None:
+                preparer(self.workspace, self.manager_worktree)
+            return
+
+        self.log(
+            "Preparing the manager private-worktree runtime "
+            "(one-time TVM source build)..."
+        )
+        started = time.monotonic()
+        build = refresher(self.workspace, self.manager_worktree)
+        if build.get("status") != "passed":
+            raise RuntimeError(
+                "Async-Manager private-worktree source build failed for "
+                f"{self.manager_worktree} ({build.get('status')}):\n"
+                f"{build.get('output_excerpt', '')}"
+            )
+
+        quoted_worktree = shlex.quote(str(self.manager_worktree))
+        import_check = (
+            "import pathlib, tvm; "
+            "root=pathlib.Path.cwd().resolve(); "
+            "loaded=pathlib.Path(tvm.__file__).resolve(); "
+            "expected=(root/'python').resolve(); "
+            "assert loaded.is_relative_to(expected), "
+            "f'loaded {loaded}, expected beneath {expected}'; "
+            "print(loaded)"
+        )
+        result = self.workspace.execute_command(
+            f"cd {quoted_worktree} && test -x /usr/local/bin/python && "
+            f"/usr/local/bin/python -c {shlex.quote(import_check)}",
+            timeout=120,
+        )
+        if result.exit_code != 0:
+            raise RuntimeError(
+                "Async-Manager private-worktree runtime isolation check failed for "
+                f"{self.manager_worktree}: {result.stderr or result.stdout}"
+            )
+        self.log(
+            "Manager private-worktree runtime ready in "
+            f"{time.monotonic() - started:.1f}s"
+        )
+
     def setup(self, mode="multi_agent"):
         if mode != "multi_agent":
             raise RuntimeError(
@@ -186,13 +241,11 @@ class OnlineManager(AsynCodeBenchManager):
             )
             self._set_mode("observe")
 
-            preparer = getattr(self.task, "prepare_worktree_runtime", None)
-            if preparer is not None:
-                started = time.monotonic()
-                try:
-                    preparer(self.workspace, self.manager_worktree)
-                finally:
-                    self.worktree_preparation_seconds += time.monotonic() - started
+            started = time.monotonic()
+            try:
+                self._prepare_manager_worktree_runtime()
+            finally:
+                self.worktree_preparation_seconds += time.monotonic() - started
         else:
             # Conversation recovery must retain the same logical manager
             # workspace and never create a fresh coding budget or leaked tree.
