@@ -34,6 +34,24 @@ REQUIRED_ARTIFACTS = (
     "cost.json",
     "runtime.txt",
 )
+
+
+def _async_manager_validator(policy: str):
+    """Select the validator recorded by an Async-Manager bundle."""
+
+    from protocols.async_manager import LEGACY_POLICY, POLICY
+
+    if policy == POLICY:
+        from protocols.async_manager.results import validate
+
+        return validate
+    if policy == LEGACY_POLICY:
+        from protocols.async_manager.legacy_results import validate
+
+        return validate
+    return None
+
+
 PROTOCOLS = SUPPORTED_PROTOCOLS
 SNAPSHOT_TO_METADATA_KEY = {
     "task_snapshot.json": "task",
@@ -302,7 +320,15 @@ def _release_contract_checks(run_dir, expected, metadata):
 
     profile_snapshot = run_dir / "execution_profile_snapshot.json"
     if requested_protocol == "async_manager":
-        registry = load_protocol_registry()
+        contract = metadata.get("protocol_contract", {})
+        recorded_registry = contract.get("path")
+        try:
+            registry_path = protocol_registry_path(recorded_registry)
+            registry = load_protocol_registry(recorded_registry)
+        except RuntimeError:
+            registry_path = None
+            registry = {"protocols": {}}
+            issues.append("unsupported_protocol_registry")
         registry_record = registry["protocols"].get(requested_protocol, {})
         registered_profile = registry_record.get("execution_profile")
         registered_profile_path = _repo_root() / str(registered_profile)
@@ -318,10 +344,9 @@ def _release_contract_checks(run_dir, expected, metadata):
             or _sha256(profile_snapshot) != _sha256(registered_profile_path)
         ):
             issues.append("protocol_execution_profile_checksum_mismatch")
-        registry_path = protocol_registry_path()
-        contract = metadata.get("protocol_contract", {})
         if (
-            contract.get("path")
+            registry_path is None
+            or contract.get("path")
             != registry_path.relative_to(_repo_root()).as_posix()
             or contract.get("sha256") != _sha256(registry_path)
         ):
@@ -704,9 +729,12 @@ def validate_run_bundle(run_dir, verify_checksums=True):
         # The common validator owns admission for all official protocols. The
         # protocol-specific verifier adds intervention provenance and cost
         # consistency checks without rerunning either model or evaluator.
-        from protocols.async_manager.results import validate as validate_online_manager
-
-        issues.extend(validate_online_manager(run_dir, verify_inventory=True))
+        recorded_policy = bundle.get("online_manager", {}).get("policy")
+        validate = _async_manager_validator(recorded_policy)
+        if validate is None:
+            issues.append(f"unsupported_async_manager_policy:{recorded_policy}")
+        if validate is not None:
+            issues.extend(validate(run_dir, verify_inventory=True))
 
     artifacts = bundle.get("artifacts", {})
     for name in REQUIRED_ARTIFACTS:

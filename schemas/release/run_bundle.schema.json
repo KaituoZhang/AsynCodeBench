@@ -217,7 +217,12 @@
       "type": "object",
       "required": ["policy", "events", "accepted", "scope_rejected"],
       "properties": {
-        "policy": {"const": "async-manager-online-v1"},
+        "policy": {
+          "enum": [
+            "async-manager-online-v1",
+            "async-manager-online-v2-budgeted"
+          ]
+        },
         "events": {"type": "integer", "minimum": 0},
         "accepted": {"type": "integer", "minimum": 0},
         "scope_rejected": {"type": "integer", "minimum": 0}

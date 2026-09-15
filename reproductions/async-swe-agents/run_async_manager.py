@@ -6,8 +6,10 @@ import asyncio
 import hashlib
 import json
 import os
+import signal
 import subprocess
 import sys
+import traceback
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
@@ -20,8 +22,9 @@ from agents import load_agent_adapter
 from asyncodebench_harness.protocol_registry import protocol_registry_path
 from config import WorkflowConfig
 from protocols.async_manager import BASE_PROTOCOL, POLICY, PROTOCOL
+from protocols.async_manager.budget import BudgetedOnlineManager as OnlineManager
 from protocols.async_manager.checkpoint_bridge import online_checkpoint_bridge
-from protocols.async_manager.manager import OnlineManager, dump
+from protocols.async_manager.manager import dump
 from protocols.async_manager.results import finalize, validate
 from protocols.asyncodebench.metadata import (
     build_run_metadata,
@@ -115,10 +118,15 @@ def protocol_sources() -> list[Path]:
             root / "protocols" / "asyncodebench" / "profile.py",
             root / "tasks" / "asyncodebench.py",
             repo_root / "configs" / "evaluation" / "protocol_registry.v1.json",
+            repo_root / "configs" / "evaluation" / "protocol_registry.v2.json",
             repo_root
             / "configs"
             / "evaluation"
             / "official_execution_profile.v3.json",
+            repo_root
+            / "configs"
+            / "evaluation"
+            / "official_execution_profile.v4.json",
             repo_root / "schemas" / "release" / "agent_request.schema.json",
             repo_root / "schemas" / "release" / "run_bundle.schema.json",
         ]
@@ -132,10 +140,68 @@ def async_manager_profile() -> dict:
     if (
         profile.get("protocol") != PROTOCOL
         or profile.get("policy") != POLICY
-        or profile.get("schema_version") != "async-manager-profile-v1"
+        or profile.get("schema_version") != "async-manager-profile-v2"
     ):
         raise RuntimeError("Invalid online Async-Manager profile")
     return profile
+
+
+class OperatorCancelled(KeyboardInterrupt):
+    """Raised when an operator sends SIGTERM to a formal run."""
+
+
+def _error_classification(error: BaseException) -> str:
+    detail = str(error).lower()
+    if isinstance(error, (KeyboardInterrupt, OperatorCancelled)):
+        return "operator_cancelled"
+    if "connection refused" in detail or "remote status polling failed" in detail:
+        return "infrastructure_agent_server_unavailable"
+    if "timed out" in detail:
+        return "infrastructure_or_remote_timeout"
+    return "execution_error"
+
+
+def _write_partial_result(output: Path, error: BaseException) -> None:
+    output.mkdir(parents=True, exist_ok=True)
+    error_record = {
+        "schema_version": "async-manager-execution-error-v2",
+        "policy": POLICY,
+        "classification": _error_classification(error),
+        "type": type(error).__name__,
+        "detail": str(error),
+        "traceback": traceback.format_exc(),
+        "recorded_at": datetime.now(timezone.utc).isoformat(),
+        "evaluation_complete": False,
+    }
+    dump(output / "async_manager_execution_error.json", error_record)
+    status = {
+        "schema_version": "async-manager-run-status-v1",
+        "policy": POLICY,
+        "status": error_record["classification"],
+        "evaluation_complete": False,
+        "metrics_eligible": False,
+        "recorded_at": error_record["recorded_at"],
+    }
+    dump(output / "run_status.json", status)
+    artifacts = {}
+    for path in sorted(output.rglob("*")):
+        if not path.is_file() or path.name == "partial_run_bundle.json":
+            continue
+        relative = path.relative_to(output).as_posix()
+        artifacts[relative] = {
+            "size": path.stat().st_size,
+            "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+        }
+    dump(
+        output / "partial_run_bundle.json",
+        {
+            "schema_version": "async-manager-partial-bundle-v1",
+            "policy": POLICY,
+            "status": status["status"],
+            "evaluation_complete": False,
+            "artifacts": artifacts,
+        },
+    )
 
 
 def _source_hashes_sha256(source_hashes: dict[str, str]) -> str:
@@ -332,6 +398,23 @@ def main(
         if rounds_of_chat is None
         else rounds_of_chat
     )
+    fixed_parameters = {
+        "max_iterations": (
+            manager_iterations,
+            int(profile["manager_max_iterations_per_event"]),
+        ),
+        "sub_iterations": (
+            specialist_iterations,
+            int(profile["subagent_max_iterations"]),
+        ),
+        "rounds_of_chat": (chat_rounds, int(profile["max_rounds_chat"])),
+    }
+    for name, (requested, expected_value) in fixed_parameters.items():
+        if requested != expected_value:
+            raise ValueError(
+                f"{name}={requested} conflicts with the frozen Async-Manager "
+                f"profile value {expected_value}"
+            )
     config = WorkflowConfig(
         model=model,
         subagent_model=subagent_model,
@@ -364,6 +447,16 @@ def main(
                     "task_id": task_id,
                     "output_dir": str(output),
                     "manager_max_iterations_per_event": config.manager_max_iterations,
+                    "manager_max_iterations_total": profile[
+                        "manager_max_iterations_total"
+                    ],
+                    "manager_max_tokens_total": profile["manager_max_tokens_total"],
+                    "manager_max_active_seconds_total": profile[
+                        "manager_max_active_seconds_total"
+                    ],
+                    "manager_max_interventions": profile[
+                        "manager_max_interventions"
+                    ],
                     "subagent_max_iterations": config.subagent_max_iterations,
                     "max_rounds_chat": config.max_rounds_chat,
                     "manager_scope": sorted(
@@ -429,6 +522,12 @@ def main(
     )
     dump(output / "protocol.json", protocol)
 
+    previous_sigterm = signal.getsignal(signal.SIGTERM)
+
+    def cancel_on_sigterm(_signum, _frame):
+        raise OperatorCancelled("operator requested SIGTERM")
+
+    signal.signal(signal.SIGTERM, cancel_on_sigterm)
     try:
         with prefer_worktree_python_for_pr_hard(task), online_checkpoint_bridge():
             result = asyncio.run(
@@ -445,12 +544,10 @@ def main(
         finalize(output, task=task, agent_adapter=adapter)
         return result
     except BaseException as error:
-        dump(
-            output / "async_manager_execution_error.json",
-            {"type": type(error).__name__, "detail": str(error)},
-        )
+        _write_partial_result(output, error)
         raise
     finally:
+        signal.signal(signal.SIGTERM, previous_sigterm)
         if candidate_lane:
             task.cleanup_build_cache()
 

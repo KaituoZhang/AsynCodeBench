@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Foreground-only launcher for the additive online Async-Manager protocol.
+# Foreground launcher for the canonical task-budgeted Async-Manager protocol.
 set -euo pipefail
 
 task_id="${1:?Usage: ENV_FILE=... RUN_ID=... bash scripts/run_async_manager_env.sh TASK [--dry_run]}"
@@ -8,7 +8,7 @@ runner_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$runner_root"
 
 env_path="${ENV_FILE:?Set ENV_FILE to the model environment file}"
-requested_run_id="${RUN_ID:-async_manager_v1_$(date -u +%Y%m%dT%H%M%S)_$$}"
+requested_run_id="${RUN_ID:-async_manager_v2_$(date -u +%Y%m%dT%H%M%S)_$$}"
 requested_tag="${MODEL_TAG:-}"
 set -a
 source "$env_path"

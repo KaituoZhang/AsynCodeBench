@@ -25,7 +25,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(RUNNER_ROOT))
 
 from protocols.async_manager import PROTOCOL  # noqa: E402
-from protocols.async_manager.results import finalize, validate  # noqa: E402
+from protocols.async_manager.legacy_results import finalize, validate  # noqa: E402
 
 
 def sha256_bytes(value: bytes) -> str:

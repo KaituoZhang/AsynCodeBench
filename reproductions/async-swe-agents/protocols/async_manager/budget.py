@@ -12,8 +12,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from core.utils import extract_conversation_metrics
+
+from protocols.async_manager import POLICY
 from protocols.async_manager.manager import OnlineManager
-from protocols.async_manager_v2 import POLICY
 
 
 def load_profile() -> dict:
@@ -98,7 +99,9 @@ class BudgetedOnlineManager(OnlineManager):
             "usage": {
                 "manager_iterations_total": self.manager_iterations_total,
                 "manager_tokens_total": self.manager_budget_tokens_total,
-                "manager_active_seconds_total": self.manager_budget_active_seconds_total,
+                "manager_active_seconds_total": (
+                    self.manager_budget_active_seconds_total
+                ),
                 "manager_interventions": self.manager_interventions_executed,
             },
             "updated_at": datetime.now(timezone.utc).isoformat(),

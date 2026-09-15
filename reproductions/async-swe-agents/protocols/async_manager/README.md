@@ -1,10 +1,19 @@
-# Online Async-Manager protocol v1
+# Task-budgeted Async-Manager protocol
 
-This directory contains the implementation of the fifth official protocol in
-`configs/evaluation/protocol_registry.v1.json`. The frozen task, specialist,
-checker, evaluator, and Docker contracts are reused from `caid_manager`; only
-the manager execution and integration policy is new. The shared public CLI,
-schema, validator, and campaign tooling all recognize `async_manager`.
+This directory contains the only executable implementation of the fifth
+official protocol in `configs/evaluation/protocol_registry.v2.json`. New runs
+use policy `async-manager-online-v2-budgeted`. The frozen task, specialist,
+checker, evaluator, and Docker contracts are reused from `caid_manager`.
+Registry v1, profile v3, `legacy_profile.v1.json`, and `legacy_results.py` are
+retained only to validate historical bundles; there is no v1 execution entry.
+
+## Task-level manager budget
+
+The persistent manager is one logical agent across all interventions. It has a
+100-response task cap, a 30-response per-event cap, an 8,000,000-token guard,
+a 21,600-second total active-time guard, a 7,200-second per-event guard, and at
+most six executed interventions. Budget exhaustion preserves the integrated
+specialist state and continues to final evaluation.
 
 ## Live progress logging
 
@@ -49,7 +58,7 @@ Private manager drafts and no-op decisions are recorded in
 cd reproductions/async-swe-agents
 export ENV_FILE="$PWD/.env.my-model"
 export MODEL_TAG=my-model
-export RUN_ID=async_manager_v1_s1
+export RUN_ID=async_manager_v2_s1
 bash scripts/run_async_manager_env.sh cachetools
 ```
 
@@ -93,7 +102,7 @@ an environment file:
 ```bash
 # terminal 1
 SHARD_COUNT=4 SHARD_INDEX=0 ENV_FILE="$PWD/.env.port-8006" \
-  RUN_ID=async_manager_v1_s1 bash scripts/run_async_manager_20tasks_env.sh
+  RUN_ID=async_manager_v2_s1 bash scripts/run_async_manager_20tasks_env.sh
 
 # terminals 2--4: use SHARD_INDEX=1, 2, 3 and their corresponding ENV_FILE.
 ```
@@ -120,8 +129,8 @@ Validate and summarize a complete 20-task campaign:
 ```bash
 ./.venv/bin/python -m protocols.async_manager.campaign \
   --root outputs \
-  --run-id async_manager_v1_s1 \
-  --output-dir ../../docs/results/async_manager_v1_s1 \
+  --run-id async_manager_v2_s1 \
+  --output-dir ../../docs/results/async_manager_v2_s1 \
   --require-complete
 ```
 
@@ -162,6 +171,8 @@ The standard run artifacts remain present. Additional evidence includes:
 - `manager_interventions/NNNN.patch`
 - `protocol_sources/`
 
-Bundles use the standard run-bundle schema with protocol `async_manager` and
-policy `async-manager-online-v1`. A valid bundle with matched v3 profile and
-complete provenance is eligible for the official five-protocol aggregate.
+New bundles use the standard run-bundle schema with protocol `async_manager`,
+policy `async-manager-online-v2-budgeted`, and execution profile v4. The common
+validator dispatches historical policy `async-manager-online-v1` to the
+validation-only compatibility layer, so those bundles remain independently
+verifiable without being relabeled or rerun.

@@ -322,30 +322,34 @@ def validate_campaign_lineage(args: argparse.Namespace, rows: list[dict[str, Any
         legacy_profile = configured_execution_profile(
             "configs/evaluation/official_execution_profile.v2.json"
         )
-        manager_profile = configured_execution_profile(
-            "configs/evaluation/official_execution_profile.v3.json"
-        )
-        compatible_five_protocol_profiles = execution_profiles == {
-            legacy_profile,
-            manager_profile,
-        } and all(
-            (
-                row["mode"] == "async_manager"
-                and (
-                    row.get("execution_profile_id"),
-                    row.get("execution_profile_sha256"),
-                )
-                == manager_profile
+        manager_profiles = {
+            configured_execution_profile(path)
+            for path in (
+                "configs/evaluation/official_execution_profile.v3.json",
+                "configs/evaluation/official_execution_profile.v4.json",
             )
-            or (
-                row["mode"] != "async_manager"
-                and (
+        }
+        selected_manager_profiles = {
+            (
+                row.get("execution_profile_id"),
+                row.get("execution_profile_sha256"),
+            )
+            for row in rows
+            if row["mode"] == "async_manager"
+        }
+        compatible_five_protocol_profiles = (
+            len(selected_manager_profiles) == 1
+            and selected_manager_profiles <= manager_profiles
+            and execution_profiles == {legacy_profile, *selected_manager_profiles}
+            and all(
+                row["mode"] == "async_manager"
+                or (
                     row.get("execution_profile_id"),
                     row.get("execution_profile_sha256"),
                 )
                 == legacy_profile
+                for row in rows
             )
-            for row in rows
         )
     invalid_profile_set = (
         len(execution_profiles) != 1 and not compatible_five_protocol_profiles

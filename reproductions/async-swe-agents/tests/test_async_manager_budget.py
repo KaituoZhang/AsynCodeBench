@@ -1,13 +1,16 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 from types import SimpleNamespace
 
-from protocols.async_manager_v2 import POLICY
-from protocols.async_manager_v2.manager import BudgetedOnlineManager, load_profile
-from protocols.async_manager_v2.results import _budget_issues
-from run_async_manager_v2 import (
+from asyncodebench_harness.protocol_registry import protocol_registry_path
+from asyncodebench_harness.results import _async_manager_validator
+from protocols.async_manager import LEGACY_POLICY, POLICY
+from protocols.async_manager.budget import BudgetedOnlineManager, load_profile
+from protocols.async_manager.results import _budget_issues
+from run_async_manager import (
     _error_classification,
     _write_partial_result,
     protocol_sources,
@@ -38,7 +41,7 @@ def bare_manager(tmp_path: Path) -> BudgetedOnlineManager:
     return manager
 
 
-def test_v2_profile_pins_task_level_budget():
+def test_canonical_profile_pins_task_level_budget():
     profile = load_profile()
     assert profile["policy"] == POLICY
     assert profile["manager_max_iterations_per_event"] == 30
@@ -47,10 +50,10 @@ def test_v2_profile_pins_task_level_budget():
     assert profile["budget_exhaustion_policy"].startswith("stop_manager_calls")
 
 
-def test_v2_is_additive_in_official_registry():
+def test_budgeted_policy_is_canonical_in_current_registry():
     repository_root = Path(__file__).resolve().parents[3]
     registry = json.loads(
-        (repository_root / "configs/evaluation/protocol_registry.v1.json").read_text()
+        (repository_root / "configs/evaluation/protocol_registry.v2.json").read_text()
     )
     profile = json.loads(
         (
@@ -60,25 +63,44 @@ def test_v2_is_additive_in_official_registry():
     )
 
     async_manager = registry["protocols"]["async_manager"]
-    assert async_manager["policy"] == "async-manager-online-v1"
+    assert async_manager["policy"] == POLICY
     assert async_manager["execution_profile"].endswith(
-        "official_execution_profile.v3.json"
+        "official_execution_profile.v4.json"
     )
     assert (
-        async_manager["additional_policies"][POLICY]["runner"]
-        == "reproductions/async-swe-agents/run_async_manager_v2.py"
+        async_manager["runner"]
+        == "reproductions/async-swe-agents/run_async_manager.py"
     )
     assert profile["protocols"]["single"]["manager_max_iterations"] == 100
     assert profile["protocols"]["async_manager"]["manager_max_iterations"] == 30
     assert profile["manager_budget"]["manager_max_iterations_total"] == 100
 
 
-def test_v2_policy_install_keeps_source_preflight_non_recursive(monkeypatch):
-    monkeypatch.setattr("run_async_manager.protocol_sources", protocol_sources)
+def test_registry_v1_remains_immutable_for_historical_bundles():
+    assert (
+        hashlib.sha256(
+            protocol_registry_path(
+                "configs/evaluation/protocol_registry.v1.json"
+            ).read_bytes()
+        ).hexdigest()
+        == "5f3d0799608ad05f28c4ca4110912b9ea296255955238438027a0cf91f222b6a"
+    )
 
+
+def test_common_validator_dispatches_both_async_manager_policies():
+    assert _async_manager_validator(POLICY).__module__ == (
+        "protocols.async_manager.results"
+    )
+    assert _async_manager_validator(LEGACY_POLICY).__module__ == (
+        "protocols.async_manager.legacy_results"
+    )
+    assert _async_manager_validator("unknown") is None
+
+
+def test_protocol_source_inventory_is_unique():
     sources = protocol_sources()
 
-    assert Path(__file__).resolve().parents[1] / "run_async_manager_v2.py" in sources
+    assert Path(__file__).resolve().parents[1] / "run_async_manager.py" in sources
     assert len(sources) == len(set(sources))
 
 
@@ -111,7 +133,7 @@ def test_remaining_iteration_budget_rotates_remote_transport(tmp_path, monkeypat
 
     manager.ensure_usable_conversation = rotate
     monkeypatch.setattr(
-        "protocols.async_manager_v2.manager.extract_conversation_metrics",
+        "protocols.async_manager.budget.extract_conversation_metrics",
         lambda _conversation: {"total_tokens": 0},
     )
 

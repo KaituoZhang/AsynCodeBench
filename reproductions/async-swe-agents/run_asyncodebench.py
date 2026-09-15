@@ -188,10 +188,10 @@ def main(
     protocol="single",
     model=None,
     subagent_model=None,
-    max_iterations=100,
+    max_iterations=None,
     max_subagents=None,
-    sub_iterations=100,
-    rounds_of_chat=2,
+    sub_iterations=None,
+    rounds_of_chat=None,
     output_dir=None,
     run_id=None,
     release="v0.3",
@@ -261,10 +261,10 @@ def main(
     workflow_config = WorkflowConfig(
         model=model,
         subagent_model=subagent_model,
-        manager_max_iterations=int(max_iterations),
+        manager_max_iterations=int(100 if max_iterations is None else max_iterations),
         max_subagents=int(max_subagents),
-        subagent_max_iterations=int(sub_iterations),
-        max_rounds_chat=int(rounds_of_chat),
+        subagent_max_iterations=int(100 if sub_iterations is None else sub_iterations),
+        max_rounds_chat=int(2 if rounds_of_chat is None else rounds_of_chat),
     )
     resolved_output = (
         Path(output_dir)

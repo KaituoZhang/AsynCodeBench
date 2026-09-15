@@ -342,6 +342,13 @@ def _release_status(args):
 def _run_one(args, protocol, output_dir, run_id):
     if args.dry_run:
         os.environ.setdefault("LITELLM_LOCAL_MODEL_COST_MAP", "True")
+    max_iterations = args.max_iterations
+    sub_iterations = args.sub_iterations
+    rounds_of_chat = args.rounds_of_chat
+    if protocol != "async_manager":
+        max_iterations = 100 if max_iterations is None else max_iterations
+        sub_iterations = 100 if sub_iterations is None else sub_iterations
+        rounds_of_chat = 2 if rounds_of_chat is None else rounds_of_chat
     if args.task.startswith("asyncodebench:apache-tvm-"):
         if args.release != "v0.4":
             raise ValueError("The Apache TVM tasks belong to release v0.4")
@@ -353,9 +360,9 @@ def _run_one(args, protocol, output_dir, run_id):
             protocol=protocol,
             model=args.model,
             subagent_model=args.subagent_model,
-            max_iterations=args.max_iterations,
-            sub_iterations=args.sub_iterations,
-            rounds_of_chat=args.rounds_of_chat,
+            max_iterations=max_iterations,
+            sub_iterations=sub_iterations,
+            rounds_of_chat=rounds_of_chat,
             output_dir=output_dir,
             run_id=run_id,
             runtime_root=args.runtime_root,
@@ -373,9 +380,9 @@ def _run_one(args, protocol, output_dir, run_id):
         protocol=protocol,
         model=args.model,
         subagent_model=args.subagent_model,
-        max_iterations=args.max_iterations,
-        sub_iterations=args.sub_iterations,
-        rounds_of_chat=args.rounds_of_chat,
+        max_iterations=max_iterations,
+        sub_iterations=sub_iterations,
+        rounds_of_chat=rounds_of_chat,
         output_dir=output_dir,
         run_id=run_id,
         # The first 16 task records retain their v0.3 source manifests inside
@@ -557,7 +564,7 @@ def _doctor(args):
         {
             "name": "five_protocol_execution_profile",
             "ok": (
-                _repo_root() / "configs/evaluation/official_execution_profile.v3.json"
+                _repo_root() / "configs/evaluation/official_execution_profile.v4.json"
             ).is_file(),
         }
     )
@@ -565,7 +572,7 @@ def _doctor(args):
         {
             "name": "protocol_registry",
             "ok": (
-                _repo_root() / "configs/evaluation/protocol_registry.v1.json"
+                _repo_root() / "configs/evaluation/protocol_registry.v2.json"
             ).is_file(),
         }
     )
@@ -675,9 +682,9 @@ def build_parser():
     run.add_argument("--protocol", choices=[*PROTOCOL_ORDER, "all"], required=True)
     run.add_argument("--model", default=os.getenv("LLM_MODEL"))
     run.add_argument("--subagent-model", default=os.getenv("LLM_SUBAGENT_MODEL"))
-    run.add_argument("--max-iterations", type=int, default=100)
-    run.add_argument("--sub-iterations", type=int, default=100)
-    run.add_argument("--rounds-of-chat", type=int, default=2)
+    run.add_argument("--max-iterations", type=int)
+    run.add_argument("--sub-iterations", type=int)
+    run.add_argument("--rounds-of-chat", type=int)
     run.add_argument("--output-dir")
     run.add_argument("--run-id")
     run.add_argument("--release", default="v0.4")

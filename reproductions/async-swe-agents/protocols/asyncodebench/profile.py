@@ -11,7 +11,7 @@ LEGACY_PROFILE_RELATIVE_PATH = Path(
     "configs/evaluation/official_execution_profile.v2.json"
 )
 ASYNC_MANAGER_PROFILE_RELATIVE_PATH = Path(
-    "configs/evaluation/official_execution_profile.v3.json"
+    "configs/evaluation/official_execution_profile.v4.json"
 )
 
 

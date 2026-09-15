@@ -27,10 +27,11 @@ The five `--protocol` values are:
   specialists are running, can intervene in the shared workspace, and records
   every accepted or rejected edit as protocol provenance.
 
-The machine-readable public registry is
-`../../../configs/evaluation/protocol_registry.v1.json`. The historical
-four-protocol wrapper remains available for exact reproduction of earlier
-releases; it is not silently changed to launch the fifth condition.
+The current machine-readable public registry is
+`../../../configs/evaluation/protocol_registry.v2.json`. Registry v1 remains
+immutable so historical Async-Manager bundles retain their recorded contract.
+The historical four-protocol wrapper remains available for exact reproduction
+of earlier releases; it is not silently changed to launch the fifth condition.
 
 `static_commit0.py` and the `run_commit0_*` scripts are retained only for
 historical v1 reproduction. They are not public entry points for new official

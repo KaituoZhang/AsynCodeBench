@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 from statistics import mean
 
-from protocols.async_manager.results import validate
+from asyncodebench_harness.results import validate_run_bundle
 
 EXPECTED_TASKS = frozenset(
     {
@@ -154,6 +154,7 @@ def task_row(directory: Path) -> dict:
     passed = int(final.get("passed", 0) or 0)
     return {
         "task_id": metadata.get("task_id"),
+        "policy": online.get("policy"),
         "directory": str(directory.resolve()),
         "bundle_status": bundle.get("status"),
         "final_success": bool(final.get("success")),
@@ -181,6 +182,7 @@ def summarize(rows: list[dict], issues: dict[str, list[str]]) -> dict:
     return {
         "schema_version": "async-manager-campaign-summary-v1",
         "protocol": "async_manager",
+        "policies": sorted({row.get("policy") for row in rows if row.get("policy")}),
         "valid": not issues,
         "validation_issues": issues,
         "task_count": len(rows),
@@ -221,6 +223,7 @@ def write_outputs(summary: dict, output_dir: Path) -> None:
     )
     fields = [
         "task_id",
+        "policy",
         "bundle_status",
         "final_success",
         "final_pass_rate",
@@ -277,7 +280,7 @@ def main() -> int:
     issues = {
         str(directory): found
         for directory in directories
-        if (found := validate(directory))
+        if (found := validate_run_bundle(directory).get("issues", []))
     }
     rows = [task_row(directory) for directory in directories]
     task_ids = [row["task_id"] for row in rows]

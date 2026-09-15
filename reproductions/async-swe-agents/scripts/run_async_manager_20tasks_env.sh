@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Sequential, restart-safe-by-version launcher for the unified 20-task suite.
+# Sequential/sharded launcher for the canonical budgeted Async-Manager suite.
 set -euo pipefail
 
 runner_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -45,11 +45,11 @@ for index in "${!tasks[@]}"; do
   fi
 done
 tasks=("${selected_tasks[@]}")
-echo "Async-Manager shard $((shard_index + 1))/${shard_count}: ${#tasks[@]} task(s)"
+echo "Budgeted Async-Manager shard $((shard_index + 1))/${shard_count}: ${#tasks[@]} task(s)"
 
 failures=()
 for task in "${tasks[@]}"; do
-  echo "========== Async-Manager: ${task} =========="
+  echo "========== Budgeted Async-Manager: ${task} =========="
   if ! RUN_ID="$RUN_ID" ENV_FILE="$ENV_FILE" MODEL_TAG="${MODEL_TAG:-}" \
     bash scripts/run_async_manager_env.sh "$task"
   then
@@ -61,7 +61,7 @@ for task in "${tasks[@]}"; do
 done
 
 if ((${#failures[@]})); then
-  printf 'Async-Manager failures:' >&2
+  printf 'Budgeted Async-Manager failures:' >&2
   printf ' %s' "${failures[@]}" >&2
   printf '\n' >&2
   exit 1

@@ -9,7 +9,7 @@ from types import SimpleNamespace
 import core.subagent as subagent_module
 import core.workspace as workspace_module
 import pytest
-from protocols.async_manager import POLICY, PROTOCOL
+from protocols.async_manager import LEGACY_POLICY, POLICY, PROTOCOL
 from protocols.async_manager.campaign import trajectory_metrics
 from protocols.async_manager.checkpoint_bridge import online_checkpoint_bridge
 from protocols.async_manager.guard import guard_command
@@ -86,7 +86,7 @@ def test_profile_is_official_and_pins_frozen_base():
     profile = async_manager_profile()
     assert profile["protocol"] == PROTOCOL
     assert profile["policy"] == POLICY
-    assert profile["base_protocol"] == "caid_manager"
+    assert profile["base_protocol"] == LEGACY_POLICY
     assert profile["official_five_protocol_aggregate"] is True
     assert len(FROZEN_BASE_REVISION) == 40
 
