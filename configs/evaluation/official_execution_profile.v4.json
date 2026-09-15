@@ -1,0 +1,78 @@
+{
+  "benchmark": "AsynCodeBench",
+  "description": "Canonical profile for the budgeted online Async-Manager policy. The released four protocols and their v2 profile remain unchanged.",
+  "instrumentation": {
+    "final_evaluator_source": "asyncodebench_manifest",
+    "final_pytest_timeout_seconds": 900,
+    "probe_timeout_seconds": 60
+  },
+  "iteration_semantics": {
+    "async_manager_event_limit": 30,
+    "async_manager_task_limit": 100,
+    "budget_scope": "one_task_level_budget_per_logical_agent",
+    "hard_limit_outcome": "budget_exhausted_then_final_evaluation",
+    "primary_completion_signal": "agent_finish_tool",
+    "stuck_detection": true,
+    "unit": "model_response"
+  },
+  "manager_budget": {
+    "manager_max_active_seconds_per_event": 7200,
+    "manager_max_active_seconds_total": 21600,
+    "manager_max_interventions": 6,
+    "manager_max_iterations_total": 100,
+    "manager_max_tokens_total": 8000000,
+    "token_enforcement": "between_manager_events_with_per_event_iteration_guard"
+  },
+  "profile_id": "asyncodebench-five-protocol-budgeted-manager-100",
+  "protocols": {
+    "async_manager": {
+      "manager_max_iterations": 30,
+      "max_rounds_chat": 2,
+      "max_subagents": "scenario_declared",
+      "subagent_max_iterations": 100
+    },
+    "async_private": {
+      "manager_max_iterations": 100,
+      "max_rounds_chat": 2,
+      "max_subagents": "scenario_declared",
+      "subagent_max_iterations": 100
+    },
+    "caid_manager": {
+      "manager_max_iterations": 100,
+      "max_rounds_chat": 2,
+      "max_subagents": "scenario_declared",
+      "subagent_max_iterations": 100
+    },
+    "serial_specialists": {
+      "manager_max_iterations": 100,
+      "max_rounds_chat": 2,
+      "max_subagents": "scenario_declared",
+      "subagent_max_iterations": 100
+    },
+    "single": {
+      "manager_max_iterations": 100,
+      "max_rounds_chat": 2,
+      "max_subagents": "scenario_declared",
+      "subagent_max_iterations": 100
+    }
+  },
+  "release": "v0.3+v0.4+async-manager-v2",
+  "required_agent_adapter_fields": [
+    "name",
+    "class",
+    "package_version_or_source_sha256",
+    "config_sha256"
+  ],
+  "required_provenance": [
+    "model",
+    "subagent_model",
+    "agent_adapter",
+    "generation_configuration",
+    "model_server",
+    "prompt",
+    "code_revisions",
+    "source",
+    "artifacts"
+  ],
+  "schema_version": "asyncodebench-execution-profile-v4"
+}

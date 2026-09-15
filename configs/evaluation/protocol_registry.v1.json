@@ -3,6 +3,13 @@
   "description": "Public protocol registry. The online Async-Manager reuses the released CAID specialist decomposition while defining a distinct intervention and integration policy.",
   "protocols": {
     "async_manager": {
+      "additional_policies": {
+        "async-manager-online-v2-budgeted": {
+          "execution_profile": "configs/evaluation/official_execution_profile.v4.json",
+          "implementation": "reproductions/async-swe-agents/protocols/async_manager_v2",
+          "runner": "reproductions/async-swe-agents/run_async_manager_v2.py"
+        }
+      },
       "display_name": "Async-Manager",
       "execution_profile": "configs/evaluation/official_execution_profile.v3.json",
       "implementation": "reproductions/async-swe-agents/protocols/async_manager",
