@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 import time
@@ -446,7 +447,13 @@ def test_checkpoint_bridge_preserves_order_and_adds_only_accepted_state(monkeypa
     assert OnlineManager.active_instance is None
 
 
-def test_online_manager_integrates_real_scoped_patch(tmp_path, monkeypatch):
+@pytest.mark.parametrize(
+    ("validation_passed", "expected_status"),
+    [(True, "accepted"), (False, "validation_rejected")],
+)
+def test_online_manager_gates_real_scoped_patch(
+    tmp_path, monkeypatch, validation_passed, expected_status
+):
     repository = tmp_path / "repo"
     base = initialize_repository(repository)
     manager_worktree = tmp_path / "manager-worktree"
@@ -489,6 +496,7 @@ def test_online_manager_integrates_real_scoped_patch(tmp_path, monkeypatch):
     manager.review_total_cost = 0.0
     manager.review_total_tokens = 0
     manager.review_total_time = 0.0
+    manager.candidate_patch_validation = {"enabled": True}
     manager.conversation = SimpleNamespace(state=SimpleNamespace(events=[]))
     manager.ensure_usable_conversation = lambda: None
     manager.send_message = lambda _prompt: None
@@ -499,6 +507,17 @@ def test_online_manager_integrates_real_scoped_patch(tmp_path, monkeypatch):
         )
 
     manager.run_active_conversation = run_active
+    validation_calls = []
+
+    def validate_candidate(**kwargs):
+        validation_calls.append(kwargs)
+        return {
+            "required": True,
+            "passed": validation_passed,
+            "completion_signal": False,
+        }
+
+    manager._validate_candidate_patch = validate_candidate
     monkeypatch.setattr(
         "protocols.async_manager.manager.extract_conversation_metrics",
         lambda _conversation: {"cost": 0.0, "total_tokens": 0},
@@ -531,13 +550,191 @@ def test_online_manager_integrates_real_scoped_patch(tmp_path, monkeypatch):
         },
     }
     record = manager.intervene(event)
-    assert record["status"] == "accepted"
-    assert record["accepted"] is True
-    assert git(repository, "show", "HEAD:pkg/module.py") == "VALUE = 2"
-    assert git(repository, "rev-parse", "HEAD") != base
+    assert record["status"] == expected_status
+    assert record["accepted"] is validation_passed
+    assert record["candidate_validation"]["passed"] is validation_passed
+    assert validation_calls[0]["changed"] == ["pkg/module.py"]
+    expected_value = "VALUE = 2" if validation_passed else "VALUE = 1"
+    assert git(repository, "show", "HEAD:pkg/module.py") == expected_value
+    if validation_passed:
+        assert git(repository, "rev-parse", "HEAD") != base
+    else:
+        assert git(repository, "rev-parse", "HEAD") == base
     assert not git(repository, "status", "--porcelain")
     assert (output / record["patch"]).is_file()
     assert mode.read_text(encoding="utf-8").strip() == "observe"
+
+
+def test_iteration_limited_candidate_passes_without_finish_when_no_regression(
+    tmp_path,
+):
+    output = tmp_path / "output"
+    output.mkdir()
+    metrics = tmp_path / "metrics.json"
+    metrics.write_text(
+        json.dumps(
+            {
+                "dependency_points": [
+                    {
+                        "dependency_id": "dep",
+                        "producer_subproblem": "producer",
+                        "consumer_subproblem": "consumer",
+                        "producer_files": ["pkg/module.py"],
+                        "consumer_files": ["pkg/consumer.py"],
+                        "integrated_probe_tests": ["tests/test_pkg.py::test_dep"],
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    patch = "diff --git a/pkg/module.py b/pkg/module.py\n"
+    manager = OnlineManager.__new__(OnlineManager)
+    manager.config = SimpleNamespace(output_dir=str(output))
+    manager.task = SimpleNamespace(
+        manifest_paths={"metrics": metrics},
+        refresh_source_build=None,
+    )
+    manager.manager_worktree = "/workspace/manager"
+    manager.candidate_patch_validation = {
+        "enabled": True,
+        "mode": "affected_dependency_selectors_no_regression",
+        "timeout_seconds": 60,
+        "max_selectors": 40,
+        "require_all_selectors_collected": True,
+        "require_no_regression": True,
+    }
+    manager.active_scenario = lambda: {"assignments": []}
+    manager._changed_paths = lambda: ["pkg/module.py"]
+    manager._command = lambda _command, timeout=60: patch
+    manager._run_candidate_dependency_probes = lambda *_args: {
+        "exit_code": 0,
+        "timed_out": False,
+        "selector_results": {
+            "tests/test_pkg.py::test_dep": {"status": "passed", "passed": True}
+        },
+        "summary": {"total": 1, "passed": 1, "failed": 0, "not_collected": 0},
+        "output_excerpt": "1 passed",
+    }
+    event = {
+        "specialist_checkpoint": {
+            "metrics_manifest": str(metrics),
+            "probe_test_results": {
+                "tests/test_pkg.py::test_dep": {
+                    "status": "passed",
+                    "passed": True,
+                }
+            },
+        }
+    }
+
+    validation = manager._validate_candidate_patch(
+        sequence=1,
+        event=event,
+        changed=["pkg/module.py"],
+        head_before="base",
+        patch_sha=hashlib.sha256(patch.encode()).hexdigest(),
+        termination_reason="iteration_limit",
+    )
+
+    assert validation["passed"] is True
+    assert validation["completion_signal"] is False
+    assert validation["reason_codes"] == []
+    assert (output / validation["artifact"]).is_file()
+
+
+def test_candidate_validation_rejects_previously_passing_probe_regression(tmp_path):
+    output = tmp_path / "output"
+    output.mkdir()
+    metrics = tmp_path / "metrics.json"
+    selector = "tests/test_pkg.py::test_dep"
+    metrics.write_text(
+        json.dumps(
+            {
+                "dependency_points": [
+                    {
+                        "dependency_id": "dep",
+                        "producer_files": ["pkg/module.py"],
+                        "consumer_files": [],
+                        "integrated_probe_tests": [selector],
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    patch = "candidate patch"
+    manager = OnlineManager.__new__(OnlineManager)
+    manager.config = SimpleNamespace(output_dir=str(output))
+    manager.task = SimpleNamespace(
+        manifest_paths={"metrics": metrics},
+        refresh_source_build=None,
+    )
+    manager.manager_worktree = "/workspace/manager"
+    manager.candidate_patch_validation = {
+        "enabled": True,
+        "mode": "affected_dependency_selectors_no_regression",
+        "timeout_seconds": 60,
+        "max_selectors": 40,
+        "require_all_selectors_collected": True,
+        "require_no_regression": True,
+    }
+    manager.active_scenario = lambda: {"assignments": []}
+    manager._changed_paths = lambda: ["pkg/module.py"]
+    manager._command = lambda _command, timeout=60: patch
+    manager._run_candidate_dependency_probes = lambda *_args: {
+        "exit_code": 1,
+        "timed_out": False,
+        "selector_results": {
+            selector: {"status": "failed", "passed": False}
+        },
+        "summary": {"total": 1, "passed": 0, "failed": 1, "not_collected": 0},
+        "output_excerpt": "1 failed",
+    }
+
+    validation = manager._validate_candidate_patch(
+        sequence=2,
+        event={
+            "specialist_checkpoint": {
+                "metrics_manifest": str(metrics),
+                "probe_test_results": {
+                    selector: {"status": "passed", "passed": True}
+                },
+            }
+        },
+        changed=["pkg/module.py"],
+        head_before="base",
+        patch_sha=hashlib.sha256(patch.encode()).hexdigest(),
+        termination_reason="agent_finish",
+    )
+
+    assert validation["passed"] is False
+    assert validation["completion_signal"] is True
+    assert validation["regressions"] == [selector]
+    assert "previously_passing_selector_regressed" in validation["reason_codes"]
+
+
+def test_candidate_probe_parser_handles_parameters_and_missing_selectors():
+    results = OnlineManager._probe_selector_results(
+        {
+            "tests": [
+                {
+                    "nodeid": "tests/test_pkg.py::test_dep[value]",
+                    "outcome": "passed",
+                }
+            ]
+        },
+        ["tests/test_pkg.py::test_dep", "tests/test_pkg.py::test_missing"],
+    )
+
+    assert results["tests/test_pkg.py::test_dep"] == {
+        "status": "passed",
+        "passed": True,
+    }
+    assert results["tests/test_pkg.py::test_missing"] == {
+        "status": "not_collected",
+        "passed": False,
+    }
 
 
 def test_online_manager_emits_progress_heartbeat_without_touching_execution(

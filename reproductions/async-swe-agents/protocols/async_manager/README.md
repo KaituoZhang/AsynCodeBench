@@ -44,8 +44,21 @@ only while the harness is processing an explicit intervention event.
 The writable manager scope is the union of the active scenario's specialist
 production scopes. Tests, checkers, manifests, evaluators, Git metadata, and
 paths outside that union are fail-closed. The harness stages the candidate
-patch, checks all changed paths, creates the commit, fast-forwards the current
-integrated workspace, and verifies the resulting HEAD.
+patch and checks all changed paths. Before creating a commit it runs the
+affected integrated dependency selectors in one harness-owned pytest process
+with a 600-second total timeout. Every selector must be collected and no
+selector that passed at the triggering specialist checkpoint may regress.
+The staged patch must also remain byte-identical throughout validation. A
+passing candidate is committed and fast-forwarded into the integrated
+workspace; a rejected candidate remains archived but is never merged.
+
+`agent_finish` is recorded as a completion signal, not trusted as proof of
+correctness. A candidate stopped by the 30-iteration event limit may still be
+accepted when the same deterministic gate passes, preventing useful completed
+edits from being discarded merely because the model did not emit a final
+finish action. Both normally finished and iteration-limited candidates fail
+closed on build failure, probe timeout, missing baseline evidence, collection
+failure, dependency regression, or post-validation mutation.
 
 Every specialist integration remains a canonical checkpoint. A manager
 checkpoint is added only when a validated patch changes the integrated state.
@@ -169,6 +182,7 @@ The standard run artifacts remain present. Additional evidence includes:
 - `manager_interventions.jsonl`
 - `manager_interventions/NNNN.prompt.txt`
 - `manager_interventions/NNNN.patch`
+- `manager_candidate_validations/NNNN/validation.json`
 - `protocol_sources/`
 
 New bundles use the standard run-bundle schema with protocol `async_manager`,

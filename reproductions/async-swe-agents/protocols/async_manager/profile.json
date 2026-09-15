@@ -14,6 +14,14 @@
   "manager_shutdown_grace_seconds": 30,
   "active_time_overrun_tolerance_seconds": 30,
   "token_budget_enforcement": "between_manager_events_with_per_event_iteration_guard",
+  "candidate_patch_validation": {
+    "enabled": true,
+    "mode": "affected_dependency_selectors_no_regression",
+    "timeout_seconds": 600,
+    "max_selectors": 40,
+    "require_all_selectors_collected": true,
+    "require_no_regression": true
+  },
   "budget_rationale": "The 100-iteration task-level cap applies the released per-agent stopping rule to the persistent manager as one logical agent. The 30-iteration event cap matches the released final-review cap. Token and active-time caps are secondary runaway guards.",
   "intervention_trigger": "after_each_specialist_integration_checkpoint",
   "manager_identity": "one_persistent_logical_manager_with_task_level_budget_and_recoverable_transport_sessions",

@@ -12,7 +12,7 @@ from asyncodebench_harness.protocol_registry import protocol_registry_path
 from asyncodebench_harness.results import _async_manager_validator
 from protocols.async_manager import LEGACY_POLICY, POLICY
 from protocols.async_manager.budget import BudgetedOnlineManager, load_profile
-from protocols.async_manager.results import _budget_issues
+from protocols.async_manager.results import _budget_issues, validate
 from run_async_manager import (
     _error_classification,
     _write_partial_result,
@@ -50,7 +50,31 @@ def test_canonical_profile_pins_task_level_budget():
     assert profile["manager_max_iterations_per_event"] == 30
     assert profile["manager_max_iterations_total"] == 100
     assert profile["manager_max_interventions"] == 6
+    assert profile["candidate_patch_validation"] == {
+        "enabled": True,
+        "mode": "affected_dependency_selectors_no_regression",
+        "timeout_seconds": 600,
+        "max_selectors": 40,
+        "require_all_selectors_collected": True,
+        "require_no_regression": True,
+    }
     assert profile["budget_exhaustion_policy"].startswith("stop_manager_calls")
+
+
+def test_candidate_selector_cap_covers_every_current_task_manifest():
+    root = Path(__file__).resolve().parents[3]
+    maximum = 0
+    for path in (root / "manifests").glob("**/*_async_metrics.json"):
+        metrics = json.loads(path.read_text(encoding="utf-8"))
+        selectors = {
+            selector
+            for dependency in metrics.get("dependency_points", [])
+            for selector in dependency.get("integrated_probe_tests", [])
+        }
+        maximum = max(maximum, len(selectors))
+
+    assert maximum == 38
+    assert load_profile()["candidate_patch_validation"]["max_selectors"] >= maximum
 
 
 def test_budgeted_policy_is_canonical_in_current_registry():
@@ -374,6 +398,122 @@ def test_budget_validation_reports_missing_snapshot_and_unconfirmed_shutdown(
 
     assert "manager_shutdown_unconfirmed" in issues
     assert "invalid_or_missing_async_manager_profile_snapshot" in issues
+
+
+def test_new_profile_requires_auditable_candidate_validation(
+    tmp_path, monkeypatch
+):
+    artifact = tmp_path / "manager_candidate_validations/0001/validation.json"
+    artifact.parent.mkdir(parents=True)
+    artifact.write_text('{"passed": true}\n', encoding="utf-8")
+    (tmp_path / "async_manager_profile_snapshot.json").write_text(
+        json.dumps(
+            {
+                "candidate_patch_validation": {
+                    "enabled": True,
+                    "mode": "affected_dependency_selectors_no_regression",
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "manager_budget.json").write_text(
+        json.dumps(
+            {
+                "policy": POLICY,
+                "limits": {
+                    "manager_iterations_total": 100,
+                    "manager_tokens_total": 8_000_000,
+                    "manager_active_seconds_total": 21_600,
+                    "manager_interventions": 6,
+                },
+                "usage": {
+                    "manager_iterations_total": 30,
+                    "manager_tokens_total": 100,
+                    "manager_active_seconds_total": 10,
+                    "manager_interventions": 1,
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "manager_shutdown.json").write_text(
+        json.dumps({"confirmed": True}), encoding="utf-8"
+    )
+    validation = {
+        "required": True,
+        "passed": True,
+        "mode": "affected_dependency_selectors_no_regression",
+        "artifact": artifact.relative_to(tmp_path).as_posix(),
+        "artifact_sha256": hashlib.sha256(artifact.read_bytes()).hexdigest(),
+    }
+    record = {
+        "status": "accepted",
+        "accepted": True,
+        "candidate_validation": validation,
+    }
+    monkeypatch.setattr(
+        "protocols.async_manager.results.v1_results.validate",
+        lambda *_args, **_kwargs: [],
+    )
+    monkeypatch.setattr(
+        "protocols.async_manager.results.v1_results._load_interventions",
+        lambda *_args, **_kwargs: [record],
+    )
+
+    assert validate(tmp_path, verify_inventory=False) == []
+
+    artifact.write_text('{"passed": false}\n', encoding="utf-8")
+    assert "candidate_validation_artifact_checksum_mismatch" in validate(
+        tmp_path, verify_inventory=False
+    )
+    artifact.write_text('{"passed": true}\n', encoding="utf-8")
+    record.pop("candidate_validation")
+    assert "accepted_candidate_validation_missing_or_failed" in validate(
+        tmp_path, verify_inventory=False
+    )
+
+
+def test_historical_profile_does_not_retroactively_require_candidate_gate(
+    tmp_path, monkeypatch
+):
+    (tmp_path / "async_manager_profile_snapshot.json").write_text(
+        json.dumps({"active_time_overrun_tolerance_seconds": 30}),
+        encoding="utf-8",
+    )
+    (tmp_path / "manager_budget.json").write_text(
+        json.dumps(
+            {
+                "policy": POLICY,
+                "limits": {
+                    "manager_iterations_total": 100,
+                    "manager_tokens_total": 8_000_000,
+                    "manager_active_seconds_total": 21_600,
+                    "manager_interventions": 6,
+                },
+                "usage": {
+                    "manager_iterations_total": 30,
+                    "manager_tokens_total": 100,
+                    "manager_active_seconds_total": 10,
+                    "manager_interventions": 1,
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "manager_shutdown.json").write_text(
+        json.dumps({"confirmed": True}), encoding="utf-8"
+    )
+    monkeypatch.setattr(
+        "protocols.async_manager.results.v1_results.validate",
+        lambda *_args, **_kwargs: [],
+    )
+    monkeypatch.setattr(
+        "protocols.async_manager.results.v1_results._load_interventions",
+        lambda *_args, **_kwargs: [{"status": "accepted", "accepted": True}],
+    )
+
+    assert validate(tmp_path, verify_inventory=False) == []
 
 
 def test_interrupted_run_writes_classified_partial_bundle(tmp_path):

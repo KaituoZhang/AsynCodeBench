@@ -96,7 +96,19 @@ def validate(directory, verify_inventory=True):
         "scope_rejected",
         "execution_error",
         "budget_exhausted",
+        "validation_rejected",
     }
+    try:
+        profile = json.loads(
+            (directory / "async_manager_profile_snapshot.json").read_text(
+                encoding="utf-8"
+            )
+        )
+    except (json.JSONDecodeError, OSError):
+        profile = {}
+    validation_required = bool(
+        profile.get("candidate_patch_validation", {}).get("enabled")
+    )
     for record in records:
         if record.get("status") not in allowed_statuses:
             issues.append("manager_intervention_status_invalid")
@@ -104,6 +116,30 @@ def validate(directory, verify_inventory=True):
             record.get("accepted") or record.get("changed_paths")
         ):
             issues.append("invalid_budget_exhausted_intervention")
+        validation = record.get("candidate_validation")
+        if (
+            validation_required
+            and record.get("accepted")
+            and (
+                not isinstance(validation, dict) or not validation.get("passed")
+                or not validation.get("required")
+                or validation.get("mode")
+                != profile["candidate_patch_validation"].get("mode")
+            )
+        ):
+            issues.append("accepted_candidate_validation_missing_or_failed")
+        if record.get("status") == "validation_rejected" and (
+            record.get("accepted")
+            or not isinstance(validation, dict)
+            or validation.get("passed") is not False
+        ):
+            issues.append("invalid_validation_rejected_intervention")
+        if isinstance(validation, dict) and validation.get("required"):
+            artifact = directory / str(validation.get("artifact", ""))
+            if not artifact.is_file():
+                issues.append("candidate_validation_artifact_missing")
+            elif validation.get("artifact_sha256") != v1_results._sha256(artifact):
+                issues.append("candidate_validation_artifact_checksum_mismatch")
     return sorted(set(issues))
 
 

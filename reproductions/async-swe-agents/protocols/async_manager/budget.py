@@ -42,6 +42,9 @@ class BudgetedOnlineManager(OnlineManager):
         self.manager_shutdown_grace = float(
             profile["manager_shutdown_grace_seconds"]
         )
+        self.candidate_patch_validation = dict(
+            profile.get("candidate_patch_validation", {})
+        )
         self.manager_budget_tokens_total = 0
         self.manager_budget_active_seconds_total = 0.0
         self.manager_interventions_executed = 0

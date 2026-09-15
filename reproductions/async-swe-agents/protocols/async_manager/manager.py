@@ -6,6 +6,7 @@ import hashlib
 import json
 import math
 import os
+import re
 import shlex
 import sys
 import threading
@@ -598,6 +599,273 @@ class OnlineManager(AsynCodeBenchManager):
         patch_path.write_text(patch, encoding="utf-8")
         return patch_path
 
+    def _candidate_validation_dependencies(
+        self, metrics: dict, changed: list[str]
+    ) -> list[dict]:
+        changed_paths = set(changed)
+        changed_subproblems = set()
+        try:
+            scenario = self.active_scenario()
+        except Exception:
+            scenario = {}
+        for assignment in scenario.get("assignments", []):
+            if changed_paths.intersection(assignment.get("writable_paths", [])):
+                subproblem = assignment.get("subproblem_id")
+                if subproblem:
+                    changed_subproblems.add(subproblem)
+
+        affected = []
+        for dependency in metrics.get("dependency_points", []):
+            dependency_paths = set(dependency.get("producer_files", [])) | set(
+                dependency.get("consumer_files", [])
+            )
+            dependency_subproblems = {
+                dependency.get("producer_subproblem"),
+                dependency.get("consumer_subproblem"),
+            }
+            if changed_paths.intersection(dependency_paths) or (
+                changed_subproblems.intersection(dependency_subproblems)
+            ):
+                affected.append(dependency)
+        return affected
+
+    @staticmethod
+    def _probe_selector_results(report: dict, selectors: list[str]) -> dict:
+        outcomes = {}
+        for test in report.get("tests", []) or []:
+            nodeid = test.get("nodeid")
+            outcome = test.get("outcome")
+            if nodeid:
+                outcomes[nodeid] = outcome
+
+        results = {}
+        for selector in selectors:
+            matched = [
+                outcome
+                for nodeid, outcome in outcomes.items()
+                if nodeid == selector
+                or re.sub(r"\[[^\]]+\]$", "", nodeid) == selector
+            ]
+            if not matched:
+                results[selector] = {"status": "not_collected", "passed": False}
+            else:
+                passed = all(outcome == "passed" for outcome in matched)
+                results[selector] = {
+                    "status": "passed" if passed else "failed",
+                    "passed": passed,
+                }
+        return results
+
+    def _run_candidate_dependency_probes(
+        self, sequence: int, selectors: list[str], timeout: int
+    ) -> dict:
+        token = uuid.uuid4().hex
+        report_path = f"/tmp/async-manager-validation-{token}.json"
+        output_path = f"/tmp/async-manager-validation-{token}.txt"
+        quoted_worktree = shlex.quote(self.manager_worktree)
+        selector_args = " ".join(shlex.quote(selector) for selector in selectors)
+        command = (
+            f"cd {quoted_worktree} && "
+            f"export PYTHONPATH={quoted_worktree}/src:{quoted_worktree}:$PYTHONPATH "
+            f"&& timeout {timeout}s python -m pytest "
+            f"--json-report --json-report-file={shlex.quote(report_path)} "
+            "--continue-on-collection-errors "
+            f"{selector_args} > {shlex.quote(output_path)} 2>&1"
+        )
+        run = self.workspace.execute_command(command, timeout=timeout + 30)
+        report_result = self.workspace.execute_command(
+            f"cat {shlex.quote(report_path)} 2>/dev/null || echo '{{}}'",
+            timeout=30,
+        )
+        output_result = self.workspace.execute_command(
+            f"cat {shlex.quote(output_path)} 2>/dev/null || true",
+            timeout=30,
+        )
+        self.workspace.execute_command(
+            f"rm -f -- {shlex.quote(report_path)} {shlex.quote(output_path)}",
+            timeout=30,
+        )
+        try:
+            report = json.loads(report_result.stdout or "{}")
+        except json.JSONDecodeError:
+            report = {}
+        results = self._probe_selector_results(report, selectors)
+        return {
+            "exit_code": run.exit_code,
+            "timed_out": str(run.exit_code) in {"124", "-1"},
+            "selector_results": results,
+            "summary": {
+                "total": len(results),
+                "passed": sum(item["passed"] for item in results.values()),
+                "failed": sum(
+                    item["status"] == "failed" for item in results.values()
+                ),
+                "not_collected": sum(
+                    item["status"] == "not_collected" for item in results.values()
+                ),
+            },
+            "output_excerpt": (output_result.stdout or "")[-4000:],
+            "sequence": sequence,
+        }
+
+    def _validate_candidate_patch(
+        self,
+        *,
+        sequence: int,
+        event: dict,
+        changed: list[str],
+        head_before: str,
+        patch_sha: str,
+        termination_reason: str,
+    ) -> dict:
+        validation_started = time.monotonic()
+        settings = dict(getattr(self, "candidate_patch_validation", {}) or {})
+        if not settings.get("enabled"):
+            return {
+                "required": False,
+                "passed": True,
+                "mode": "legacy_scope_only",
+                "termination_reason": termination_reason,
+            }
+
+        validation_dir = (
+            Path(self.config.output_dir)
+            / "manager_candidate_validations"
+            / f"{sequence:04d}"
+        )
+        validation_dir.mkdir(parents=True, exist_ok=True)
+        validation_path = validation_dir / "validation.json"
+        result = {
+            "schema_version": "async-manager-candidate-validation-v1",
+            "required": True,
+            "passed": False,
+            "mode": settings.get("mode"),
+            "termination_reason": termination_reason,
+            "completion_signal": termination_reason == "agent_finish",
+            "changed_paths": changed,
+            "reason_codes": [],
+            "started_at": datetime.now(timezone.utc).isoformat(),
+        }
+        try:
+            checkpoint = event.get("specialist_checkpoint") or {}
+            raw_metrics_path = checkpoint.get("metrics_manifest")
+            if not raw_metrics_path:
+                manifest_paths = getattr(self.task, "manifest_paths", {})
+                if isinstance(manifest_paths, dict):
+                    raw_metrics_path = manifest_paths.get("metrics")
+            metrics_path = Path(raw_metrics_path) if raw_metrics_path else None
+            if metrics_path is None or not metrics_path.is_file():
+                result["reason_codes"].append("metrics_manifest_missing")
+            else:
+                metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
+                affected = self._candidate_validation_dependencies(metrics, changed)
+                selectors = sorted(
+                    {
+                        selector
+                        for dependency in affected
+                        for selector in dependency.get("integrated_probe_tests", [])
+                    }
+                )
+                result["metrics_manifest"] = str(metrics_path)
+                result["affected_dependencies"] = [
+                    dependency.get("dependency_id") for dependency in affected
+                ]
+                result["selectors"] = selectors
+                result["selector_count"] = len(selectors)
+                max_selectors = max(1, int(settings.get("max_selectors", 40)))
+                result["max_selectors"] = max_selectors
+                if not affected or not selectors:
+                    result["reason_codes"].append(
+                        "changed_paths_not_covered_by_dependency_manifest"
+                    )
+                elif len(selectors) > max_selectors:
+                    result["reason_codes"].append("selector_limit_exceeded")
+                else:
+                    baseline = checkpoint.get("probe_test_results") or {}
+                    missing_baseline = [
+                        selector for selector in selectors if selector not in baseline
+                    ]
+                    result["missing_baseline_selectors"] = missing_baseline
+                    if missing_baseline:
+                        result["reason_codes"].append("baseline_probe_evidence_missing")
+
+                    source_build = {"status": "not_required"}
+                    refresh = getattr(self.task, "refresh_source_build", None)
+                    if refresh is not None:
+                        source_build = refresh(
+                            self.workspace, self.manager_worktree
+                        )
+                    result["source_build"] = source_build
+                    if source_build.get("status") not in {
+                        "passed",
+                        "not_required",
+                    }:
+                        result["reason_codes"].append("source_build_failed")
+                    else:
+                        timeout = max(
+                            30, int(settings.get("timeout_seconds", 600))
+                        )
+                        result["timeout_seconds"] = timeout
+                        probes = self._run_candidate_dependency_probes(
+                            sequence, selectors, timeout
+                        )
+                        result["probe"] = probes
+                        if probes["timed_out"]:
+                            result["reason_codes"].append("dependency_probe_timed_out")
+                        if (
+                            settings.get("require_all_selectors_collected", True)
+                            and probes["summary"]["not_collected"]
+                        ):
+                            result["reason_codes"].append(
+                                "dependency_selectors_not_collected"
+                            )
+                        regressions = [
+                            selector
+                            for selector in selectors
+                            if baseline.get(selector, {}).get("passed")
+                            and not probes["selector_results"]
+                            .get(selector, {})
+                            .get("passed")
+                        ]
+                        result["regressions"] = regressions
+                        if (
+                            settings.get("require_no_regression", True)
+                            and regressions
+                        ):
+                            result["reason_codes"].append(
+                                "previously_passing_selector_regressed"
+                            )
+
+            post_validation_paths = self._changed_paths()
+            result["post_validation_changed_paths"] = post_validation_paths
+            if post_validation_paths != changed:
+                result["reason_codes"].append("candidate_changed_during_validation")
+            staged_patch = self._command(
+                f"git -C {shlex.quote(self.manager_worktree)} diff --cached "
+                f"--binary {shlex.quote(head_before)}",
+                timeout=60,
+            )
+            post_validation_sha = hashlib.sha256(staged_patch.encode()).hexdigest()
+            result["post_validation_patch_sha256"] = post_validation_sha
+            if post_validation_sha != patch_sha:
+                result["reason_codes"].append("candidate_patch_changed_during_validation")
+        except Exception as error:
+            result["reason_codes"].append("candidate_validation_error")
+            result["error"] = f"{type(error).__name__}: {error}"
+
+        result["reason_codes"] = sorted(set(result["reason_codes"]))
+        result["passed"] = not result["reason_codes"]
+        result["duration_seconds"] = time.monotonic() - validation_started
+        result["completed_at"] = datetime.now(timezone.utc).isoformat()
+        result["artifact"] = validation_path.relative_to(
+            self.config.output_dir
+        ).as_posix()
+        dump(validation_path, result)
+        result["artifact_sha256"] = hashlib.sha256(
+            validation_path.read_bytes()
+        ).hexdigest()
+        return result
+
     def _refresh_triggering_specialist(
         self, event: dict, head: str, sequence: int
     ) -> dict:
@@ -797,6 +1065,20 @@ class OnlineManager(AsynCodeBenchManager):
             return record
         if not changed:
             record["status"] = "no_change"
+            self._log_intervention_result(record)
+            return record
+
+        validation = self._validate_candidate_patch(
+            sequence=sequence,
+            event=event,
+            changed=changed,
+            head_before=head_before,
+            patch_sha=patch_sha,
+            termination_reason=termination_reason,
+        )
+        record["candidate_validation"] = validation
+        if not validation["passed"]:
+            record["status"] = "validation_rejected"
             self._log_intervention_result(record)
             return record
 
