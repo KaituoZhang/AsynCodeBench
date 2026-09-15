@@ -158,6 +158,64 @@ class BudgetedOnlineManager(OnlineManager):
             encoding="utf-8",
         )
 
+    def _desired_event_iterations(self) -> int:
+        remaining = max(
+            1, self.manager_iterations_limit - self.manager_iterations_total
+        )
+        return min(int(self.config.manager_max_iterations), remaining)
+
+    def _prepare_budgeted_conversation(self) -> bool:
+        """Select the remote session before a caller records its baselines.
+
+        A conversation's iteration cap is persisted by the remote server when
+        that conversation is created.  Therefore a reduced final slice of the
+        task budget requires a fresh transport session.  This preparation must
+        happen before the prompt is sent and before phase metrics are sampled;
+        rotating inside ``run_active_conversation`` loses the prompt and makes
+        old/new-session metric deltas negative.
+        """
+
+        reasons = self._refresh_budget_status()
+        if reasons:
+            self.last_termination_reason = "manager_budget_exhausted"
+            self.last_iteration_cap_hit = "manager_iterations_total" in reasons
+            self.last_run_budget_interrupted = True
+            self.log("Manager budget exhausted: " + ", ".join(reasons))
+            self._write_budget_state()
+            return False
+
+        desired = self._desired_event_iterations()
+        conversation = getattr(self, "conversation", None)
+        current_cap = getattr(conversation, "max_iteration_per_run", None)
+        try:
+            current_cap = int(current_cap)
+        except (TypeError, ValueError):
+            current_cap = None
+        if (
+            self.conversation_needs_reset
+            or current_cap is None
+            or current_cap > desired
+        ):
+            original_config_iterations = self.config.manager_max_iterations
+            self.config.manager_max_iterations = desired
+            self.conversation_needs_reset = True
+            try:
+                self.ensure_usable_conversation()
+            finally:
+                self.config.manager_max_iterations = original_config_iterations
+            self.log(
+                "Prepared a fresh manager transport session with an event "
+                f"budget of {desired} iterations"
+            )
+        return True
+
+    def send_message(self, message):
+        """Guarantee that a prompt is sent to the session that will run it."""
+
+        if not self._prepare_budgeted_conversation():
+            return None
+        return super().send_message(message)
+
     def run_active_conversation(self):
         """Enforce task and event limits around every manager conversation run."""
         reasons = self._refresh_budget_status()
@@ -171,28 +229,15 @@ class BudgetedOnlineManager(OnlineManager):
             self._write_budget_state()
             return
 
-        remaining_iterations = max(
-            1, self.manager_iterations_limit - self.manager_iterations_total
-        )
-        desired_event_iterations = min(
-            int(self.config.manager_max_iterations), remaining_iterations
-        )
-        if int(self.conversation.max_iteration_per_run) != desired_event_iterations:
-            # The remote server persists max_iterations when a conversation is
-            # created. Mutating the client attribute would not update that
-            # server-side cap, so rotate the transport session while retaining
-            # the same logical manager workspace and accounting identity.
-            original_config_iterations = self.config.manager_max_iterations
-            self.config.manager_max_iterations = desired_event_iterations
-            self.conversation_needs_reset = True
-            try:
-                self.ensure_usable_conversation()
-            finally:
-                self.config.manager_max_iterations = original_config_iterations
-            self.log(
-                "Rotated the manager transport session to enforce the remaining "
-                f"task budget of {desired_event_iterations} iterations"
+        desired_event_iterations = self._desired_event_iterations()
+        requested_iterations = int(self.conversation.max_iteration_per_run)
+        if requested_iterations > desired_event_iterations:
+            raise RuntimeError(
+                "Async-Manager conversation was not prepared before its prompt: "
+                f"remote cap={self.conversation.max_iteration_per_run}, "
+                f"required cap={desired_event_iterations}"
             )
+        run_iterations = min(requested_iterations, desired_event_iterations)
         remaining_seconds = max(
             1.0,
             self.manager_active_seconds_limit
@@ -201,11 +246,12 @@ class BudgetedOnlineManager(OnlineManager):
         event_timeout = max(
             1.0, min(self.manager_event_seconds_limit, remaining_seconds)
         )
-        original_iterations = self.conversation.max_iteration_per_run
+        active_conversation = self.conversation
+        original_iterations = active_conversation.max_iteration_per_run
         original_timeout = os.environ.get("ASYNCODEBENCH_CONVERSATION_RUN_TIMEOUT")
-        self.conversation.max_iteration_per_run = desired_event_iterations
+        active_conversation.max_iteration_per_run = run_iterations
         os.environ["ASYNCODEBENCH_CONVERSATION_RUN_TIMEOUT"] = str(event_timeout)
-        before = extract_conversation_metrics(self.conversation)
+        before = extract_conversation_metrics(active_conversation)
         started = time.monotonic()
         self.last_run_budget_interrupted = False
         try:
@@ -213,7 +259,11 @@ class BudgetedOnlineManager(OnlineManager):
                 return super().run_active_conversation()
             except RuntimeError as error:
                 if "Run timed out after" not in str(error):
-                    self._record_runtime_error(error)
+                    if not (
+                        self.last_iteration_cap_hit
+                        and self.last_termination_reason == "iteration_limit"
+                    ):
+                        self._record_runtime_error(error)
                     raise
                 self.last_run_budget_interrupted = True
                 self.last_termination_reason = "manager_event_time_budget_exhausted"
@@ -253,12 +303,12 @@ class BudgetedOnlineManager(OnlineManager):
             raise
         finally:
             elapsed = time.monotonic() - started
-            after = extract_conversation_metrics(self.conversation)
+            after = extract_conversation_metrics(active_conversation)
             self.manager_budget_active_seconds_total += elapsed
             self.manager_budget_tokens_total += max(
                 0, int(after["total_tokens"]) - int(before["total_tokens"])
             )
-            self.conversation.max_iteration_per_run = original_iterations
+            active_conversation.max_iteration_per_run = original_iterations
             if original_timeout is None:
                 os.environ.pop("ASYNCODEBENCH_CONVERSATION_RUN_TIMEOUT", None)
             else:
@@ -269,23 +319,33 @@ class BudgetedOnlineManager(OnlineManager):
         output = Path(self.config.output_dir)
         if not output.is_dir():
             return
-        conversation = self.conversation
-        record = {
-            "schema_version": "async-manager-runtime-error-v1",
-            "policy": POLICY,
-            "kind": kind,
-            "phase": self.manager_budget_phase,
-            "conversation_id": getattr(conversation, "id", None),
-            "type": type(error).__name__,
-            "detail": str(error),
-            "termination_reason": self.last_termination_reason,
-            "traceback": traceback.format_exc(),
-            "recorded_at": datetime.now(timezone.utc).isoformat(),
-        }
-        with (output / "manager_runtime_errors.jsonl").open(
-            "a", encoding="utf-8"
-        ) as stream:
-            stream.write(json.dumps(record, sort_keys=True) + "\n")
+        try:
+            conversation = self.conversation
+            record = {
+                "schema_version": "async-manager-runtime-error-v1",
+                "policy": POLICY,
+                "kind": kind,
+                "phase": self.manager_budget_phase,
+                "conversation_id": (
+                    str(getattr(conversation, "id", "") or "") or None
+                ),
+                "type": type(error).__name__,
+                "detail": str(error),
+                "termination_reason": self.last_termination_reason,
+                "traceback": traceback.format_exc(),
+                "recorded_at": datetime.now(timezone.utc).isoformat(),
+            }
+            with (output / "manager_runtime_errors.jsonl").open(
+                "a", encoding="utf-8"
+            ) as stream:
+                stream.write(json.dumps(record, sort_keys=True, default=str) + "\n")
+        except Exception as logging_error:
+            # Diagnostics must never replace the manager exception being
+            # diagnosed. Keep the original exception active for the caller.
+            self.log(
+                "Warning: could not persist Async-Manager runtime error: "
+                f"{type(logging_error).__name__}: {logging_error}"
+            )
 
     def _interrupt_and_confirm(self, reason: str) -> dict:
         conversation = self.conversation
@@ -391,6 +451,7 @@ class BudgetedOnlineManager(OnlineManager):
             return record
         self.manager_interventions_executed += 1
         with self._phase("online_intervention"):
+            self._prepare_budgeted_conversation()
             record = super().intervene(event)
         record["policy"] = POLICY
         if self.last_run_budget_interrupted and not record.get("accepted"):
@@ -402,10 +463,12 @@ class BudgetedOnlineManager(OnlineManager):
 
     def scan_and_analyze(self):
         with self._phase("scan_analysis"):
+            self._prepare_budgeted_conversation()
             return super().scan_and_analyze()
 
     def delegate_tasks(self):
         with self._phase("task_delegation"):
+            self._prepare_budgeted_conversation()
             return super().delegate_tasks()
 
     def assign_task(self, *args, **kwargs):
@@ -413,6 +476,7 @@ class BudgetedOnlineManager(OnlineManager):
             self._write_budget_state()
             return {"assignments": [], "reasoning": "manager budget exhausted"}
         with self._phase("assign_task"):
+            self._prepare_budgeted_conversation()
             return super().assign_task(*args, **kwargs)
 
     def explore_background(self, *args, **kwargs):
@@ -420,6 +484,7 @@ class BudgetedOnlineManager(OnlineManager):
             self._write_budget_state()
             return {"findings": [], "budget_exhausted": True}
         with self._phase("background_exploration"):
+            self._prepare_budgeted_conversation()
             return super().explore_background(*args, **kwargs)
 
     def final_review_all(self, subagent_results, max_iterations=30):
@@ -427,9 +492,10 @@ class BudgetedOnlineManager(OnlineManager):
             self._write_budget_state()
             return {"skipped": True, "reason": "manager_budget_exhausted"}
         with self._phase("final_review"):
+            self._prepare_budgeted_conversation()
             return super().final_review_all(
                 subagent_results,
-                max_iterations=min(max_iterations, self.config.manager_max_iterations),
+                max_iterations=min(max_iterations, self._desired_event_iterations()),
             )
 
     def prepare_final_evaluation(self):

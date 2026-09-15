@@ -26,6 +26,7 @@ from core.utils import (
     PanelVisualizer,
     count_llm_iterations,
     extract_conversation_metrics,
+    serialize_event,
 )
 from core.workspace_isolation import (
     build_workspace_guard_hook,
@@ -52,6 +53,22 @@ def dump(path, value) -> None:
         json.dumps(value, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
+
+
+def _json_safe(value):
+    """Normalize SDK identifiers and timestamps for protocol-local JSONL."""
+
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    if isinstance(value, datetime):
+        return value.isoformat()
+    if isinstance(value, uuid.UUID):
+        return str(value)
+    if isinstance(value, dict):
+        return {str(key): _json_safe(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple, set)):
+        return [_json_safe(item) for item in value]
+    return str(value)
 
 
 def safe_production_path(path: str, scopes: list[str]) -> bool:
@@ -345,6 +362,37 @@ class OnlineManager(AsynCodeBenchManager):
             "session over the same private worktree"
         )
         self.setup(mode=self.conversation_mode)
+
+    def save_events(self, phase, event_start_idx=0):
+        """Write Async-Manager events without leaking SDK-only JSON types."""
+
+        if not self.conversation or not self.output_logger:
+            return
+
+        events = list(self.conversation.state.events)
+        if event_start_idx >= len(events):
+            return
+
+        new_events = events[event_start_idx:]
+        self.log(
+            f"Saving {len(new_events)} new events (phase={phase}) "
+            "to manager_events.jsonl..."
+        )
+        for idx, event in enumerate(new_events):
+            global_idx = event_start_idx + idx
+            serialized = serialize_event(event, global_idx)
+            serialized["engineer_id"] = "manager"
+            serialized["phase"] = phase
+            serialized["start_time"] = serialized.get("timestamp")
+            if global_idx + 1 < len(events):
+                serialized["end_time"] = getattr(
+                    events[global_idx + 1], "timestamp", None
+                )
+            else:
+                serialized["end_time"] = datetime.now(timezone.utc).isoformat()
+            self.output_logger.log_agent_event(
+                "manager", _json_safe(serialized)
+            )
 
     def collect_and_merge(self, subagent_result, output_logger=None):
         result = super().collect_and_merge(subagent_result, output_logger)

@@ -2,9 +2,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+import uuid
+from datetime import datetime, timezone
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
 from asyncodebench_harness.protocol_registry import protocol_registry_path
 from asyncodebench_harness.results import _async_manager_validator
 from protocols.async_manager import LEGACY_POLICY, POLICY
@@ -121,13 +124,15 @@ def test_remaining_iteration_budget_rotates_remote_transport(tmp_path, monkeypat
     manager.manager_iterations_total = 95
     manager.config.manager_max_iterations = 30
     manager.conversation_needs_reset = False
-    manager.conversation = SimpleNamespace(max_iteration_per_run=30)
+    old_conversation = SimpleNamespace(max_iteration_per_run=30, messages=[])
+    manager.conversation = old_conversation
     observed_caps = []
 
     def rotate():
         observed_caps.append(manager.config.manager_max_iterations)
         manager.conversation = SimpleNamespace(
-            max_iteration_per_run=manager.config.manager_max_iterations
+            max_iteration_per_run=manager.config.manager_max_iterations,
+            messages=[],
         )
         manager.conversation_needs_reset = False
 
@@ -145,12 +150,175 @@ def test_remaining_iteration_budget_rotates_remote_transport(tmp_path, monkeypat
         "protocols.async_manager.manager.OnlineManager.run_active_conversation",
         run_parent,
     )
+    monkeypatch.setattr(
+        "protocols.async_manager.manager.OnlineManager.send_message",
+        lambda current, message: current.conversation.messages.append(message),
+    )
 
+    manager._prepare_budgeted_conversation()
+    manager.send_message("CURRENT CHECKPOINT INSTRUCTION")
     manager.run_active_conversation()
 
     assert observed_caps == [5]
+    assert old_conversation.messages == []
+    assert manager.conversation.messages == ["CURRENT CHECKPOINT INSTRUCTION"]
     assert manager.manager_iterations_total == 100
     assert manager.config.manager_max_iterations == 30
+
+
+def test_phase_prepares_session_before_metric_baseline(tmp_path, monkeypatch):
+    manager = bare_manager(tmp_path)
+    manager.manager_iterations_total = 95
+    manager.config.manager_max_iterations = 30
+    manager.conversation_needs_reset = False
+    old_conversation = SimpleNamespace(
+        max_iteration_per_run=30, messages=[], total_tokens=500
+    )
+    manager.conversation = old_conversation
+
+    def rotate():
+        manager.conversation = SimpleNamespace(
+            max_iteration_per_run=manager.config.manager_max_iterations,
+            messages=[],
+            total_tokens=0,
+        )
+        manager.conversation_needs_reset = False
+
+    manager.ensure_usable_conversation = rotate
+    monkeypatch.setattr(
+        "protocols.async_manager.budget.extract_conversation_metrics",
+        lambda conversation: {"total_tokens": conversation.total_tokens},
+    )
+    monkeypatch.setattr(
+        "protocols.async_manager.manager.OnlineManager.send_message",
+        lambda current, message: current.conversation.messages.append(message),
+    )
+
+    def run_parent(current):
+        current.conversation.total_tokens += 25
+        current.manager_iterations_total += 5
+
+    monkeypatch.setattr(
+        "protocols.async_manager.manager.OnlineManager.run_active_conversation",
+        run_parent,
+    )
+
+    def assign_parent(current, *_args, **_kwargs):
+        before = current.conversation.total_tokens
+        current.send_message("ASSIGNMENT CHECKPOINT")
+        current.run_active_conversation()
+        return {"token_delta": current.conversation.total_tokens - before}
+
+    monkeypatch.setattr(
+        "protocols.async_manager.manager.OnlineManager.assign_task",
+        assign_parent,
+    )
+
+    result = manager.assign_task(None, None, None)
+
+    assert result["token_delta"] == 25
+    assert old_conversation.messages == []
+    assert manager.conversation.messages == ["ASSIGNMENT CHECKPOINT"]
+
+
+def test_smaller_phase_cap_is_not_expanded_by_budget_guard(tmp_path, monkeypatch):
+    manager = bare_manager(tmp_path)
+    manager.config.manager_max_iterations = 30
+    manager.conversation_needs_reset = False
+    manager.conversation = SimpleNamespace(max_iteration_per_run=10)
+    monkeypatch.setattr(
+        "protocols.async_manager.budget.extract_conversation_metrics",
+        lambda _conversation: {"total_tokens": 0},
+    )
+    observed_caps = []
+    monkeypatch.setattr(
+        "protocols.async_manager.manager.OnlineManager.run_active_conversation",
+        lambda current: observed_caps.append(
+            current.conversation.max_iteration_per_run
+        ),
+    )
+
+    manager.run_active_conversation()
+
+    assert observed_caps == [10]
+
+
+def test_iteration_limit_is_not_recorded_as_runtime_failure(tmp_path, monkeypatch):
+    manager = bare_manager(tmp_path)
+    manager.config.manager_max_iterations = 30
+    manager.conversation_needs_reset = False
+    manager.conversation = SimpleNamespace(max_iteration_per_run=30)
+    monkeypatch.setattr(
+        "protocols.async_manager.budget.extract_conversation_metrics",
+        lambda _conversation: {"total_tokens": 0},
+    )
+
+    def reach_cap(current):
+        current.last_termination_reason = "iteration_limit"
+        current.last_iteration_cap_hit = True
+        raise RuntimeError("MaxIterationsReached: maximum iterations reached")
+
+    monkeypatch.setattr(
+        "protocols.async_manager.manager.OnlineManager.run_active_conversation",
+        reach_cap,
+    )
+
+    with pytest.raises(RuntimeError, match="MaxIterationsReached"):
+        manager.run_active_conversation()
+
+    assert not (tmp_path / "manager_runtime_errors.jsonl").exists()
+
+
+def test_runtime_error_record_stringifies_conversation_uuid(tmp_path):
+    manager = bare_manager(tmp_path)
+    conversation_id = uuid.uuid4()
+    manager.conversation = SimpleNamespace(id=conversation_id)
+
+    manager._record_runtime_error(RuntimeError("original manager failure"))
+
+    record = json.loads(
+        (tmp_path / "manager_runtime_errors.jsonl").read_text(encoding="utf-8")
+    )
+    assert record["conversation_id"] == str(conversation_id)
+    assert record["detail"] == "original manager failure"
+
+
+def test_async_manager_event_logging_normalizes_sdk_json_types():
+    manager = BudgetedOnlineManager.__new__(BudgetedOnlineManager)
+    response_id = uuid.uuid4()
+    action_id = uuid.uuid4()
+    event = SimpleNamespace(
+        timestamp=datetime(2026, 9, 15, tzinfo=timezone.utc),
+        llm_response_id=response_id,
+        action=SimpleNamespace(
+            action="file_editor",
+            args={"request_id": action_id},
+            thought=None,
+        ),
+        observation=None,
+        llm_message=None,
+        thought=None,
+        reasoning_content=None,
+    )
+    captured = []
+    manager.conversation = SimpleNamespace(
+        state=SimpleNamespace(events=[event])
+    )
+    manager.output_logger = SimpleNamespace(
+        log_agent_event=lambda agent_id, payload: captured.append(
+            (agent_id, payload)
+        )
+    )
+    manager.log = lambda _message: None
+
+    manager.save_events("online_intervention_1")
+
+    assert captured[0][0] == "manager"
+    payload = captured[0][1]
+    assert payload["timestamp"] == "2026-09-15T00:00:00+00:00"
+    assert payload["llm_response_id"] == str(response_id)
+    assert payload["action"]["args"]["request_id"] == str(action_id)
+    json.dumps(payload)
 
 
 def test_shutdown_interrupts_running_remote_and_confirms_terminal_state(tmp_path):
