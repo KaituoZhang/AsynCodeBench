@@ -174,6 +174,24 @@ validator. It refuses an existing destination or a run whose source proof does
 not match. New runs record the source preflight directly and do not need this
 recovery path.
 
+### Bundle recovery for the v2 budget-status finalizer bug
+
+Revision `6b5a2fe` completed model execution and final evaluation correctly,
+but its v2 finalizer delegated bundle construction to the legacy v1 helper.
+The legacy helper rejected the valid v2-only `budget_exhausted` terminal status
+and the runner consequently wrote a partial bundle. Preserve the source run
+and recover it into a new directory with:
+
+```bash
+python scripts/recover_async_manager_budget_bundle.py SOURCE_RUN NEW_RUN_DIRECTORY
+```
+
+This recovery is accepted only when the error exactly matches the known
+finalizer failure, every partial-inventory checksum matches, the manager budget
+and shutdown records are valid, and final evaluator artifacts are present. It
+records that neither model nor evaluator was rerun and validates the newly
+constructed bundle with the canonical v2 validator.
+
 ## Result contract
 
 The standard run artifacts remain present. Additional evidence includes:

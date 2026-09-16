@@ -110,6 +110,7 @@ def protocol_sources() -> list[Path]:
             root / "scripts" / "run_asyncodebench_five_protocols_env.sh",
             root / "scripts" / "run_pr_hard_five_protocols_env.sh",
             root / "scripts" / "recover_async_manager_bundle.py",
+            root / "scripts" / "recover_async_manager_budget_bundle.py",
             root / "run_asyncodebench.py",
             root / "run_pr_hard.py",
             root / "asyncodebench_harness" / "protocol_registry.py",

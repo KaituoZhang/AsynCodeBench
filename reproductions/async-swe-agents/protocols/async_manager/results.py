@@ -165,12 +165,34 @@ def finalize(directory, *, task, agent_adapter):
         raise RuntimeError(
             "Budgeted Async-Manager result validation failed: " + "; ".join(issues)
         )
-    with _v2_policy():
-        return v1_results.finalize(
-            directory,
-            task=task,
-            agent_adapter=agent_adapter,
+    # Do not delegate finalization back to the legacy helper.  That helper
+    # intentionally re-runs the v1-only intervention validator before it
+    # builds a bundle, so a valid v2 ``budget_exhausted`` terminal record is
+    # rejected after the v2 validator above has already accepted it.  Keep the
+    # historical validator unchanged and share only the policy-neutral bundle
+    # builder here.
+    records = v1_results._load_interventions(directory, [])
+    _, bundle = v1_results.build_run_bundle(
+        task,
+        directory,
+        v1_results.PROTOCOL,
+        agent_adapter,
+        protocol_details={
+            "policy": POLICY,
+            "events": len(records),
+            "accepted": sum(bool(row.get("accepted")) for row in records),
+            "scope_rejected": sum(
+                row.get("status") == "scope_rejected" for row in records
+            ),
+        },
+    )
+    validation = v1_results.validate_run_bundle(directory)
+    if not validation["valid"]:
+        raise RuntimeError(
+            "Budgeted Async-Manager standard bundle validation failed: "
+            + "; ".join(validation["issues"])
         )
+    return bundle
 
 
 __all__ = ["finalize", "validate", "_budget_issues"]

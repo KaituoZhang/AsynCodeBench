@@ -12,7 +12,7 @@ from asyncodebench_harness.protocol_registry import protocol_registry_path
 from asyncodebench_harness.results import _async_manager_validator
 from protocols.async_manager import LEGACY_POLICY, POLICY
 from protocols.async_manager.budget import BudgetedOnlineManager, load_profile
-from protocols.async_manager.results import _budget_issues, validate
+from protocols.async_manager.results import _budget_issues, finalize, validate
 from run_async_manager import (
     _error_classification,
     _write_partial_result,
@@ -514,6 +514,81 @@ def test_historical_profile_does_not_retroactively_require_candidate_gate(
     )
 
     assert validate(tmp_path, verify_inventory=False) == []
+
+
+def test_budgeted_finalize_does_not_reenter_legacy_validator(
+    tmp_path, monkeypatch
+):
+    task = object()
+    adapter = object()
+    records = [
+        {"status": "accepted", "accepted": True},
+        {"status": "budget_exhausted", "accepted": False},
+    ]
+    captured = {}
+
+    monkeypatch.setattr(
+        "protocols.async_manager.results.validate",
+        lambda *_args, **_kwargs: [],
+    )
+    monkeypatch.setattr(
+        "protocols.async_manager.results.v1_results._load_interventions",
+        lambda *_args, **_kwargs: records,
+    )
+
+    def reject_legacy_finalize(*_args, **_kwargs):
+        raise AssertionError("v2 must not call the v1 finalizer")
+
+    monkeypatch.setattr(
+        "protocols.async_manager.results.v1_results.finalize",
+        reject_legacy_finalize,
+    )
+
+    def build_bundle(
+        observed_task,
+        observed_directory,
+        observed_protocol,
+        observed_adapter,
+        *,
+        protocol_details,
+    ):
+        captured.update(
+            task=observed_task,
+            directory=observed_directory,
+            protocol=observed_protocol,
+            adapter=observed_adapter,
+            protocol_details=protocol_details,
+        )
+        return tmp_path / "run_bundle.json", {"status": "valid"}
+
+    monkeypatch.setattr(
+        "protocols.async_manager.results.v1_results.build_run_bundle",
+        build_bundle,
+    )
+    monkeypatch.setattr(
+        "protocols.async_manager.results.v1_results.validate_run_bundle",
+        lambda _directory: {"valid": True, "issues": []},
+    )
+
+    assert finalize(tmp_path, task=task, agent_adapter=adapter) == {
+        "status": "valid"
+    }
+    assert captured == {
+        "task": task,
+        "directory": tmp_path,
+        "protocol": "async_manager",
+        "adapter": adapter,
+        "protocol_details": {
+            "policy": POLICY,
+            "events": 2,
+            "accepted": 1,
+            "scope_rejected": 0,
+        },
+    }
+    status = json.loads((tmp_path / "run_status.json").read_text())
+    assert status["status"] == "completed"
+    assert status["evaluation_complete"] is True
+    assert status["metrics_eligible"] is True
 
 
 def test_interrupted_run_writes_classified_partial_bundle(tmp_path):
