@@ -106,7 +106,7 @@ cell was run once.
 | `single` | 16/16 (100.0%) | 0.990 | 1.000 | 0.000 | 1.000 | 0.000 | 1.685M | 909.5s |
 | `serial_specialists` | 10/16 (62.5%) | 0.750 | 0.698 | 0.875 | 6.121 | 2.590 | 3.696M | 2286.6s |
 | `async_private` | 8/16 (50.0%) | 0.748 | 0.698 | 0.875 | 7.131 | 5.037 | 4.004M | 1246.6s |
-| `async_manager` | 13/16 (81.3%) | 0.922 | 0.885 | 0.250 | 7.292 | 2.669 | 6.452M | 2034.0s |
+| `caid_manager` (Async-RO-Manager) | 13/16 (81.3%) | 0.922 | 0.885 | 0.250 | 7.292 | 2.669 | 6.452M | 2034.0s |
 
 Penalized DRS and CAIL assign each unresolved dependency the run-specific
 `T + 1` penalty. Because checkpoint counts differ across protocols, these
@@ -114,11 +114,13 @@ values should be interpreted together with ADPR and the unresolved count.
 
 In this snapshot, `async_private` reduced mean wall-clock runtime by 45.5%
 relative to `serial_specialists`, but reduced task success from 62.5% to 50.0%
-and increased mean penalized CAIL from 2.590 to 5.037. The manager-mediated
-condition recovered success to 81.3% and ADPR to 0.885, but used substantially
-more tokens. This illustrates the benchmark's central distinction: faster
-parallel execution does not necessarily imply timely cross-agent dependency
-resolution or a correct final repository.
+and increased mean penalized CAIL from 2.590 to 5.037. The historical
+read-only-manager condition recovered success to 81.3% and ADPR to 0.885, but
+used substantially more tokens. These results predate the writable online
+`async_manager` condition and must not be reported as Async-Manager results.
+They illustrate the benchmark's central distinction: faster parallel execution
+does not necessarily imply timely cross-agent dependency resolution or a
+correct final repository.
 
 These are single-run-per-cell results and should not be interpreted as
 confidence-bounded estimates. Valid model failures, including collection
@@ -327,6 +329,67 @@ uv run asyncodebench run \
   --model "$LLM_MODEL"
 ```
 
+### 5. Run Async-Manager directly
+
+`async_manager` is the budgeted online manager condition. It coordinates
+private-worktree specialists and may submit production patches only at explicit
+integration checkpoints. The harness validates scope and dependency behavior
+before accepting any manager patch.
+
+Run one task with the same environment file configured above:
+
+```bash
+cd reproductions/async-swe-agents
+export ENV_FILE="$PWD/.env.my-model"
+export MODEL_TAG=my-model
+export RUN_ID=async-manager-v2-s1
+bash scripts/run_async_manager_env.sh cachetools
+```
+
+The wrapper also accepts compiler-task IDs:
+
+```bash
+bash scripts/run_async_manager_env.sh pr-hard:apache-tvm-20153
+```
+
+Run all 20 tasks sequentially, or split the stable task list across multiple
+independent model endpoints:
+
+```bash
+# One endpoint, all tasks.
+TASK_GROUP=all CONTINUE_ON_ERROR=1 \
+  bash scripts/run_async_manager_20tasks_env.sh
+
+# Example: terminal 1 of a four-endpoint campaign.
+SHARD_COUNT=4 SHARD_INDEX=0 \
+ENV_FILE="$PWD/.env.port-8006" \
+RUN_ID=async-manager-v2-s1 \
+CONTINUE_ON_ERROR=1 \
+  bash scripts/run_async_manager_20tasks_env.sh
+```
+
+Use `SHARD_INDEX=1`, `2`, and `3` with separate endpoint files in the other
+terminals. Keep the same `RUN_ID` across shards. Output directories are
+immutable, so an interrupted task must use a new run ID or the documented,
+checksum-validating recovery tool; never edit a raw run in place.
+
+Validate one completed run and summarize a complete campaign with:
+
+```bash
+./.venv/bin/python run_async_manager.py \
+  --validate_dir=/absolute/path/to/completed/run
+
+./.venv/bin/python -m protocols.async_manager.campaign \
+  --root outputs \
+  --run-id async-manager-v2-s1 \
+  --output-dir ../../docs/results/async-manager-v2-s1 \
+  --require-complete
+```
+
+See
+[`reproductions/async-swe-agents/protocols/async_manager/README.md`](reproductions/async-swe-agents/protocols/async_manager/README.md)
+for budgets, intervention semantics, sharding, recovery, and result contracts.
+
 ## Outputs
 
 Native runs are written to:
@@ -397,10 +460,11 @@ formal run must have:
 - dependency checkpoints and process metrics;
 - complete model, code-revision, source-SHA, and manifest-checksum provenance;
 - no provider, transport, parser, context-window, or instrumentation failure;
-- the same serving profile across the four compared protocols;
-- a matching
-  [`official_execution_profile.v2.json`](configs/evaluation/official_execution_profile.v2.json)
-  for inclusion in the official aggregate.
+- the same serving profile across all conditions included in a comparison;
+- the matching released execution profile: legacy four-protocol runs use
+  [`official_execution_profile.v2.json`](configs/evaluation/official_execution_profile.v2.json),
+  while new budgeted Async-Manager runs use
+  [`official_execution_profile.v4.json`](configs/evaluation/official_execution_profile.v4.json).
 
 Detailed validity rules are in
 [`docs/RESULT_VALIDITY.md`](docs/RESULT_VALIDITY.md).
