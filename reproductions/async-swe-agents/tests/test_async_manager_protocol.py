@@ -71,6 +71,42 @@ def initialize_repository(path: Path) -> str:
     return git(path, "rev-parse", "HEAD")
 
 
+def make_rebased_consumer_worktree(
+    tmp_path: Path, consumer_changes: dict[str, str]
+) -> tuple[Path, Path, str]:
+    repository = tmp_path / "repository"
+    initialize_repository(repository)
+    producer = repository / "pkg" / "producer.py"
+    producer.write_text("PRODUCER = 1\n", encoding="utf-8")
+    git(repository, "add", "pkg/producer.py")
+    git(repository, "commit", "-qm", "integrate producer")
+
+    worktree = tmp_path / "consumer-worktree"
+    subprocess.run(
+        [
+            "git",
+            "-C",
+            str(repository),
+            "worktree",
+            "add",
+            "-b",
+            "consumer",
+            str(worktree),
+            "HEAD",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    for relative_path, contents in consumer_changes.items():
+        path = worktree / relative_path
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(contents, encoding="utf-8")
+    git(worktree, "add", ".")
+    git(worktree, "commit", "-qm", "consumer contribution")
+    return repository, worktree, git(worktree, "rev-parse", "HEAD")
+
+
 def run_hook(command: str, event: dict) -> dict:
     result = subprocess.run(
         command,
@@ -172,6 +208,50 @@ def test_source_preflight_returns_auditable_clean_state(tmp_path, monkeypatch):
     source.write_text("VALUE = 2\n", encoding="utf-8")
     with pytest.raises(RuntimeError, match="protocol source is uncommitted"):
         assert_protocol_sources_clean(repository)
+
+
+def test_async_manager_scope_ignores_stale_inherited_producer_paths(tmp_path):
+    repository, worktree, commit = make_rebased_consumer_worktree(
+        tmp_path, {"pkg/consumer.py": "CONSUMER = 1\n"}
+    )
+    manager = OnlineManager.__new__(OnlineManager)
+    manager.workspace = LocalWorkspace()
+    manager.task = FakeTask()
+    manager.repo_dir = str(repository)
+    result = SimpleNamespace(
+        branch_name="consumer",
+        commit_hash=commit,
+        worktree_path=str(worktree),
+        # This cumulative adapter field is intentionally stale after rebase.
+        files_modified=["pkg/producer.py", "pkg/consumer.py"],
+    )
+
+    assert manager.committed_and_uncommitted_paths(result) == ["pkg/consumer.py"]
+
+
+def test_async_manager_scope_keeps_true_out_of_scope_consumer_edits(tmp_path):
+    repository, worktree, commit = make_rebased_consumer_worktree(
+        tmp_path,
+        {
+            "pkg/consumer.py": "CONSUMER = 1\n",
+            "pkg/producer.py": "PRODUCER = 2\n",
+        },
+    )
+    manager = OnlineManager.__new__(OnlineManager)
+    manager.workspace = LocalWorkspace()
+    manager.task = FakeTask()
+    manager.repo_dir = str(repository)
+    result = SimpleNamespace(
+        branch_name="consumer",
+        commit_hash=commit,
+        worktree_path=str(worktree),
+        files_modified=["pkg/producer.py", "pkg/consumer.py"],
+    )
+
+    assert manager.committed_and_uncommitted_paths(result) == [
+        "pkg/consumer.py",
+        "pkg/producer.py",
+    ]
 
 
 def test_async_manager_is_registered_as_a_public_protocol():

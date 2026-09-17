@@ -395,6 +395,60 @@ class OnlineManager(AsynCodeBenchManager):
                 "manager", _json_safe(serialized)
             )
 
+    def committed_and_uncommitted_paths(self, result):
+        """Attribute only changes introduced after the integrated HEAD.
+
+        A specialist may rebase its branch onto producer commits that the
+        harness has already integrated. ``result.files_modified`` is recorded
+        against the specialist's original checkout and can therefore contain
+        inherited producer paths. Treating that stale, cumulative list as
+        authoritative incorrectly rejects an otherwise scoped consumer
+        artifact. The merge-base diff identifies the specialist's remaining
+        contribution relative to the current integrated workspace; porcelain
+        status adds any uncommitted worktree changes.
+
+        Fall back to the frozen CAID implementation whenever Git cannot provide
+        this stronger provenance signal. That keeps the failure mode
+        conservative instead of weakening the scope gate.
+        """
+
+        branch = result.branch_name or result.commit_hash
+        if not branch:
+            return super().committed_and_uncommitted_paths(result)
+
+        if result.worktree_path:
+            self.task._clean_transient_test_artifacts(
+                self.workspace, result.worktree_path
+            )
+
+        merge_base = self.workspace.execute_command(
+            f"cd {shlex.quote(self.repo_dir)} && "
+            f"git merge-base HEAD {shlex.quote(branch)}",
+            timeout=30,
+        )
+        if merge_base.exit_code != 0 or not merge_base.stdout.strip():
+            return super().committed_and_uncommitted_paths(result)
+
+        base = merge_base.stdout.strip()
+        changed = self.workspace.execute_command(
+            f"cd {shlex.quote(self.repo_dir)} && "
+            f"git diff --name-only {shlex.quote(base)}..{shlex.quote(branch)}",
+            timeout=30,
+        )
+        if changed.exit_code != 0:
+            return super().committed_and_uncommitted_paths(result)
+
+        paths = {line.strip() for line in changed.stdout.splitlines() if line.strip()}
+        if result.worktree_path:
+            status = self.workspace.execute_command(
+                f"cd {shlex.quote(result.worktree_path)} && git status --porcelain",
+                timeout=30,
+            )
+            if status.exit_code != 0:
+                return super().committed_and_uncommitted_paths(result)
+            paths.update(self._status_paths(status.stdout))
+        return sorted(paths)
+
     def collect_and_merge(self, subagent_result, output_logger=None):
         result = super().collect_and_merge(subagent_result, output_logger)
         if self.pending_integration_event is not None:
