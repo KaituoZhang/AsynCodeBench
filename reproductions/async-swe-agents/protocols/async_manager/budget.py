@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import os
 import shlex
 import time
 import traceback
@@ -39,9 +38,7 @@ class BudgetedOnlineManager(OnlineManager):
             profile["manager_max_active_seconds_per_event"]
         )
         self.manager_interventions_limit = int(profile["manager_max_interventions"])
-        self.manager_shutdown_grace = float(
-            profile["manager_shutdown_grace_seconds"]
-        )
+        self.manager_shutdown_grace = float(profile["manager_shutdown_grace_seconds"])
         self.candidate_patch_validation = dict(
             profile.get("candidate_patch_validation", {})
         )
@@ -127,26 +124,20 @@ class BudgetedOnlineManager(OnlineManager):
             return
         archive_dir = Path(self.config.output_dir) / "manager_budget_interruptions"
         archive_dir.mkdir(parents=True, exist_ok=True)
-        sequence = len(list(archive_dir.glob("*.patch"))) + 1
+        sequence = len(list(archive_dir.glob("*.archive.json"))) + 1
         archive = archive_dir / f"{sequence:04d}.patch"
-        try:
-            # Intent-to-add exposes untracked production files in the binary diff.
-            self._command(
-                f"git -C {shlex.quote(self.manager_worktree)} add -N -- .", timeout=60
-            )
-            diff = self._command(
-                f"git -C {shlex.quote(self.manager_worktree)} diff --binary HEAD",
-                timeout=120,
-            )
-            archive.write_text(diff, encoding="utf-8")
-        finally:
-            self._command(
-                f"git -C {shlex.quote(self.manager_worktree)} reset --hard HEAD",
-                timeout=120,
-            )
-            self._command(
-                f"git -C {shlex.quote(self.manager_worktree)} clean -fd", timeout=120
-            )
+        from protocols.async_manager.artifacts import archive_worktree
+
+        archive_worktree(self, self.manager_worktree, "HEAD", archive.with_suffix(""))
+        # Archive failure must leave the private tree untouched, never clean in
+        # a finally block. Shutdown confirmation is required by the caller.
+        self._command(
+            f"git -C {shlex.quote(self.manager_worktree)} reset --hard HEAD",
+            timeout=120,
+        )
+        self._command(
+            f"git -C {shlex.quote(self.manager_worktree)} clean -fd", timeout=120
+        )
         (archive.with_suffix(".json")).write_text(
             json.dumps(
                 {
@@ -224,9 +215,7 @@ class BudgetedOnlineManager(OnlineManager):
         reasons = self._refresh_budget_status()
         if reasons:
             self.last_termination_reason = "manager_budget_exhausted"
-            self.last_iteration_cap_hit = (
-                "manager_iterations_total" in reasons
-            )
+            self.last_iteration_cap_hit = "manager_iterations_total" in reasons
             self.last_run_budget_interrupted = True
             self.log("Manager budget exhausted: " + ", ".join(reasons))
             self._write_budget_state()
@@ -251,9 +240,10 @@ class BudgetedOnlineManager(OnlineManager):
         )
         active_conversation = self.conversation
         original_iterations = active_conversation.max_iteration_per_run
-        original_timeout = os.environ.get("ASYNCODEBENCH_CONVERSATION_RUN_TIMEOUT")
+        from protocols.async_manager.timeouts import manager_timeout
+
+        timeout_token = manager_timeout.set(event_timeout)
         active_conversation.max_iteration_per_run = run_iterations
-        os.environ["ASYNCODEBENCH_CONVERSATION_RUN_TIMEOUT"] = str(event_timeout)
         before = extract_conversation_metrics(active_conversation)
         started = time.monotonic()
         self.last_run_budget_interrupted = False
@@ -279,6 +269,9 @@ class BudgetedOnlineManager(OnlineManager):
                         ),
                         kind="shutdown_confirmation_error",
                     )
+                    raise RuntimeError(
+                        "Manager shutdown unconfirmed; private workspace retained"
+                    ) from error
                 try:
                     self._archive_and_discard_partial_manager_changes(
                         self.last_termination_reason
@@ -296,11 +289,12 @@ class BudgetedOnlineManager(OnlineManager):
         except KeyboardInterrupt:
             self.last_run_budget_interrupted = True
             self.last_termination_reason = "operator_cancelled"
-            self._interrupt_and_confirm("operator_cancelled")
+            shutdown = self._interrupt_and_confirm("operator_cancelled")
             try:
-                self._archive_and_discard_partial_manager_changes(
-                    "operator_cancelled"
-                )
+                if shutdown["confirmed"]:
+                    self._archive_and_discard_partial_manager_changes(
+                        "operator_cancelled"
+                    )
             except Exception as cleanup_error:
                 self._record_runtime_error(cleanup_error, kind="cleanup_error")
             raise
@@ -312,10 +306,7 @@ class BudgetedOnlineManager(OnlineManager):
                 0, int(after["total_tokens"]) - int(before["total_tokens"])
             )
             active_conversation.max_iteration_per_run = original_iterations
-            if original_timeout is None:
-                os.environ.pop("ASYNCODEBENCH_CONVERSATION_RUN_TIMEOUT", None)
-            else:
-                os.environ["ASYNCODEBENCH_CONVERSATION_RUN_TIMEOUT"] = original_timeout
+            manager_timeout.reset(timeout_token)
             self._write_budget_state()
 
     def _record_runtime_error(self, error: BaseException, kind="manager_run_error"):
@@ -329,9 +320,7 @@ class BudgetedOnlineManager(OnlineManager):
                 "policy": POLICY,
                 "kind": kind,
                 "phase": self.manager_budget_phase,
-                "conversation_id": (
-                    str(getattr(conversation, "id", "") or "") or None
-                ),
+                "conversation_id": (str(getattr(conversation, "id", "") or "") or None),
                 "type": type(error).__name__,
                 "detail": str(error),
                 "termination_reason": self.last_termination_reason,
@@ -368,7 +357,8 @@ class BudgetedOnlineManager(OnlineManager):
             status = poll() if callable(poll) else None
             normalized = str(getattr(status, "value", status) or "").lower()
             result["initial_status"] = normalized or None
-            if normalized not in {"running", "starting"}:
+            terminal_states = {"finished", "paused", "stopped", "error", "idle"}
+            if normalized in terminal_states:
                 result["confirmed"] = True
                 result["final_status"] = normalized or "not_running"
                 return result
@@ -378,7 +368,7 @@ class BudgetedOnlineManager(OnlineManager):
             while time.monotonic() < deadline:
                 status = poll() if callable(poll) else None
                 normalized = str(getattr(status, "value", status) or "").lower()
-                if normalized not in {"running", "starting"}:
+                if normalized in terminal_states:
                     result["confirmed"] = True
                     result["final_status"] = normalized or "not_running"
                     break
@@ -509,6 +499,10 @@ class BudgetedOnlineManager(OnlineManager):
         shutdown = self._interrupt_and_confirm("workflow_cleanup")
         self._write_shutdown(shutdown)
         self._write_budget_state()
+        if not shutdown["confirmed"]:
+            raise RuntimeError(
+                "Cannot confirm manager shutdown; retaining its private worktree"
+            )
         return super().cleanup()
 
 

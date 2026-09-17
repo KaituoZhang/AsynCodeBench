@@ -351,9 +351,7 @@ def test_online_manager_uses_worktree_aware_python_for_pr_hard_runtime():
 
     manager._prepare_manager_worktree_runtime()
 
-    assert manager.task.refresh_calls == [
-        (manager.workspace, manager.manager_worktree)
-    ]
+    assert manager.task.refresh_calls == [(manager.workspace, manager.manager_worktree)]
     command, timeout = manager.workspace.commands[-1]
     assert "cd /workspace/async-manager-test" in command
     assert "/usr/local/bin/python -c" in command
@@ -463,10 +461,7 @@ def test_checkpoint_bridge_preserves_order_and_adds_only_accepted_state(monkeypa
         repo_dir = "/workspace/repo"
 
         def consume_integration_event(self, checkpoint):
-            assert (
-                checkpoint["checkpoint_id"]
-                == "integration_after_merge:engineer_1:round1"
-            )
+            assert checkpoint is None  # consumed before checkpoint I/O
             return {"specialist_checkpoint": checkpoint}
 
         def intervene(self, _event):
@@ -687,6 +682,9 @@ def test_iteration_limited_candidate_passes_without_finish_when_no_regression(
     manager.active_scenario = lambda: {"assignments": []}
     manager._changed_paths = lambda: ["pkg/module.py"]
     manager._command = lambda _command, timeout=60: patch
+    manager.workspace = SimpleNamespace(
+        execute_command=lambda *a, **k: SimpleNamespace(exit_code=0)
+    )
     manager._run_candidate_dependency_probes = lambda *_args: {
         "exit_code": 0,
         "timed_out": False,
@@ -765,9 +763,7 @@ def test_candidate_validation_rejects_previously_passing_probe_regression(tmp_pa
     manager._run_candidate_dependency_probes = lambda *_args: {
         "exit_code": 1,
         "timed_out": False,
-        "selector_results": {
-            selector: {"status": "failed", "passed": False}
-        },
+        "selector_results": {selector: {"status": "failed", "passed": False}},
         "summary": {"total": 1, "passed": 0, "failed": 1, "not_collected": 0},
         "output_excerpt": "1 failed",
     }
@@ -777,9 +773,7 @@ def test_candidate_validation_rejects_previously_passing_probe_regression(tmp_pa
         event={
             "specialist_checkpoint": {
                 "metrics_manifest": str(metrics),
-                "probe_test_results": {
-                    selector: {"status": "passed", "passed": True}
-                },
+                "probe_test_results": {selector: {"status": "passed", "passed": True}},
             }
         },
         changed=["pkg/module.py"],

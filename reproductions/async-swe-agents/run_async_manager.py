@@ -97,6 +97,9 @@ def protocol_sources() -> list[Path]:
     root = Path(__file__).parent
     repo_root = root.parents[1]
     sources = [Path(__file__)]
+    # Shared engines remain frozen, but their exact bytes must be captured too.
+    for folder in ("core", "tasks", "agents", "asyncodebench_harness"):
+        sources.extend(root.joinpath(folder).rglob("*.py"))
     sources.extend(
         sorted(
             path
@@ -120,19 +123,36 @@ def protocol_sources() -> list[Path]:
             root / "tasks" / "asyncodebench.py",
             repo_root / "configs" / "evaluation" / "protocol_registry.v1.json",
             repo_root / "configs" / "evaluation" / "protocol_registry.v2.json",
-            repo_root
-            / "configs"
-            / "evaluation"
-            / "official_execution_profile.v3.json",
-            repo_root
-            / "configs"
-            / "evaluation"
-            / "official_execution_profile.v4.json",
+            repo_root / "configs" / "evaluation" / "official_execution_profile.v3.json",
+            repo_root / "configs" / "evaluation" / "official_execution_profile.v4.json",
             repo_root / "schemas" / "release" / "agent_request.schema.json",
             repo_root / "schemas" / "release" / "run_bundle.schema.json",
         ]
     )
     return sorted(set(sources))
+
+
+def assert_runtime_source_origins() -> dict:
+    """Reject editable-install fallbacks into another benchmark checkout."""
+    root = Path(__file__).resolve().parent
+    origins = {}
+    prefixes = {"core", "tasks", "agents", "protocols", "asyncodebench_harness"}
+    for name, module in tuple(sys.modules.items()):
+        if name.split(".")[0] not in prefixes:
+            continue
+        source = getattr(module, "__file__", None)
+        if source is None:
+            continue
+        path = Path(source).resolve()
+        if not path.is_relative_to(root):
+            raise RuntimeError(
+                f"Cross-checkout runtime module {name}: {path}; expected {root}"
+            )
+        origins[name] = {
+            "path": path.relative_to(root).as_posix(),
+            "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+        }
+    return origins
 
 
 def async_manager_profile() -> dict:
@@ -265,8 +285,7 @@ def assert_legacy_execution_unchanged(repo_root: Path) -> None:
         raise RuntimeError(
             "A frozen legacy-protocol execution path differs from its pinned "
             "base revision; the Async-Manager registration must not change the "
-            "old four execution engines:\n"
-            + (result.stdout or result.stderr)
+            "old four execution engines:\n" + (result.stdout or result.stderr)
         )
 
 
@@ -390,14 +409,10 @@ def main(
         else max_iterations
     )
     specialist_iterations = int(
-        profile["subagent_max_iterations"]
-        if sub_iterations is None
-        else sub_iterations
+        profile["subagent_max_iterations"] if sub_iterations is None else sub_iterations
     )
     chat_rounds = int(
-        profile["max_rounds_chat"]
-        if rounds_of_chat is None
-        else rounds_of_chat
+        profile["max_rounds_chat"] if rounds_of_chat is None else rounds_of_chat
     )
     fixed_parameters = {
         "max_iterations": (
@@ -438,6 +453,7 @@ def main(
     ).resolve()
     config.output_dir = str(output)
 
+    runtime_origins = assert_runtime_source_origins()
     if dry_run:
         print(
             json.dumps(
@@ -455,17 +471,13 @@ def main(
                     "manager_max_active_seconds_total": profile[
                         "manager_max_active_seconds_total"
                     ],
-                    "manager_max_interventions": profile[
-                        "manager_max_interventions"
-                    ],
+                    "manager_max_interventions": profile["manager_max_interventions"],
                     "subagent_max_iterations": config.subagent_max_iterations,
                     "max_rounds_chat": config.max_rounds_chat,
                     "manager_scope": sorted(
                         {
                             path
-                            for assignment in task.scenario_for(PROTOCOL)[
-                                "assignments"
-                            ]
+                            for assignment in task.scenario_for(PROTOCOL)["assignments"]
                             for path in assignment["writable_paths"]
                         }
                     ),
@@ -487,6 +499,7 @@ def main(
     _assert_openhands_runtime_consistency()
     repo_root = task._repo_root()
     harness_source_state = assert_protocol_sources_clean(repo_root)
+    harness_source_state["runtime_module_origins"] = runtime_origins
     assert_legacy_execution_unchanged(repo_root)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.mkdir(exist_ok=False)

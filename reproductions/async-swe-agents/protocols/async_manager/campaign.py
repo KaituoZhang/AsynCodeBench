@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+from collections import Counter
 from pathlib import Path
 from statistics import mean
 
@@ -155,6 +156,9 @@ def task_row(directory: Path) -> dict:
     return {
         "task_id": metadata.get("task_id"),
         "policy": online.get("policy"),
+        "profile_sha256": metadata.get("async_manager_protocol", {}).get(
+            "profile_sha256"
+        ),
         "directory": str(directory.resolve()),
         "bundle_status": bundle.get("status"),
         "final_success": bool(final.get("success")),
@@ -175,6 +179,26 @@ def optional_mean(rows: list[dict], key: str):
 
 
 def summarize(rows: list[dict], issues: dict[str, list[str]]) -> dict:
+    issues = {key: list(value) for key, value in issues.items()}
+    all_rows = rows
+    counts = Counter(row.get("task_id") for row in rows)
+    duplicates = {task for task, count in counts.items() if task and count > 1}
+    profiles = {row.get("profile_sha256") for row in rows if row.get("profile_sha256")}
+    if duplicates:
+        issues.setdefault("campaign", []).append("duplicate_task_ids")
+    if len(profiles) > 1:
+        issues.setdefault("campaign", []).append("mixed_async_manager_profiles")
+    excluded = [
+        row
+        for row in rows
+        if row.get("directory") in issues
+        or row.get("metrics_eligible") is False
+        or row.get("task_id") in duplicates
+        or len(profiles) > 1
+    ]
+    rows = [row for row in rows if row not in excluded]
+    # Duplicate/missing task sets are not a complete benchmark campaign. Keep
+    # valid-subset diagnostics explicit, never label them the official score.
     resolved = sum(row["resolved_dependencies"] for row in rows)
     dependencies = sum(row["dependency_count"] for row in rows)
     events = sum(row["manager_intervention_events"] for row in rows)
@@ -183,9 +207,15 @@ def summarize(rows: list[dict], issues: dict[str, list[str]]) -> dict:
         "schema_version": "async-manager-campaign-summary-v1",
         "protocol": "async_manager",
         "policies": sorted({row.get("policy") for row in rows if row.get("policy")}),
-        "valid": not issues,
+        "valid": not issues and not excluded,
         "validation_issues": issues,
         "task_count": len(rows),
+        "discovered_task_count": len(all_rows),
+        "excluded_task_count": len(excluded),
+        "excluded_tasks": excluded,
+        "metric_scope": "validated_subset"
+        if issues or excluded
+        else "validated_campaign",
         "metrics": {
             "FSR_higher_is_better": (
                 mean(row["final_success"] for row in rows) if rows else None
@@ -277,12 +307,22 @@ def main() -> int:
     args = parser.parse_args()
 
     directories = discover(args.root, args.run_id)
-    issues = {
-        str(directory): found
-        for directory in directories
-        if (found := validate_run_bundle(directory).get("issues", []))
-    }
-    rows = [task_row(directory) for directory in directories]
+    issues = {}
+    rows = []
+    from protocols.async_manager.results import validate as validate_online
+
+    for directory in directories:
+        key = str(directory.resolve())
+        try:
+            found = validate_run_bundle(directory).get("issues", [])
+            found = sorted(set(found + validate_online(directory)))
+            if found:
+                issues[key] = found
+            row = task_row(directory)
+            row["metrics_eligible"] = not found
+            rows.append(row)
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            issues[key] = [f"unreadable_or_partial_bundle:{error}"]
     task_ids = [row["task_id"] for row in rows]
     if len(task_ids) != len(set(task_ids)):
         issues["campaign"] = ["duplicate_task_ids"]

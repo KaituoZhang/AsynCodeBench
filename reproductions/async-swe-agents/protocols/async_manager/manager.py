@@ -38,6 +38,7 @@ from openhands.sdk.context import AgentContext
 from openhands.tools.preset.default import get_default_tools
 
 from protocols.async_manager import POLICY, PROTOCOL
+from protocols.async_manager.artifacts import ArtifactSafetyMixin, archive_worktree
 from protocols.async_manager.guard import build_guard
 from protocols.async_manager.terminal_guard import build_terminal_guard
 from protocols.asyncodebench.ordering import path_in_scope
@@ -81,12 +82,11 @@ def safe_production_path(path: str, scopes: list[str]) -> bool:
     return any(path_in_scope(path, [scope]) for scope in scopes)
 
 
-class OnlineManager(AsynCodeBenchManager):
+class OnlineManager(ArtifactSafetyMixin, AsynCodeBenchManager):
     """A single persistent manager that intervenes at integration boundaries.
 
-    The inherited task analysis, delegation, specialist ownership, merge gate,
-    and evaluator stay unchanged.  Only the manager conversation is moved into
-    a private worktree and granted phase-gated file-editor authority.
+    The task, delegation scopes and evaluator remain frozen. Integration and
+    event recovery are protocol-local; no shared scheduler code is modified.
     """
 
     active_instance = None
@@ -185,6 +185,17 @@ class OnlineManager(AsynCodeBenchManager):
 
     def _sync_manager_worktree(self, head: str) -> None:
         root = shlex.quote(self.manager_worktree)
+        if self._command(
+            f"git -C {root} status --porcelain=v1 -z --untracked-files=all"
+        ):
+            archive_worktree(
+                self,
+                self.manager_worktree,
+                "HEAD",
+                Path(self.config.output_dir)
+                / "manager_sync_archives"
+                / uuid.uuid4().hex,
+            )
         self._command(f"git -C {root} reset --hard {shlex.quote(head)}", timeout=120)
         self._command(f"git -C {root} clean -fd", timeout=120)
         observed = self._command(f"git -C {root} rev-parse HEAD", timeout=30).strip()
@@ -192,6 +203,13 @@ class OnlineManager(AsynCodeBenchManager):
             raise RuntimeError(
                 "Private manager worktree did not synchronize to integrated HEAD"
             )
+        refresh = getattr(self.task, "refresh_source_build", None)
+        if callable(refresh):
+            build = refresh(self.workspace, self.manager_worktree)
+            if build.get("status") not in {"passed", "not_required"}:
+                raise RuntimeError(
+                    f"Synchronized manager runtime build failed: {build}"
+                )
 
     def _validate_worktree_runtime_with_wrapper(
         self, workspace, worktree_path: str, owner: str
@@ -317,6 +335,15 @@ class OnlineManager(AsynCodeBenchManager):
             build_workspace_guard_hook(self.manager_worktree, self.repo_dir),
         )
         hooks = combine_hook_configs(hooks, build_terminal_guard())
+        if callable(getattr(self.task, "refresh_source_build", None)):
+            from protocols.async_manager.runtime import build_runtime_hook
+
+            hooks = combine_hook_configs(
+                hooks,
+                build_runtime_hook(
+                    self.manager_worktree, self.task.worktree_build_command
+                ),
+            )
         hooks = combine_hook_configs(
             hooks,
             build_guard(
@@ -391,70 +418,27 @@ class OnlineManager(AsynCodeBenchManager):
                 )
             else:
                 serialized["end_time"] = datetime.now(timezone.utc).isoformat()
-            self.output_logger.log_agent_event(
-                "manager", _json_safe(serialized)
-            )
+            self.output_logger.log_agent_event("manager", _json_safe(serialized))
 
     def committed_and_uncommitted_paths(self, result):
-        """Attribute only changes introduced after the integrated HEAD.
+        """Compatibility accessor: scope the immutable artifact, not scratch files.
 
-        A specialist may rebase its branch onto producer commits that the
-        harness has already integrated. ``result.files_modified`` is recorded
-        against the specialist's original checkout and can therefore contain
-        inherited producer paths. Treating that stale, cumulative list as
-        authoritative incorrectly rejects an otherwise scoped consumer
-        artifact. The merge-base diff identifies the specialist's remaining
-        contribution relative to the current integrated workspace; porcelain
-        status adds any uncommitted worktree changes.
-
-        Fall back to the frozen CAID implementation whenever Git cannot provide
-        this stronger provenance signal. That keeps the failure mode
-        conservative instead of weakening the scope gate.
+        Recovery of unfinished work is handled separately by _resolve_artifact,
+        which stages only manifest-scoped paths in a temporary index.
         """
-
-        branch = result.branch_name or result.commit_hash
-        if not branch:
-            return super().committed_and_uncommitted_paths(result)
-
-        if result.worktree_path:
-            self.task._clean_transient_test_artifacts(
-                self.workspace, result.worktree_path
-            )
-
-        merge_base = self.workspace.execute_command(
-            f"cd {shlex.quote(self.repo_dir)} && "
-            f"git merge-base HEAD {shlex.quote(branch)}",
-            timeout=30,
-        )
-        if merge_base.exit_code != 0 or not merge_base.stdout.strip():
-            return super().committed_and_uncommitted_paths(result)
-
-        base = merge_base.stdout.strip()
-        changed = self.workspace.execute_command(
-            f"cd {shlex.quote(self.repo_dir)} && "
-            f"git diff --name-only {shlex.quote(base)}..{shlex.quote(branch)}",
-            timeout=30,
-        )
-        if changed.exit_code != 0:
-            return super().committed_and_uncommitted_paths(result)
-
-        paths = {line.strip() for line in changed.stdout.splitlines() if line.strip()}
-        if result.worktree_path:
-            status = self.workspace.execute_command(
-                f"cd {shlex.quote(result.worktree_path)} && git status --porcelain",
-                timeout=30,
-            )
-            if status.exit_code != 0:
-                return super().committed_and_uncommitted_paths(result)
-            paths.update(self._status_paths(status.stdout))
-        return sorted(paths)
+        ref = result.commit_hash or result.branch_name
+        if not ref:
+            return []
+        commit = self._command(
+            f"git -C {shlex.quote(self.repo_dir)} rev-parse --verify --end-of-options "
+            f"{shlex.quote(ref + '^{commit}')}"
+        ).strip()
+        return self._artifact_paths(commit)
 
     def collect_and_merge(self, subagent_result, output_logger=None):
-        result = super().collect_and_merge(subagent_result, output_logger)
         if self.pending_integration_event is not None:
-            raise RuntimeError(
-                "Previous Async-Manager integration event was not consumed"
-            )
+            self.fail_pending_event("integration checkpoint was not reached")
+        result = super().collect_and_merge(subagent_result, output_logger)
         self.pending_integration_event = {
             "subagent_result": subagent_result,
             "collect_result": dict(result),
@@ -468,6 +452,41 @@ class OnlineManager(AsynCodeBenchManager):
             return None
         event["specialist_checkpoint"] = checkpoint
         return event
+
+    def failed_intervention(self, event, error, *, sequence_before=None):
+        """Preserve exceptions as invalid-run evidence, never a sequence gap."""
+        if sequence_before is None or self.intervention_sequence == sequence_before:
+            self.intervention_sequence += 1
+        specialist = event["subagent_result"]
+        return {
+            "schema_version": "async-manager-intervention-v1",
+            "protocol": PROTOCOL,
+            "policy": POLICY,
+            "sequence": self.intervention_sequence,
+            "trigger": {
+                "engineer_id": specialist.engineer_id,
+                "task_id": specialist.task_id,
+                "round_num": specialist.round_num,
+            },
+            "specialist_integration": event.get("collect_result", {}),
+            "specialist_checkpoint_id": (event.get("specialist_checkpoint") or {}).get(
+                "checkpoint_id"
+            ),
+            "status": "execution_error",
+            "accepted": False,
+            "changed_paths": [],
+            "rejected_paths": [],
+            "manager_checkpoint_id": None,
+            "execution_error": str(error),
+            "termination_reason": "harness_event_error",
+        }
+
+    def fail_pending_event(self, error):
+        event = self.consume_integration_event(None)
+        if event is not None:
+            self.finalize_intervention_record(
+                self.failed_intervention(event, error), None
+            )
 
     @staticmethod
     def _compact_checkpoint(checkpoint: dict | None) -> dict:
@@ -628,10 +647,11 @@ class OnlineManager(AsynCodeBenchManager):
     def _changed_paths(self) -> list[str]:
         self.task._clean_transient_test_artifacts(self.workspace, self.manager_worktree)
         status = self._command(
-            f"git -C {shlex.quote(self.manager_worktree)} status --porcelain",
+            f"git -C {shlex.quote(self.manager_worktree)} "
+            "status --porcelain=v1 -z --untracked-files=all",
             timeout=30,
         )
-        return sorted(set(self._status_paths(status)))
+        return self._porcelain_paths(status)
 
     def _write_patch(self, sequence: int, base_head: str, changed: list[str]) -> Path:
         patch_dir = Path(self.config.output_dir) / "manager_interventions"
@@ -663,7 +683,10 @@ class OnlineManager(AsynCodeBenchManager):
         except Exception:
             scenario = {}
         for assignment in scenario.get("assignments", []):
-            if changed_paths.intersection(assignment.get("writable_paths", [])):
+            if any(
+                path_in_scope(path, assignment.get("writable_paths", []))
+                for path in changed_paths
+            ):
                 subproblem = assignment.get("subproblem_id")
                 if subproblem:
                     changed_subproblems.add(subproblem)
@@ -677,7 +700,7 @@ class OnlineManager(AsynCodeBenchManager):
                 dependency.get("producer_subproblem"),
                 dependency.get("consumer_subproblem"),
             }
-            if changed_paths.intersection(dependency_paths) or (
+            if any(path_in_scope(path, dependency_paths) for path in changed_paths) or (
                 changed_subproblems.intersection(dependency_subproblems)
             ):
                 affected.append(dependency)
@@ -699,6 +722,7 @@ class OnlineManager(AsynCodeBenchManager):
                 for nodeid, outcome in outcomes.items()
                 if nodeid == selector
                 or re.sub(r"\[[^\]]+\]$", "", nodeid) == selector
+                or nodeid.startswith(selector + "::")
             ]
             if not matched:
                 results[selector] = {"status": "not_collected", "passed": False}
@@ -751,9 +775,7 @@ class OnlineManager(AsynCodeBenchManager):
             "summary": {
                 "total": len(results),
                 "passed": sum(item["passed"] for item in results.values()),
-                "failed": sum(
-                    item["status"] == "failed" for item in results.values()
-                ),
+                "failed": sum(item["status"] == "failed" for item in results.values()),
                 "not_collected": sum(
                     item["status"] == "not_collected" for item in results.values()
                 ),
@@ -801,6 +823,15 @@ class OnlineManager(AsynCodeBenchManager):
             "started_at": datetime.now(timezone.utc).isoformat(),
         }
         try:
+            # Pytest must execute exactly the staged candidate, not a different
+            # unstaged version of the same filenames.
+            self._command(
+                f"git -C {shlex.quote(self.manager_worktree)} diff --exit-code --quiet"
+            )
+            candidate_tree = self._command(
+                f"git -C {shlex.quote(self.manager_worktree)} write-tree"
+            ).strip()
+            result["candidate_tree"] = candidate_tree
             checkpoint = event.get("specialist_checkpoint") or {}
             raw_metrics_path = checkpoint.get("metrics_manifest")
             if not raw_metrics_path:
@@ -846,9 +877,7 @@ class OnlineManager(AsynCodeBenchManager):
                     source_build = {"status": "not_required"}
                     refresh = getattr(self.task, "refresh_source_build", None)
                     if refresh is not None:
-                        source_build = refresh(
-                            self.workspace, self.manager_worktree
-                        )
+                        source_build = refresh(self.workspace, self.manager_worktree)
                     result["source_build"] = source_build
                     if source_build.get("status") not in {
                         "passed",
@@ -856,9 +885,7 @@ class OnlineManager(AsynCodeBenchManager):
                     }:
                         result["reason_codes"].append("source_build_failed")
                     else:
-                        timeout = max(
-                            30, int(settings.get("timeout_seconds", 600))
-                        )
+                        timeout = max(30, int(settings.get("timeout_seconds", 600)))
                         result["timeout_seconds"] = timeout
                         probes = self._run_candidate_dependency_probes(
                             sequence, selectors, timeout
@@ -866,6 +893,10 @@ class OnlineManager(AsynCodeBenchManager):
                         result["probe"] = probes
                         if probes["timed_out"]:
                             result["reason_codes"].append("dependency_probe_timed_out")
+                        if probes.get("exit_code", 0) not in {0, 1}:
+                            result["reason_codes"].append(
+                                "dependency_probe_execution_error"
+                            )
                         if (
                             settings.get("require_all_selectors_collected", True)
                             and probes["summary"]["not_collected"]
@@ -882,10 +913,7 @@ class OnlineManager(AsynCodeBenchManager):
                             .get("passed")
                         ]
                         result["regressions"] = regressions
-                        if (
-                            settings.get("require_no_regression", True)
-                            and regressions
-                        ):
+                        if settings.get("require_no_regression", True) and regressions:
                             result["reason_codes"].append(
                                 "previously_passing_selector_regressed"
                             )
@@ -902,7 +930,17 @@ class OnlineManager(AsynCodeBenchManager):
             post_validation_sha = hashlib.sha256(staged_patch.encode()).hexdigest()
             result["post_validation_patch_sha256"] = post_validation_sha
             if post_validation_sha != patch_sha:
-                result["reason_codes"].append("candidate_patch_changed_during_validation")
+                result["reason_codes"].append(
+                    "candidate_patch_changed_during_validation"
+                )
+            unstaged = self.workspace.execute_command(
+                f"git -C {shlex.quote(self.manager_worktree)} diff --exit-code --quiet",
+                timeout=60,
+            )
+            if unstaged.exit_code != 0:
+                result["reason_codes"].append(
+                    "candidate_worktree_changed_during_validation"
+                )
         except Exception as error:
             result["reason_codes"].append("candidate_validation_error")
             result["error"] = f"{type(error).__name__}: {error}"
@@ -936,28 +974,18 @@ class OnlineManager(AsynCodeBenchManager):
         if not worktree:
             return {"refreshed": False, "reason": "no_worktree"}
         archive_dir = Path(self.config.output_dir) / "manager_interventions"
-        archive_path = archive_dir / f"{sequence:04d}.triggering-specialist.patch"
+        archive_stem = archive_dir / f"{sequence:04d}.triggering-specialist"
+        archive_path = Path(str(archive_stem) + ".patch")
         merge_base = self.workspace.execute_command(
             f"git -C {shlex.quote(worktree)} merge-base HEAD {shlex.quote(head)}",
             timeout=30,
         )
-        base = (
-            merge_base.stdout.strip()
-            if merge_base.exit_code == 0 and merge_base.stdout.strip()
-            else "HEAD"
-        )
-        diff = self.workspace.execute_command(
-            f"git -C {shlex.quote(worktree)} diff --binary {shlex.quote(base)}..HEAD",
-            timeout=60,
-        )
-        dirty = self.workspace.execute_command(
-            f"git -C {shlex.quote(worktree)} diff --binary", timeout=60
-        )
-        archive_path.write_text(
-            (diff.stdout if diff.exit_code == 0 else "")
-            + (dirty.stdout if dirty.exit_code == 0 else ""),
-            encoding="utf-8",
-        )
+        if merge_base.exit_code != 0 or not merge_base.stdout.strip():
+            raise RuntimeError(
+                "Cannot establish specialist archive base; refusing reset"
+            )
+        base = merge_base.stdout.strip()
+        archive = archive_worktree(self, worktree, base, archive_stem)
         reset = self.workspace.execute_command(
             f"git -C {shlex.quote(worktree)} reset --hard {shlex.quote(head)}",
             timeout=120,
@@ -978,12 +1006,20 @@ class OnlineManager(AsynCodeBenchManager):
             raise RuntimeError(
                 "Could not refresh the triggering specialist after manager integration"
             )
+        refresh = getattr(self.task, "refresh_source_build", None)
+        if callable(refresh):
+            build = refresh(self.workspace, worktree)
+            if build.get("status") not in {"passed", "not_required"}:
+                raise RuntimeError(
+                    f"Refreshed specialist runtime build failed: {build}"
+                )
         return {
             "refreshed": True,
             "worktree": worktree,
             "head": head,
             "archive": archive_path.relative_to(self.config.output_dir).as_posix(),
             "archive_sha256": hashlib.sha256(archive_path.read_bytes()).hexdigest(),
+            "archive_manifest": archive,
         }
 
     def intervene(self, event: dict) -> dict:
@@ -1138,6 +1174,14 @@ class OnlineManager(AsynCodeBenchManager):
 
         commit_message = "Async-Manager online intervention " + str(sequence)
         self._command(
+            f"git -C {shlex.quote(self.manager_worktree)} diff --exit-code --quiet"
+        )
+        tree = self._command(
+            f"git -C {shlex.quote(self.manager_worktree)} write-tree"
+        ).strip()
+        if validation.get("candidate_tree", tree) != tree:
+            raise RuntimeError("Validated candidate tree changed before commit")
+        self._command(
             f"git -C {shlex.quote(self.manager_worktree)} "
             "-c user.name=AsynCodeBench "
             "-c user.email=benchmark@localhost "
@@ -1164,16 +1208,70 @@ class OnlineManager(AsynCodeBenchManager):
             manager_commit=commit,
             head_after=commit,
         )
-        record["triggering_specialist_refresh"] = self._refresh_triggering_specialist(
-            event, commit, sequence
-        )
         self.accepted_interventions += 1
         self._log_intervention_result(record)
         return record
 
+    def reconcile_specialist_after_repair(self, event, record):
+        """Only bypass automatic retries with explicit assignment-test evidence.
+
+        An accepted partial repair is NOT task completion. Leave a rejected or
+        conflicted specialist's tree intact unless its assignment is verified.
+        """
+        result = event["subagent_result"]
+        original = json.loads(json.dumps(event["collect_result"]))
+        resolution = {"status": "needs_followup", "original_integration": original}
+        resolved = False
+        if not original.get("merged"):
+            assignment = self.assignment_for_result(result) or {}
+            targets = assignment.get("primary_test_targets", [])
+            if targets:
+                probes = self._run_candidate_dependency_probes(
+                    record["sequence"], targets, 600
+                )
+                resolution["primary_tests"] = probes
+                resolved = (
+                    probes.get("exit_code") == 0
+                    and not probes["timed_out"]
+                    and all(
+                        probes["selector_results"].get(t, {}).get("passed")
+                        for t in targets
+                    )
+                    and not self._changed_paths()
+                )
+            if resolved:
+                # Preserve original artifact rejection in the event. This field
+                # now denotes fulfilled delivery through the manager, not a
+                # claim that the rejected specialist commit was merged.
+                result.merged = True
+                result.merge_method = "manager_repair"
+                event["collect_result"].get("conflict_files", []).clear()
+                event["collect_result"].update(
+                    merged=True, merge_method="manager_repair", conflict_files=[]
+                )
+                resolution["status"] = "resolved_by_primary_tests"
+        else:
+            resolution["status"] = "artifact_already_integrated"
+        if original.get("merged") or resolved:
+            record["triggering_specialist_refresh"] = (
+                self._refresh_triggering_specialist(
+                    event, record["manager_commit"], record["sequence"]
+                )
+            )
+        else:
+            record["triggering_specialist_refresh"] = {
+                "refreshed": False,
+                "reason": "preserve_unmerged_specialist_contribution",
+            }
+        record["specialist_resolution"] = resolution
+
     def finalize_intervention_record(
         self, record: dict, manager_checkpoint: dict | None
     ) -> None:
+        if any(
+            row["sequence"] == record["sequence"] for row in self.intervention_records
+        ):
+            raise RuntimeError("Duplicate manager intervention sequence")
         if manager_checkpoint:
             record["manager_checkpoint_id"] = manager_checkpoint.get("checkpoint_id")
             record["manager_checkpoint_step"] = manager_checkpoint.get("logical_step")
@@ -1205,6 +1303,7 @@ class OnlineManager(AsynCodeBenchManager):
             self.repo_dir = original_repo_dir
 
     def prepare_final_evaluation(self):
+        self.fail_pending_event("workflow ended before integration checkpoint")
         super().prepare_final_evaluation()
         cost_path = Path(self.config.output_dir) / "cost.json"
         data = json.loads(cost_path.read_text(encoding="utf-8"))
@@ -1236,18 +1335,25 @@ class OnlineManager(AsynCodeBenchManager):
         dump(cost_path, data)
 
     def cleanup(self):
-        try:
-            super().cleanup()
-        finally:
-            if self.manager_worktree:
-                self.workspace.execute_command(
-                    f"git -C {shlex.quote(self.repo_dir)} worktree remove --force "
-                    f"{shlex.quote(self.manager_worktree)}",
-                    timeout=120,
+        super().cleanup()
+        if self.manager_worktree:
+            status = self._command(
+                f"git -C {shlex.quote(self.manager_worktree)} "
+                "status --porcelain=v1 -z --untracked-files=all"
+            )
+            if status:
+                archive_worktree(
+                    self,
+                    self.manager_worktree,
+                    "HEAD",
+                    Path(self.config.output_dir) / "manager_cleanup_archive",
                 )
-            if self.manager_mode_file:
-                self.workspace.execute_command(
-                    f"rm -f -- {shlex.quote(self.manager_mode_file)}", timeout=30
-                )
-            if OnlineManager.active_instance is self:
-                OnlineManager.active_instance = None
+            self._command(
+                f"git -C {shlex.quote(self.repo_dir)} worktree remove --force "
+                f"{shlex.quote(self.manager_worktree)}",
+                timeout=120,
+            )
+        if self.manager_mode_file:
+            self._command(f"rm -f -- {shlex.quote(self.manager_mode_file)}", timeout=30)
+        if OnlineManager.active_instance is self:
+            OnlineManager.active_instance = None

@@ -15,6 +15,47 @@ a 21,600-second total active-time guard, a 7,200-second per-event guard, and at
 most six executed interventions. Budget exhaustion preserves the integrated
 specialist state and continues to final evaluation.
 
+## Integrity revision (2026-09-16)
+
+New runs snapshot `harness_revision=immutable-artifacts-event-safe-20260916`.
+The model budgets, manifests, final evaluator and four frozen protocol engines
+are unchanged. The Async-Manager-only integration boundary now:
+
+- Resolves one immutable specialist commit for scope checking and merging.
+  Already-integrated producer changes are not attributed to the consumer.
+  Uncommitted scratch files are archived separately, never merged implicitly.
+  If there is no new commit, scoped unfinished work is recovered using a
+  temporary Git index, without changing the specialist's own staged state.
+- Archives committed, staged, unstaged and untracked contents separately before
+  resetting a private tree. Failed archival prevents cleanup. Unmerged work is
+  retained when a manager repair has not satisfied the assignment tests.
+- Requires both staged and working-tree content to remain consistent during
+  candidate validation. Accepted partial repairs are not assumed to complete a
+  specialist assignment: only successful primary tests bypass automatic retry.
+- Consumes pending events before checkpoint I/O and records intervention errors
+  explicitly. Missing events, incomplete checkpoints and harness errors make a
+  run ineligible, rather than silently converting infrastructure failures into
+  model failures. Later specialist results may still be processed.
+- Rebuilds native runtimes after source synchronization and before manager
+  test commands. Builds are harness-owned, bounded, and do not authorize shell
+  writes by the manager. Final candidate validation still rebuilds independently.
+- Vendors the shell policy locally and rejects cross-checkout Python imports.
+  Runtime module paths/hashes and shared source snapshots are recorded.
+- Keeps manager timeout overrides local to their execution context, and requires
+  an observed terminal status before claiming remote shutdown succeeded.
+
+Use a **new campaign RUN_ID for the entire rerun**; do not overwrite old runs or
+mix profile revisions. Recovery can complete evidence/evaluation for an unchanged
+artifact, but cannot retroactively repair a past model trajectory. Campaign
+summaries exclude invalid bundles and label incomplete campaigns as validated
+subsets; they must not be presented as a complete-suite score.
+
+CPU-only regression check (no model calls):
+
+```bash
+LITELLM_LOCAL_MODEL_COST_MAP=True .venv/bin/python -m pytest -q tests
+```
+
 ## Live progress logging
 
 Each online intervention prints its triggering specialist/checkpoint, explains

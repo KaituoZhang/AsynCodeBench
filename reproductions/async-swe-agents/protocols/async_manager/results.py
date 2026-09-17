@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from collections import Counter
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -53,9 +54,7 @@ def _budget_issues(directory: Path) -> list[str]:
     except (json.JSONDecodeError, OSError):
         issues.append("invalid_or_missing_async_manager_profile_snapshot")
         profile = {}
-    time_tolerance = float(
-        profile.get("active_time_overrun_tolerance_seconds", 0)
-    )
+    time_tolerance = float(profile.get("active_time_overrun_tolerance_seconds", 0))
     if budget.get("policy") != POLICY:
         issues.append("manager_budget_policy_mismatch")
     for field in (
@@ -110,6 +109,8 @@ def validate(directory, verify_inventory=True):
         profile.get("candidate_patch_validation", {}).get("enabled")
     )
     for record in records:
+        if record.get("harness_error"):
+            issues.append("manager_intervention_harness_error")
         if record.get("status") not in allowed_statuses:
             issues.append("manager_intervention_status_invalid")
         if record.get("status") == "budget_exhausted" and (
@@ -121,7 +122,8 @@ def validate(directory, verify_inventory=True):
             validation_required
             and record.get("accepted")
             and (
-                not isinstance(validation, dict) or not validation.get("passed")
+                not isinstance(validation, dict)
+                or not validation.get("passed")
                 or not validation.get("required")
                 or validation.get("mode")
                 != profile["candidate_patch_validation"].get("mode")
@@ -140,6 +142,58 @@ def validate(directory, verify_inventory=True):
                 issues.append("candidate_validation_artifact_missing")
             elif validation.get("artifact_sha256") != v1_results._sha256(artifact):
                 issues.append("candidate_validation_artifact_checksum_mismatch")
+    if profile.get("event_completeness_required"):
+        try:
+            checkpoints = [
+                json.loads(line)
+                for line in (directory / "dependency_probe_checkpoints.jsonl")
+                .read_text()
+                .splitlines()
+                if line.strip()
+            ]
+            integrations = [
+                row["checkpoint_id"]
+                for row in checkpoints
+                if row.get("checkpoint_type") == "integration_after_merge"
+            ]
+            triggers = [row.get("specialist_checkpoint_id") for row in records]
+            if sorted(integrations) != sorted(t for t in triggers if t):
+                issues.append("manager_intervention_checkpoint_coverage_mismatch")
+            scope_path = directory / "scope_validation.jsonl"
+            artifacts = [
+                json.loads(line)
+                for line in scope_path.read_text().splitlines()
+                if line.strip()
+            ]
+            if len(artifacts) != len(records):
+                issues.append("manager_intervention_artifact_coverage_mismatch")
+            responses = [
+                json.loads(line)
+                for line in (directory / "outputs.jsonl").read_text().splitlines()
+                if line.strip()
+            ]
+            completed = Counter(
+                (
+                    row.get("source"),
+                    row.get("content", {}).get("task_id"),
+                    row.get("round_num"),
+                )
+                for row in responses
+                if row.get("event_type") == "agent_response"
+                and row.get("target") == "manager"
+            )
+            collected = Counter(
+                (
+                    row.get("agent_id"),
+                    row.get("task_assignment_id"),
+                    row.get("round_num"),
+                )
+                for row in artifacts
+            )
+            if completed != collected:
+                issues.append("specialist_result_collection_coverage_mismatch")
+        except (OSError, ValueError, KeyError, TypeError):
+            issues.append("manager_event_completeness_evidence_missing")
     return sorted(set(issues))
 
 
