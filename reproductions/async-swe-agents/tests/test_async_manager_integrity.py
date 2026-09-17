@@ -128,6 +128,75 @@ def test_merge_uses_pinned_commit_when_branch_moves(tmp_path):
     assert (root / "pkg/module.py").read_text() == "VALUE = 2\n"
 
 
+def test_diverged_artifact_merge_has_command_scoped_identity(tmp_path, monkeypatch):
+    m, root, worker, r, base = manager_fixture(tmp_path)
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", os.devnull)
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "1")
+
+    (root / "pkg/root.py").write_text("ROOT = 1\n")
+    git(root, "add", "pkg/root.py")
+    git(root, "commit", "-qm", "integrated producer")
+    r.commit_hash = commit(worker)
+    subprocess.run(
+        ["git", "-C", str(root), "config", "--unset-all", "user.name"],
+        check=True,
+    )
+    subprocess.run(
+        ["git", "-C", str(root), "config", "--unset-all", "user.email"],
+        check=True,
+    )
+
+    review = m.collect_and_merge(r)
+
+    assert review["merged"]
+    assert len(git(root, "show", "-s", "--format=%P", "HEAD").split()) == 2
+    assert git(root, "show", "-s", "--format=%cn <%ce>", "HEAD") == (
+        "AsynCodeBench <benchmark@localhost>"
+    )
+    assert (
+        subprocess.run(
+            ["git", "-C", str(root), "config", "--local", "--get", "user.name"],
+            capture_output=True,
+            text=True,
+        ).returncode
+        == 1
+    )
+    assert (
+        subprocess.run(
+            ["git", "-C", str(root), "config", "--local", "--get", "user.email"],
+            capture_output=True,
+            text=True,
+        ).returncode
+        == 1
+    )
+
+
+def test_force_theirs_merge_has_command_scoped_identity(tmp_path, monkeypatch):
+    m, root, worker, r, base = manager_fixture(tmp_path)
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", os.devnull)
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "1")
+
+    (root / "pkg/module.py").write_text("VALUE = 'integrated'\n")
+    git(root, "add", "pkg/module.py")
+    git(root, "commit", "-qm", "integrated producer")
+    r.commit_hash = commit(worker, "VALUE = 'specialist'\n")
+    subprocess.run(
+        ["git", "-C", str(root), "config", "--unset-all", "user.name"],
+        check=True,
+    )
+    subprocess.run(
+        ["git", "-C", str(root), "config", "--unset-all", "user.email"],
+        check=True,
+    )
+
+    merged, message, conflicts = m.merge_branch(r.commit_hash, force_theirs=True)
+
+    assert merged
+    assert "theirs strategy" in message
+    assert conflicts == []
+    assert (root / "pkg/module.py").read_text() == "VALUE = 'specialist'\n"
+
+
 def test_uncommitted_recovery_uses_isolated_index_and_only_scope(tmp_path):
     m, root, worker, r, base = manager_fixture(tmp_path)
     (worker / "pkg/module.py").write_text("VALUE = 3\n")
@@ -343,6 +412,24 @@ def test_no_change_after_successful_merge_refreshes_specialist(tmp_path):
     assert len(calls) == 1
     assert calls[0][1] == m.current_head()
     assert record["specialist_resolution"]["status"] == "artifact_already_integrated"
+
+
+def test_no_change_after_failed_merge_still_needs_followup(tmp_path):
+    m, root, worker, r, base = manager_fixture(tmp_path)
+    event = {
+        "subagent_result": r,
+        "collect_result": {"merged": False, "conflict_files": []},
+    }
+    record = {"sequence": 1, "accepted": False, "status": "no_change"}
+
+    m.reconcile_specialist_after_repair(event, record)
+
+    assert not r.merged
+    assert record["specialist_resolution"]["status"] == "needs_followup"
+    assert record["triggering_specialist_refresh"] == {
+        "refreshed": False,
+        "reason": "preserve_unmerged_specialist_contribution",
+    }
 
 
 def test_file_selector_matches_all_parameterized_tests():

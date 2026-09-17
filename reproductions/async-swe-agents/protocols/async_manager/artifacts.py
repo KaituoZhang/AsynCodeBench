@@ -73,9 +73,7 @@ def archive_worktree(manager, worktree: str, base: str, stem: Path) -> dict:
         artifacts = {}
         for suffix, remote_metadata in remote_parts.items():
             path = Path(str(stem) + "." + suffix)
-            download = manager.workspace.file_download(
-                f"{remote_dir}/{suffix}", path
-            )
+            download = manager.workspace.file_download(f"{remote_dir}/{suffix}", path)
             if not download.success:
                 raise RuntimeError(
                     f"Private-worktree archive download failed: {download.error}"
@@ -130,6 +128,111 @@ finally:
 
 
 class ArtifactSafetyMixin:
+    _MERGE_USER_NAME = "AsynCodeBench"
+    _MERGE_USER_EMAIL = "benchmark@localhost"
+
+    def _run_artifact_merge(self, ref: str, *extra_args: str):
+        """Merge an immutable artifact without relying on ambient Git identity."""
+        root = shlex.quote(self.repo_dir)
+        command = [
+            "git",
+            "-c",
+            f"user.name={self._MERGE_USER_NAME}",
+            "-c",
+            f"user.email={self._MERGE_USER_EMAIL}",
+            "merge",
+            ref,
+            "--no-edit",
+            *extra_args,
+        ]
+        rendered = " ".join(shlex.quote(part) for part in command)
+        return self.workspace.execute_command(f"cd {root} && {rendered}", timeout=60)
+
+    def merge_branch(self, branch_name, force_theirs=False):
+        """Protocol-local merge with deterministic committer identity.
+
+        The shared manager implementation intentionally remains untouched so
+        frozen protocols retain their released behavior.  Command-scoped Git
+        configuration also avoids depending on model-created repository config
+        or mutating host/container global configuration.
+        """
+        self.log(f"Merging branch {branch_name}...")
+
+        stashed = False
+        if self.task.should_stash_before_merge:
+            stashed = self.stash_if_dirty()
+
+        result = self._run_artifact_merge(branch_name)
+        if result.exit_code == 0:
+            self.log(f"Successfully merged {branch_name}")
+            if stashed:
+                self.unstash()
+            return True, "Merged successfully", []
+
+        error_msg = result.stderr or result.stdout or "Unknown error"
+        is_conflict = "CONFLICT" in error_msg or "conflict" in error_msg.lower()
+        if is_conflict:
+            root = shlex.quote(self.repo_dir)
+            conflict_result = self.workspace.execute_command(
+                f"cd {root} && git diff --name-only --diff-filter=U", timeout=30
+            )
+            conflict_files = (
+                [
+                    path.strip()
+                    for path in conflict_result.stdout.strip().split("\n")
+                    if path.strip()
+                ]
+                if conflict_result.exit_code == 0
+                else []
+            )
+            self.log(
+                f"Merge conflict detected for {branch_name}, files: {conflict_files}"
+            )
+            self.workspace.execute_command(
+                f"cd {root} && git merge --abort", timeout=30
+            )
+
+            if force_theirs:
+                self.log(
+                    "Force-resolving with --strategy-option theirs "
+                    "(engineer has no rounds left)..."
+                )
+                result = self._run_artifact_merge(branch_name, "-X", "theirs")
+                if result.exit_code == 0:
+                    self.log(f"Successfully merged {branch_name} using theirs strategy")
+                    if stashed:
+                        self.unstash()
+                    return (
+                        True,
+                        "Merged successfully (used theirs strategy for conflicts)",
+                        [],
+                    )
+                error_msg = result.stderr or result.stdout or "Unknown error"
+                self.log(f"Merge with theirs strategy also failed: {error_msg[:200]}")
+                self.workspace.execute_command(
+                    f"cd {root} && git merge --abort", timeout=30
+                )
+                if stashed:
+                    self.unstash()
+                return (
+                    False,
+                    f"Merge failed even with conflict resolution: {error_msg[:200]}",
+                    [],
+                )
+
+            if stashed:
+                self.unstash()
+            return (
+                False,
+                f"Merge conflict in files: {', '.join(conflict_files)}",
+                conflict_files,
+            )
+
+        self.log(f"Warning: Merge failed for {branch_name}: {error_msg[:200]}")
+        if stashed:
+            self.unstash()
+        return False, f"Merge failed: {error_msg[:200]}", []
+
     def _artifact_paths(self, commit):
         root = shlex.quote(self.repo_dir)
         base = self._command(
