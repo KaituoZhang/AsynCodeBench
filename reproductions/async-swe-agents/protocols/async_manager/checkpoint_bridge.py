@@ -96,9 +96,6 @@ def online_checkpoint_bridge():
                     timeout=adjusted.get("timeout", 60),
                     source_build=source_build,
                 )
-                reconcile = getattr(manager, "reconcile_specialist_after_repair", None)
-                if reconcile is not None:
-                    reconcile(event, record)
         except Exception as error:
             if record is None:
                 record = manager.failed_intervention(
@@ -108,6 +105,16 @@ def online_checkpoint_bridge():
                 record["harness_error"] = f"{type(error).__name__}: {error}"
         finally:
             if record is not None:
+                reconcile = getattr(manager, "reconcile_specialist_after_repair", None)
+                if reconcile is not None and "specialist_resolution" not in record:
+                    try:
+                        reconcile(event, record)
+                    except Exception as error:
+                        detail = f"{type(error).__name__}: {error}"
+                        previous = record.get("harness_error")
+                        record["harness_error"] = (
+                            f"{previous}; {detail}" if previous else detail
+                        )
                 manager.finalize_intervention_record(record, manager_checkpoint)
         return manager_checkpoint or specialist_checkpoint
 

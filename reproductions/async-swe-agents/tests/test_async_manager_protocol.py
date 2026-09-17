@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import shutil
 import subprocess
 import time
 from pathlib import Path
@@ -43,6 +44,10 @@ class LocalWorkspace:
             timeout=timeout,
         )
         return CommandResult(process)
+
+    def file_download(self, source_path, destination_path):
+        shutil.copyfile(source_path, destination_path)
+        return SimpleNamespace(success=True, error=None)
 
 
 class FakeTask:

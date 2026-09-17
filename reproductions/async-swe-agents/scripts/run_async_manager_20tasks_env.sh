@@ -20,12 +20,40 @@ tvm_tasks=(
   pr-hard:apache-tvm-20153
 )
 
-case "${TASK_GROUP:-all}" in
-  core) tasks=("${core_tasks[@]}") ;;
-  tvm) tasks=("${tvm_tasks[@]}") ;;
-  all) tasks=("${core_tasks[@]}" "${tvm_tasks[@]}") ;;
-  *) echo "TASK_GROUP must be one of: core, tvm, all" >&2; exit 2 ;;
-esac
+all_tasks=("${core_tasks[@]}" "${tvm_tasks[@]}")
+if [[ -n "${TASK_LIST:-}" ]]; then
+  read -r -a tasks <<<"$TASK_LIST"
+  if ((${#tasks[@]} == 0)); then
+    echo "TASK_LIST must contain at least one task" >&2
+    exit 2
+  fi
+  declare -A seen_tasks=()
+  for task in "${tasks[@]}"; do
+    valid=0
+    for known in "${all_tasks[@]}"; do
+      if [[ "$task" == "$known" ]]; then
+        valid=1
+        break
+      fi
+    done
+    if ((valid == 0)); then
+      echo "TASK_LIST contains unknown task: $task" >&2
+      exit 2
+    fi
+    if [[ -n "${seen_tasks[$task]:-}" ]]; then
+      echo "TASK_LIST contains duplicate task: $task" >&2
+      exit 2
+    fi
+    seen_tasks[$task]=1
+  done
+else
+  case "${TASK_GROUP:-all}" in
+    core) tasks=("${core_tasks[@]}") ;;
+    tvm) tasks=("${tvm_tasks[@]}") ;;
+    all) tasks=("${all_tasks[@]}") ;;
+    *) echo "TASK_GROUP must be one of: core, tvm, all" >&2; exit 2 ;;
+  esac
+fi
 
 shard_count="${SHARD_COUNT:-1}"
 shard_index="${SHARD_INDEX:-0}"

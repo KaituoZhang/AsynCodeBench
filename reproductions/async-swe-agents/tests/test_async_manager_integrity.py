@@ -12,6 +12,7 @@ from types import SimpleNamespace
 
 import core.subagent as scheduler
 import pytest
+from protocols.async_manager.artifacts import archive_worktree
 from protocols.async_manager.checkpoint_bridge import online_checkpoint_bridge
 from protocols.async_manager.manager import OnlineManager
 from protocols.async_manager.timeouts import manager_timeout
@@ -87,6 +88,20 @@ def test_committed_artifact_ignores_and_archives_untracked_scratch(tmp_path):
     ]["path"]
     with tarfile.open(Path(m.config.output_dir) / archive) as stream:
         assert stream.extractfile("spec.pdf").read() == b"private scratch"
+
+
+def test_large_binary_archive_uses_file_transfer_not_command_output(tmp_path):
+    m, root, worker, r, base = manager_fixture(tmp_path)
+    payload = b"\0\xff" * (3 * 1024 * 1024)
+    (worker / "large.bin").write_bytes(payload)
+    manifest = archive_worktree(
+        m, str(worker), base, Path(m.config.output_dir) / "large"
+    )
+    tar_path = (
+        Path(m.config.output_dir) / manifest["artifacts"]["untracked.tar.gz"]["path"]
+    )
+    with tarfile.open(tar_path) as stream:
+        assert stream.extractfile("large.bin").read() == payload
 
 
 def test_scope_gate_rejects_actual_foreign_commit(tmp_path):
@@ -302,7 +317,7 @@ def test_partial_repair_preserves_work_until_primary_tests_pass(tmp_path, passed
         "subagent_result": r,
         "collect_result": {"merged": False, "conflict_files": conflicts},
     }
-    record = {"sequence": 1, "manager_commit": base}
+    record = {"sequence": 1, "manager_commit": base, "accepted": True}
     m.reconcile_specialist_after_repair(event, record)
     assert r.merged is passed
     assert bool(calls) is passed
@@ -311,6 +326,23 @@ def test_partial_repair_preserves_work_until_primary_tests_pass(tmp_path, passed
         assert conflicts == []
     else:
         assert (worker / "pkg/module.py").read_text() == "KEEP = 42\n"
+
+
+def test_no_change_after_successful_merge_refreshes_specialist(tmp_path):
+    m, root, worker, r, base = manager_fixture(tmp_path)
+    calls = []
+    m._refresh_triggering_specialist = lambda *args: (
+        calls.append(args) or {"refreshed": True}
+    )
+    event = {
+        "subagent_result": r,
+        "collect_result": {"merged": True, "conflict_files": []},
+    }
+    record = {"sequence": 1, "accepted": False, "status": "no_change"}
+    m.reconcile_specialist_after_repair(event, record)
+    assert len(calls) == 1
+    assert calls[0][1] == m.current_head()
+    assert record["specialist_resolution"]["status"] == "artifact_already_integrated"
 
 
 def test_file_selector_matches_all_parameterized_tests():

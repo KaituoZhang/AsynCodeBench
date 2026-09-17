@@ -2,19 +2,22 @@
 
 from __future__ import annotations
 
-import base64
 import hashlib
 import json
 import shlex
+import uuid
 from datetime import datetime
 from pathlib import Path
 
-# Run on the workspace host: no network, no Git mutations, no symlink traversal.
+# Run inside the isolated workspace: no network or Git mutations. Archive bytes
+# are downloaded through the workspace file API instead of being expanded into
+# base64 command output.
 ARCHIVE_PROGRAM = r"""
-import base64, io, json, subprocess, sys, tarfile
-root, base = sys.argv[1:]
+import hashlib, io, json, os, subprocess, sys, tarfile
+root, base, output = sys.argv[1:]
 def git(*args):
     return subprocess.check_output(['git', '-C', root, *args])
+os.mkdir(output)
 parts = {
     'patch': git('diff', '--binary', base),
     'committed.patch': git('diff', '--binary', base + '..HEAD'),
@@ -30,47 +33,72 @@ with tarfile.open(fileobj=archive, mode='w:gz', dereference=False) as stream:
             name = raw.decode('utf-8', 'surrogateescape')
             stream.add(root + '/' + name, arcname=name, recursive=False)
 parts['untracked.tar.gz'] = archive.getvalue()
-encoded = {name: base64.b64encode(data).decode() for name, data in parts.items()}
-print(json.dumps(encoded))
+metadata = {}
+for name, data in parts.items():
+    path = os.path.join(output, name)
+    with open(path, 'xb') as stream:
+        stream.write(data)
+    metadata[name] = {'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+print(json.dumps(metadata))
 """
 
 
 def archive_worktree(manager, worktree: str, base: str, stem: Path) -> dict:
     """Write and verify every layer before the caller may reset/clean anything."""
-    payload = manager._command(
-        "python -c "
-        + shlex.quote(ARCHIVE_PROGRAM)
-        + " "
-        + shlex.quote(worktree)
-        + " "
-        + shlex.quote(base),
-        timeout=120,
-    )
-    parts = json.loads(payload)
-    required = {
-        "patch",
-        "committed.patch",
-        "staged.patch",
-        "unstaged.patch",
-        "status",
-        "untracked.tar.gz",
-    }
-    if set(parts) != required:
-        raise RuntimeError("Incomplete private-worktree archive")
-    stem.parent.mkdir(parents=True, exist_ok=True)
-    artifacts = {}
-    for suffix, encoded in parts.items():
-        data = base64.b64decode(encoded, validate=True)
-        path = Path(str(stem) + "." + suffix)
-        path.write_bytes(data)
-        digest = hashlib.sha256(data).hexdigest()
-        if hashlib.sha256(path.read_bytes()).hexdigest() != digest:
-            raise RuntimeError("Private-worktree archive verification failed")
-        artifacts[suffix] = {
-            "path": path.relative_to(manager.config.output_dir).as_posix(),
-            "sha256": digest,
-            "bytes": len(data),
+    remote_dir = f"/tmp/async-manager-archive-{uuid.uuid4().hex}"
+    try:
+        payload = manager._command(
+            "python -c "
+            + shlex.quote(ARCHIVE_PROGRAM)
+            + " "
+            + shlex.quote(worktree)
+            + " "
+            + shlex.quote(base)
+            + " "
+            + shlex.quote(remote_dir),
+            timeout=120,
+        )
+        remote_parts = json.loads(payload)
+        required = {
+            "patch",
+            "committed.patch",
+            "staged.patch",
+            "unstaged.patch",
+            "status",
+            "untracked.tar.gz",
         }
+        if set(remote_parts) != required:
+            raise RuntimeError("Incomplete private-worktree archive")
+        stem.parent.mkdir(parents=True, exist_ok=True)
+        artifacts = {}
+        for suffix, remote_metadata in remote_parts.items():
+            path = Path(str(stem) + "." + suffix)
+            download = manager.workspace.file_download(
+                f"{remote_dir}/{suffix}", path
+            )
+            if not download.success:
+                raise RuntimeError(
+                    f"Private-worktree archive download failed: {download.error}"
+                )
+            data = path.read_bytes()
+            digest = hashlib.sha256(data).hexdigest()
+            expected_digest = remote_metadata.get("sha256")
+            expected_bytes = remote_metadata.get("bytes")
+            if digest != expected_digest or len(data) != expected_bytes:
+                raise RuntimeError(
+                    "Private-worktree archive transfer verification failed"
+                )
+            artifacts[suffix] = {
+                "path": path.relative_to(manager.config.output_dir).as_posix(),
+                "sha256": digest,
+                "bytes": len(data),
+            }
+    finally:
+        # This UUID-scoped directory contains only copies. Cleanup failure must
+        # never make a verified local archive unusable or mask the root error.
+        manager.workspace.execute_command(
+            f"rm -rf -- {shlex.quote(remote_dir)}", timeout=60
+        )
     manifest = {"base": base, "worktree": worktree, "artifacts": artifacts}
     Path(str(stem) + ".archive.json").write_text(json.dumps(manifest, indent=2) + "\n")
     return manifest

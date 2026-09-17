@@ -17,7 +17,8 @@ specialist state and continues to final evaluation.
 
 ## Integrity revision (2026-09-16)
 
-New runs snapshot `harness_revision=immutable-artifacts-event-safe-20260916`.
+New runs snapshot
+`harness_revision=immutable-artifacts-event-safe-r2-20260916`.
 The model budgets, manifests, final evaluator and four frozen protocol engines
 are unchanged. The Async-Manager-only integration boundary now:
 
@@ -163,6 +164,16 @@ SHARD_COUNT=4 SHARD_INDEX=0 ENV_FILE="$PWD/.env.port-8006" \
 
 Tasks occupy distinct immutable output directories, so sharing the campaign ID
 across shards does not create output collisions.
+
+For runtime-balanced explicit lanes, `TASK_LIST` accepts a whitespace-separated
+list of canonical task IDs. When it is set, `TASK_GROUP` is ignored; shard
+validation and immutable per-task output behavior remain active. For example:
+
+```bash
+TASK_LIST="cachetools requests pr-hard:apache-tvm-20018" \
+  SHARD_COUNT=1 SHARD_INDEX=0 ENV_FILE="$PWD/.env.local" \
+  RUN_ID=new-campaign bash scripts/run_async_manager_20tasks_env.sh
+```
 
 ## Dry-run and validate
 

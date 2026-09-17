@@ -2,7 +2,7 @@
   "schema_version": "async-manager-profile-v2",
   "protocol": "async_manager",
   "policy": "async-manager-online-v2-budgeted",
-  "harness_revision": "immutable-artifacts-event-safe-20260916",
+  "harness_revision": "immutable-artifacts-event-safe-r2-20260916",
   "event_completeness_required": true,
   "specialist_retry_policy": "preserve_unmerged_work_until_primary_tests_verify_manager_repair",
   "base_protocol": "async-manager-online-v1",

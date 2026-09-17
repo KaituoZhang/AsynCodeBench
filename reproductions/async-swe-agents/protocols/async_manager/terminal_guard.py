@@ -11,8 +11,9 @@ from __future__ import annotations
 import base64
 import shlex
 
-from protocols.async_manager.shell_policy import _READ_ONLY_MANAGER_GUARD_PROGRAM
 from openhands.sdk.hooks import HookConfig, HookDefinition, HookMatcher
+
+from protocols.async_manager.shell_policy import _READ_ONLY_MANAGER_GUARD_PROGRAM
 
 POLICY = "async-manager-terminal-read-only-v1"
 PROGRAM = _READ_ONLY_MANAGER_GUARD_PROGRAM.replace(

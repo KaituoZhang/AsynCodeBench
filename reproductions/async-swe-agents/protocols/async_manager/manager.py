@@ -1222,7 +1222,7 @@ class OnlineManager(ArtifactSafetyMixin, AsynCodeBenchManager):
         original = json.loads(json.dumps(event["collect_result"]))
         resolution = {"status": "needs_followup", "original_integration": original}
         resolved = False
-        if not original.get("merged"):
+        if not original.get("merged") and record.get("accepted"):
             assignment = self.assignment_for_result(result) or {}
             targets = assignment.get("primary_test_targets", [])
             if targets:
@@ -1253,9 +1253,10 @@ class OnlineManager(ArtifactSafetyMixin, AsynCodeBenchManager):
         else:
             resolution["status"] = "artifact_already_integrated"
         if original.get("merged") or resolved:
+            integrated_head = record.get("manager_commit") or self.current_head()
             record["triggering_specialist_refresh"] = (
                 self._refresh_triggering_specialist(
-                    event, record["manager_commit"], record["sequence"]
+                    event, integrated_head, record["sequence"]
                 )
             )
         else:
