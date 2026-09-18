@@ -453,6 +453,93 @@ class OnlineManager(ArtifactSafetyMixin, AsynCodeBenchManager):
         event["specialist_checkpoint"] = checkpoint
         return event
 
+    def reject_failed_integrated_build(
+        self, event: dict, source_build: dict | None
+    ) -> bool:
+        """Rollback a merged specialist artifact that cannot build.
+
+        PR-hard checkpoints already compile the exact integrated source tree.
+        A failed build must not remain at the repository HEAD, because the
+        manager's private worktree could then no longer be synchronized for a
+        repair intervention.  Preserve the immutable specialist commit and
+        its checkpoint evidence, but restore the last buildable integrated
+        HEAD before handing the failure to the manager.
+        """
+
+        if not source_build or source_build.get("status") in {
+            "passed",
+            "not_required",
+        }:
+            return False
+
+        collect = event.get("collect_result") or {}
+        collect["source_build"] = source_build
+        if not collect.get("merged"):
+            return False
+
+        head_before = collect.get("head_before")
+        head_after = collect.get("head_after")
+        if not head_before or not head_after:
+            raise RuntimeError(
+                "Cannot rollback failed specialist build without pinned HEADs"
+            )
+        observed = self.current_head()
+        if observed != head_after:
+            raise RuntimeError(
+                "Integrated workspace moved before failed-build rollback: "
+                f"expected {head_after}, observed {observed}"
+            )
+
+        root = shlex.quote(self.repo_dir)
+        self._command(
+            f"git -C {root} reset --hard {shlex.quote(head_before)}", timeout=120
+        )
+        self._command(f"git -C {root} clean -fd", timeout=120)
+        restored = self.current_head()
+        dirty = self.main_workspace_status()
+        if restored != head_before or dirty:
+            raise RuntimeError(
+                "Failed to restore integrated workspace after specialist "
+                f"build rejection: head={restored}, dirty={dirty}"
+            )
+
+        refresh = getattr(self.task, "refresh_source_build", None)
+        rollback_build = (
+            refresh(self.workspace, self.repo_dir)
+            if callable(refresh)
+            else {"status": "not_required"}
+        )
+        collect["rollback_source_build"] = rollback_build
+        if rollback_build.get("status") not in {"passed", "not_required"}:
+            raise RuntimeError(
+                "Integrated workspace rollback did not restore a buildable "
+                f"runtime: {rollback_build}"
+            )
+
+        detail = source_build.get("output_excerpt", "")
+        message = (
+            "Rejected merged specialist artifact because the integrated "
+            f"source build returned {source_build.get('status')}."
+        )
+        if detail:
+            message += f" Build output:\n{detail}"
+        collect.update(
+            merged=False,
+            merge_method="source_build_rejected",
+            merge_message=message,
+            review_notes=message,
+            rejected_head=head_after,
+            restored_head=head_before,
+        )
+        specialist = event["subagent_result"]
+        specialist.merged = False
+        specialist.merge_method = "source_build_rejected"
+        self.log(
+            "Rejected and rolled back specialist artifact after integrated "
+            f"source build failure: {head_after[:12]} -> {head_before[:12]}"
+        )
+        return True
+
     def failed_intervention(self, event, error, *, sequence_before=None):
         """Preserve exceptions as invalid-run evidence, never a sequence gap."""
         if sequence_before is None or self.intervention_sequence == sequence_before:
@@ -497,6 +584,7 @@ class OnlineManager(ArtifactSafetyMixin, AsynCodeBenchManager):
             "logical_step": checkpoint.get("logical_step"),
             "pytest_summary": checkpoint.get("pytest_summary"),
             "timed_out": checkpoint.get("timed_out"),
+            "source_build": checkpoint.get("source_build"),
             "dependency_results": checkpoint.get("dependency_results", []),
             "integrated_workspace_version": checkpoint.get(
                 "integrated_workspace_version"
@@ -529,6 +617,10 @@ class OnlineManager(ArtifactSafetyMixin, AsynCodeBenchManager):
                 "message": collect.get("merge_message"),
                 "review_notes": collect.get("review_notes"),
                 "conflict_files": collect.get("conflict_files", []),
+                "source_build": collect.get("source_build"),
+                "rollback_source_build": collect.get("rollback_source_build"),
+                "rejected_head": collect.get("rejected_head"),
+                "restored_head": collect.get("restored_head"),
             },
             "dependency_checkpoint": self._compact_checkpoint(
                 event.get("specialist_checkpoint")

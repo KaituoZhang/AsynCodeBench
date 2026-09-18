@@ -171,6 +171,83 @@ def test_diverged_artifact_merge_has_command_scoped_identity(tmp_path, monkeypat
     )
 
 
+def test_failed_integrated_source_build_is_rolled_back_before_intervention(
+    tmp_path, monkeypatch
+):
+    m, root, worker, r, base = manager_fixture(tmp_path)
+    r.commit_hash = commit(worker)
+    review = m.collect_and_merge(r)
+    r.merged = review["merged"]
+    r.merge_method = review["merge_method"]
+    assert git(root, "rev-parse", "HEAD") == r.commit_hash
+
+    build_calls = []
+
+    def refresh(_workspace, workspace_path):
+        build_calls.append(workspace_path)
+        return {"status": "passed", "workspace_path": workspace_path}
+
+    m.task.refresh_source_build = refresh
+    observed = {}
+
+    def intervention(event):
+        observed.update(event["collect_result"])
+        assert git(root, "rev-parse", "HEAD") == base
+        m.intervention_sequence += 1
+        return {
+            "sequence": m.intervention_sequence,
+            "accepted": False,
+            "status": "no_change",
+        }
+
+    m.intervene = intervention
+    monkeypatch.setattr(
+        scheduler, "write_dependency_probe_checkpoint", lambda **kwargs: kwargs
+    )
+    OnlineManager.active_instance = m
+    failed_build = {
+        "status": "build_failed",
+        "exit_code": 1,
+        "output_excerpt": "StmtNode has no member named with_span",
+    }
+    try:
+        with online_checkpoint_bridge():
+            scheduler.write_dependency_probe_checkpoint(
+                checkpoint_type="integration_after_merge",
+                checkpoint_id="integration:build-failed",
+                logical_step=1,
+                source_build=failed_build,
+                integrated_workspace_version=r.commit_hash,
+            )
+    finally:
+        OnlineManager.active_instance = None
+
+    assert git(root, "rev-parse", "HEAD") == base
+    assert not git(root, "status", "--porcelain")
+    assert not r.merged
+    assert r.merge_method == "source_build_rejected"
+    assert observed["merged"] is False
+    assert observed["merge_method"] == "source_build_rejected"
+    assert observed["source_build"] == failed_build
+    assert observed["rejected_head"] == r.commit_hash
+    assert observed["restored_head"] == base
+    assert observed["rollback_source_build"]["status"] == "passed"
+    assert build_calls == [str(root)]
+
+
+def test_checkpoint_evidence_keeps_source_build_failure(tmp_path):
+    m, root, worker, r, base = manager_fixture(tmp_path)
+    failure = {"status": "build_failed", "output_excerpt": "compile failed"}
+    compact = m._compact_checkpoint(
+        {
+            "checkpoint_id": "integration:1",
+            "logical_step": 1,
+            "source_build": failure,
+        }
+    )
+    assert compact["source_build"] == failure
+
+
 def test_force_theirs_merge_has_command_scoped_identity(tmp_path, monkeypatch):
     m, root, worker, r, base = manager_fixture(tmp_path)
     monkeypatch.setenv("GIT_CONFIG_GLOBAL", os.devnull)

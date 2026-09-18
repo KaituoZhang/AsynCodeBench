@@ -370,6 +370,8 @@ class ArtifactSafetyMixin:
             "engineer_id": result.engineer_id,
             "task_id": result.task_id,
             "subagent_success": result.success,
+            "head_before": before,
+            "head_after": before,
             "merged": False,
             "merge_method": "no_artifact",
             "conflict_files": [],
@@ -384,6 +386,7 @@ class ArtifactSafetyMixin:
             merged, message, conflicts = self.merge_branch(commit)
             review.update(
                 merged=merged,
+                head_after=self.current_head() if merged else before,
                 merge_message=message,
                 review_notes=message,
                 conflict_files=conflicts,

@@ -67,7 +67,18 @@ def online_checkpoint_bridge():
         record = None
         manager_checkpoint = None
         try:
-            specialist_checkpoint = original(**adjusted)
+            try:
+                specialist_checkpoint = original(**adjusted)
+            finally:
+                # ``source_build`` describes the exact integrated tree whose
+                # version is recorded by this checkpoint.  Roll back only
+                # after the immutable failure evidence has been emitted, and
+                # do it even if checkpoint persistence itself raises.
+                reject_failed_build = getattr(
+                    manager, "reject_failed_integrated_build", None
+                )
+                if callable(reject_failed_build):
+                    reject_failed_build(event, adjusted.get("source_build"))
             event["specialist_checkpoint"] = specialist_checkpoint
             record = manager.intervene(event)
             if record.get("accepted"):
