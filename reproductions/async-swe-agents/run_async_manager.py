@@ -49,6 +49,26 @@ FROZEN_LEGACY_EXECUTION_PATHS = (
 
 
 @contextmanager
+def enable_async_manager_subagent_isolation():
+    """Enable private specialist worktrees for this additive protocol only.
+
+    The shared isolation module is part of the frozen four-protocol execution
+    surface, so registering ``async_manager`` there would invalidate the legacy
+    implementation-integrity check.  Extend its process-local protocol set only
+    while this runner owns the workflow, then restore the exact original value.
+    """
+
+    import core.workspace_isolation as isolation_module
+
+    previous = isolation_module.PRIVATE_SUBAGENT_PROTOCOLS
+    isolation_module.PRIVATE_SUBAGENT_PROTOCOLS = frozenset((*previous, PROTOCOL))
+    try:
+        yield
+    finally:
+        isolation_module.PRIVATE_SUBAGENT_PROTOCOLS = previous
+
+
+@contextmanager
 def prefer_worktree_python_for_pr_hard(task):
     """Give the new protocol the same worktree-aware Python semantics as v0.4.
 
@@ -543,7 +563,11 @@ def main(
 
     signal.signal(signal.SIGTERM, cancel_on_sigterm)
     try:
-        with prefer_worktree_python_for_pr_hard(task), online_checkpoint_bridge():
+        with (
+            prefer_worktree_python_for_pr_hard(task),
+            enable_async_manager_subagent_isolation(),
+            online_checkpoint_bridge(),
+        ):
             result = asyncio.run(
                 run_workflow(
                     "asyncodebench",

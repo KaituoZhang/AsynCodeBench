@@ -23,6 +23,7 @@ from run_async_manager import (
     assert_legacy_execution_unchanged,
     assert_protocol_sources_clean,
     async_manager_profile,
+    enable_async_manager_subagent_isolation,
     prefer_worktree_python_for_pr_hard,
 )
 
@@ -192,6 +193,19 @@ def test_campaign_trajectory_metrics_use_only_integrated_states():
 def test_existing_protocol_implementation_paths_are_unchanged():
     root = Path(__file__).resolve().parents[3]
     assert_legacy_execution_unchanged(root)
+
+
+def test_async_manager_enables_private_subagent_workspaces_process_locally():
+    task = SimpleNamespace(
+        task_id="pr-hard:apache-tvm-20107", active_protocol=PROTOCOL
+    )
+    original = subagent_module.uses_private_subagent_workspace(task)
+    assert original is False
+
+    with enable_async_manager_subagent_isolation():
+        assert subagent_module.uses_private_subagent_workspace(task) is True
+
+    assert subagent_module.uses_private_subagent_workspace(task) is original
 
 
 def test_source_preflight_returns_auditable_clean_state(tmp_path, monkeypatch):
