@@ -19,6 +19,12 @@
             "fsspec/__init__.py",
             "fsspec/utils.py",
             "fsspec/compression.py",
+            "fsspec/spec.py",
+            "fsspec/implementations/cache_mapper.py",
+            "fsspec/implementations/cache_metadata.py",
+            "fsspec/implementations/cached.py",
+            "fsspec/implementations/local.py",
+            "fsspec/implementations/memory.py",
             "fsspec/core.py"
           ]
         }
@@ -54,6 +60,23 @@
           ],
           "producer_subproblem": "utility_compression_layer",
           "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "core_open_path_layer",
+          "dependency_type": "api_contract",
+          "description": "OpenFile, open_local, and multi-file context behavior consume AbstractFileSystem plus the local, memory, and cache backend contracts reached by the public core tests.",
+          "evidence_paths": [
+            "fsspec/spec.py",
+            "fsspec/implementations/local.py",
+            "fsspec/implementations/memory.py",
+            "fsspec/implementations/cached.py",
+            "fsspec/implementations/cache_mapper.py",
+            "fsspec/implementations/cache_metadata.py",
+            "fsspec/core.py",
+            "fsspec/tests/test_core.py"
+          ],
+          "producer_subproblem": "filesystem_backend_layer",
+          "schema_version": "0.3"
         }
       ],
       "execution_mode": "iterative_single",
@@ -71,7 +94,7 @@
       "wall_clock_budget_seconds": 2400
     },
     {
-      "agent_count": 3,
+      "agent_count": 4,
       "assignments": [
         {
           "agent_id": "registry_agent",
@@ -98,6 +121,27 @@
           "writable_paths": [
             "fsspec/utils.py",
             "fsspec/compression.py"
+          ]
+        },
+        {
+          "agent_id": "backend_agent",
+          "primary_test_targets": [
+            "fsspec/tests/test_core.py::test_openfile_api",
+            "fsspec/tests/test_core.py::test_openfile_open",
+            "fsspec/tests/test_core.py::test_open_local_w_cache",
+            "fsspec/tests/test_core.py::test_open_expand",
+            "fsspec/tests/test_core.py::test_automkdir_local"
+          ],
+          "role": "AbstractFileSystem plus local, memory, and cache backend contract specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "filesystem_backend_layer",
+          "writable_paths": [
+            "fsspec/spec.py",
+            "fsspec/implementations/cache_mapper.py",
+            "fsspec/implementations/cache_metadata.py",
+            "fsspec/implementations/cached.py",
+            "fsspec/implementations/local.py",
+            "fsspec/implementations/memory.py"
           ]
         },
         {
@@ -144,12 +188,29 @@
           ],
           "producer_subproblem": "utility_compression_layer",
           "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "core_open_path_layer",
+          "dependency_type": "api_contract",
+          "description": "OpenFile, open_local, and multi-file context behavior consume AbstractFileSystem plus the local, memory, and cache backend contracts reached by the public core tests.",
+          "evidence_paths": [
+            "fsspec/spec.py",
+            "fsspec/implementations/local.py",
+            "fsspec/implementations/memory.py",
+            "fsspec/implementations/cached.py",
+            "fsspec/implementations/cache_mapper.py",
+            "fsspec/implementations/cache_metadata.py",
+            "fsspec/core.py",
+            "fsspec/tests/test_core.py"
+          ],
+          "producer_subproblem": "filesystem_backend_layer",
+          "schema_version": "0.3"
         }
       ],
       "execution_mode": "serial_specialists",
       "information_profile": "private-workspace",
-      "integration_policy": "Apply registry and utility/compression artifacts before the core open/path artifact, then run the scoped evaluator.",
-      "message_delivery_policy": "Specialists run with barrier synchronization. Core receives completed registry and utility/compression artifacts before validation.",
+      "integration_policy": "Apply registry, utility/compression, and filesystem-backend artifacts before the core open/path artifact, then run the scoped evaluator.",
+      "message_delivery_policy": "Specialists run with barrier synchronization. Core receives completed registry, utility/compression, and filesystem-backend artifacts before validation.",
       "official_result_eligible": false,
       "scenario_id": "commit0-filesystem-spec.serial-specialists.v0.3",
       "schema_version": "0.3",
@@ -161,7 +222,7 @@
       "wall_clock_budget_seconds": 2400
     },
     {
-      "agent_count": 3,
+      "agent_count": 4,
       "assignments": [
         {
           "agent_id": "registry_agent",
@@ -188,6 +249,27 @@
           "writable_paths": [
             "fsspec/utils.py",
             "fsspec/compression.py"
+          ]
+        },
+        {
+          "agent_id": "backend_agent",
+          "primary_test_targets": [
+            "fsspec/tests/test_core.py::test_openfile_api",
+            "fsspec/tests/test_core.py::test_openfile_open",
+            "fsspec/tests/test_core.py::test_open_local_w_cache",
+            "fsspec/tests/test_core.py::test_open_expand",
+            "fsspec/tests/test_core.py::test_automkdir_local"
+          ],
+          "role": "AbstractFileSystem plus local, memory, and cache backend contract specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "filesystem_backend_layer",
+          "writable_paths": [
+            "fsspec/spec.py",
+            "fsspec/implementations/cache_mapper.py",
+            "fsspec/implementations/cache_metadata.py",
+            "fsspec/implementations/cached.py",
+            "fsspec/implementations/local.py",
+            "fsspec/implementations/memory.py"
           ]
         },
         {
@@ -234,6 +316,23 @@
           ],
           "producer_subproblem": "utility_compression_layer",
           "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "core_open_path_layer",
+          "dependency_type": "api_contract",
+          "description": "OpenFile, open_local, and multi-file context behavior consume AbstractFileSystem plus the local, memory, and cache backend contracts reached by the public core tests.",
+          "evidence_paths": [
+            "fsspec/spec.py",
+            "fsspec/implementations/local.py",
+            "fsspec/implementations/memory.py",
+            "fsspec/implementations/cached.py",
+            "fsspec/implementations/cache_mapper.py",
+            "fsspec/implementations/cache_metadata.py",
+            "fsspec/core.py",
+            "fsspec/tests/test_core.py"
+          ],
+          "producer_subproblem": "filesystem_backend_layer",
+          "schema_version": "0.3"
         }
       ],
       "execution_mode": "async_private",
@@ -251,7 +350,7 @@
       "wall_clock_budget_seconds": 2400
     },
     {
-      "agent_count": 3,
+      "agent_count": 4,
       "assignments": [
         {
           "agent_id": "registry_agent",
@@ -278,6 +377,27 @@
           "writable_paths": [
             "fsspec/utils.py",
             "fsspec/compression.py"
+          ]
+        },
+        {
+          "agent_id": "backend_agent",
+          "primary_test_targets": [
+            "fsspec/tests/test_core.py::test_openfile_api",
+            "fsspec/tests/test_core.py::test_openfile_open",
+            "fsspec/tests/test_core.py::test_open_local_w_cache",
+            "fsspec/tests/test_core.py::test_open_expand",
+            "fsspec/tests/test_core.py::test_automkdir_local"
+          ],
+          "role": "AbstractFileSystem plus local, memory, and cache backend contract specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "filesystem_backend_layer",
+          "writable_paths": [
+            "fsspec/spec.py",
+            "fsspec/implementations/cache_mapper.py",
+            "fsspec/implementations/cache_metadata.py",
+            "fsspec/implementations/cached.py",
+            "fsspec/implementations/local.py",
+            "fsspec/implementations/memory.py"
           ]
         },
         {
@@ -324,12 +444,29 @@
           ],
           "producer_subproblem": "utility_compression_layer",
           "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "core_open_path_layer",
+          "dependency_type": "api_contract",
+          "description": "OpenFile, open_local, and multi-file context behavior consume AbstractFileSystem plus the local, memory, and cache backend contracts reached by the public core tests.",
+          "evidence_paths": [
+            "fsspec/spec.py",
+            "fsspec/implementations/local.py",
+            "fsspec/implementations/memory.py",
+            "fsspec/implementations/cached.py",
+            "fsspec/implementations/cache_mapper.py",
+            "fsspec/implementations/cache_metadata.py",
+            "fsspec/core.py",
+            "fsspec/tests/test_core.py"
+          ],
+          "producer_subproblem": "filesystem_backend_layer",
+          "schema_version": "0.3"
         }
       ],
       "execution_mode": "async_message",
       "information_profile": "private-workspace",
-      "integration_policy": "Integrate latest explicitly transferred artifacts and record stale registry or utility assumptions used by core open/path behavior.",
-      "message_delivery_policy": "Workers may transfer protocol registry, compression, URL parsing, and path expansion assumptions while active.",
+      "integration_policy": "Integrate latest explicitly transferred artifacts and record stale registry, utility, or backend assumptions used by core open/path behavior.",
+      "message_delivery_policy": "Workers may transfer protocol registry, compression, URL parsing, filesystem-backend, and path expansion assumptions while active.",
       "official_result_eligible": false,
       "scenario_id": "commit0-filesystem-spec.async-message.v0.3",
       "schema_version": "0.3",

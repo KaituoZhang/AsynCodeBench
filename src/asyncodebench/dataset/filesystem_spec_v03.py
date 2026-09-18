@@ -37,10 +37,12 @@ without modifying the tests.
 The registry layer must implement protocol registration, deferred imports,
 entry-point loading, and filesystem instantiation. The utility/compression
 layer must implement URL/protocol parsing, path helpers, read-block behavior,
-compression inference/registration, and logging helpers. The core open/path
-layer must consume those contracts to implement OpenFile/OpenFiles, URL to
-filesystem resolution, path expansion, compression selection, local-open
-handling, and multi-file context behavior.
+compression inference/registration, and logging helpers. The filesystem
+backend layer must implement the abstract filesystem operations and the
+local, memory, and cache behavior exercised indirectly by the public core
+tests. The core open/path layer must consume those contracts to implement
+OpenFile/OpenFiles, URL to filesystem resolution, path expansion, compression
+selection, local-open handling, and multi-file context behavior.
 
 The v0.3 evaluator intentionally excludes optional implementation backends,
 HTTP/Arrow-dependent test_spec import paths, callbacks requiring pytest-mock,
@@ -97,6 +99,26 @@ def dependency_annotations() -> tuple[DependencyAnnotation, ...]:
                 "fsspec/tests/test_core.py",
             ),
         ),
+        DependencyAnnotation(
+            producer_subproblem="filesystem_backend_layer",
+            consumer_subproblem="core_open_path_layer",
+            dependency_type="api_contract",
+            description=(
+                "OpenFile, open_local, and multi-file context behavior consume "
+                "AbstractFileSystem plus the local, memory, and cache backend "
+                "contracts reached by the public core tests."
+            ),
+            evidence_paths=(
+                "fsspec/spec.py",
+                "fsspec/implementations/local.py",
+                "fsspec/implementations/memory.py",
+                "fsspec/implementations/cached.py",
+                "fsspec/implementations/cache_mapper.py",
+                "fsspec/implementations/cache_metadata.py",
+                "fsspec/core.py",
+                "fsspec/tests/test_core.py",
+            ),
+        ),
     )
 
 
@@ -142,7 +164,13 @@ def build_task_record(candidate_file: Path) -> TaskRecord:
             "fsspec/compression.py",
             "fsspec/core.py",
             "fsspec/registry.py",
+            "fsspec/spec.py",
             "fsspec/utils.py",
+            "fsspec/implementations/cache_mapper.py",
+            "fsspec/implementations/cache_metadata.py",
+            "fsspec/implementations/cached.py",
+            "fsspec/implementations/local.py",
+            "fsspec/implementations/memory.py",
         ),
         natural_subproblems={
             "registry_protocol_layer": (
@@ -158,6 +186,15 @@ def build_task_record(candidate_file: Path) -> TaskRecord:
             ),
             "core_open_path_layer": (
                 "fsspec/core.py",
+                "fsspec/tests/test_core.py",
+            ),
+            "filesystem_backend_layer": (
+                "fsspec/spec.py",
+                "fsspec/implementations/cache_mapper.py",
+                "fsspec/implementations/cache_metadata.py",
+                "fsspec/implementations/cached.py",
+                "fsspec/implementations/local.py",
+                "fsspec/implementations/memory.py",
                 "fsspec/tests/test_core.py",
             ),
         },
@@ -177,8 +214,15 @@ def build_task_record(candidate_file: Path) -> TaskRecord:
                 "workspaces must be materialized from origin/commit0_combined."
             ),
             (
-                "The evaluator is scoped to core fsspec tests and excludes "
-                "optional implementation backends and HTTP/Arrow-dependent paths."
+                "The evaluator is scoped to core fsspec tests. It does not run "
+                "backend-specific suites, but its public core tests do exercise "
+                "the local, memory, and simple-cache support paths."
+            ),
+            (
+                "Manifest revision v0.3.2 closes the writable dependency scope "
+                "over the stripped filesystem abstractions and minimal backends "
+                "already exercised by the unchanged public evaluator; it adds "
+                "no implementation hints or reference code."
             ),
             (
                 "The proposed label is a draft curation decision and not a "
@@ -191,6 +235,14 @@ def build_task_record(candidate_file: Path) -> TaskRecord:
 def _assignments(execution_mode: ExecutionMode) -> tuple[AgentAssignment, ...]:
     registry_paths = ("fsspec/registry.py", "fsspec/__init__.py")
     utility_paths = ("fsspec/utils.py", "fsspec/compression.py")
+    backend_paths = (
+        "fsspec/spec.py",
+        "fsspec/implementations/cache_mapper.py",
+        "fsspec/implementations/cache_metadata.py",
+        "fsspec/implementations/cached.py",
+        "fsspec/implementations/local.py",
+        "fsspec/implementations/memory.py",
+    )
     core_paths = ("fsspec/core.py",)
     if execution_mode is ExecutionMode.ITERATIVE_SINGLE:
         return (
@@ -198,7 +250,9 @@ def _assignments(execution_mode: ExecutionMode) -> tuple[AgentAssignment, ...]:
                 agent_id="integrator",
                 role="iterative full-task coding agent",
                 subproblem_id="full_task",
-                writable_paths=registry_paths + utility_paths + core_paths,
+                writable_paths=(
+                    registry_paths + utility_paths + backend_paths + core_paths
+                ),
                 primary_test_targets=_evaluator_command()[6:],
             ),
         )
@@ -218,6 +272,22 @@ def _assignments(execution_mode: ExecutionMode) -> tuple[AgentAssignment, ...]:
             primary_test_targets=(
                 "fsspec/tests/test_utils.py",
                 "fsspec/tests/test_compression.py",
+            ),
+        ),
+        AgentAssignment(
+            agent_id="backend_agent",
+            role=(
+                "AbstractFileSystem plus local, memory, and cache backend "
+                "contract specialist"
+            ),
+            subproblem_id="filesystem_backend_layer",
+            writable_paths=backend_paths,
+            primary_test_targets=(
+                "fsspec/tests/test_core.py::test_openfile_api",
+                "fsspec/tests/test_core.py::test_openfile_open",
+                "fsspec/tests/test_core.py::test_open_local_w_cache",
+                "fsspec/tests/test_core.py::test_open_expand",
+                "fsspec/tests/test_core.py::test_automkdir_local",
             ),
         ),
         AgentAssignment(
@@ -257,25 +327,27 @@ def build_scenarios() -> tuple[ScenarioRecord, ...]:
             **shared,
             scenario_id="commit0-filesystem-spec.serial-specialists.v0.3",
             execution_mode=ExecutionMode.SERIAL_SPECIALISTS,
-            agent_count=3,
+            agent_count=4,
             assignments=_assignments(ExecutionMode.SERIAL_SPECIALISTS),
             information_profile="private-workspace",
             concurrent_execution=False,
             communication_condition="completed_artifact_handoff",
             message_delivery_policy=(
                 "Specialists run with barrier synchronization. Core receives "
-                "completed registry and utility/compression artifacts before validation."
+                "completed registry, utility/compression, and filesystem-backend "
+                "artifacts before validation."
             ),
             integration_policy=(
-                "Apply registry and utility/compression artifacts before the "
-                "core open/path artifact, then run the scoped evaluator."
+                "Apply registry, utility/compression, and filesystem-backend "
+                "artifacts before the core open/path artifact, then run the "
+                "scoped evaluator."
             ),
         ),
         ScenarioRecord(
             **shared,
             scenario_id="commit0-filesystem-spec.async-private.v0.3",
             execution_mode=ExecutionMode.ASYNC_PRIVATE,
-            agent_count=3,
+            agent_count=4,
             assignments=_assignments(ExecutionMode.ASYNC_PRIVATE),
             information_profile="private-workspace",
             concurrent_execution=True,
@@ -292,18 +364,20 @@ def build_scenarios() -> tuple[ScenarioRecord, ...]:
             **shared,
             scenario_id="commit0-filesystem-spec.async-message.v0.3",
             execution_mode=ExecutionMode.ASYNC_MESSAGE,
-            agent_count=3,
+            agent_count=4,
             assignments=_assignments(ExecutionMode.ASYNC_MESSAGE),
             information_profile="private-workspace",
             concurrent_execution=True,
             communication_condition="structured_message_and_artifact",
             message_delivery_policy=(
                 "Workers may transfer protocol registry, compression, URL "
-                "parsing, and path expansion assumptions while active."
+                "parsing, filesystem-backend, and path expansion assumptions "
+                "while active."
             ),
             integration_policy=(
                 "Integrate latest explicitly transferred artifacts and record "
-                "stale registry or utility assumptions used by core open/path behavior."
+                "stale registry, utility, or backend assumptions used by core "
+                "open/path behavior."
             ),
         ),
     )
@@ -321,8 +395,9 @@ def build_quality_record() -> TaskQualityRecord:
         ),
         structure_rationale=(
             "The scoped fsspec task exposes natural async contracts from the "
-            "registry and utility/compression layers into core OpenFile/OpenFiles, "
-            "URL-to-filesystem resolution, path expansion, and compression selection."
+            "registry, utility/compression, and filesystem-backend layers into "
+            "core OpenFile/OpenFiles, URL-to-filesystem resolution, path expansion, "
+            "compression selection, and local/cache behavior."
         ),
         public_statement_sources=(
             "README.md@origin/commit0_combined",
@@ -372,6 +447,28 @@ def build_quality_record() -> TaskQualityRecord:
                     "fsspec/tests/test_compression.py",
                 ),
                 description="URL/path helpers, read-block behavior, and compression inference/registration.",
+            ),
+            TaskTestGroup(
+                group_id="filesystem_backend_local",
+                purpose=TestGroupPurpose.SPECIALIST_LOCAL,
+                owner_subproblem="filesystem_backend_layer",
+                command=(
+                    "python",
+                    "-m",
+                    "pytest",
+                    "-q",
+                    "-o",
+                    "addopts=",
+                    "fsspec/tests/test_core.py::test_openfile_api",
+                    "fsspec/tests/test_core.py::test_openfile_open",
+                    "fsspec/tests/test_core.py::test_open_local_w_cache",
+                    "fsspec/tests/test_core.py::test_open_expand",
+                    "fsspec/tests/test_core.py::test_automkdir_local",
+                ),
+                description=(
+                    "Abstract filesystem and local, memory, and cache backend "
+                    "behavior reached by the public core tests."
+                ),
             ),
             TaskTestGroup(
                 group_id="core_open_path_local",
@@ -497,8 +594,10 @@ def build_quality_record() -> TaskQualityRecord:
                 "imports HTTP/Arrow-dependent paths in the stripped source."
             ),
             (
-                "The evaluator excludes implementation backend tests, callbacks "
-                "requiring pytest-mock, and optional service/backend tests."
+                "The evaluator excludes implementation backend suites, callbacks "
+                "requiring pytest-mock, and optional service/backend tests; the "
+                "minimal local, memory, and cache paths reached by test_core remain "
+                "part of the task."
             ),
             (
                 "Bootstrap overlays expose only import-time symbols and do not "
@@ -556,7 +655,7 @@ def build_metric_labels() -> dict[str, Any]:
     return {
         "schema_version": "0.3-async-metrics",
         "task_id": FILESYSTEM_SPEC_TASK_ID,
-        "metric_annotation_id": "commit0-filesystem-spec.async-metrics.v0.3",
+        "metric_annotation_id": "commit0-filesystem-spec.async-metrics.v0.3.2",
         "source_task_record": (
             "manifests/pilot/v0.3/tasks/commit0_filesystem_spec.json"
         ),
@@ -565,8 +664,8 @@ def build_metric_labels() -> dict[str, Any]:
         ),
         "purpose": (
             "Dependency-level labels for measuring whether asynchronous "
-            "multi-agent coding resolves fsspec registry and utility contracts "
-            "consumed by core open/path behavior."
+            "multi-agent coding resolves fsspec registry, utility, and backend "
+            "contracts consumed by core open/path behavior."
         ),
         "metric_definitions": _metric_definitions(),
         "evaluation_checkpoint_policy": {
@@ -667,12 +766,59 @@ def build_metric_labels() -> dict[str, Any]:
                 ),
                 "metrics_enabled": ["ADPR", "DRS", "CAIL", "SAD"],
             },
+            {
+                "dependency_id": "filesystem_spec.backends_to_core.open_contract",
+                "dependency_type": "shared_api_contract",
+                "producer_subproblem": "filesystem_backend_layer",
+                "consumer_subproblem": "core_open_path_layer",
+                "producer_agent": "backend_agent",
+                "consumer_agent": "core_agent",
+                "producer_files": [
+                    "fsspec/spec.py",
+                    "fsspec/implementations/local.py",
+                    "fsspec/implementations/memory.py",
+                    "fsspec/implementations/cached.py",
+                    "fsspec/implementations/cache_mapper.py",
+                    "fsspec/implementations/cache_metadata.py",
+                ],
+                "consumer_files": ["fsspec/core.py"],
+                "contract_summary": (
+                    "AbstractFileSystem and the local, memory, and cache backends "
+                    "must provide the open, info, glob, parent, cache mapping, and "
+                    "local-file behavior consumed by core OpenFile/open_local paths."
+                ),
+                "stale_failure_mode": (
+                    "The core agent may implement OpenFile or open_local around "
+                    "stale backend return values or filesystem method semantics."
+                ),
+                "upstream_probe_tests": [
+                    "fsspec/tests/test_core.py::test_openfile_api",
+                    "fsspec/tests/test_core.py::test_openfile_open",
+                    "fsspec/tests/test_core.py::test_open_local_w_cache",
+                ],
+                "downstream_probe_tests": [
+                    "fsspec/tests/test_core.py::test_open_expand",
+                    "fsspec/tests/test_core.py::test_multi_context",
+                ],
+                "integrated_probe_tests": [
+                    "fsspec/tests/test_core.py::test_openfile_api",
+                    "fsspec/tests/test_core.py::test_open_local_w_cache",
+                    "fsspec/tests/test_core.py::test_open_expand",
+                    "fsspec/tests/test_core.py::test_multi_context",
+                ],
+                "resolution_criteria": (
+                    "Resolved when backend open/cache probes and core OpenFile/"
+                    "open_local consumer probes pass together after integration."
+                ),
+                "metrics_enabled": ["ADPR", "DRS", "CAIL", "SAD"],
+            },
         ],
         "aggregate_metrics": {
-            "dependency_point_count": 2,
+            "dependency_point_count": 3,
             "primary_async_dependency_ids": [
                 "filesystem_spec.registry_to_core.protocol_resolution_contract",
                 "filesystem_spec.utils_to_core.path_compression_contract",
+                "filesystem_spec.backends_to_core.open_contract",
             ],
             "primary_paper_dependency_id": (
                 "filesystem_spec.registry_to_core.protocol_resolution_contract"
@@ -682,7 +828,7 @@ def build_metric_labels() -> dict[str, Any]:
                 "reports primary_async_dependency_ids only."
             ),
             "minimum_success_condition_for_task_level_async_dependency_resolution": (
-                "Both primary_async_dependency_ids pass in the final integrated workspace."
+                "All primary_async_dependency_ids pass in the final integrated workspace."
             ),
         },
         "annotation_notes": [
@@ -694,6 +840,15 @@ def build_metric_labels() -> dict[str, Any]:
             (
                 "The utils_to_core dependency captures stale assumptions around "
                 "URL parsing, path expansion, read blocks, and compression lookup."
+            ),
+            (
+                "The backends_to_core dependency captures the abstract filesystem "
+                "and local, memory, and cache contracts exercised indirectly by "
+                "the public core evaluator."
+            ),
+            (
+                "Revision v0.3.2 closes the dependency graph over the stripped "
+                "backend production files already exercised by public tests."
             ),
             "These labels identify public test-observable contracts, not solution code.",
         ],
@@ -718,8 +873,9 @@ def build_annotation_forms(
             "Do not inspect reference branches, solution patches, or diffs.",
             "Do not consult the other annotator before submitting.",
             (
-                "Explicitly assess whether the registry/utility->core splits "
-                "are natural AsynCodeBench dependencies rather than artificial file partitioning."
+                "Explicitly assess whether the registry/utility/backend->core "
+                "splits are natural AsynCodeBench dependencies rather than "
+                "artificial file partitioning."
             ),
         ),
     }

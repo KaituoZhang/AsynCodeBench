@@ -1,17 +1,20 @@
 {
   "aggregate_metrics": {
     "ADPR_denominator": "All dependency_points unless a paper section explicitly reports primary_async_dependency_ids only.",
-    "dependency_point_count": 2,
-    "minimum_success_condition_for_task_level_async_dependency_resolution": "Both primary_async_dependency_ids pass in the final integrated workspace.",
+    "dependency_point_count": 3,
+    "minimum_success_condition_for_task_level_async_dependency_resolution": "All primary_async_dependency_ids pass in the final integrated workspace.",
     "primary_async_dependency_ids": [
       "filesystem_spec.registry_to_core.protocol_resolution_contract",
-      "filesystem_spec.utils_to_core.path_compression_contract"
+      "filesystem_spec.utils_to_core.path_compression_contract",
+      "filesystem_spec.backends_to_core.open_contract"
     ],
     "primary_paper_dependency_id": "filesystem_spec.registry_to_core.protocol_resolution_contract"
   },
   "annotation_notes": [
     "The registry_to_core dependency is the primary signal because core URL/open behavior is sensitive to stale protocol lookup and filesystem instantiation assumptions.",
     "The utils_to_core dependency captures stale assumptions around URL parsing, path expansion, read blocks, and compression lookup.",
+    "The backends_to_core dependency captures the abstract filesystem and local, memory, and cache contracts exercised indirectly by the public core evaluator.",
+    "Revision v0.3.2 closes the dependency graph over the stripped backend production files already exercised by public tests.",
     "These labels identify public test-observable contracts, not solution code."
   ],
   "dependency_points": [
@@ -92,6 +95,49 @@
         "fsspec/tests/test_utils.py::test_read_block",
         "fsspec/tests/test_compression.py::test_infer_custom_compression"
       ]
+    },
+    {
+      "consumer_agent": "core_agent",
+      "consumer_files": [
+        "fsspec/core.py"
+      ],
+      "consumer_subproblem": "core_open_path_layer",
+      "contract_summary": "AbstractFileSystem and the local, memory, and cache backends must provide the open, info, glob, parent, cache mapping, and local-file behavior consumed by core OpenFile/open_local paths.",
+      "dependency_id": "filesystem_spec.backends_to_core.open_contract",
+      "dependency_type": "shared_api_contract",
+      "downstream_probe_tests": [
+        "fsspec/tests/test_core.py::test_open_expand",
+        "fsspec/tests/test_core.py::test_multi_context"
+      ],
+      "integrated_probe_tests": [
+        "fsspec/tests/test_core.py::test_openfile_api",
+        "fsspec/tests/test_core.py::test_open_local_w_cache",
+        "fsspec/tests/test_core.py::test_open_expand",
+        "fsspec/tests/test_core.py::test_multi_context"
+      ],
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL",
+        "SAD"
+      ],
+      "producer_agent": "backend_agent",
+      "producer_files": [
+        "fsspec/spec.py",
+        "fsspec/implementations/local.py",
+        "fsspec/implementations/memory.py",
+        "fsspec/implementations/cached.py",
+        "fsspec/implementations/cache_mapper.py",
+        "fsspec/implementations/cache_metadata.py"
+      ],
+      "producer_subproblem": "filesystem_backend_layer",
+      "resolution_criteria": "Resolved when backend open/cache probes and core OpenFile/open_local consumer probes pass together after integration.",
+      "stale_failure_mode": "The core agent may implement OpenFile or open_local around stale backend return values or filesystem method semantics.",
+      "upstream_probe_tests": [
+        "fsspec/tests/test_core.py::test_openfile_api",
+        "fsspec/tests/test_core.py::test_openfile_open",
+        "fsspec/tests/test_core.py::test_open_local_w_cache"
+      ]
     }
   ],
   "evaluation_checkpoint_policy": {
@@ -108,7 +154,7 @@
     "minimum_policy": "Run probe tests after each agent final artifact and after final integration.",
     "recommended_policy": "Run probe tests after every committed patch, every explicit artifact transfer, and final integration."
   },
-  "metric_annotation_id": "commit0-filesystem-spec.async-metrics.v0.3",
+  "metric_annotation_id": "commit0-filesystem-spec.async-metrics.v0.3.2",
   "metric_definitions": {
     "ADPR": {
       "definition": "Fraction of registered dependency_points whose required integrated_probe_tests pass in the final integrated workspace.",
@@ -131,7 +177,7 @@
       "unit": "agent iteration or event interval"
     }
   },
-  "purpose": "Dependency-level labels for measuring whether asynchronous multi-agent coding resolves fsspec registry and utility contracts consumed by core open/path behavior.",
+  "purpose": "Dependency-level labels for measuring whether asynchronous multi-agent coding resolves fsspec registry, utility, and backend contracts consumed by core open/path behavior.",
   "schema_version": "0.3-async-metrics",
   "source_quality_record": "manifests/pilot/v0.3/quality/commit0_filesystem_spec.json",
   "source_task_record": "manifests/pilot/v0.3/tasks/commit0_filesystem_spec.json",

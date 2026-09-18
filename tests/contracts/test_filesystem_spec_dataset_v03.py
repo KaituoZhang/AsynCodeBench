@@ -86,8 +86,44 @@ def test_filesystem_spec_scenarios_use_natural_specialists() -> None:
     assert [assignment["agent_id"] for assignment in specialists["assignments"]] == [
         "registry_agent",
         "utility_agent",
+        "backend_agent",
         "core_agent",
     ]
+
+
+def test_filesystem_spec_scope_closes_public_core_dependencies_without_test_writes() -> None:
+    task = _read_json(TASK_FILE)
+    scenarios = _read_json(SCENARIO_FILE)["scenarios"]
+    required_backend_paths = {
+        "fsspec/spec.py",
+        "fsspec/implementations/cache_mapper.py",
+        "fsspec/implementations/cache_metadata.py",
+        "fsspec/implementations/cached.py",
+        "fsspec/implementations/local.py",
+        "fsspec/implementations/memory.py",
+    }
+
+    assert required_backend_paths <= set(task["publicly_implicated_modules"])
+    for scenario in scenarios:
+        writable = {
+            path
+            for assignment in scenario["assignments"]
+            for path in assignment["writable_paths"]
+        }
+        assert required_backend_paths <= writable
+        assert not any(path.startswith("fsspec/tests/") for path in writable)
+
+    multi = next(
+        scenario
+        for scenario in scenarios
+        if scenario["execution_mode"] == "async_message"
+    )
+    backend = next(
+        assignment
+        for assignment in multi["assignments"]
+        if assignment["agent_id"] == "backend_agent"
+    )
+    assert set(backend["writable_paths"]) == required_backend_paths
 
 
 def test_filesystem_spec_annotation_requires_stripped_ref_review() -> None:
@@ -105,6 +141,9 @@ def test_filesystem_spec_annotation_requires_stripped_ref_review() -> None:
             for instruction in form["independence_instructions"]
         )
         assert any(
-            "registry/utility->core" in instruction
+            (
+                "registry/utility->core" in instruction
+                or "registry/utility/backend->core" in instruction
+            )
             for instruction in form["independence_instructions"]
         )

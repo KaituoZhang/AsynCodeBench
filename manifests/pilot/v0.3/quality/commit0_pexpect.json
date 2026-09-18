@@ -38,7 +38,7 @@
       "failed": 63,
       "notes": [
         "Verified with PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 and PYTHONPATH=<materialized-root> after applying only checksum-recorded bootstrap overlays.",
-        "Failures are caused by unfinished Expecter/searcher, SpawnBase, transport, run, replwrap, and async behavior."
+        "Failures are caused by unfinished Expecter/searcher, SpawnBase, process utility, transport, run, replwrap, and async behavior."
       ],
       "passed": 14,
       "python_version": "3.10.12",
@@ -102,7 +102,7 @@
     "two independent human inclusion/exclusion annotations"
   ],
   "schema_version": "0.3",
-  "structure_rationale": "pexpect exposes semantic async dependencies between searcher/Expecter matching, SpawnBase public state, transport read/write behavior, and high-level run/replwrap/async wrappers. Downstream workers can make stale assumptions about bytes/text matching, EOF/TIMEOUT as exceptions or patterns, buffer windows, before/after/match state, or transport output normalization.",
+  "structure_rationale": "pexpect exposes semantic async dependencies between searcher/Expecter matching, SpawnBase public state, process utilities and transport read/write behavior, and high-level run/replwrap/async wrappers. Downstream workers can make stale assumptions about command parsing, executable lookup, bytes/text matching, EOF/TIMEOUT as exceptions or patterns, buffer windows, before/after/match state, or transport output normalization.",
   "task_id": "commit0:pexpect",
   "test_groups": [
     {
@@ -132,7 +132,7 @@
         "addopts=",
         "tests/test_popen_spawn.py"
       ],
-      "description": "Popen transport read/write/EOF/TIMEOUT behavior through SpawnBase expect APIs.",
+      "description": "Process utility and popen transport parsing/read/write/EOF/TIMEOUT behavior through SpawnBase expect APIs.",
       "group_id": "popen_transport_local",
       "owner_subproblem": "transport_layer",
       "prerequisites": [],

@@ -105,7 +105,7 @@
   "known_limitations": [
     "The local commit0/default branch is complete. Benchmark workspaces must be materialized from origin/commit0_combined.",
     "Raw origin/commit0_combined collection fails before bootstrap overlays because public imports need missing utility symbols, metaclass placeholders, collection predicates, and decorator callables.",
-    "Bootstrap overlays only make the public tests collectable; they do not implement marshmallow registry, field, validation, schema, decorator, or error-store behavior.",
+    "Bootstrap overlays only make the public tests collectable; they do not implement marshmallow ordered collections, registry, field, validation, schema, decorator, exception, or error-store behavior.",
     "tests/test_version_attributes.py is excluded because direct checkout execution lacks installed distribution metadata for marshmallow.",
     "Single-agent and multi-agent model results are evaluation outputs to report, not dataset qualification gates."
   ],
@@ -120,7 +120,7 @@
     "two independent human inclusion/exclusion annotations"
   ],
   "schema_version": "0.3",
-  "structure_rationale": "marshmallow exposes semantic async dependencies between schema declaration/registry, field and validator contracts, and schema processing/hooks. Downstream schema workers can make stale assumptions about field binding, missing/default handling, nested class resolution, or decorator metadata that only fail once load/dump and nested integration tests run.",
+  "structure_rationale": "marshmallow exposes semantic async dependencies between ordered schema declaration/registry, field and validator contracts, and schema processing/hooks/errors. Downstream schema workers can make stale assumptions about declaration ordering, field binding, missing/default handling, nested class resolution, ValidationError normalization, or decorator metadata that only fail once load/dump and nested integration tests run.",
   "task_id": "commit0:marshmallow",
   "test_groups": [
     {
@@ -134,7 +134,7 @@
         "tests/test_registry.py",
         "tests/test_options.py"
       ],
-      "description": "Schema class registry, declared fields, Meta options, ordering, and nested class-name resolution.",
+      "description": "Ordered declaration collections, schema class registry, declared fields, Meta options, ordering, and nested class-name resolution.",
       "group_id": "registry_declaration_local",
       "owner_subproblem": "registry_declaration_layer",
       "prerequisites": [],
@@ -172,9 +172,10 @@
         "addopts=",
         "tests/test_schema.py",
         "tests/test_decorators.py",
-        "tests/test_error_store.py"
+        "tests/test_error_store.py",
+        "tests/test_exceptions.py"
       ],
-      "description": "Schema load/dump, decorators, hook processing, nested schemas, custom errors, and error merging.",
+      "description": "Schema load/dump, decorators, hook processing, nested schemas, ValidationError normalization, custom errors, and error merging.",
       "group_id": "schema_processing_local",
       "owner_subproblem": "schema_processing_layer",
       "prerequisites": [],

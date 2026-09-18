@@ -53,10 +53,10 @@ TYPE_META = {
 }
 
 EXPECTED_TASK_COUNT = 20
-EXPECTED_DEPENDENCY_COUNT = 55
+EXPECTED_DEPENDENCY_COUNT = 56
 EXPECTED_TYPE_COUNTS = {
     "interface_dependency": 22,
-    "shared_api_contract": 17,
+    "shared_api_contract": 18,
     "shared_state_contract": 7,
     "integration_contract": 9,
 }
@@ -694,7 +694,7 @@ def build_markdown(tasks: list[dict]) -> str:
     lines = [
         "# AsynCodeBench 20-task dependency catalog",
         "",
-        "This catalog enumerates the 55 frozen dependency points in the v0.4 "
+        f"This catalog enumerates the {EXPECTED_DEPENDENCY_COUNT} frozen dependency points in the v0.4 "
         "20-task release. Direction is always `producer → consumer`; labels are "
         "preserved from each task's canonical async-metrics annotation.",
         "",
@@ -715,7 +715,7 @@ def build_markdown(tasks: list[dict]) -> str:
         )
     lines.extend(
         [
-            "| **Total** |  | **55** |",
+            f"| **Total** |  | **{EXPECTED_DEPENDENCY_COUNT}** |",
             "",
             "Interpretation follows the paper distinction: IF is direct interface "
             "consumption; API is preservation of the same externally visible behavior "

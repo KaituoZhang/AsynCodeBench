@@ -32,7 +32,7 @@ readable and reproducible.
 - **5 controlled agent protocols** per task;
 - **80 task-protocol scenarios** preserved in the frozen v0.4 release index,
   plus 20 registry-defined online Async-Manager conditions (**100 total**);
-- **55 executable producer/consumer dependency points** across the official
+- **56 executable producer/consumer dependency points** across the official
   tasks;
 - an **AsynCodeBench-native harness** with a built-in OpenHands agent and a
   public bring-your-own-agent adapter;

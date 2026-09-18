@@ -17,9 +17,10 @@
     {
       "consumer_subproblem": "spawn_api_state_layer",
       "dependency_type": "api_contract",
-      "description": "SpawnBase and Expecter consume transport-specific read_nonblocking, send, close, EOF, TIMEOUT, and encoding behavior from pty and popen transports.",
+      "description": "SpawnBase and Expecter consume command-line parsing, executable lookup, interrupt-safe select/poll, read_nonblocking, send, close, EOF, TIMEOUT, and encoding behavior from process utilities and pty/popen transports.",
       "evidence_paths": [
         "pexpect/spawnbase.py",
+        "pexpect/utils.py",
         "pexpect/pty_spawn.py",
         "pexpect/popen_spawn.py",
         "tests/test_expect.py",
@@ -73,6 +74,7 @@
       "pexpect/_async.py",
       "pexpect/_async_pre_await.py",
       "pexpect/_async_w_await.py",
+      "pexpect/utils.py",
       "tests/test_popen_spawn.py",
       "tests/test_async.py"
     ],
@@ -88,9 +90,10 @@
     "The local master/commit0 branch is complete. Benchmark workspaces must be materialized from origin/commit0_combined.",
     "The evaluator follows the audit recommendation to focus on expect/search semantics, SpawnBase state, pty/popen transports, run, and async wrappers.",
     "Terminal-emulation and pxssh tests are intentionally out of scope for this v0.3 task.",
+    "Manifest revision v0.3.2 assigns the stripped process utilities already exercised by the unchanged public evaluator; it adds no implementation hints or reference code.",
     "The proposed label is a draft curation decision and not a final independent annotation."
   ],
-  "problem_statement": "Restore the scoped Pexpect expect/search, SpawnBase, transport, run, and async wrapper behavior exercised by the public Commit0 tests without modifying the tests.\n\nThe expect/search layer must implement Expecter, searcher_string, searcher_re, EOF/TIMEOUT matching, freshlen, searchwindowsize, and match-loop behavior. The SpawnBase layer must consume that contract to implement pattern compilation, expect, expect_list, expect_exact, read/readline, and before/after/match/buffer state. The transport layer must provide pty, popen, and async read/write/close behavior with consistent bytes/text and EOF/TIMEOUT semantics. The wrapper layer must consume SpawnBase and transport behavior in run and replwrap helpers.\n\nThe initial benchmark source is the stripped Commit0-style ref origin/commit0_combined, plus a checksum-recorded bootstrap overlay that only makes the public tests importable and collectable.",
+  "problem_statement": "Restore the scoped Pexpect expect/search, SpawnBase, transport, run, and async wrapper behavior exercised by the public Commit0 tests without modifying the tests.\n\nThe expect/search layer must implement Expecter, searcher_string, searcher_re, EOF/TIMEOUT matching, freshlen, searchwindowsize, and match-loop behavior. The SpawnBase layer must consume that contract to implement pattern compilation, expect, expect_list, expect_exact, read/readline, and before/after/match/buffer state. The transport layer must provide command-line parsing, executable lookup, interrupt-safe select/poll helpers, and pty, popen, and async read/write/close behavior with consistent bytes/text and EOF/TIMEOUT semantics. The wrapper layer must consume SpawnBase and transport behavior in run and replwrap helpers.\n\nThe initial benchmark source is the stripped Commit0-style ref origin/commit0_combined, plus a checksum-recorded bootstrap overlay that only makes the public tests importable and collectable.",
   "proposed_parallelizability_label": "partially_parallelizable",
   "publicly_implicated_modules": [
     "pexpect/_async.py",
@@ -101,7 +104,8 @@
     "pexpect/pty_spawn.py",
     "pexpect/replwrap.py",
     "pexpect/run.py",
-    "pexpect/spawnbase.py"
+    "pexpect/spawnbase.py",
+    "pexpect/utils.py"
   ],
   "qualification_label": null,
   "qualification_status": "pending_independent_annotation",

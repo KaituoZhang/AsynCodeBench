@@ -36,6 +36,7 @@ PUBLIC_MODULES = [
     "pexpect/replwrap.py",
     "pexpect/run.py",
     "pexpect/spawnbase.py",
+    "pexpect/utils.py",
 ]
 DEPENDENCIES = [
     {
@@ -53,9 +54,10 @@ DEPENDENCIES = [
     {
         "consumer_subproblem": "spawn_api_state_layer",
         "dependency_type": "api_contract",
-        "description": "SpawnBase and Expecter consume transport-specific read_nonblocking, send, close, EOF, TIMEOUT, and encoding behavior from pty and popen transports.",
+        "description": "SpawnBase and Expecter consume command-line parsing, executable lookup, interrupt-safe select/poll, read_nonblocking, send, close, EOF, TIMEOUT, and encoding behavior from process utilities and pty/popen transports.",
         "evidence_paths": [
             "pexpect/spawnbase.py",
+            "pexpect/utils.py",
             "pexpect/pty_spawn.py",
             "pexpect/popen_spawn.py",
             "tests/test_expect.py",
@@ -96,6 +98,7 @@ NATURAL_SUBPROBLEMS = {
         "pexpect/_async.py",
         "pexpect/_async_pre_await.py",
         "pexpect/_async_w_await.py",
+        "pexpect/utils.py",
         "tests/test_popen_spawn.py",
         "tests/test_async.py",
     ],
@@ -153,7 +156,7 @@ ASSIGNMENTS = [
     ),
     assignment(
         "transport_agent",
-        "pty, popen, and async transport read/write/EOF/TIMEOUT specialist",
+        "process utility plus pty, popen, and async transport specialist",
         "transport_layer",
         [
             "pexpect/_async.py",
@@ -161,6 +164,7 @@ ASSIGNMENTS = [
             "pexpect/_async_w_await.py",
             "pexpect/popen_spawn.py",
             "pexpect/pty_spawn.py",
+            "pexpect/utils.py",
         ],
         [
             "tests/test_popen_spawn.py",
@@ -232,13 +236,14 @@ def task_record() -> dict:
             "The local master/commit0 branch is complete. Benchmark workspaces must be materialized from origin/commit0_combined.",
             "The evaluator follows the audit recommendation to focus on expect/search semantics, SpawnBase state, pty/popen transports, run, and async wrappers.",
             "Terminal-emulation and pxssh tests are intentionally out of scope for this v0.3 task.",
+            "Manifest revision v0.3.2 assigns the stripped process utilities already exercised by the unchanged public evaluator; it adds no implementation hints or reference code.",
             "The proposed label is a draft curation decision and not a final independent annotation.",
         ],
         "problem_statement": (
             "Restore the scoped Pexpect expect/search, SpawnBase, transport, run, and async wrapper behavior exercised by the public Commit0 tests without modifying the tests.\n\n"
             "The expect/search layer must implement Expecter, searcher_string, searcher_re, EOF/TIMEOUT matching, freshlen, searchwindowsize, and match-loop behavior. "
             "The SpawnBase layer must consume that contract to implement pattern compilation, expect, expect_list, expect_exact, read/readline, and before/after/match/buffer state. "
-            "The transport layer must provide pty, popen, and async read/write/close behavior with consistent bytes/text and EOF/TIMEOUT semantics. "
+            "The transport layer must provide command-line parsing, executable lookup, interrupt-safe select/poll helpers, and pty, popen, and async read/write/close behavior with consistent bytes/text and EOF/TIMEOUT semantics. "
             "The wrapper layer must consume SpawnBase and transport behavior in run and replwrap helpers.\n\n"
             "The initial benchmark source is the stripped Commit0-style ref origin/commit0_combined, plus a checksum-recorded bootstrap overlay that only makes the public tests importable and collectable."
         ),
@@ -295,7 +300,7 @@ def quality_record() -> dict:
                 "failed": 63,
                 "notes": [
                     "Verified with PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 and PYTHONPATH=<materialized-root> after applying only checksum-recorded bootstrap overlays.",
-                    "Failures are caused by unfinished Expecter/searcher, SpawnBase, transport, run, replwrap, and async behavior.",
+                    "Failures are caused by unfinished Expecter/searcher, SpawnBase, process utility, transport, run, replwrap, and async behavior.",
                 ],
                 "passed": 14,
                 "python_version": "3.10.12",
@@ -343,11 +348,11 @@ def quality_record() -> dict:
         "quality_status": "qualification_ready",
         "remaining_gates": ["two independent human inclusion/exclusion annotations"],
         "schema_version": "0.3",
-        "structure_rationale": "pexpect exposes semantic async dependencies between searcher/Expecter matching, SpawnBase public state, transport read/write behavior, and high-level run/replwrap/async wrappers. Downstream workers can make stale assumptions about bytes/text matching, EOF/TIMEOUT as exceptions or patterns, buffer windows, before/after/match state, or transport output normalization.",
+        "structure_rationale": "pexpect exposes semantic async dependencies between searcher/Expecter matching, SpawnBase public state, process utilities and transport read/write behavior, and high-level run/replwrap/async wrappers. Downstream workers can make stale assumptions about command parsing, executable lookup, bytes/text matching, EOF/TIMEOUT as exceptions or patterns, buffer windows, before/after/match state, or transport output normalization.",
         "task_id": TASK_ID,
         "test_groups": [
             {"command": EVALUATOR_COMMAND[:6] + ["tests/test_expect.py"], "description": "Core expect/search, SpawnBase buffer, before/after/match, and pty-backed expect behavior.", "group_id": "expect_spawn_local", "owner_subproblem": "expect_search_layer", "prerequisites": [], "purpose": "specialist_local", "schema_version": "0.3"},
-            {"command": EVALUATOR_COMMAND[:6] + ["tests/test_popen_spawn.py"], "description": "Popen transport read/write/EOF/TIMEOUT behavior through SpawnBase expect APIs.", "group_id": "popen_transport_local", "owner_subproblem": "transport_layer", "prerequisites": [], "purpose": "specialist_local", "schema_version": "0.3"},
+            {"command": EVALUATOR_COMMAND[:6] + ["tests/test_popen_spawn.py"], "description": "Process utility and popen transport parsing/read/write/EOF/TIMEOUT behavior through SpawnBase expect APIs.", "group_id": "popen_transport_local", "owner_subproblem": "transport_layer", "prerequisites": [], "purpose": "specialist_local", "schema_version": "0.3"},
             {"command": EVALUATOR_COMMAND[:6] + ["tests/test_run.py"], "description": "run helper behavior consuming SpawnBase and transport contracts.", "group_id": "run_wrapper_local", "owner_subproblem": "wrapper_layer", "prerequisites": [], "purpose": "specialist_local", "schema_version": "0.3"},
             {"command": EVALUATOR_COMMAND[:6] + ["tests/test_expect.py::ExpectTestCase::test_searchwindowsize", "tests/test_expect.py::ExpectTestCase::test_before_after"], "description": "SpawnBase state after expect/search window and buffer contracts are integrated.", "group_id": "expect_spawn_cross_contract", "owner_subproblem": None, "prerequisites": ["expect_search_layer artifact is integrated", "spawn_api_state_layer artifact is integrated"], "purpose": "cross_subproblem", "schema_version": "0.3"},
             {"command": EVALUATOR_COMMAND[:6] + ["tests/test_popen_spawn.py::ExpectTestCase::test_expect", "tests/test_run.py::RunFuncTestCase::test_run"], "description": "Wrapper behavior after SpawnBase and transport contracts are integrated.", "group_id": "transport_spawn_wrapper_cross_contract", "owner_subproblem": None, "prerequisites": ["transport_layer artifact is integrated", "spawn_api_state_layer artifact is integrated", "wrapper_layer artifact is integrated"], "purpose": "cross_subproblem", "schema_version": "0.3"},
@@ -380,14 +385,14 @@ def metrics_record() -> dict:
             "consumer_agent": "spawn_agent",
             "consumer_files": ["pexpect/spawnbase.py"],
             "consumer_subproblem": "spawn_api_state_layer",
-            "contract_summary": "pty and popen transports must present read_nonblocking, EOF, TIMEOUT, bytes/text, and CRLF behavior that SpawnBase and Expecter consume consistently.",
+            "contract_summary": "Process utilities plus pty and popen transports must present command parsing, executable lookup, interrupt-safe polling, read_nonblocking, EOF, TIMEOUT, bytes/text, and CRLF behavior that SpawnBase and Expecter consume consistently.",
             "dependency_id": "pexpect.transport_to_spawn.read_timeout_contract",
             "dependency_type": "shared_api_contract",
             "downstream_probe_tests": ["tests/test_expect.py::ExpectTestCase::test_expect_timeout", "tests/test_expect.py::ExpectTestCase::test_unexpected_eof"],
             "integrated_probe_tests": ["tests/test_popen_spawn.py::ExpectTestCase::test_expect", "tests/test_popen_spawn.py::ExpectTestCase::test_crlf", "tests/test_expect.py::ExpectTestCase::test_expect_timeout", "tests/test_expect.py::ExpectTestCase::test_unexpected_eof"],
             "metrics_enabled": ["ADPR", "DRS", "CAIL", "SAD"],
             "producer_agent": "transport_agent",
-            "producer_files": ["pexpect/popen_spawn.py", "pexpect/pty_spawn.py", "pexpect/_async.py"],
+            "producer_files": ["pexpect/popen_spawn.py", "pexpect/pty_spawn.py", "pexpect/_async.py", "pexpect/utils.py"],
             "producer_subproblem": "transport_layer",
             "resolution_criteria": "Resolved when transport probes and SpawnBase EOF/TIMEOUT consumer probes pass together after integration.",
             "stale_failure_mode": "SpawnBase or Expecter code may assume stale transport output type, line ending, EOF, or timeout behavior.",
@@ -421,8 +426,9 @@ def metrics_record() -> dict:
         },
         "annotation_notes": [
             "The expect_to_spawn dependency is the primary signal because SpawnBase public state is highly sensitive to stale searcher and Expecter matching semantics.",
-            "The transport_to_spawn dependency captures stale assumptions around read_nonblocking, EOF/TIMEOUT, CRLF, and output type behavior.",
+            "The transport_to_spawn dependency captures stale assumptions around command parsing, executable lookup, interrupt-safe polling, read_nonblocking, EOF/TIMEOUT, CRLF, and output type behavior.",
             "The spawn_to_wrappers dependency captures stale assumptions in run, replwrap, and async wrappers.",
+            "Revision v0.3.2 closes the dependency scope over the stripped process utilities already exercised by public tests.",
             "These labels identify public test-observable contracts, not solution code.",
         ],
         "dependency_points": dependency_points,
@@ -431,7 +437,7 @@ def metrics_record() -> dict:
             "minimum_policy": "Run probe tests after each agent final artifact and after final integration.",
             "recommended_policy": "Run probe tests after every committed patch, every explicit artifact transfer, and final integration.",
         },
-        "metric_annotation_id": "commit0-pexpect.async-metrics.v0.3",
+        "metric_annotation_id": "commit0-pexpect.async-metrics.v0.3.2",
         "metric_definitions": {
             "ADPR": {"definition": "Fraction of registered dependency_points whose required integrated_probe_tests pass in the final integrated workspace.", "name": "Async Dependency Pass Rate", "unit": "fraction"},
             "CAIL": {"definition": "downstream_resolution_step minus upstream_resolution_step when both probe groups have been evaluated.", "name": "Cross-Agent Integration Lag", "unit": "agent iteration or evaluation checkpoint"},
@@ -489,19 +495,34 @@ def write_json(path: Path, payload: dict) -> None:
     path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 
 
+def write_template_unless_completed(path: Path, payload: dict) -> None:
+    """Refresh blank templates without overwriting completed human review."""
+    if path.exists():
+        current = json.loads(path.read_text(encoding="utf-8"))
+        if all(
+            current.get(field) is not None
+            for field in ("include", "parallelizability_label", "rationale")
+        ):
+            return
+    write_json(path, payload)
+
+
 def update_curated_config() -> None:
     path = Path("configs/tasks/commit0_curated_tasks.v0.3.json")
     payload = json.loads(path.read_text(encoding="utf-8"))
-    payload["tasks"] = [task for task in payload["tasks"] if task["task_id"] != TASK_ID]
-    payload["tasks"].append(
-        {
-            "task_id": TASK_ID,
-            "repository": "pexpect",
-            "base_ref": BASE_REF,
-            "base_sha": STRIPPED_SHA,
-            "overlays": overlays(),
-        }
-    )
+    replacement = {
+        "task_id": TASK_ID,
+        "repository": "pexpect",
+        "base_ref": BASE_REF,
+        "base_sha": STRIPPED_SHA,
+        "overlays": overlays(),
+    }
+    for index, task in enumerate(payload["tasks"]):
+        if task["task_id"] == TASK_ID:
+            payload["tasks"][index] = replacement
+            break
+    else:
+        payload["tasks"].append(replacement)
     write_json(path, payload)
 
 
@@ -511,17 +532,28 @@ def main() -> None:
         Path("manifests/pilot/v0.3/scenarios/commit0_pexpect.json"): scenario_record(),
         Path("manifests/pilot/v0.3/quality/commit0_pexpect.json"): quality_record(),
         Path("manifests/pilot/v0.3/metrics/commit0_pexpect_async_metrics.json"): metrics_record(),
+    }
+    for path, payload in files.items():
+        write_json(path, payload)
+    templates = {
         Path("manifests/annotations/asyncodebench_v0.3/pexpect/annotator_a.json"): annotation_form("annotator_a"),
         Path("manifests/annotations/asyncodebench_v0.3/pexpect/annotator_b.json"): annotation_form("annotator_b"),
         Path("manifests/annotations/asyncodebench_v0.3/pexpect/adjudication.template.json"): adjudication_template(),
     }
-    for path, payload in files.items():
-        write_json(path, payload)
+    for path, payload in templates.items():
+        write_template_unless_completed(path, payload)
     update_curated_config()
     for path in files:
         payload = json.loads(path.read_text(encoding="utf-8"))
         if payload["task_id"] != TASK_ID:
             raise ValueError(f"unexpected task_id in {path}: {payload['task_id']}")
+    for path in templates:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        if payload["source_task_id"] != TASK_ID:
+            raise ValueError(
+                f"unexpected source_task_id in {path}: "
+                f"{payload['source_task_id']}"
+            )
     print(f"generated {TASK_ID} v0.3 manifest files")
 
 

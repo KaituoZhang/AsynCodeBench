@@ -27,10 +27,13 @@
             "src/marshmallow/class_registry.py",
             "src/marshmallow/decorators.py",
             "src/marshmallow/error_store.py",
+            "src/marshmallow/exceptions.py",
             "src/marshmallow/fields.py",
+            "src/marshmallow/orderedset.py",
             "src/marshmallow/schema.py",
             "src/marshmallow/utils.py",
-            "src/marshmallow/validate.py"
+            "src/marshmallow/validate.py",
+            "src/marshmallow/warnings.py"
           ]
         }
       ],
@@ -72,10 +75,11 @@
         {
           "consumer_subproblem": "field_validation_layer",
           "dependency_type": "shared_state_contract",
-          "description": "Decorator metadata, schema hooks, and ErrorStore merging must agree with field/schema validation errors and nested load/dump processors.",
+          "description": "Decorator metadata, schema hooks, ValidationError normalization, and ErrorStore merging must agree with field/schema validation errors and nested load/dump processors.",
           "evidence_paths": [
             "src/marshmallow/decorators.py",
             "src/marshmallow/error_store.py",
+            "src/marshmallow/exceptions.py",
             "src/marshmallow/schema.py",
             "src/marshmallow/fields.py",
             "tests/test_decorators.py",
@@ -113,6 +117,7 @@
           "subproblem_id": "registry_declaration_layer",
           "writable_paths": [
             "src/marshmallow/class_registry.py",
+            "src/marshmallow/orderedset.py",
             "src/marshmallow/schema.py"
           ]
         },
@@ -141,7 +146,8 @@
           "primary_test_targets": [
             "tests/test_schema.py",
             "tests/test_decorators.py",
-            "tests/test_error_store.py"
+            "tests/test_error_store.py",
+            "tests/test_exceptions.py"
           ],
           "role": "schema load/dump, decorator hook, and error-store specialist",
           "schema_version": "0.3",
@@ -149,7 +155,8 @@
           "writable_paths": [
             "src/marshmallow/schema.py",
             "src/marshmallow/decorators.py",
-            "src/marshmallow/error_store.py"
+            "src/marshmallow/error_store.py",
+            "src/marshmallow/exceptions.py"
           ]
         }
       ],
@@ -191,10 +198,11 @@
         {
           "consumer_subproblem": "field_validation_layer",
           "dependency_type": "shared_state_contract",
-          "description": "Decorator metadata, schema hooks, and ErrorStore merging must agree with field/schema validation errors and nested load/dump processors.",
+          "description": "Decorator metadata, schema hooks, ValidationError normalization, and ErrorStore merging must agree with field/schema validation errors and nested load/dump processors.",
           "evidence_paths": [
             "src/marshmallow/decorators.py",
             "src/marshmallow/error_store.py",
+            "src/marshmallow/exceptions.py",
             "src/marshmallow/schema.py",
             "src/marshmallow/fields.py",
             "tests/test_decorators.py",
@@ -232,6 +240,7 @@
           "subproblem_id": "registry_declaration_layer",
           "writable_paths": [
             "src/marshmallow/class_registry.py",
+            "src/marshmallow/orderedset.py",
             "src/marshmallow/schema.py"
           ]
         },
@@ -260,7 +269,8 @@
           "primary_test_targets": [
             "tests/test_schema.py",
             "tests/test_decorators.py",
-            "tests/test_error_store.py"
+            "tests/test_error_store.py",
+            "tests/test_exceptions.py"
           ],
           "role": "schema load/dump, decorator hook, and error-store specialist",
           "schema_version": "0.3",
@@ -268,7 +278,8 @@
           "writable_paths": [
             "src/marshmallow/schema.py",
             "src/marshmallow/decorators.py",
-            "src/marshmallow/error_store.py"
+            "src/marshmallow/error_store.py",
+            "src/marshmallow/exceptions.py"
           ]
         }
       ],
@@ -310,10 +321,11 @@
         {
           "consumer_subproblem": "field_validation_layer",
           "dependency_type": "shared_state_contract",
-          "description": "Decorator metadata, schema hooks, and ErrorStore merging must agree with field/schema validation errors and nested load/dump processors.",
+          "description": "Decorator metadata, schema hooks, ValidationError normalization, and ErrorStore merging must agree with field/schema validation errors and nested load/dump processors.",
           "evidence_paths": [
             "src/marshmallow/decorators.py",
             "src/marshmallow/error_store.py",
+            "src/marshmallow/exceptions.py",
             "src/marshmallow/schema.py",
             "src/marshmallow/fields.py",
             "tests/test_decorators.py",
@@ -351,6 +363,7 @@
           "subproblem_id": "registry_declaration_layer",
           "writable_paths": [
             "src/marshmallow/class_registry.py",
+            "src/marshmallow/orderedset.py",
             "src/marshmallow/schema.py"
           ]
         },
@@ -379,7 +392,8 @@
           "primary_test_targets": [
             "tests/test_schema.py",
             "tests/test_decorators.py",
-            "tests/test_error_store.py"
+            "tests/test_error_store.py",
+            "tests/test_exceptions.py"
           ],
           "role": "schema load/dump, decorator hook, and error-store specialist",
           "schema_version": "0.3",
@@ -387,7 +401,8 @@
           "writable_paths": [
             "src/marshmallow/schema.py",
             "src/marshmallow/decorators.py",
-            "src/marshmallow/error_store.py"
+            "src/marshmallow/error_store.py",
+            "src/marshmallow/exceptions.py"
           ]
         }
       ],
@@ -429,10 +444,11 @@
         {
           "consumer_subproblem": "field_validation_layer",
           "dependency_type": "shared_state_contract",
-          "description": "Decorator metadata, schema hooks, and ErrorStore merging must agree with field/schema validation errors and nested load/dump processors.",
+          "description": "Decorator metadata, schema hooks, ValidationError normalization, and ErrorStore merging must agree with field/schema validation errors and nested load/dump processors.",
           "evidence_paths": [
             "src/marshmallow/decorators.py",
             "src/marshmallow/error_store.py",
+            "src/marshmallow/exceptions.py",
             "src/marshmallow/schema.py",
             "src/marshmallow/fields.py",
             "tests/test_decorators.py",

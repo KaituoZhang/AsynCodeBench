@@ -101,11 +101,42 @@ def test_marshmallow_dependency_probes_are_collectable_tests() -> None:
 
     serialized_metrics = json.dumps(metrics)
     serialized_quality = json.dumps(quality)
-    assert metrics["metric_annotation_id"] == "commit0-marshmallow.async-metrics.v0.3.1"
+    assert metrics["metric_annotation_id"] == "commit0-marshmallow.async-metrics.v0.3.2"
     assert dead_selector not in serialized_metrics
     assert dead_selector not in serialized_quality
     assert replacement in serialized_metrics
     assert replacement in serialized_quality
+
+
+def test_marshmallow_scope_includes_ordering_and_exception_dependencies() -> None:
+    task = _read_json(TASK_FILE)
+    scenarios = _read_json(SCENARIO_FILE)["scenarios"]
+    required = {
+        "src/marshmallow/orderedset.py",
+        "src/marshmallow/exceptions.py",
+    }
+
+    assert required <= set(task["publicly_implicated_modules"])
+    for scenario in scenarios:
+        writable = {
+            path
+            for assignment in scenario["assignments"]
+            for path in assignment["writable_paths"]
+        }
+        assert required <= writable
+        assert not any(path.startswith("tests/") for path in writable)
+
+    multi = next(
+        scenario
+        for scenario in scenarios
+        if scenario["execution_mode"] == "async_message"
+    )
+    owners = {
+        assignment["agent_id"]: set(assignment["writable_paths"])
+        for assignment in multi["assignments"]
+    }
+    assert "src/marshmallow/orderedset.py" in owners["registry_agent"]
+    assert "src/marshmallow/exceptions.py" in owners["schema_agent"]
 
 
 def test_marshmallow_annotation_requires_stripped_ref_review() -> None:

@@ -37,10 +37,11 @@
     {
       "consumer_subproblem": "field_validation_layer",
       "dependency_type": "shared_state_contract",
-      "description": "Decorator metadata, schema hooks, and ErrorStore merging must agree with field/schema validation errors and nested load/dump processors.",
+      "description": "Decorator metadata, schema hooks, ValidationError normalization, and ErrorStore merging must agree with field/schema validation errors and nested load/dump processors.",
       "evidence_paths": [
         "src/marshmallow/decorators.py",
         "src/marshmallow/error_store.py",
+        "src/marshmallow/exceptions.py",
         "src/marshmallow/schema.py",
         "src/marshmallow/fields.py",
         "tests/test_decorators.py",
@@ -83,6 +84,7 @@
     ],
     "registry_declaration_layer": [
       "src/marshmallow/class_registry.py",
+      "src/marshmallow/orderedset.py",
       "src/marshmallow/schema.py",
       "tests/test_registry.py",
       "tests/test_options.py"
@@ -91,8 +93,10 @@
       "src/marshmallow/schema.py",
       "src/marshmallow/decorators.py",
       "src/marshmallow/error_store.py",
+      "src/marshmallow/exceptions.py",
       "tests/test_schema.py",
       "tests/test_decorators.py",
+      "tests/test_exceptions.py",
       "tests/test_error_store.py"
     ]
   },
@@ -100,16 +104,19 @@
     "Task source and tests are unchanged; only import/bootstrap overlays are applied.",
     "The local commit0/default branch is complete. Benchmark workspaces must be materialized from origin/commit0_combined.",
     "The evaluator excludes version metadata tests because direct checkout execution does not install marshmallow distribution metadata.",
+    "Manifest revision v0.3.2 assigns the stripped OrderedSet and ValidationError dependencies already exercised by the unchanged public evaluator; it does not add implementation hints or reference code.",
     "The proposed label is a draft curation decision and not a final independent annotation."
   ],
-  "problem_statement": "Restore the public marshmallow schema, field, validator, decorator, and error behavior exercised by the scoped Commit0 tests without modifying the tests.\n\nThe registry/declaration layer must implement schema class registration, declared-field collection, Meta options, inheritance, ordering, and nested class-name resolution. The field/validation layer must implement field binding, serialization, deserialization, defaults, missing/null handling, validators, type conversion, and utility helpers. The schema processing layer must consume those contracts to implement load/dump, many/partial/unknown handling, hook decorators, nested schemas, error storage, and custom error handling.\n\nThe v0.3 evaluator intentionally excludes tests/test_version_attributes.py because direct checkout execution lacks installed distribution metadata for importlib.metadata.version(\"marshmallow\"). The initial benchmark source is the stripped Commit0-style ref origin/commit0_combined, plus checksum-recorded bootstrap overlays that only make public tests collectable.",
+  "problem_statement": "Restore the public marshmallow schema, field, validator, decorator, and error behavior exercised by the scoped Commit0 tests without modifying the tests.\n\nThe registry/declaration layer must implement schema class registration, ordered declaration collections, declared-field collection, Meta options, inheritance, ordering, and nested class-name resolution. The field/validation layer must implement field binding, serialization, deserialization, defaults, missing/null handling, validators, type conversion, and utility helpers. The schema processing layer must consume those contracts to implement load/dump, many/partial/unknown handling, hook decorators, nested schemas, ValidationError normalization, error storage, and custom error handling.\n\nThe v0.3 evaluator intentionally excludes tests/test_version_attributes.py because direct checkout execution lacks installed distribution metadata for importlib.metadata.version(\"marshmallow\"). The initial benchmark source is the stripped Commit0-style ref origin/commit0_combined, plus checksum-recorded bootstrap overlays that only make public tests collectable.",
   "proposed_parallelizability_label": "partially_parallelizable",
   "publicly_implicated_modules": [
     "src/marshmallow/base.py",
     "src/marshmallow/class_registry.py",
     "src/marshmallow/decorators.py",
     "src/marshmallow/error_store.py",
+    "src/marshmallow/exceptions.py",
     "src/marshmallow/fields.py",
+    "src/marshmallow/orderedset.py",
     "src/marshmallow/schema.py",
     "src/marshmallow/utils.py",
     "src/marshmallow/validate.py",

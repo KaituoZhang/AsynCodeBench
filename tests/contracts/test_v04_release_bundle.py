@@ -34,7 +34,7 @@ def test_v04_unifies_twenty_qualified_tasks() -> None:
     assert index["release"] == official["release"] == "v0.4"
     assert index["task_count"] == official["task_count"] == 20
     assert index["scenario_count"] == 80
-    assert index["dependency_point_count"] == 55
+    assert index["dependency_point_count"] == 56
     assert index["human_review_passed_task_count"] == 20
     assert index["automated_audit_complete_task_count"] == 20
     assert index["community_preview_ready"] is True

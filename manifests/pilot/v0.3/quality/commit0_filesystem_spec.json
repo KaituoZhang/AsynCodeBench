@@ -6,7 +6,6 @@
   "environment_requirements": [
     "Python 3.10.12",
     "pytest==9.0.3",
-    "requests==2.32.3",
     "zstandard==0.25.0",
     "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
     "Run from the repository root with PYTHONPATH=.",
@@ -29,7 +28,6 @@
       ],
       "dependency_versions": {
         "pytest": "9.0.3",
-        "requests": "2.32.3",
         "zstandard": "0.25.0"
       },
       "duration_seconds": 1.64,
@@ -64,7 +62,6 @@
       ],
       "dependency_versions": {
         "pytest": "9.0.3",
-        "requests": "2.32.3",
         "zstandard": "0.25.0"
       },
       "duration_seconds": 0.41,
@@ -87,7 +84,7 @@
   "known_limitations": [
     "The local commit0/default branch is complete. Benchmark workspaces must be materialized from origin/commit0_combined.",
     "The evaluator excludes fsspec/tests/test_spec.py because it imports HTTP/Arrow-dependent paths in the stripped source.",
-    "The evaluator excludes implementation backend tests, callbacks requiring pytest-mock, and optional service/backend tests.",
+    "The evaluator excludes implementation backend suites, callbacks requiring pytest-mock, and optional service/backend tests; the minimal local, memory, and cache paths reached by test_core remain part of the task.",
     "Bootstrap overlays expose only import-time symbols and do not implement fsspec behavior.",
     "Single-agent and multi-agent model results are evaluation outputs to report, not dataset qualification gates."
   ],
@@ -102,7 +99,7 @@
     "two independent human inclusion/exclusion annotations"
   ],
   "schema_version": "0.3",
-  "structure_rationale": "The scoped fsspec task exposes natural async contracts from the registry and utility/compression layers into core OpenFile/OpenFiles, URL-to-filesystem resolution, path expansion, and compression selection.",
+  "structure_rationale": "The scoped fsspec task exposes natural async contracts from the registry, utility/compression, and filesystem-backend layers into core OpenFile/OpenFiles, URL-to-filesystem resolution, path expansion, compression selection, and local/cache behavior.",
   "task_id": "commit0:filesystem_spec",
   "test_groups": [
     {
@@ -136,6 +133,27 @@
       "description": "URL/path helpers, read-block behavior, and compression inference/registration.",
       "group_id": "utility_compression_local",
       "owner_subproblem": "utility_compression_layer",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "fsspec/tests/test_core.py::test_openfile_api",
+        "fsspec/tests/test_core.py::test_openfile_open",
+        "fsspec/tests/test_core.py::test_open_local_w_cache",
+        "fsspec/tests/test_core.py::test_open_expand",
+        "fsspec/tests/test_core.py::test_automkdir_local"
+      ],
+      "description": "Abstract filesystem and local, memory, and cache backend behavior reached by the public core tests.",
+      "group_id": "filesystem_backend_local",
+      "owner_subproblem": "filesystem_backend_layer",
       "prerequisites": [],
       "purpose": "specialist_local",
       "schema_version": "0.3"

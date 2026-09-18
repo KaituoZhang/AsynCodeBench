@@ -1,7 +1,7 @@
 {
   "automated_audit_complete_task_count": 16,
   "community_preview_ready": true,
-  "dependency_point_count": 47,
+  "dependency_point_count": 48,
   "execution_profile": {
     "path": "configs/evaluation/official_execution_profile.v2.json",
     "profile_id": "asyncodebench-v0.3-standard-100",
@@ -916,30 +916,30 @@
         },
         "annotation_b": {
           "path": "manifests/annotations/asyncodebench_v0.3/filesystem_spec/annotator_b.json",
-          "sha256": "76797bb5762fa6c75693bda1019bd333fe1ba60fe10fe70097b61e668beaaea8"
+          "sha256": "97f3bc09ec7f3a85b83bd18b11f900f1dccda4be68c3b9442f1cfedc419133c3"
         },
         "metrics": {
           "path": "manifests/pilot/v0.3/metrics/commit0_filesystem_spec_async_metrics.json",
-          "sha256": "ac3f202a9f3edeeaeb1f569f58502cc9d3b5b6a3605b0052241aa7d922d833a6"
+          "sha256": "72154499ca3f1e35311819670d4ea0bb29eb51ca35dada9027ce1ed23a1eef91"
         },
         "quality": {
           "path": "manifests/pilot/v0.3/quality/commit0_filesystem_spec.json",
-          "sha256": "b2224f13b008a9cc882bdda9c390dae8dbbfe8cbd5cce2441f7ba1d7dbc26e96"
+          "sha256": "5ddf92e029f1b5e871c957bfb8a820609215fd793aa3de4f402119426b129ce3"
         },
         "scenarios": {
           "path": "manifests/pilot/v0.3/scenarios/commit0_filesystem_spec.json",
-          "sha256": "cf3e5577945b58d84730352768ed7641913c8d90223330b1631d6d0ca1617d9f"
+          "sha256": "b79353328d03e90107f285cce72965d3443c15ce327858d60a0ef764d228a436"
         },
         "task": {
           "path": "manifests/pilot/v0.3/tasks/commit0_filesystem_spec.json",
-          "sha256": "a21bc9cc3f5550b69d7b1a516224cba022e2377410dc8348a345b0a759f1914f"
+          "sha256": "a1829e955e1a050ab6c9b4b4286f166325a48d3519a3081ff8649fa59815e966"
         }
       },
-      "dependency_point_count": 2,
+      "dependency_point_count": 3,
       "parallelizability": "partially_parallelizable",
       "protocols": {
         "async_private": {
-          "agent_count": 3,
+          "agent_count": 4,
           "communication_condition": "none_in_flight",
           "concurrent_execution": true,
           "execution_mode": "async_private",
@@ -947,7 +947,7 @@
           "source_scenario_id": "commit0-filesystem-spec.async-private.v0.3"
         },
         "caid_manager": {
-          "agent_count": 3,
+          "agent_count": 4,
           "communication_condition": "structured_message_and_artifact",
           "concurrent_execution": true,
           "execution_mode": "async_message",
@@ -955,7 +955,7 @@
           "source_scenario_id": "commit0-filesystem-spec.async-message.v0.3"
         },
         "serial_specialists": {
-          "agent_count": 3,
+          "agent_count": 4,
           "communication_condition": "completed_artifact_handoff",
           "concurrent_execution": false,
           "execution_mode": "serial_specialists",
@@ -1043,19 +1043,19 @@
         },
         "metrics": {
           "path": "manifests/pilot/v0.3/metrics/commit0_marshmallow_async_metrics.json",
-          "sha256": "138564fcc6909caaa0f8297b3e010df63949ea07f87ebfe07afdd2eac9c2e139"
+          "sha256": "8326f666347ca2aa27f091e5025e95897375824769540d29b1dbc535d5e11d19"
         },
         "quality": {
           "path": "manifests/pilot/v0.3/quality/commit0_marshmallow.json",
-          "sha256": "f94abbbdbf6479b9b0faa964851b0f73edcae24374f955304679779a6adca46d"
+          "sha256": "6f95d269f27a2025fa9311b2db8bc031544d20db0c2748f0ce4e79d471ca57e6"
         },
         "scenarios": {
           "path": "manifests/pilot/v0.3/scenarios/commit0_marshmallow.json",
-          "sha256": "fad980aa4833b273bb4c1907f769780f2663cc15a0705d09e7450a2adda322a0"
+          "sha256": "e04892fdacbf836ddc6bd13f37878fc4d60142695f74b0d78846b8ecaddf074b"
         },
         "task": {
           "path": "manifests/pilot/v0.3/tasks/commit0_marshmallow.json",
-          "sha256": "19cd43370098f3e8401febe97412159dfada89a1a99c3a837a74c9edaca592b3"
+          "sha256": "39110e225fd76e81f613aa8323203f31a7beb6efe9b7a5b5ecbbb17444129545"
         }
       },
       "dependency_point_count": 3,
@@ -1452,19 +1452,19 @@
         },
         "metrics": {
           "path": "manifests/pilot/v0.3/metrics/commit0_pexpect_async_metrics.json",
-          "sha256": "d2e3464378553f05df0c358c12621f1fceba53a55cf496666799dd91a6dad44f"
+          "sha256": "084f48a43828e60323a7d4ddbc3a02fdcf69aeb2a3d42616b21eb4c652b6886c"
         },
         "quality": {
           "path": "manifests/pilot/v0.3/quality/commit0_pexpect.json",
-          "sha256": "57a200544754856f0a4bfe9e0a5d0fa4cb3d2ecd56aba9237720e57b9942b248"
+          "sha256": "2f64397fa9f97a3106be510c4915888c8a9e553df59de36ef8d9eff4f4fbd261"
         },
         "scenarios": {
           "path": "manifests/pilot/v0.3/scenarios/commit0_pexpect.json",
-          "sha256": "dd2331a5c9e3e876cd9f90a8d0afd4aa02ff4a9dd42648dc4fd6485e1d514f69"
+          "sha256": "2e44c522304e1a0daf36a667fde5b28e04f8c1474f7ae736ccce759cd990665a"
         },
         "task": {
           "path": "manifests/pilot/v0.3/tasks/commit0_pexpect.json",
-          "sha256": "3c41cd2a846d3b413da09ce3606287ff3c38800bf86ed74e8bc90fd2811b967a"
+          "sha256": "f9eb6801631ad03f66819ed46caba3a6798378797a9a16a0120408b7a3769852"
         }
       },
       "dependency_point_count": 3,

@@ -1,6 +1,6 @@
 # AsynCodeBench 20-task dependency catalog
 
-This catalog enumerates the 55 frozen dependency points in the v0.4 20-task release. Direction is always `producer → consumer`; labels are preserved from each task's canonical async-metrics annotation.
+This catalog enumerates the 56 frozen dependency points in the v0.4 20-task release. Direction is always `producer → consumer`; labels are preserved from each task's canonical async-metrics annotation.
 
 Each SVG is a node-based dependency graph: a canonical subproblem/artifact appears once, its owned file set is shown inside the node, and all contracts reuse that node. This makes fan-out, fan-in, chains, parallel contracts, and cycles visible without duplicating producer or consumer boxes.
 
@@ -9,10 +9,10 @@ Each SVG is a node-based dependency graph: a canonical subproblem/artifact appea
 | Code | Frozen dependency type | Count |
 | --- | --- | ---: |
 | IF | Interface Dependency (`interface_dependency`) | 22 |
-| API | Shared API Contract (`shared_api_contract`) | 17 |
+| API | Shared API Contract (`shared_api_contract`) | 18 |
 | STATE | Shared State Contract (`shared_state_contract`) | 7 |
 | INT | Integration Contract (`integration_contract`) | 9 |
-| **Total** |  | **55** |
+| **Total** |  | **56** |
 
 Interpretation follows the paper distinction: IF is direct interface consumption; API is preservation of the same externally visible behavior across layers; STATE requires agreement about state representation or lifecycle across time; INT requires successful composition at an end-to-end boundary.
 
@@ -28,7 +28,7 @@ Interpretation follows the paper distinction: IF is direct interface consumption
 | 6 | [requests](#requests) | 3 | 2 | 1 | 0 | 0 |
 | 7 | [simpy](#simpy) | 3 | 2 | 1 | 0 | 0 |
 | 8 | [parsel](#parsel) | 2 | 1 | 1 | 0 | 0 |
-| 9 | [filesystem_spec](#filesystem-spec) | 2 | 1 | 1 | 0 | 0 |
+| 9 | [filesystem_spec](#filesystem-spec) | 3 | 1 | 2 | 0 | 0 |
 | 10 | [marshmallow](#marshmallow) | 3 | 1 | 1 | 1 | 0 |
 | 11 | [graphene](#graphene) | 3 | 1 | 2 | 0 | 0 |
 | 12 | [imapclient](#imapclient) | 3 | 1 | 1 | 1 | 0 |
@@ -962,6 +962,36 @@ Canonical annotation: [`manifests/pilot/v0.3/metrics/commit0_filesystem_spec_asy
 
 </details>
 
+#### D3. filesystem_spec.backends_to_core.open_contract [API]
+
+- Direction: `filesystem_backend_layer` → `core_open_path_layer`
+- Ownership: `backend_agent` → `core_agent`
+- Contract: AbstractFileSystem and the local, memory, and cache backends must provide the open, info, glob, parent, cache mapping, and local-file behavior consumed by core OpenFile/open_local paths.
+- Resolution: Resolved when backend open/cache probes and core OpenFile/open_local consumer probes pass together after integration.
+
+<details>
+<summary>Exact checker mapping</summary>
+
+**Upstream (3)**
+
+- `fsspec/tests/test_core.py::test_openfile_api`
+- `fsspec/tests/test_core.py::test_openfile_open`
+- `fsspec/tests/test_core.py::test_open_local_w_cache`
+
+**Downstream (2)**
+
+- `fsspec/tests/test_core.py::test_open_expand`
+- `fsspec/tests/test_core.py::test_multi_context`
+
+**Integrated (4)**
+
+- `fsspec/tests/test_core.py::test_openfile_api`
+- `fsspec/tests/test_core.py::test_open_local_w_cache`
+- `fsspec/tests/test_core.py::test_open_expand`
+- `fsspec/tests/test_core.py::test_multi_context`
+
+</details>
+
 ### 10. marshmallow
 
 ![marshmallow dependency graph](../results/figures/task_dependencies/marshmallow.svg)
@@ -1002,7 +1032,7 @@ Canonical annotation: [`manifests/pilot/v0.3/metrics/commit0_marshmallow_async_m
 
 - Direction: `registry_declaration_layer` → `field_validation_layer`
 - Ownership: `registry_agent` → `field_agent`
-- Contract: Schema registration, declared-field collection, Meta options, and class-name lookup must support Nested fields, self references, and only/exclude propagation.
+- Contract: Ordered declarations, schema registration, declared-field collection, Meta options, and class-name lookup must support Nested fields, self references, and only/exclude propagation.
 - Resolution: Resolved when registry/declaration probes and nested field/schema probes pass after integration.
 
 <details>
@@ -1031,15 +1061,16 @@ Canonical annotation: [`manifests/pilot/v0.3/metrics/commit0_marshmallow_async_m
 
 - Direction: `schema_processing_layer` → `field_validation_layer`
 - Ownership: `schema_agent` → `field_agent`
-- Contract: Decorator hook metadata, schema hook invocation, and ErrorStore merge semantics must agree with field and schema validation error contracts.
-- Resolution: Resolved when decorator metadata, schema hook processing, field validation, and error-store probes pass together.
+- Contract: Decorator hook metadata, schema hook invocation, ValidationError normalization, and ErrorStore merge semantics must agree with field and schema validation error contracts.
+- Resolution: Resolved when decorator metadata, schema hook processing, ValidationError normalization, field validation, and error-store probes pass together.
 
 <details>
 <summary>Exact checker mapping</summary>
 
-**Upstream (2)**
+**Upstream (3)**
 
 - `tests/test_decorators.py::TestValidatesDecorator::test_validates`
+- `tests/test_exceptions.py::TestValidationError::test_stores_dictionaries_in_messages_dict`
 - `tests/test_error_store.py::TestMergeErrors::test_merging_dict_and_dict`
 
 **Downstream (2)**
@@ -1047,11 +1078,12 @@ Canonical annotation: [`manifests/pilot/v0.3/metrics/commit0_marshmallow_async_m
 - `tests/test_decorators.py::test_decorator_error_handling`
 - `tests/test_decorators.py::TestValidatesSchemaDecorator::test_decorated_validators`
 
-**Integrated (4)**
+**Integrated (5)**
 
 - `tests/test_decorators.py::TestValidatesDecorator::test_validates`
 - `tests/test_decorators.py::TestValidatesSchemaDecorator::test_decorated_validators`
 - `tests/test_decorators.py::test_decorator_error_handling`
+- `tests/test_exceptions.py::TestValidationError::test_stores_dictionaries_in_messages_dict`
 - `tests/test_error_store.py::TestMergeErrors::test_merging_dict_and_dict`
 
 </details>
@@ -1285,7 +1317,7 @@ Canonical annotation: [`manifests/pilot/v0.3/metrics/commit0_pexpect_async_metri
 
 - Direction: `transport_layer` → `spawn_api_state_layer`
 - Ownership: `transport_agent` → `spawn_agent`
-- Contract: pty and popen transports must present read_nonblocking, EOF, TIMEOUT, bytes/text, and CRLF behavior that SpawnBase and Expecter consume consistently.
+- Contract: Process utilities plus pty and popen transports must present command parsing, executable lookup, interrupt-safe polling, read_nonblocking, EOF, TIMEOUT, bytes/text, and CRLF behavior that SpawnBase and Expecter consume consistently.
 - Resolution: Resolved when transport probes and SpawnBase EOF/TIMEOUT consumer probes pass together after integration.
 
 <details>

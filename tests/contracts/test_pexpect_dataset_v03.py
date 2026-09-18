@@ -75,6 +75,34 @@ def test_pexpect_scenarios_use_natural_specialists() -> None:
     ]
 
 
+def test_pexpect_scope_includes_process_utilities_without_test_writes() -> None:
+    task = _read_json(TASK_FILE)
+    scenarios = _read_json(SCENARIO_FILE)["scenarios"]
+    utility_path = "pexpect/utils.py"
+
+    assert utility_path in task["publicly_implicated_modules"]
+    for scenario in scenarios:
+        writable = {
+            path
+            for assignment in scenario["assignments"]
+            for path in assignment["writable_paths"]
+        }
+        assert utility_path in writable
+        assert not any(path.startswith("tests/") for path in writable)
+
+    multi = next(
+        scenario
+        for scenario in scenarios
+        if scenario["execution_mode"] == "async_message"
+    )
+    transport = next(
+        assignment
+        for assignment in multi["assignments"]
+        if assignment["agent_id"] == "transport_agent"
+    )
+    assert utility_path in transport["writable_paths"]
+
+
 def test_pexpect_annotation_requires_scope_and_environment_review() -> None:
     for name in ("annotator_a.json", "annotator_b.json"):
         form = _read_json(ANNOTATION_DIR / name)

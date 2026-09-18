@@ -43,7 +43,7 @@ def test_release_contains_only_the_16_official_tasks():
     assert official["task_count"] == 16
     assert index["task_count"] == 16
     assert index["scenario_count"] == 64
-    assert index["dependency_point_count"] == 47
+    assert index["dependency_point_count"] == 48
     assert official["human_review_complete_task_count"] == 16
     assert index["human_review_complete_task_count"] == 16
     assert official["human_review_passed_task_count"] == 16

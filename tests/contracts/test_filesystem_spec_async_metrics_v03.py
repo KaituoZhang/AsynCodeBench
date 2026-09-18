@@ -60,7 +60,7 @@ def test_filesystem_spec_async_metrics_manifest_is_well_formed() -> None:
 
     assert metrics["task_id"] == "commit0:filesystem_spec"
     assert metrics["schema_version"] == "0.3-async-metrics"
-    assert len(metrics["dependency_points"]) == 2
+    assert len(metrics["dependency_points"]) == 3
     assert (
         metrics["aggregate_metrics"]["primary_paper_dependency_id"]
         == "filesystem_spec.registry_to_core.protocol_resolution_contract"

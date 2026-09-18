@@ -23,7 +23,8 @@
             "pexpect/pty_spawn.py",
             "pexpect/replwrap.py",
             "pexpect/run.py",
-            "pexpect/spawnbase.py"
+            "pexpect/spawnbase.py",
+            "pexpect/utils.py"
           ]
         }
       ],
@@ -45,9 +46,10 @@
         {
           "consumer_subproblem": "spawn_api_state_layer",
           "dependency_type": "api_contract",
-          "description": "SpawnBase and Expecter consume transport-specific read_nonblocking, send, close, EOF, TIMEOUT, and encoding behavior from pty and popen transports.",
+          "description": "SpawnBase and Expecter consume command-line parsing, executable lookup, interrupt-safe select/poll, read_nonblocking, send, close, EOF, TIMEOUT, and encoding behavior from process utilities and pty/popen transports.",
           "evidence_paths": [
             "pexpect/spawnbase.py",
+            "pexpect/utils.py",
             "pexpect/pty_spawn.py",
             "pexpect/popen_spawn.py",
             "tests/test_expect.py",
@@ -120,7 +122,7 @@
             "tests/test_popen_spawn.py",
             "tests/test_async.py"
           ],
-          "role": "pty, popen, and async transport read/write/EOF/TIMEOUT specialist",
+          "role": "process utility plus pty, popen, and async transport specialist",
           "schema_version": "0.3",
           "subproblem_id": "transport_layer",
           "writable_paths": [
@@ -128,7 +130,8 @@
             "pexpect/_async_pre_await.py",
             "pexpect/_async_w_await.py",
             "pexpect/popen_spawn.py",
-            "pexpect/pty_spawn.py"
+            "pexpect/pty_spawn.py",
+            "pexpect/utils.py"
           ]
         },
         {
@@ -165,9 +168,10 @@
         {
           "consumer_subproblem": "spawn_api_state_layer",
           "dependency_type": "api_contract",
-          "description": "SpawnBase and Expecter consume transport-specific read_nonblocking, send, close, EOF, TIMEOUT, and encoding behavior from pty and popen transports.",
+          "description": "SpawnBase and Expecter consume command-line parsing, executable lookup, interrupt-safe select/poll, read_nonblocking, send, close, EOF, TIMEOUT, and encoding behavior from process utilities and pty/popen transports.",
           "evidence_paths": [
             "pexpect/spawnbase.py",
+            "pexpect/utils.py",
             "pexpect/pty_spawn.py",
             "pexpect/popen_spawn.py",
             "tests/test_expect.py",
@@ -240,7 +244,7 @@
             "tests/test_popen_spawn.py",
             "tests/test_async.py"
           ],
-          "role": "pty, popen, and async transport read/write/EOF/TIMEOUT specialist",
+          "role": "process utility plus pty, popen, and async transport specialist",
           "schema_version": "0.3",
           "subproblem_id": "transport_layer",
           "writable_paths": [
@@ -248,7 +252,8 @@
             "pexpect/_async_pre_await.py",
             "pexpect/_async_w_await.py",
             "pexpect/popen_spawn.py",
-            "pexpect/pty_spawn.py"
+            "pexpect/pty_spawn.py",
+            "pexpect/utils.py"
           ]
         },
         {
@@ -285,9 +290,10 @@
         {
           "consumer_subproblem": "spawn_api_state_layer",
           "dependency_type": "api_contract",
-          "description": "SpawnBase and Expecter consume transport-specific read_nonblocking, send, close, EOF, TIMEOUT, and encoding behavior from pty and popen transports.",
+          "description": "SpawnBase and Expecter consume command-line parsing, executable lookup, interrupt-safe select/poll, read_nonblocking, send, close, EOF, TIMEOUT, and encoding behavior from process utilities and pty/popen transports.",
           "evidence_paths": [
             "pexpect/spawnbase.py",
+            "pexpect/utils.py",
             "pexpect/pty_spawn.py",
             "pexpect/popen_spawn.py",
             "tests/test_expect.py",
@@ -360,7 +366,7 @@
             "tests/test_popen_spawn.py",
             "tests/test_async.py"
           ],
-          "role": "pty, popen, and async transport read/write/EOF/TIMEOUT specialist",
+          "role": "process utility plus pty, popen, and async transport specialist",
           "schema_version": "0.3",
           "subproblem_id": "transport_layer",
           "writable_paths": [
@@ -368,7 +374,8 @@
             "pexpect/_async_pre_await.py",
             "pexpect/_async_w_await.py",
             "pexpect/popen_spawn.py",
-            "pexpect/pty_spawn.py"
+            "pexpect/pty_spawn.py",
+            "pexpect/utils.py"
           ]
         },
         {
@@ -405,9 +412,10 @@
         {
           "consumer_subproblem": "spawn_api_state_layer",
           "dependency_type": "api_contract",
-          "description": "SpawnBase and Expecter consume transport-specific read_nonblocking, send, close, EOF, TIMEOUT, and encoding behavior from pty and popen transports.",
+          "description": "SpawnBase and Expecter consume command-line parsing, executable lookup, interrupt-safe select/poll, read_nonblocking, send, close, EOF, TIMEOUT, and encoding behavior from process utilities and pty/popen transports.",
           "evidence_paths": [
             "pexpect/spawnbase.py",
+            "pexpect/utils.py",
             "pexpect/pty_spawn.py",
             "pexpect/popen_spawn.py",
             "tests/test_expect.py",

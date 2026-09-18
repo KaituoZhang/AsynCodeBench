@@ -12,8 +12,9 @@
   },
   "annotation_notes": [
     "The expect_to_spawn dependency is the primary signal because SpawnBase public state is highly sensitive to stale searcher and Expecter matching semantics.",
-    "The transport_to_spawn dependency captures stale assumptions around read_nonblocking, EOF/TIMEOUT, CRLF, and output type behavior.",
+    "The transport_to_spawn dependency captures stale assumptions around command parsing, executable lookup, interrupt-safe polling, read_nonblocking, EOF/TIMEOUT, CRLF, and output type behavior.",
     "The spawn_to_wrappers dependency captures stale assumptions in run, replwrap, and async wrappers.",
+    "Revision v0.3.2 closes the dependency scope over the stripped process utilities already exercised by public tests.",
     "These labels identify public test-observable contracts, not solution code."
   ],
   "dependency_points": [
@@ -60,7 +61,7 @@
         "pexpect/spawnbase.py"
       ],
       "consumer_subproblem": "spawn_api_state_layer",
-      "contract_summary": "pty and popen transports must present read_nonblocking, EOF, TIMEOUT, bytes/text, and CRLF behavior that SpawnBase and Expecter consume consistently.",
+      "contract_summary": "Process utilities plus pty and popen transports must present command parsing, executable lookup, interrupt-safe polling, read_nonblocking, EOF, TIMEOUT, bytes/text, and CRLF behavior that SpawnBase and Expecter consume consistently.",
       "dependency_id": "pexpect.transport_to_spawn.read_timeout_contract",
       "dependency_type": "shared_api_contract",
       "downstream_probe_tests": [
@@ -83,7 +84,8 @@
       "producer_files": [
         "pexpect/popen_spawn.py",
         "pexpect/pty_spawn.py",
-        "pexpect/_async.py"
+        "pexpect/_async.py",
+        "pexpect/utils.py"
       ],
       "producer_subproblem": "transport_layer",
       "resolution_criteria": "Resolved when transport probes and SpawnBase EOF/TIMEOUT consumer probes pass together after integration.",
@@ -148,7 +150,7 @@
     "minimum_policy": "Run probe tests after each agent final artifact and after final integration.",
     "recommended_policy": "Run probe tests after every committed patch, every explicit artifact transfer, and final integration."
   },
-  "metric_annotation_id": "commit0-pexpect.async-metrics.v0.3",
+  "metric_annotation_id": "commit0-pexpect.async-metrics.v0.3.2",
   "metric_definitions": {
     "ADPR": {
       "definition": "Fraction of registered dependency_points whose required integrated_probe_tests pass in the final integrated workspace.",

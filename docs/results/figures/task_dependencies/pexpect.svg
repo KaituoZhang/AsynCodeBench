@@ -58,7 +58,7 @@
 </text>
 <text x="85.0" y="531.0" font-size="12" fill="#475467" font-weight="400" text-anchor="start">
 <tspan x="85.0" dy="0">pexpect/_async.py</tspan>
-<tspan x="85.0" dy="16">+ 2 additional files</tspan>
+<tspan x="85.0" dy="16">+ 3 additional files</tspan>
 </text>
 <text x="85.0" y="577.0" font-size="11" fill="#98A2B3" font-weight="400" text-anchor="start">
 <tspan x="85.0" dy="0">owner: transport_agent</tspan>
@@ -121,8 +121,8 @@
 <tspan x="174" dy="0">pexpect.transport_to_spawn.read_timeout_contract</tspan>
 </text>
 <text x="174" y="870" font-size="14" fill="#344054" font-weight="400" text-anchor="start">
-<tspan x="174" dy="0">pty and popen transports must present read_nonblocking, EOF, TIMEOUT, bytes/text, and CRLF behavior that SpawnBase and Expecter</tspan>
-<tspan x="174" dy="20">consume consistently.</tspan>
+<tspan x="174" dy="0">Process utilities plus pty and popen transports must present command parsing, executable lookup, interrupt-safe polling,</tspan>
+<tspan x="174" dy="20">read_nonblocking, EOF, TIMEOUT, bytes/text, and CRLF behavior that SpawnBase and Expecter consume consistently.</tspan>
 </text>
 <line x1="62" y1="897" x2="1538" y2="897" stroke="#EAECF0"/>
 <rect x="62" y="914" width="92" height="30" rx="15" fill="#FFFBEB" stroke="#D97706"/>

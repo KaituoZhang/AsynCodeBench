@@ -48,7 +48,7 @@
 </text>
 <text x="138.0" y="396.0" font-size="12" fill="#475467" font-weight="400" text-anchor="start">
 <tspan x="138.0" dy="0">src/marshmallow/class_registry.py</tspan>
-<tspan x="138.0" dy="16">src/marshmallow/schema.py</tspan>
+<tspan x="138.0" dy="16">+ 2 additional files</tspan>
 </text>
 <text x="138.0" y="442.0" font-size="11" fill="#98A2B3" font-weight="400" text-anchor="start">
 <tspan x="138.0" dy="0">owner: registry_agent</tspan>
@@ -70,7 +70,7 @@
 </text>
 <text x="1138.0" y="531.0" font-size="12" fill="#475467" font-weight="400" text-anchor="start">
 <tspan x="1138.0" dy="0">src/marshmallow/decorators.py</tspan>
-<tspan x="1138.0" dy="16">+ 2 additional files</tspan>
+<tspan x="1138.0" dy="16">+ 3 additional files</tspan>
 </text>
 <text x="1138.0" y="577.0" font-size="11" fill="#98A2B3" font-weight="400" text-anchor="start">
 <tspan x="1138.0" dy="0">owner: schema_agent</tspan>
@@ -111,8 +111,8 @@
 <tspan x="174" dy="0">marshmallow.registry_to_nested.schema_resolution_contract</tspan>
 </text>
 <text x="174" y="870" font-size="14" fill="#344054" font-weight="400" text-anchor="start">
-<tspan x="174" dy="0">Schema registration, declared-field collection, Meta options, and class-name lookup must support Nested fields, self references,</tspan>
-<tspan x="174" dy="20">and only/exclude propagation.</tspan>
+<tspan x="174" dy="0">Ordered declarations, schema registration, declared-field collection, Meta options, and class-name lookup must support Nested</tspan>
+<tspan x="174" dy="20">fields, self references, and only/exclude propagation.</tspan>
 </text>
 <line x1="62" y1="897" x2="1538" y2="897" stroke="#EAECF0"/>
 <rect x="62" y="914" width="92" height="30" rx="15" fill="#FFFBEB" stroke="#D97706"/>
@@ -123,8 +123,8 @@
 <tspan x="174" dy="0">marshmallow.decorators_to_schema.hook_error_contract</tspan>
 </text>
 <text x="174" y="956" font-size="14" fill="#344054" font-weight="400" text-anchor="start">
-<tspan x="174" dy="0">Decorator hook metadata, schema hook invocation, and ErrorStore merge semantics must agree with field and schema validation</tspan>
-<tspan x="174" dy="20">error contracts.</tspan>
+<tspan x="174" dy="0">Decorator hook metadata, schema hook invocation, ValidationError normalization, and ErrorStore merge semantics must agree with</tspan>
+<tspan x="174" dy="20">field and schema validation error contracts.</tspan>
 </text>
 <text x="1552" y="1022" font-size="12" fill="#98A2B3" font-weight="400" text-anchor="end">
 <tspan x="1552" dy="0">Source: AsynCodeBench v0.4 frozen async-metrics annotations</tspan>

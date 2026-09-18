@@ -15,14 +15,14 @@ v0.4 release index was current, and the repository contract suite passed
 | --- | ---: |
 | Adapted repository tasks | 20 |
 | Execution scenarios | 80 = 20 tasks x 4 conditions |
-| Manifested natural subproblems | 67 |
+| Manifested natural subproblems | 68 |
 | Specialists in each multi-agent scenario | 2--4 |
-| Directed dependency points | 55 |
-| Dependency points per task | 2--5 (mean 2.75) |
+| Directed dependency points | 56 |
+| Dependency points per task | 2--5 (mean 2.80) |
 | Dependency categories | 4 |
-| Required checker groups | 165 = 55 upstream + 55 downstream + 55 integrated |
-| Checker selector references | 535 |
-| Task-qualified unique public test selectors | 288 |
+| Required checker groups | 168 = 56 upstream + 56 downstream + 56 integrated |
+| Checker selector references | 546 |
+| Task-qualified unique public test selectors | 294 |
 | Public bootstrap/test overlays | 47 checksum-pinned patches across 14 tasks; 6 tasks use none |
 | Qualification-ready task records | 20/20 |
 | Required human reviews completed and approved | 20/20 |
@@ -277,12 +277,12 @@ public, role-specific executable evidence.
 
 #### Checker coverage in v0.4
 
-- All 55 dependency points have non-empty upstream, downstream, and integrated
-  checker groups: 165/165 required groups are present.
-- The manifests contain 535 selector references: 132 upstream, 168 downstream,
-  and 235 integrated.
+- All 56 dependency points have non-empty upstream, downstream, and integrated
+  checker groups: 168/168 required groups are present.
+- The manifests contain 546 selector references: 136 upstream, 170 downstream,
+  and 240 integrated.
 - After de-duplicating repeated use of the same test within each task, these
-  references cover 288 task-qualified public test selectors.
+  references cover 294 task-qualified public test selectors.
 - The current repository contract suite, which includes manifest consistency,
   human-review provenance, release-index, and checker-selector validation,
   passes 164/164 tests.
@@ -317,10 +317,10 @@ zero-error completed evaluator sanity run.
 | --- | --- |
 | Tasks | 20 adapted public repository reconstructions |
 | Scenarios | 80; four matched execution conditions per task |
-| Responsibilities | 67 manifested natural subproblems; 2--4 specialists per multi-agent scenario |
-| Dependencies | 55 directed points; 2--5 per task (mean 2.75) |
-| Dependency taxonomy | 22 interface, 17 shared API, 9 integration, 7 shared state |
-| Executable evidence | 165/165 required checker groups; 288 unique public test selectors |
+| Responsibilities | 68 manifested natural subproblems; 2--4 specialists per multi-agent scenario |
+| Dependencies | 56 directed points; 2--5 per task (mean 2.80) |
+| Dependency taxonomy | 22 interface, 18 shared API, 9 integration, 7 shared state |
+| Executable evidence | 168/168 required checker groups; 294 unique public test selectors |
 | Source reconstruction | SHA-pinned incomplete states; 47 checksum-recorded public overlays across 14 tasks |
 | Evaluator qualification | 20/20 nontrivial initial evaluations; 20/20 completed sanity evaluators pass with zero failures/errors |
 | Semantic review | 20/20 mandatory human approvals |
@@ -416,7 +416,7 @@ shared state contract, INT = integration contract.
 | requests | 3 | 3 | 3 | IF, API | prepared request contract -> session/transport |
 | simpy | 4 | 4 | 3 | IF, API | environment scheduling -> events/processes/resources |
 | parsel | 3 | 3 | 2 | IF, API | CSS pseudo-elements -> selector behavior |
-| filesystem_spec | 3 | 3 | 2 | IF, API | registry/protocol resolution -> core open paths |
+| filesystem_spec | 4 | 4 | 3 | IF, API | registry/protocol resolution and filesystem backends -> core open paths |
 | marshmallow | 3 | 3 | 3 | IF, API, STATE | field semantics -> schema load/dump/validation |
 | graphene | 3 | 3 | 3 | IF, API | object metadata -> GraphQL type map/schema |
 | imapclient | 3 | 3 | 3 | IF, API, STATE | parsed typed responses -> high-level client |

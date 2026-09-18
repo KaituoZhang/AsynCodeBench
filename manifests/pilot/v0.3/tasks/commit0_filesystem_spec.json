@@ -29,6 +29,23 @@
       ],
       "producer_subproblem": "utility_compression_layer",
       "schema_version": "0.3"
+    },
+    {
+      "consumer_subproblem": "core_open_path_layer",
+      "dependency_type": "api_contract",
+      "description": "OpenFile, open_local, and multi-file context behavior consume AbstractFileSystem plus the local, memory, and cache backend contracts reached by the public core tests.",
+      "evidence_paths": [
+        "fsspec/spec.py",
+        "fsspec/implementations/local.py",
+        "fsspec/implementations/memory.py",
+        "fsspec/implementations/cached.py",
+        "fsspec/implementations/cache_mapper.py",
+        "fsspec/implementations/cache_metadata.py",
+        "fsspec/core.py",
+        "fsspec/tests/test_core.py"
+      ],
+      "producer_subproblem": "filesystem_backend_layer",
+      "schema_version": "0.3"
     }
   ],
   "evaluator_command": [
@@ -49,6 +66,15 @@
       "fsspec/core.py",
       "fsspec/tests/test_core.py"
     ],
+    "filesystem_backend_layer": [
+      "fsspec/spec.py",
+      "fsspec/implementations/cache_mapper.py",
+      "fsspec/implementations/cache_metadata.py",
+      "fsspec/implementations/cached.py",
+      "fsspec/implementations/local.py",
+      "fsspec/implementations/memory.py",
+      "fsspec/tests/test_core.py"
+    ],
     "registry_protocol_layer": [
       "fsspec/registry.py",
       "fsspec/__init__.py",
@@ -64,10 +90,11 @@
   "notes": [
     "Task source and tests are unchanged; only import/bootstrap overlays are applied.",
     "The local commit0/default branch is complete. Benchmark workspaces must be materialized from origin/commit0_combined.",
-    "The evaluator is scoped to core fsspec tests and excludes optional implementation backends and HTTP/Arrow-dependent paths.",
+    "The evaluator is scoped to core fsspec tests. It does not run backend-specific suites, but its public core tests do exercise the local, memory, and simple-cache support paths.",
+    "Manifest revision v0.3.2 closes the writable dependency scope over the stripped filesystem abstractions and minimal backends already exercised by the unchanged public evaluator; it adds no implementation hints or reference code.",
     "The proposed label is a draft curation decision and not a final independent annotation."
   ],
-  "problem_statement": "Restore the scoped core fsspec behavior exercised by the public Commit0 tests\nwithout modifying the tests.\n\nThe registry layer must implement protocol registration, deferred imports,\nentry-point loading, and filesystem instantiation. The utility/compression\nlayer must implement URL/protocol parsing, path helpers, read-block behavior,\ncompression inference/registration, and logging helpers. The core open/path\nlayer must consume those contracts to implement OpenFile/OpenFiles, URL to\nfilesystem resolution, path expansion, compression selection, local-open\nhandling, and multi-file context behavior.\n\nThe v0.3 evaluator intentionally excludes optional implementation backends,\nHTTP/Arrow-dependent test_spec import paths, callbacks requiring pytest-mock,\nand implementation test conftests. The initial benchmark source is the stripped\nCommit0-style ref `origin/commit0_combined`, plus checksum-recorded bootstrap\noverlays that only make public core tests importable.",
+  "problem_statement": "Restore the scoped core fsspec behavior exercised by the public Commit0 tests\nwithout modifying the tests.\n\nThe registry layer must implement protocol registration, deferred imports,\nentry-point loading, and filesystem instantiation. The utility/compression\nlayer must implement URL/protocol parsing, path helpers, read-block behavior,\ncompression inference/registration, and logging helpers. The filesystem\nbackend layer must implement the abstract filesystem operations and the\nlocal, memory, and cache behavior exercised indirectly by the public core\ntests. The core open/path layer must consume those contracts to implement\nOpenFile/OpenFiles, URL to filesystem resolution, path expansion, compression\nselection, local-open handling, and multi-file context behavior.\n\nThe v0.3 evaluator intentionally excludes optional implementation backends,\nHTTP/Arrow-dependent test_spec import paths, callbacks requiring pytest-mock,\nand implementation test conftests. The initial benchmark source is the stripped\nCommit0-style ref `origin/commit0_combined`, plus checksum-recorded bootstrap\noverlays that only make public core tests importable.",
   "proposed_parallelizability_label": "partially_parallelizable",
   "publicly_implicated_modules": [
     "fsspec/__init__.py",
@@ -75,7 +102,13 @@
     "fsspec/compression.py",
     "fsspec/core.py",
     "fsspec/registry.py",
-    "fsspec/utils.py"
+    "fsspec/spec.py",
+    "fsspec/utils.py",
+    "fsspec/implementations/cache_mapper.py",
+    "fsspec/implementations/cache_metadata.py",
+    "fsspec/implementations/cached.py",
+    "fsspec/implementations/local.py",
+    "fsspec/implementations/memory.py"
   ],
   "qualification_label": null,
   "qualification_status": "pending_independent_annotation",

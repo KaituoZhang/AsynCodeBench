@@ -199,7 +199,7 @@ def build_documents() -> tuple[dict, dict]:
     if (len(tasks), index["scenario_count"], index["dependency_point_count"]) != (
         20,
         80,
-        55,
+        56,
     ):
         raise ValueError("unexpected unified v0.4 release composition")
     return index, official

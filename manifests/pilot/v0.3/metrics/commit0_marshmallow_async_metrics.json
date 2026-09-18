@@ -12,9 +12,10 @@
   },
   "annotation_notes": [
     "The fields_to_schema dependency is the primary signal because schema load/dump behavior is highly sensitive to stale field and validator contracts.",
-    "The registry_to_nested dependency captures stale assumptions around schema class registration, declared fields, only/exclude propagation, and Nested resolution.",
-    "The decorators_to_schema dependency captures stale assumptions around hook metadata and error-store shape.",
+    "The registry_to_nested dependency captures stale assumptions around ordered declarations, schema class registration, declared fields, only/exclude propagation, and Nested resolution.",
+    "The decorators_to_schema dependency captures stale assumptions around hook metadata, ValidationError normalization, and error-store shape.",
     "Revision v0.3.1 replaces an uncollectable MySchema method selector with the public, collected test_decorator_error_handling probe.",
+    "Revision v0.3.2 closes the public dependency scope over OrderedSet and ValidationError behavior exercised by the evaluator.",
     "These labels identify public test-observable contracts, not solution code."
   ],
   "dependency_points": [
@@ -66,7 +67,7 @@
         "src/marshmallow/fields.py"
       ],
       "consumer_subproblem": "field_validation_layer",
-      "contract_summary": "Schema registration, declared-field collection, Meta options, and class-name lookup must support Nested fields, self references, and only/exclude propagation.",
+      "contract_summary": "Ordered declarations, schema registration, declared-field collection, Meta options, and class-name lookup must support Nested fields, self references, and only/exclude propagation.",
       "dependency_id": "marshmallow.registry_to_nested.schema_resolution_contract",
       "dependency_type": "interface_dependency",
       "downstream_probe_tests": [
@@ -88,6 +89,7 @@
       "producer_agent": "registry_agent",
       "producer_files": [
         "src/marshmallow/class_registry.py",
+        "src/marshmallow/orderedset.py",
         "src/marshmallow/schema.py"
       ],
       "producer_subproblem": "registry_declaration_layer",
@@ -105,7 +107,7 @@
         "src/marshmallow/validate.py"
       ],
       "consumer_subproblem": "field_validation_layer",
-      "contract_summary": "Decorator hook metadata, schema hook invocation, and ErrorStore merge semantics must agree with field and schema validation error contracts.",
+      "contract_summary": "Decorator hook metadata, schema hook invocation, ValidationError normalization, and ErrorStore merge semantics must agree with field and schema validation error contracts.",
       "dependency_id": "marshmallow.decorators_to_schema.hook_error_contract",
       "dependency_type": "shared_state_contract",
       "downstream_probe_tests": [
@@ -116,6 +118,7 @@
         "tests/test_decorators.py::TestValidatesDecorator::test_validates",
         "tests/test_decorators.py::TestValidatesSchemaDecorator::test_decorated_validators",
         "tests/test_decorators.py::test_decorator_error_handling",
+        "tests/test_exceptions.py::TestValidationError::test_stores_dictionaries_in_messages_dict",
         "tests/test_error_store.py::TestMergeErrors::test_merging_dict_and_dict"
       ],
       "metrics_enabled": [
@@ -128,13 +131,15 @@
       "producer_files": [
         "src/marshmallow/decorators.py",
         "src/marshmallow/error_store.py",
+        "src/marshmallow/exceptions.py",
         "src/marshmallow/schema.py"
       ],
       "producer_subproblem": "schema_processing_layer",
-      "resolution_criteria": "Resolved when decorator metadata, schema hook processing, field validation, and error-store probes pass together.",
-      "stale_failure_mode": "Field or validation work may assume a stale hook metadata or error merge shape, causing integrated decorator/custom-error tests to fail.",
+      "resolution_criteria": "Resolved when decorator metadata, schema hook processing, ValidationError normalization, field validation, and error-store probes pass together.",
+      "stale_failure_mode": "Field or validation work may assume stale hook metadata, ValidationError normalization, or error merge shape, causing integrated decorator/custom-error tests to fail.",
       "upstream_probe_tests": [
         "tests/test_decorators.py::TestValidatesDecorator::test_validates",
+        "tests/test_exceptions.py::TestValidationError::test_stores_dictionaries_in_messages_dict",
         "tests/test_error_store.py::TestMergeErrors::test_merging_dict_and_dict"
       ]
     }
@@ -153,7 +158,7 @@
     "minimum_policy": "Run probe tests after each agent final artifact and after final integration.",
     "recommended_policy": "Run probe tests after every committed patch, every explicit artifact transfer, and final integration."
   },
-  "metric_annotation_id": "commit0-marshmallow.async-metrics.v0.3.1",
+  "metric_annotation_id": "commit0-marshmallow.async-metrics.v0.3.2",
   "metric_definitions": {
     "ADPR": {
       "definition": "Fraction of registered dependency_points whose required integrated_probe_tests pass in the final integrated workspace.",
