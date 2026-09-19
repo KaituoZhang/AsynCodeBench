@@ -278,7 +278,7 @@
         },
         "quality": {
           "path": "manifests/pilot/v0.3/quality/commit0_portalocker.json",
-          "sha256": "1aed52fc8127ea30b089ef0f2b131417bf2babdf0d63e4248c0f55c2e6eea90c"
+          "sha256": "451c1983603225b7140ea82c73b4f6e0631b06a8f72e4c4dac2278f6c396a8cc"
         },
         "scenarios": {
           "path": "manifests/pilot/v0.3/scenarios/commit0_portalocker.json",
@@ -286,7 +286,7 @@
         },
         "task": {
           "path": "manifests/pilot/v0.3/tasks/commit0_portalocker.json",
-          "sha256": "a57a8825fc374a3791a0ba100e6fba5104bade50f896a83309de7224e917acde"
+          "sha256": "79198cc9ae2da89dc0c467cd601b308fc18666788da4e2f38220976f43fc863f"
         }
       },
       "dependency_point_count": 3,
@@ -335,8 +335,8 @@
         "overlays": [
           {
             "path": "data/overlays/commit0/portalocker/0001-import-bootstrap.patch",
-            "rationale": "Expose intentionally unfinished lock and unlock stubs required by the public package API so the POSIX core evaluator can collect. No operating-system locking, exception translation, timeout, or lifecycle behavior is supplied.",
-            "sha256": "954c4855872d8c4695e981cc257f72a22a4d6e5302f09f0965c2062cee8d6c54"
+            "rationale": "Expose intentionally unfinished lock and unlock stubs required by the public package API so the POSIX core evaluator can collect, and normalize missing end-of-file newlines so the upstream combined-module test preserves source boundaries. No operating-system locking, exception translation, timeout, lifecycle, or other implementation behavior is supplied.",
+            "sha256": "b6b2f2c7fdbce4200774804a49d410648e17a573b42ca007e9471e5e8fa4c96c"
           }
         ],
         "repository": "portalocker"

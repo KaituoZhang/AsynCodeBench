@@ -38,8 +38,20 @@ def test_tinydb_curated_overlay_is_versioned_and_verified() -> None:
         portalocker.overlays[0].sha256
     )
     assert portalocker.overlays[0].sha256 == (
-        "954c4855872d8c4695e981cc257f72a22a4d6e5302f09f0965c2062cee8d6c54"
+        "b6b2f2c7fdbce4200774804a49d410648e17a573b42ca007e9471e5e8fa4c96c"
     )
+
+    overlay = portalocker.overlays[0].path.read_text(encoding="utf-8")
+    for source in (
+        "portalocker/__about__.py",
+        "portalocker/constants.py",
+        "portalocker/exceptions.py",
+        "portalocker/portalocker.py",
+        "portalocker/redis.py",
+        "portalocker/utils.py",
+    ):
+        assert f"diff --git a/{source} b/{source}" in overlay
+    assert overlay.count("\\ No newline at end of file") == 6
 
 
 def test_materialize_curated_task_applies_overlay_without_mutating_base(

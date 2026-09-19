@@ -1,0 +1,207 @@
+{
+  "schema_version": "portalocker-eof-recovery-v1",
+  "created_at": "2026-09-18",
+  "task_id": "asyncodebench:portalocker",
+  "protocol": "async_manager",
+  "status": "targeted_retest_verified_recovery_bundle_pending",
+  "aggregate_19task_comparison": "docs/results/async_manager_vs_single_19task_corrected_20260918.json",
+  "correction": {
+    "affected_test": "portalocker_tests/test_combined.py::test_combined",
+    "failure_signature": "UNBLOCK = LOCK_UNimport typing",
+    "kind": "benchmark_source_boundary_error",
+    "overlay_path": "data/overlays/commit0/portalocker/0001-import-bootstrap.patch",
+    "overlay_sha256": "b6b2f2c7fdbce4200774804a49d410648e17a573b42ca007e9471e5e8fa4c96c",
+    "repair": "Normalize missing end-of-file newlines in the original Portalocker package modules before evaluation.",
+    "behavioral_scope": "Formatting-only benchmark repair; no model-generated implementation or locking behavior is changed.",
+    "validation_command": "python -m pytest -q -p no:cacheprovider -o addopts= portalocker_tests/test_combined.py",
+    "reporting_policy": "Preserve immutable original run artifacts. Publish corrected values through a provenance-linked recovery bundle before treating them as official aggregate inputs."
+  },
+  "records": [
+    {
+      "model_key": "qwen38",
+      "model": "Qwen3.8-27B",
+      "source_run_id": "q38_27b_async_manager_r2_39c5df7_recovery_v02",
+      "source_run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen38-27b/portalocker/async_manager/q38_27b_async_manager_r2_39c5df7_recovery_v02",
+      "source_report_sha256": "190247432350a40dbcf185e769622f71a19500fdacd4cc00bfdd70890f32ee75",
+      "source_final_repo_sha256": "262078864617f4d6f19edeafe37f5545921ad75f48048d4d786832945ed9600e",
+      "original": {
+        "tests_passed": 39,
+        "tests_collected": 40,
+        "test_pass_rate": 0.975,
+        "final_success": false,
+        "resolved_dependencies": 2,
+        "dependency_count": 3,
+        "adpr": 0.6666666666666666
+      },
+      "corrected": {
+        "tests_passed": 40,
+        "tests_collected": 40,
+        "test_pass_rate": 1.0,
+        "final_success": true,
+        "resolved_dependencies": 3,
+        "dependency_count": 3,
+        "adpr": 1.0,
+        "remaining_failures": 0
+      },
+      "retained_run_cost": {
+        "total_tokens": 4034817,
+        "runtime_seconds": 10175.5
+      },
+      "targeted_retest": {
+        "passed": 1,
+        "failed": 0,
+        "exit_code": 0
+      }
+    },
+    {
+      "model_key": "deepseek",
+      "model": "DeepSeek-V4-Flash-0731 (OpenRouter)",
+      "source_run_id": "openrouter-dsv4-async-manager-r2-39c5df7-recovery-v02",
+      "source_run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/openrouter_deepseek_deepseek-v4-flash-0731/portalocker/async_manager/openrouter-dsv4-async-manager-r2-39c5df7-recovery-v02",
+      "source_report_sha256": "b6c4db7525ed50ba552973dca2a116c3a9c6d79b504dd16ab0a9a41a97197992",
+      "source_final_repo_sha256": "ae1b0a4e51e295ce66ea25925eaa6f8b9dffa8e34ff69a9cd0fbea6ac3160c29",
+      "original": {
+        "tests_passed": 39,
+        "tests_collected": 40,
+        "test_pass_rate": 0.975,
+        "final_success": false,
+        "resolved_dependencies": 2,
+        "dependency_count": 3,
+        "adpr": 0.6666666666666666
+      },
+      "corrected": {
+        "tests_passed": 40,
+        "tests_collected": 40,
+        "test_pass_rate": 1.0,
+        "final_success": true,
+        "resolved_dependencies": 3,
+        "dependency_count": 3,
+        "adpr": 1.0,
+        "remaining_failures": 0
+      },
+      "retained_run_cost": {
+        "total_tokens": 4952524,
+        "runtime_seconds": 3001.9
+      },
+      "targeted_retest": {
+        "passed": 1,
+        "failed": 0,
+        "exit_code": 0
+      }
+    },
+    {
+      "model_key": "glm",
+      "model": "GLM-4.7-Flash (OpenRouter)",
+      "source_run_id": "openrouter-glm47f-async-manager-r5-ce3fc98-v01",
+      "source_run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/openrouter-z-ai-glm-4.7-flash/portalocker/async_manager/openrouter-glm47f-async-manager-r5-ce3fc98-v01",
+      "source_report_sha256": "ce902e23abab35046a865f72578acb6297b5d4199c00ae10c01b4eed775ff169",
+      "source_final_repo_sha256": "0ed1ef691e7de207cd6d790f5ee3263da6ae2a53a12db154f8c29e5bf2654c11",
+      "original": {
+        "tests_passed": 18,
+        "tests_collected": 40,
+        "test_pass_rate": 0.45,
+        "final_success": false,
+        "resolved_dependencies": 0,
+        "dependency_count": 3,
+        "adpr": 0.0
+      },
+      "corrected": {
+        "tests_passed": 19,
+        "tests_collected": 40,
+        "test_pass_rate": 0.475,
+        "final_success": false,
+        "resolved_dependencies": 0,
+        "dependency_count": 3,
+        "adpr": 0.0,
+        "remaining_failures": 21
+      },
+      "retained_run_cost": {
+        "total_tokens": 12673912,
+        "runtime_seconds": 3825.2
+      },
+      "targeted_retest": {
+        "passed": 1,
+        "failed": 0,
+        "exit_code": 0
+      },
+      "remaining_failure_scope": [
+        "temporary-file lock lifecycle",
+        "bounded semaphore behavior",
+        "timeout and exception translation",
+        "Lock and RLock lifecycle",
+        "blocking and non-blocking flag behavior"
+      ]
+    }
+  ],
+  "single_baseline_source": {
+    "repository": "AsyncCodeBench",
+    "path": "docs/results/paper_four_protocol_per_run_20260915.csv",
+    "sha256": "f4785bb54201ab864252f2d33b991f5d3a0edbd753a2382ce00676e798f27417"
+  },
+  "single_comparisons": [
+    {
+      "model_key": "qwen38",
+      "single_run_id": "q38_27b_primary3_cf161f3_s1_v01",
+      "single_run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/qwen38-27b/portalocker/single/q38_27b_primary3_cf161f3_s1_v01",
+      "single": {
+        "tests_passed": 40,
+        "tests_collected": 40,
+        "test_pass_rate": 1.0,
+        "final_success": true,
+        "resolved_dependencies": 3,
+        "dependency_count": 3,
+        "adpr": 1.0,
+        "total_tokens": 1403111,
+        "runtime_seconds": 1385.463948
+      },
+      "async_manager_corrected": {
+        "tests_passed": 40,
+        "tests_collected": 40,
+        "test_pass_rate": 1.0,
+        "final_success": true,
+        "resolved_dependencies": 3,
+        "dependency_count": 3,
+        "adpr": 1.0,
+        "total_tokens": 4034817,
+        "runtime_seconds": 10175.5
+      },
+      "relative_efficiency": {
+        "async_manager_token_ratio_vs_single": 2.876,
+        "async_manager_runtime_ratio_vs_single": 7.344
+      },
+      "conclusion": "Quality tie: both protocols solve Portalocker completely and resolve all dependencies. Single is materially more token- and wall-clock-efficient on this task."
+    },
+    {
+      "model_key": "deepseek",
+      "single_run_id": "openrouter-paper-843c9c9-v01",
+      "single_run_dir": "reproductions/async-swe-agents/outputs/asyncodebench/v0.3/openrouter_deepseek_deepseek-v4-flash-0731/portalocker/single/openrouter-paper-843c9c9-v01",
+      "single": {
+        "tests_passed": 40,
+        "tests_collected": 40,
+        "test_pass_rate": 1.0,
+        "final_success": true,
+        "resolved_dependencies": 3,
+        "dependency_count": 3,
+        "adpr": 1.0,
+        "total_tokens": 1819899,
+        "runtime_seconds": 283.010488
+      },
+      "async_manager_corrected": {
+        "tests_passed": 40,
+        "tests_collected": 40,
+        "test_pass_rate": 1.0,
+        "final_success": true,
+        "resolved_dependencies": 3,
+        "dependency_count": 3,
+        "adpr": 1.0,
+        "total_tokens": 4952524,
+        "runtime_seconds": 3001.9
+      },
+      "relative_efficiency": {
+        "async_manager_token_ratio_vs_single": 2.721,
+        "async_manager_runtime_ratio_vs_single": 10.607
+      },
+      "conclusion": "Quality tie: both protocols solve Portalocker completely and resolve all dependencies. Single is materially more token- and wall-clock-efficient on this task."
+    }
+  ]
+}

@@ -2,6 +2,7 @@ from pathlib import Path
 
 from asyncodebench.dataset.models import ExecutionMode
 from asyncodebench.dataset.portalocker_v03 import (
+    PORTALOCKER_OVERLAY_SHA256,
     build_annotation_forms,
     build_quality_record,
     build_scenarios,
@@ -27,11 +28,13 @@ def test_portalocker_is_saved_as_qualification_ready_curated_task() -> None:
     assert snapshots["raw_commit0_collection"].collected == 0
     assert snapshots["raw_commit0_collection"].return_code == 4
     assert snapshots["curated_commit0_initial"].collected == 40
-    assert snapshots["curated_commit0_initial"].passed == 8
-    assert snapshots["curated_commit0_initial"].failed == 32
+    assert snapshots["curated_commit0_initial"].passed == 9
+    assert snapshots["curated_commit0_initial"].failed == 31
     assert "interface_dependency" in {
         tag.value for tag in quality.coordination_structure_tags
     }
+    assert PORTALOCKER_OVERLAY_SHA256 in task.notes[0]
+    assert any("end-of-file newlines" in note for note in task.notes)
 
 
 def test_portalocker_draft_scenarios_use_two_natural_specialists() -> None:

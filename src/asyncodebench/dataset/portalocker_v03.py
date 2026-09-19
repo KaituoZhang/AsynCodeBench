@@ -31,7 +31,7 @@ PORTALOCKER_OVERLAY_FILE = (
     "data/overlays/commit0/portalocker/0001-import-bootstrap.patch"
 )
 PORTALOCKER_OVERLAY_SHA256 = (
-    "954c4855872d8c4695e981cc257f72a22a4d6e5302f09f0965c2062cee8d6c54"
+    "b6b2f2c7fdbce4200774804a49d410648e17a573b42ca007e9471e5e8fa4c96c"
 )
 PORTALOCKER_TASK_STATEMENT = """
 Restore the unfinished POSIX file-locking APIs in the Portalocker repository
@@ -157,6 +157,12 @@ def build_task_record(candidate_file: Path) -> TaskRecord:
                 "The benchmark initial state is curated from raw Commit0 by "
                 f"{PORTALOCKER_OVERLAY_FILE} with SHA-256 "
                 f"{PORTALOCKER_OVERLAY_SHA256}."
+            ),
+            (
+                "The overlay also normalizes missing end-of-file newlines in "
+                "package modules so the upstream combined-module test cannot "
+                "join adjacent Python tokens. This is a source-format repair "
+                "and supplies no locking behavior."
             ),
             (
                 "exceptions.py marker-only classes and the HasFileno Protocol "
@@ -416,7 +422,7 @@ def build_quality_record() -> TaskQualityRecord:
                 description=(
                     "Lock/RLock, timeout, process, semaphore, temporary-file, "
                     "combined-module, and exception integration. Curated "
-                    "initial result: 4 passed and 27 failed."
+                    "initial result: 5 passed and 26 failed."
                 ),
                 prerequisites=(
                     "platform_lock_backend artifact is integrated",
@@ -465,16 +471,16 @@ def build_quality_record() -> TaskQualityRecord:
                 source_ref=(
                     "commit0:300136afca11ea23c79ecfd110ed0d2819322f11"
                     "+overlay:"
-                    "954c4855872d8c4695e981cc257f72a22a4d6e5302f09f096"
-                    "5c2062cee8d6c54"
+                    "b6b2f2c7fdbce4200774804a49d410648e17a573b42ca007e9"
+                    "471e5e8fa4c96c"
                 ),
                 evidence_scope="public_initial_state",
                 command=evaluator,
                 python_version="3.10.4",
                 dependency_versions=environment,
                 collected=40,
-                passed=8,
-                failed=32,
+                passed=9,
+                failed=31,
                 errors=0,
                 skipped=0,
                 return_code=1,
@@ -487,6 +493,11 @@ def build_quality_record() -> TaskQualityRecord:
                     (
                         "The two empty lock/unlock stubs are import controls "
                         "and must not be counted as agent progress."
+                    ),
+                    (
+                        "Missing end-of-file newlines are normalized so the "
+                        "combined-module evaluator has deterministic source "
+                        "boundaries; no implementation behavior is added."
                     ),
                 ),
             ),

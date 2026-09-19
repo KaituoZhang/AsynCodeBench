@@ -22,8 +22,8 @@
       "overlays": [
         {
           "path": "data/overlays/commit0/portalocker/0001-import-bootstrap.patch",
-          "sha256": "954c4855872d8c4695e981cc257f72a22a4d6e5302f09f0965c2062cee8d6c54",
-          "rationale": "Expose intentionally unfinished lock and unlock stubs required by the public package API so the POSIX core evaluator can collect. No operating-system locking, exception translation, timeout, or lifecycle behavior is supplied."
+          "sha256": "b6b2f2c7fdbce4200774804a49d410648e17a573b42ca007e9471e5e8fa4c96c",
+          "rationale": "Expose intentionally unfinished lock and unlock stubs required by the public package API so the POSIX core evaluator can collect, and normalize missing end-of-file newlines so the upstream combined-module test preserves source boundaries. No operating-system locking, exception translation, timeout, lifecycle, or other implementation behavior is supplied."
         }
       ]
     },

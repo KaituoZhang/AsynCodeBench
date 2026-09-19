@@ -19,7 +19,7 @@ completed evaluator-sanity tag: v2.10.1
 curated overlay:
   data/overlays/commit0/portalocker/0001-import-bootstrap.patch
 overlay SHA-256:
-  954c4855872d8c4695e981cc257f72a22a4d6e5302f09f0965c2062cee8d6c54
+  b6b2f2c7fdbce4200774804a49d410648e17a573b42ca007e9471e5e8fa4c96c
 ```
 
 The decomposition uses only public Commit0 source, docstrings, tests, and
@@ -70,6 +70,13 @@ def unlock(file):
 These stubs only satisfy package-level symbol lookup. They do not implement
 POSIX locking, conflict detection, exception translation, unlocking, timeout
 behavior, or file lifecycle. In fact, the majority of tests continue to fail.
+
+The same overlay normalizes missing end-of-file newlines in the original
+package modules. The upstream `test_combined` evaluator concatenates those
+modules into one generated source file; explicit source boundaries prevent
+valid adjacent tokens from becoming invalid text such as
+`LOCK_UNimport typing`. This formatting-only normalization does not reveal or
+implement any task behavior.
 
 The workspace is reconstructed with:
 
@@ -185,8 +192,8 @@ Cross-subproblem group:
 ```text
 backend_utilities_cross_contract:
   31 selected
-  4 passed
-  27 failed
+  5 passed
+  26 failed
 ```
 
 Completed public v2.10.1 sanity:

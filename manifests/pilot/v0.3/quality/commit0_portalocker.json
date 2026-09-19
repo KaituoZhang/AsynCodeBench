@@ -67,18 +67,19 @@
       "duration_seconds": 1.34,
       "errors": 0,
       "evidence_scope": "public_initial_state",
-      "failed": 32,
+      "failed": 31,
       "notes": [
         "All POSIX core tests collect successfully from the checksum-pinned curated initial state.",
-        "The two empty lock/unlock stubs are import controls and must not be counted as agent progress."
+        "The two empty lock/unlock stubs are import controls and must not be counted as agent progress.",
+        "Missing end-of-file newlines are normalized so the combined-module evaluator has deterministic source boundaries; no implementation behavior is added."
       ],
-      "passed": 8,
+      "passed": 9,
       "python_version": "3.10.4",
       "return_code": 1,
       "schema_version": "0.3",
       "skipped": 0,
       "snapshot_id": "curated_commit0_initial",
-      "source_ref": "commit0:300136afca11ea23c79ecfd110ed0d2819322f11+overlay:954c4855872d8c4695e981cc257f72a22a4d6e5302f09f0965c2062cee8d6c54"
+      "source_ref": "commit0:300136afca11ea23c79ecfd110ed0d2819322f11+overlay:b6b2f2c7fdbce4200774804a49d410648e17a573b42ca007e9471e5e8fa4c96c"
     },
     {
       "collected": 40,
@@ -208,7 +209,7 @@
         "portalocker_tests/tests.py::test_locker_mechanism",
         "portalocker_tests/tests.py::test_exception"
       ],
-      "description": "Lock/RLock, timeout, process, semaphore, temporary-file, combined-module, and exception integration. Curated initial result: 4 passed and 27 failed.",
+      "description": "Lock/RLock, timeout, process, semaphore, temporary-file, combined-module, and exception integration. Curated initial result: 5 passed and 26 failed.",
       "group_id": "backend_utilities_cross_contract",
       "owner_subproblem": null,
       "prerequisites": [
