@@ -165,8 +165,6 @@ def validate(directory, verify_inventory=True):
                 for line in scope_path.read_text().splitlines()
                 if line.strip()
             ]
-            if len(artifacts) != len(records):
-                issues.append("manager_intervention_artifact_coverage_mismatch")
             responses = [
                 json.loads(line)
                 for line in (directory / "outputs.jsonl").read_text().splitlines()
@@ -190,6 +188,13 @@ def validate(directory, verify_inventory=True):
                 )
                 for row in artifacts
             )
+            # Scope collection is a specialist-completion property, not an
+            # intervention property.  A failed collection has a scope record
+            # but intentionally creates neither an integration checkpoint nor
+            # a manager intervention.  The keyed response/collection equality
+            # below is therefore the authoritative coverage check; comparing
+            # the raw scope count with the intervention count rejects valid
+            # concurrent failure traces.
             if completed != collected:
                 issues.append("specialist_result_collection_coverage_mismatch")
         except (OSError, ValueError, KeyError, TypeError):

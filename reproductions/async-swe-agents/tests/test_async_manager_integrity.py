@@ -654,7 +654,45 @@ def test_missing_intervention_is_detected_by_new_profile(tmp_path, monkeypatch):
     (tmp_path / "scope_validation.jsonl").write_text("{}\n")
     issues = results.validate(tmp_path, verify_inventory=False)
     assert "manager_intervention_checkpoint_coverage_mismatch" in issues
-    assert "manager_intervention_artifact_coverage_mismatch" in issues
+
+
+def test_failed_collection_does_not_require_manager_intervention(
+    tmp_path, monkeypatch
+):
+    import protocols.async_manager.results as results
+
+    monkeypatch.setattr(results.v1_results, "validate", lambda *a, **k: [])
+    monkeypatch.setattr(results.v1_results, "_load_interventions", lambda *a: [])
+    monkeypatch.setattr(results, "_budget_issues", lambda *a: [])
+    (tmp_path / "async_manager_profile_snapshot.json").write_text(
+        json.dumps({"event_completeness_required": True})
+    )
+    (tmp_path / "dependency_probe_checkpoints.jsonl").write_text("")
+    (tmp_path / "outputs.jsonl").write_text(
+        json.dumps(
+            {
+                "event_type": "agent_response",
+                "source": "engineer_1",
+                "target": "manager",
+                "round_num": 1,
+                "content": {"task_id": "producer"},
+            }
+        )
+        + "\n"
+    )
+    (tmp_path / "scope_validation.jsonl").write_text(
+        json.dumps(
+            {
+                "agent_id": "engineer_1",
+                "task_assignment_id": "producer",
+                "round_num": 1,
+                "passed": False,
+                "reasons": ["artifact collection timed out"],
+            }
+        )
+        + "\n"
+    )
+    assert results.validate(tmp_path, verify_inventory=False) == []
 
 
 def test_result_lost_before_collection_cannot_be_a_valid_run(tmp_path, monkeypatch):
