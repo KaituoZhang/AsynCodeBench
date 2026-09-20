@@ -351,7 +351,8 @@ def test_pr_hard_worktree_is_built_before_runtime_import(tmp_path) -> None:
         in workspace.commands[0][0]
     )
     assert "cmake --build build --parallel" in workspace.commands[1][0]
-    assert "python -c" in workspace.commands[2][0]
+    assert "test -x /usr/local/bin/python" in workspace.commands[2][0]
+    assert "/usr/local/bin/python -c" in workspace.commands[2][0]
     assert all("cd /workspace/agent" in command for command, _ in workspace.commands)
 
 

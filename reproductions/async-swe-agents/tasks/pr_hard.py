@@ -440,7 +440,13 @@ class PrHardTask(AsynCodeBenchTask):
         print("[PR-hard] Sanitized one-commit workspace built and verified clean")
 
     def validate_worktree_runtime(self, workspace, worktree_path):
-        """Prove that ``python`` resolves TVM from the requested worktree."""
+        """Prove that the installed wrapper resolves TVM from the worktree.
+
+        The immutable runtime image may prepend its environment's ``bin``
+        directory to ``PATH``.  Calling bare ``python`` would then bypass the
+        worktree-aware wrapper installed by :meth:`setup_workspace`, leaving
+        the private worktree without its source and build-library paths.
+        """
         quoted_worktree = shlex.quote(str(worktree_path))
         script = (
             "import pathlib, tvm; "
@@ -452,7 +458,8 @@ class PrHardTask(AsynCodeBenchTask):
             "print(loaded)"
         )
         result = workspace.execute_command(
-            f"cd {quoted_worktree} && python -c {shlex.quote(script)}",
+            f"cd {quoted_worktree} && test -x /usr/local/bin/python && "
+            f"/usr/local/bin/python -c {shlex.quote(script)}",
             timeout=120,
         )
         if result.exit_code != 0:
