@@ -33,6 +33,6 @@ immutable so historical Async-Manager bundles retain their recorded contract.
 The historical four-protocol wrapper remains available for exact reproduction
 of earlier releases; it is not silently changed to launch the fifth condition.
 
-`static_commit0.py` and the `run_commit0_*` scripts are retained only for
-historical v1 reproduction. They are not public entry points for new official
-AsynCodeBench results.
+`static_commit0.py` retains its historical filename because it is the frozen
+baseline engine reused by the native AsynCodeBench runner. It is an internal
+implementation module, not a public task namespace or command-line entry point.

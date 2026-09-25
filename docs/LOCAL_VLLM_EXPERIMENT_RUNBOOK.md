@@ -208,7 +208,6 @@ ASYNCODEBENCH_REMOTE_POLL_INTERVAL=5
 ASYNCODEBENCH_WORKSPACE_DOCKER_NETWORK=host
 ASYNCODEBENCH_WORKSPACE_HOST_PORT=8000
 
-COMMIT0_DATASET_PATH=/absolute/path/to/AsynCodeBench/reproductions/async-swe-agents/data/commit0/commit0_combined
 SDK_SOURCE_DIR=/absolute/path/to/AsynCodeBench/reproductions/software-agent-sdk
 ```
 

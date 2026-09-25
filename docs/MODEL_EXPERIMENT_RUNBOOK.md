@@ -94,8 +94,8 @@ schemas/release/run_bundle.schema.json
 The v0.3 paths contain the 15 Commit0-derived source manifests; the v0.4.1
 index composes those with the four compiler tasks to expose one 19-task release.
 Source-specific filenames and IDs are provenance. The public runtime
-ID is always `asyncodebench:<repository>`, and native runs do not read
-`COMMIT0_DATASET_PATH`.
+ID is always `asyncodebench:<repository>`, and native runs read task sources
+from the repository-owned release configuration.
 
 The runner is located at:
 
@@ -521,6 +521,6 @@ Give a collaborator or a new coding-agent session these documents in order:
 6. [`LOCAL_VLLM_EXPERIMENT_RUNBOOK.md`](LOCAL_VLLM_EXPERIMENT_RUNBOOK.md) for local models;
 7. [`AGENT_ADAPTER.md`](AGENT_ADAPTER.md) for a custom coding agent.
 
-Historical `outputs/repro_commit0/`, `run_commit0_*` scripts, and
-`COMMIT0_DATASET_PATH` instructions remain only for reproducing earlier internal
-experiments. They must not be mixed into a new native AsynCodeBench campaign.
+Earlier internal Commit0 and PaperBench pilot launchers are intentionally not
+distributed with the community runtime. New campaigns must use the native
+`asyncodebench:<task>` interface and official release manifests described here.

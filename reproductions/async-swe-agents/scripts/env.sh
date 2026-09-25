@@ -68,5 +68,4 @@ if [[ -z "${LLM_MODEL:-}" ]]; then
   _env_fail "LLM_MODEL is required in $ENV_FILE"
 fi
 
-export COMMIT0_DATASET_PATH="${COMMIT0_DATASET_PATH:-data/commit0/commit0_combined}"
 export BUILDKIT_PROGRESS="${BUILDKIT_PROGRESS:-plain}"

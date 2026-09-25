@@ -122,7 +122,7 @@ formal metrics and unresolved-value policy.
 - [`../../docs/LOCAL_VLLM_EXPERIMENT_RUNBOOK.md`](../../docs/LOCAL_VLLM_EXPERIMENT_RUNBOOK.md)
 - [`../../docs/AGENT_ADAPTER.md`](../../docs/AGENT_ADAPTER.md)
 
-## Lineage And Legacy Reproduction
+## Lineage And Compatibility
 
 The manager-mediated protocol derives from CAID's centralized asynchronous
 isolated delegation design. AsynCodeBench adds released task manifests,
@@ -130,9 +130,12 @@ controlled protocol baselines, dependency labels and probes, scope and
 delegation gates, deterministic integration, evaluator contracts, and standard
 run provenance.
 
-The `run_commit0_*` scripts, `tasks/commit0.py`, PaperBench adapter, and older
-prompt files remain for historical result reproduction. They are not the public
-interface for new AsynCodeBench runs.
+The internal `tasks/commit0.py` materialization backend and
+`protocols/static_commit0.py` baseline engine retain their historical names so
+the released four-protocol implementation remains byte-stable. They are used
+through the native `asyncodebench:<task>` interface and are not separate public
+entry points. Obsolete Commit0/PaperBench pilot launchers are not distributed
+in the community runtime.
 
 See the repository-level `LICENSE`, `THIRD_PARTY_NOTICES.md`, and `CITATION.cff`
 for licensing, attribution, and citation information.
