@@ -180,30 +180,26 @@ Do not use this exception to pre-solve a dependency layer merely so downstream
 agents can run. If successful collection requires substantive implementation,
 the candidate remains `needs_revision`.
 
-### Step 1 — Read the candidate packet
+### Step 1 — Read the public candidate evidence
 
-Start from the answer-free packet:
+Start from the answer-free candidate inventory or screening record:
 
 ```text
-manifests/candidates/annotation_packets/commit0_v0.2/annotator_a.json
-manifests/candidates/annotation_packets/commit0_v0.2/annotator_b.json
+manifests/candidates/commit0_public_candidates_v0.2.json
+manifests/candidates/commit0_async_screening_v0.3.json
 ```
 
 Inspect:
 
 ```text
 task_id
-issue_summary
 publicly_implicated_modules
-public_module_count
 static_dependency_edges
-dependency_separability
 test_targets
-test_target_independence
-candidate_parallel_subproblems
-cross_module_constraints
-expected_overlap_surface
-measured_test_and_build_duration
+implementation_units
+unit_dependencies
+test_ownership_hints
+async_risk_hypotheses
 measurement_return_code
 ```
 
