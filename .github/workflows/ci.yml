@@ -27,10 +27,12 @@ jobs:
         run: python scripts/materialize_contract_test_repositories.py
       - run: PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest -q tests/contracts
       - run: python scripts/build_release_index.py --check
+      - run: python scripts/build_v04_release_index.py --check
       - name: Lint public result and release tooling
         run: >-
           python -m ruff check
           scripts/build_release_index.py
+          scripts/build_v04_release_index.py
           scripts/analyze_run_process_metrics.py
           scripts/summarize_model_task_runs.py
           scripts/aggregate_model_task_results.py
@@ -52,8 +54,6 @@ jobs:
           docs/RESULT_VALIDITY.md
           docs/MODEL_EXPERIMENT_RUNBOOK.md
           docs/ASYNCODEBENCH_HARNESS_V2.md
-          docs/EVALUATION_BRANCH_QUICKSTART.md
-          docs/COMMUNITY_RELEASE_AND_AGENT_ADAPTER_PLAN.md
           docs/EVALUATION_METRICS.md
           reproductions/async-swe-agents/README.md
 

@@ -18,7 +18,7 @@ def _read_json(path: Path) -> dict:
 def test_official_annotations_use_asyncodebench_namespace() -> None:
     official_tasks = _read_json(OFFICIAL_TASKS_FILE)["official_tasks"]
 
-    assert len(official_tasks) == 16
+    assert len(official_tasks) == 15
     assert not (ANNOTATION_ROOT.parent / "commit0_v0.3").exists()
 
     for repository in official_tasks:

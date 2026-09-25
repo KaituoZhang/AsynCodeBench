@@ -21,22 +21,10 @@ QUALIFICATION_SCHEMA = ROOT / "schemas/v0.4/pr_hard_qualification_record.schema.
 SCENARIO_SCHEMA = ROOT / "schemas/v0.3/scenario_record.schema.json"
 ANNOTATION_SCHEMA = ROOT / "schemas/v0.3/annotation_form.schema.json"
 ANNOTATION_ROOT = ROOT / "manifests/annotations/pr_hard_v0.4"
-TVM_SCREENING = (
-    ROOT
-    / "manifests/candidates/pr_hard_v0.4/discovery"
-    / "apache_tvm_pr_screening_20260826.json"
-)
-TVM_DEEP_QUALIFICATION = (
-    ROOT
-    / "manifests/candidates/pr_hard_v0.4/discovery"
-    / "apache_tvm_pr_deep_qualification_20260826.json"
-)
-
-
 def load_records() -> list[dict[str, object]]:
     payload = json.loads(CONFIG.read_text(encoding="utf-8"))
     assert payload["schema_version"] == "pr-hard-candidates-v0.4"
-    assert payload["release_status"] == "candidate_qualification_pending"
+    assert payload["release_status"] == "official_release_frozen"
     return payload["records"]
 
 
@@ -45,86 +33,6 @@ def test_registry_matches_v04_schema() -> None:
     schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
     Draft202012Validator.check_schema(schema)
     Draft202012Validator(schema).validate(payload)
-
-
-def test_deep_tvm_qualification_provenance_and_public_overlays() -> None:
-    screening = json.loads(TVM_SCREENING.read_text(encoding="utf-8"))
-    deep = json.loads(TVM_DEEP_QUALIFICATION.read_text(encoding="utf-8"))
-    assert screening["execution_follow_up"] == str(
-        TVM_DEEP_QUALIFICATION.relative_to(ROOT)
-    )
-
-    records = {record["task_id"]: record for record in deep["records"]}
-    assert set(records) == {
-        "pr-hard:apache-tvm-20107",
-        "pr-hard:apache-tvm-20073",
-        "pr-hard:apache-tvm-20121",
-        "pr-hard:apache-tvm-20168",
-    }
-    expected_provenance = {
-        "pr-hard:apache-tvm-20107": (
-            "0468e13a1450a4429758003612aa2b3d080c1f13",
-            "bb9bc20a8294fb19a2a40f029fe57baa546a8206",
-        ),
-        "pr-hard:apache-tvm-20073": (
-            "62fb780bb0a8da62e3808f60a2343f6fd1d4b01f",
-            "ae99c3fd92ddb8cd5bb0cbda1dd9584b525b7a24",
-        ),
-        "pr-hard:apache-tvm-20121": (
-            "ea0950abfe49031720171a931fc244c0fb2033e2",
-            "27c2e019d0ce6182158020c7534dda4a3ce981ae",
-        ),
-        "pr-hard:apache-tvm-20168": (
-            "4e9a099d154d7c4644a40a1a9c00b8873226468e",
-            "2647a19cc39965e39033904f42e934a76d427d53",
-        ),
-    }
-
-    for task_id, record in records.items():
-        assert (record["base_sha"], record["gold_sha"]) == expected_provenance[
-            task_id
-        ]
-        overlay = record["public_test_overlay"]
-        patch_path = ROOT / overlay["path"]
-        patch_bytes = patch_path.read_bytes()
-        patch_text = patch_bytes.decode("utf-8")
-        assert hashlib.sha256(patch_bytes).hexdigest() == overlay["sha256"]
-        targets = patch_targets(patch_text)
-        assert targets
-        assert all(path.startswith("tests/") for path in targets)
-        assert str(task_id.rsplit("-", 1)[-1]) not in patch_text
-        assert record["base_sha"] not in patch_text
-        assert record["gold_sha"] not in patch_text
-
-
-def test_deep_tvm_qualification_decisions_follow_ablation_evidence() -> None:
-    deep = json.loads(TVM_DEEP_QUALIFICATION.read_text(encoding="utf-8"))
-    records = {record["task_id"]: record for record in deep["records"]}
-
-    for task_id in ("pr-hard:apache-tvm-20107", "pr-hard:apache-tvm-20073"):
-        record = records[task_id]
-        matrix = record["focused_matrix"]
-        assert record["decision"] == "proceed_to_runtime_packaging_and_human_review"
-        assert matrix["base"]["passed"] == 0
-        assert matrix["base"]["failed"] == matrix["selectors"]
-        assert matrix["offline_gold"]["passed"] == matrix["selectors"]
-        assert matrix["offline_gold"]["failed"] == 0
-        assert record["blocking_gates"][-1] == "mandatory_human_review"
-
-    kv = records["pr-hard:apache-tvm-20121"]
-    assert kv["decision"] == "needs_revision"
-    assert kv["focused_matrix"]["kernel_only"]["passed"] == 0
-    assert kv["focused_matrix"]["runtime_only"]["passed"] == 0
-    assert kv["focused_matrix"]["kernel_plus_runtime_without_high_level_frontend"] == (
-        kv["focused_matrix"]["offline_gold"]
-    )
-
-    tuple_ir = records["pr-hard:apache-tvm-20168"]
-    assert tuple_ir["decision"] == "needs_revision"
-    assert tuple_ir["base_execution"]["exit_code"] == 4
-    assert tuple_ir["partial_state_evidence"]["core_only"]["passed"] == 1
-    assert tuple_ir["partial_state_evidence"]["core_plus_traversal"]["passed"] == 4
-    assert tuple_ir["partial_state_evidence"]["offline_gold"]["passed"] == 5
 
 
 def patch_targets(patch_text: str) -> set[str]:
@@ -142,12 +50,9 @@ def overlay_specs(record: dict[str, object]) -> list[dict[str, str]]:
     ]
 
 
-def test_registry_contains_reviewed_tvm_candidates() -> None:
+def test_registry_contains_official_tvm_tasks() -> None:
     records = load_records()
     assert {record["task_id"] for record in records} == {
-        "pr-hard:apache-tvm-20116",
-        "pr-hard:apache-tvm-20134",
-        "pr-hard:apache-tvm-19605",
         "pr-hard:apache-tvm-20153",
         "pr-hard:apache-tvm-20107",
         "pr-hard:apache-tvm-20073",
@@ -156,9 +61,6 @@ def test_registry_contains_reviewed_tvm_candidates() -> None:
     assert {record["repository"] for record in records} == {"apache/tvm"}
     kinds = {record["task_id"]: record["candidate_kind"] for record in records}
     assert kinds == {
-        "pr-hard:apache-tvm-20116": "single_agent_calibration",
-        "pr-hard:apache-tvm-20134": "single_agent_calibration",
-        "pr-hard:apache-tvm-19605": "multi_agent_benchmark_candidate",
         "pr-hard:apache-tvm-20153": "multi_agent_benchmark_candidate",
         "pr-hard:apache-tvm-20107": "multi_agent_benchmark_candidate",
         "pr-hard:apache-tvm-20073": "multi_agent_benchmark_candidate",
@@ -168,20 +70,11 @@ def test_registry_contains_reviewed_tvm_candidates() -> None:
 
 def test_base_and_gold_provenance_is_pinned() -> None:
     records = {record["task_id"]: record for record in load_records()}
-    older = records["pr-hard:apache-tvm-20116"]
-    newer = records["pr-hard:apache-tvm-20134"]
-    pipeline = records["pr-hard:apache-tvm-19605"]
     ptx = records["pr-hard:apache-tvm-20153"]
     type_params = records["pr-hard:apache-tvm-20107"]
     source_spans = records["pr-hard:apache-tvm-20073"]
     return_stmt = records["pr-hard:apache-tvm-20018"]
 
-    assert older["base_sha"] == "e85fbb1fa93d7e417fa20d5c48925b6665daeeee"
-    assert older["gold_sha"] == "3dea168fe20d6ea5c0d42de2b3fb4ad021fe5cf1"
-    assert newer["base_sha"] == older["gold_sha"]
-    assert newer["gold_sha"] == "cec83d1badecf35ba73dc206dc5d206ad4eea12e"
-    assert pipeline["base_sha"] == "e159487b0e4131b6874622bf03c546e837ae84c6"
-    assert pipeline["gold_sha"] == "ec3171ab7a4c06fff4e9c1e441d28ef4e9a5831b"
     assert ptx["base_sha"] == "a35aca6a0ae5a61c486cb9a61c36b09be45f81af"
     assert ptx["gold_sha"] == "f20fa692d5dd71d875a9e310eae3e754169888fb"
     assert type_params["base_sha"] == "0468e13a1450a4429758003612aa2b3d080c1f13"
@@ -213,26 +106,15 @@ def test_public_overlays_are_checksum_pinned_and_test_only() -> None:
 
 def test_candidate_eligibility_matches_natural_decomposition() -> None:
     for record in load_records():
-        if record["candidate_kind"] == "single_agent_calibration":
-            assert record["qualification_status"].startswith("pending_")
-            assert record["execution_eligibility"] == ["iterative_single_agent"]
-            hypothesis = record["natural_responsibility_hypothesis"]
-            assert hypothesis["status"] == (
-                "not_admissible_for_current_path_owned_async_conditions"
-            )
-        else:
-            if record["qualification_status"] in {"pending_human_review", "qualified"}:
-                assert record["execution_eligibility"] == [
-                    "iterative_single",
-                    "serial_specialists",
-                    "async_private",
-                    "async_message",
-                ]
-            else:
-                assert record["qualification_status"] == "needs_revision"
-                assert record["execution_eligibility"] == []
-            assert len(record["natural_subproblems"]) == 3
-            assert len(record["dependency_points"]) == 2
+        assert record["qualification_status"] == "qualified"
+        assert record["execution_eligibility"] == [
+            "iterative_single",
+            "serial_specialists",
+            "async_private",
+            "async_message",
+        ]
+        assert len(record["natural_subproblems"]) == 3
+        assert len(record["dependency_points"]) == 2
 
 
 def test_multi_agent_ownership_is_disjoint_and_complete() -> None:
@@ -503,9 +385,6 @@ def test_preparation_helper_validates_and_lists_registry() -> None:
         capture_output=True,
         text=True,
     )
-    assert "pr-hard:apache-tvm-20116" in completed.stdout
-    assert "pr-hard:apache-tvm-20134" in completed.stdout
-    assert "pr-hard:apache-tvm-19605" in completed.stdout
     assert "pr-hard:apache-tvm-20153" in completed.stdout
     assert "pr-hard:apache-tvm-20107" in completed.stdout
     assert "pr-hard:apache-tvm-20073" in completed.stdout

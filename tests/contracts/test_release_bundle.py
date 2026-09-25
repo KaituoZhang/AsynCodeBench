@@ -24,7 +24,7 @@ def test_release_index_is_current():
     assert result.returncode == 0, result.stdout + result.stderr
 
 
-def test_contract_source_inventory_covers_release_and_historical_regression():
+def test_contract_source_inventory_covers_core_release():
     official = read_json(RELEASE_DIR / "official_tasks.json")
     inventory = read_json(
         ROOT / "configs" / "tasks" / "commit0_repositories_full.v0.3.json"
@@ -33,23 +33,22 @@ def test_contract_source_inventory_covers_release_and_historical_regression():
     required = {
         task_id.split(":", 1)[1] for task_id in official["official_task_ids"]
     }
-    required.add("fastapi")
     assert required <= available
 
 
-def test_release_contains_only_the_16_official_tasks():
+def test_release_contains_only_the_15_core_tasks():
     official = read_json(RELEASE_DIR / "official_tasks.json")
     index = read_json(RELEASE_DIR / "task_index.json")
-    assert official["task_count"] == 16
-    assert index["task_count"] == 16
-    assert index["scenario_count"] == 64
-    assert index["dependency_point_count"] == 48
-    assert official["human_review_complete_task_count"] == 16
-    assert index["human_review_complete_task_count"] == 16
-    assert official["human_review_passed_task_count"] == 16
-    assert index["human_review_passed_task_count"] == 16
-    assert official["automated_audit_complete_task_count"] == 16
-    assert index["automated_audit_complete_task_count"] == 16
+    assert official["task_count"] == 15
+    assert index["task_count"] == 15
+    assert index["scenario_count"] == 60
+    assert index["dependency_point_count"] == 45
+    assert official["human_review_complete_task_count"] == 15
+    assert index["human_review_complete_task_count"] == 15
+    assert official["human_review_passed_task_count"] == 15
+    assert index["human_review_passed_task_count"] == 15
+    assert official["automated_audit_complete_task_count"] == 15
+    assert index["automated_audit_complete_task_count"] == 15
     assert official["release_stage"] == "community_preview"
     assert index["release_stage"] == "community_preview"
     assert official["community_preview_ready"] is True
@@ -71,7 +70,7 @@ def test_release_contains_only_the_16_official_tasks():
         "secondary_human_annotation_required": False,
         "adjudication_required": False,
     }
-    assert len(set(official["official_task_ids"])) == 16
+    assert len(set(official["official_task_ids"])) == 15
     assert all(
         task_id.startswith("asyncodebench:")
         for task_id in official["official_task_ids"]
@@ -89,11 +88,11 @@ def test_release_contains_only_the_16_official_tasks():
     assert sum(
         task["annotation_status"]["human_review_complete"]
         for task in index["tasks"]
-    ) == 16
+    ) == 15
     assert sum(
         task["annotation_status"]["human_review_passed"]
         for task in index["tasks"]
-    ) == 16
+    ) == 15
     assert all(
         task["annotation_status"]["required_human_review_count"] == 1
         and task["annotation_status"]["required_human_annotation_artifact"]

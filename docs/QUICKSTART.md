@@ -23,7 +23,7 @@ starting a local campaign.
 ## 1. Install
 
 ```bash
-git clone --branch agent/community-ready-release --single-branch \
+git clone --branch agent/community-ready-release-clean --single-branch \
   https://github.com/KaituoZhang/Asynccodebench.git AsynCodeBench
 cd AsynCodeBench
 bash scripts/setup_evaluation.sh
@@ -43,7 +43,7 @@ The setup script:
 See [`OPENHANDS_RUNTIME_CONSISTENCY.md`](OPENHANDS_RUNTIME_CONSISTENCY.md) for
 the exact lock and the `dynamic_context` compatibility gate.
 
-Official v0.4 runs use digest-pinned task images. The first 16 images contain
+Official v0.4 runs use digest-pinned task images. The first 15 images contain
 the same already-qualified repository environments; the four compiler images
 contain a sanitized one-commit seed and frozen native toolchain. Native runs do
 not require a local source dataset. See

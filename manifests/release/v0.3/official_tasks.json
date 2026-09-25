@@ -1,13 +1,13 @@
 {
-  "automated_audit_complete_task_count": 16,
+  "automated_audit_complete_task_count": 15,
   "community_preview_ready": true,
   "execution_profile": {
     "path": "configs/evaluation/official_execution_profile.v2.json",
     "profile_id": "asyncodebench-v0.3-standard-100",
     "sha256": "4d63f8d7176c0391528b39e283cd2f7ba53c15c99bc958f9674ebbe65cbef609"
   },
-  "human_review_complete_task_count": 16,
-  "human_review_passed_task_count": 16,
+  "human_review_complete_task_count": 15,
+  "human_review_passed_task_count": 15,
   "human_review_policy": {
     "adjudication_required": false,
     "automated_audit_counts_as_human": false,
@@ -28,7 +28,6 @@
     "asyncodebench:parsel",
     "asyncodebench:filesystem_spec",
     "asyncodebench:marshmallow",
-    "asyncodebench:graphene",
     "asyncodebench:imapclient",
     "asyncodebench:pexpect",
     "asyncodebench:flask",
@@ -40,7 +39,7 @@
   "release_version": "0.3.0",
   "schema_version": "asyncodebench-release-tasks-v1",
   "stable_release_ready": false,
-  "task_count": 16,
+  "task_count": 15,
   "task_namespace": "asyncodebench",
   "validated_baseline_bundle_count": 0,
   "validated_baseline_registry": {

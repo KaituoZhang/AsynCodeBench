@@ -31,10 +31,6 @@
       }
     ],
     "task_local_submodules": {
-      "pr-hard:apache-tvm-19605": {
-        "tvm_ffi_sha": "3c35034fd1026011736e19a4e0e1ed0f22058c42",
-        "recursive_submodule_manifest_sha256": "af1a669d9be5f3a3a58ae18702a0b6d297c6cb74fe579132fe3fb82642490865"
-      },
       "pr-hard:apache-tvm-20153": {
         "tvm_ffi_sha": "12dbf053b3d9ba4ebd9da3123b1aeca79cf74229",
         "recursive_submodule_manifest_sha256": "2c046b5b99c80e41c7f252500eeffb069ec9e8826aae53ba06eff83b8f415939"
@@ -89,9 +85,6 @@
       "requires_cuda_toolkit": false,
       "requires_gpu_execution": false,
       "used_by": [
-        "pr-hard:apache-tvm-20116",
-        "pr-hard:apache-tvm-20134",
-        "pr-hard:apache-tvm-19605",
         "pr-hard:apache-tvm-20107",
         "pr-hard:apache-tvm-20073",
         "pr-hard:apache-tvm-20018"

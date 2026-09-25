@@ -22,11 +22,6 @@ Start here when onboarding a collaborator or a new Codex session.
 | [`QWEN3_CODER_NEXT_LOCAL_RUNBOOK.md`](QWEN3_CODER_NEXT_LOCAL_RUNBOOK.md) | Validated Qwen3-Coder-Next FP8 TP2 profile, NCCL incident record, and startup commands. |
 | [`GEMMA4_CAID_HARNESS_FIX.md`](GEMMA4_CAID_HARNESS_FIX.md) | Gemma 4 parser/version and CAID lifecycle notes. |
 
-Historical internal references are retained for provenance but are not current
-execution guides: `EVALUATION_BRANCH_QUICKSTART.md`, `CODEX_ONBOARDING.md`,
-`GITHUB_COLLABORATOR_HANDOFF.md`, `COLLABORATOR_RUNBOOK.md`, and
-`AGENT_EXPERIMENT_RUNBOOK.md`.
-
 The official task directories contain one required human-review form, one
 automated audit record, and optional secondary-review/adjudication forms. Form
 presence is not evidence of completion. The automated audit never counts as a
@@ -40,7 +35,6 @@ completion and approval state.
 | [`protocols/COMMIT0_DATA_AND_METRIC_LABEL_GUIDE_v0.3.md`](protocols/COMMIT0_DATA_AND_METRIC_LABEL_GUIDE_v0.3.md) | How task and dependency labels are defined. |
 | [`protocols/README.md`](protocols/README.md) | Protocol documents for v0.3 construction. |
 | [`design/COMMIT0_TO_ASYNCODEBENCH_PIPELINE_v0.1.md`](design/COMMIT0_TO_ASYNCODEBENCH_PIPELINE_v0.1.md) | Pipeline framing for converting public coding tasks. |
-| [`design/paper_structure_reference.md`](design/paper_structure_reference.md) | Paper-structure reference and evaluation framing. |
 | [`design/PR_HARD_TASK_PILOT_v0.4.md`](design/PR_HARD_TASK_PILOT_v0.4.md) | Construction evidence and promotion gates for the four compiler/IR tasks added to unified v0.4. |
 
 ## Task-specific Runner Notes

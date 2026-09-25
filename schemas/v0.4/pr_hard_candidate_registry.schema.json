@@ -13,7 +13,7 @@
   ],
   "properties": {
     "schema_version": {"const": "pr-hard-candidates-v0.4"},
-    "release_status": {"const": "candidate_qualification_pending"},
+    "release_status": {"const": "official_release_frozen"},
     "environment_registry": {
       "const": "configs/environments/pr_hard_tvm.v0.4.json"
     },

@@ -119,8 +119,8 @@ def build_release_documents() -> tuple[dict, dict]:
         if not bundle_path.is_file() or sha256(bundle_path) != baseline["sha256"]:
             raise ValueError(f"invalid validated baseline bundle: {baseline['path']}")
     repositories = official_config["official_tasks"]
-    if len(repositories) != 16 or len(set(repositories)) != 16:
-        raise ValueError("The public release must contain exactly 16 unique tasks")
+    if len(repositories) != 15 or len(set(repositories)) != 15:
+        raise ValueError("The core release must contain exactly 15 unique tasks")
 
     curated_records = {
         record["repository"]: record

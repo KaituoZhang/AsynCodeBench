@@ -22,11 +22,6 @@ ADDED_TASK_IDS = (
     "pr-hard:apache-tvm-20107",
     "pr-hard:apache-tvm-20153",
 )
-EXCLUDED_V03_TASK_IDS = {
-    # Graphene remains available as a historical v0.3 artifact, but its
-    # decomposition is excluded from the matched paper/community benchmark.
-    "asyncodebench:graphene",
-}
 PROTOCOL_NAMES = {
     "iterative_single": "single",
     "serial_specialists": "serial_specialists",
@@ -163,8 +158,6 @@ def build_documents() -> tuple[dict, dict]:
     records = {record["task_id"]: record for record in registry["records"]}
     tasks = []
     for entry in v03["tasks"]:
-        if entry["task_id"] in EXCLUDED_V03_TASK_IDS:
-            continue
         copied = dict(entry)
         copied["official_result_eligible"] = True
         tasks.append(copied)

@@ -15,11 +15,6 @@ from tasks.pr_hard import (
 )
 
 
-def test_needs_revision_candidate_is_blocked_before_execution() -> None:
-    with pytest.raises(RuntimeError, match="qualification preflight refused"):
-        _candidate_preflight("pr-hard:apache-tvm-19605", "async_private")
-
-
 def test_qualified_candidate_and_standard_100_profile_are_selected() -> None:
     candidate, qualification, failures = _candidate_preflight(
         "pr-hard:apache-tvm-20153", "async_private"

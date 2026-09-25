@@ -2,11 +2,11 @@
   "schema_version": "commit0-official-tasks-v0.3",
   "source_candidate_policy": {
     "original_user_candidate_count": 20,
-    "selection_rule": "Use only tasks from the user-provided Commit0 candidate list, excluding dulwich, fabric, fastapi, and python-progressbar for the current v0.3 release. Chardet is retained only as a non-official scratch/stress artifact under archive/non_official/commit0_v0.3 and is not part of official v0.3 results.",
+    "selection_rule": "Retain only the 15 Commit0-derived tasks included in the matched v0.4 community benchmark. Historical and excluded task artifacts are not distributed in the clean community branch.",
     "excluded_candidates": [
       {
         "repository": "dulwich",
-        "reason": "Removed from the official v0.3 release after execution review. Its constructed artifacts are retained under archive/non_official/commit0_v0.3 for audit and possible future revision."
+        "reason": "Removed from the official release after execution review."
       },
       {
         "repository": "fabric",
@@ -18,13 +18,11 @@
       },
       {
         "repository": "python-progressbar",
-        "reason": "Excluded from the official v0.3 release set after suitability review. Historical artifacts are retained under archive/non_official/commit0_v0.3 for audit."
-      }
-    ],
-    "non_official_retained_artifacts": [
+        "reason": "Excluded from the official release after suitability review."
+      },
       {
-        "repository": "chardet",
-        "reason": "Not in the original user-provided candidate list. Retained under archive/non_official/commit0_v0.3 only for audit/history and stress-case diagnostics."
+        "repository": "graphene",
+        "reason": "Excluded from the matched 19-task v0.4 benchmark because its decomposition and measurement contract were not comparable to the retained tasks."
       }
     ]
   },
@@ -39,7 +37,6 @@
     "parsel",
     "filesystem_spec",
     "marshmallow",
-    "graphene",
     "imapclient",
     "pexpect",
     "flask",

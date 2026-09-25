@@ -163,12 +163,11 @@ For each official task, AsynCodeBench supplies:
   secondary-review/adjudication forms for auditing labels;
 - contract tests validating cross-file consistency.
 
-The 16 frozen v0.3 task artifacts remain under `manifests/pilot/v0.3/`; the
+The 15 Commit0-derived task artifacts remain under `manifests/pilot/v0.3/`; the
 four compiler task artifacts are under `manifests/candidates/pr_hard_v0.4/`.
 These source-specific paths are retained for artifact and historical result
-compatibility. Graphene remains available as a historical v0.3 artifact but is
-excluded from the matched v0.4 aggregate. The public release treats the other
-15 v0.3 tasks and four compiler tasks as `asyncodebench:<repository>` tasks.
+compatibility. The public release treats these 15 tasks and four compiler tasks
+as `asyncodebench:<repository>` tasks.
 
 [`manifests/release/v0.4/task_index.json`](manifests/release/v0.4/task_index.json)
 is the machine-readable release inventory. It checksum-pins every runtime
@@ -240,7 +239,7 @@ verification, publication, and local reconstruction instructions.
 ### 1. Install
 
 ```bash
-git clone --branch agent/community-ready-release --single-branch \
+git clone --branch agent/community-ready-release-clean --single-branch \
   https://github.com/KaituoZhang/Asynccodebench.git AsynCodeBench
 cd AsynCodeBench
 bash scripts/setup_evaluation.sh
@@ -478,7 +477,6 @@ Detailed validity rules are in
 | Document | Purpose |
 | --- | --- |
 | [`docs/QUICKSTART.md`](docs/QUICKSTART.md) | Canonical fresh-clone installation and first task |
-| [`docs/EVALUATION_BRANCH_QUICKSTART.md`](docs/EVALUATION_BRANCH_QUICKSTART.md) | Historical evaluation-branch workflow; not for new official runs |
 | [`docs/ASYNCODEBENCH_HARNESS_V2.md`](docs/ASYNCODEBENCH_HARNESS_V2.md) | Native harness guarantees and protocol semantics |
 | [`docs/ITERATION_BUDGET_AND_TERMINATION.md`](docs/ITERATION_BUDGET_AND_TERMINATION.md) | Official 100-response cap and stop-reason semantics |
 | [`docs/MODEL_EXPERIMENT_RUNBOOK.md`](docs/MODEL_EXPERIMENT_RUNBOOK.md) | Running a new model across all official tasks |
@@ -487,7 +485,6 @@ Detailed validity rules are in
 | [`docs/RESULT_VALIDITY.md`](docs/RESULT_VALIDITY.md) | Machine-checked result status, metric eligibility, profiles, and migration rules |
 | [`docs/AGENT_ADAPTER.md`](docs/AGENT_ADAPTER.md) | Integrating a third-party coding agent without changing benchmark semantics |
 | [`docs/HUMAN_REVIEW.md`](docs/HUMAN_REVIEW.md) | Required one-human review policy, fields, task checklist, and validation |
-| [`docs/CODEX_ONBOARDING.md`](docs/CODEX_ONBOARDING.md) | Context for a new collaborator or coding-agent session |
 
 ## Extending the Benchmark
 
@@ -499,8 +496,8 @@ creating dependency probes, and running automatic validation gates.
 The reusable construction instructions and validation gates are documented in:
 
 ```text
-docs/SECTION_2_BENCHMARK_CONSTRUCTION_MATERIALS.md
 docs/protocols/COMMIT0_DATA_AND_METRIC_LABEL_GUIDE_v0.3.md
+docs/protocols/ANNOTATOR_GUIDANCE_v0.3.md
 ```
 
 The construction scripts and generated manifests make benchmark construction

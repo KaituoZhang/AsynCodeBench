@@ -24,7 +24,6 @@ OFFICIAL_TASKS = [
     "parsel",
     "filesystem_spec",
     "marshmallow",
-    "graphene",
     "imapclient",
     "pexpect",
     "flask",

@@ -50,9 +50,8 @@ The scenario manifests declare these specialist counts:
 | 4 | `simpy`, `pexpect`, `flask`, `python-rsa`, `cookiecutter` |
 
 Do not add `graphene`, `dulwich`, `fastapi`, `python-progressbar`, `fabric`, or
-`chardet` to an official aggregate. Graphene remains available for historical
-v0.3 reproduction, but is excluded from the matched v0.4.1 set. Historical
-files do not define release membership. The authoritative list is:
+`chardet` to an official aggregate. Excluded-task artifacts are not distributed
+in the clean community branch. The authoritative list is:
 
 ```text
 manifests/release/v0.4/official_tasks.json
@@ -92,10 +91,9 @@ configs/environments/official_task_images.v0.4.json
 schemas/release/run_bundle.schema.json
 ```
 
-The v0.3 paths remain the frozen source manifests for the original 16 tasks;
-the v0.4.1 index selects 15 of them and composes those with the four compiler
-tasks. This preserves historical bundle checksums while exposing one 19-task
-release. Source-specific filenames and IDs are provenance. The public runtime
+The v0.3 paths contain the 15 Commit0-derived source manifests; the v0.4.1
+index composes those with the four compiler tasks to expose one 19-task release.
+Source-specific filenames and IDs are provenance. The public runtime
 ID is always `asyncodebench:<repository>`, and native runs do not read
 `COMMIT0_DATASET_PATH`.
 
@@ -111,7 +109,7 @@ Requirements: Linux `x86_64`, Git, Docker without `sudo`, `uv`, Python 3.12,
 and an OpenAI-compatible model endpoint.
 
 ```bash
-git clone --branch agent/community-ready-release --single-branch \
+git clone --branch agent/community-ready-release-clean --single-branch \
   https://github.com/KaituoZhang/Asynccodebench.git AsynCodeBench
 cd AsynCodeBench
 bash scripts/setup_evaluation.sh

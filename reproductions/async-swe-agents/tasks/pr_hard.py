@@ -64,7 +64,7 @@ def build_python_wrapper(base_work_dir: str, environment_path: Path) -> str:
 
 @dataclass
 class PrHardConfig:
-    task_id: str = "pr-hard:apache-tvm-19605"
+    task_id: str = "pr-hard:apache-tvm-20018"
     release: str = "pr-hard-v0.4"
     runtime_root: str = ""
     build_cache_root: str = ""

@@ -1,6 +1,6 @@
 {
   "benchmark": "AsynCodeBench",
-  "description": "Canonical five-protocol execution profile for the unified 20-task benchmark. It preserves every v2 budget and adds the online Async-Manager protocol without changing the frozen four-protocol profile.",
+  "description": "Canonical five-protocol execution profile for the unified 19-task benchmark. It preserves every v2 budget and adds the online Async-Manager protocol without changing the frozen four-protocol profile.",
   "instrumentation": {
     "final_evaluator_source": "asyncodebench_manifest",
     "final_pytest_timeout_seconds": 900,

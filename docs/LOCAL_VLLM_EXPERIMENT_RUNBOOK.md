@@ -468,7 +468,7 @@ terminal needs a different vLLM port, env file, GPU, and a non-overlapping block
 of four OpenHands workspace ports, for example `18000`, `18010`, `18020`, and
 `18030`.
 
-Before restarting all 16 tasks, run `cachetools` as the formal v2 smoke and
+Before starting all 19 tasks, run `cachetools` as the formal v2 smoke and
 inspect every protocol. A valid corrected run must have nonzero iterations, no
 context-window exception, no raw `<|tool_call>` assistant output, no early
 pytest race, and the normal AsynCodeBench evaluator/probe artifacts. Preserve
@@ -476,7 +476,7 @@ the old v1 directories; use the new model tag/version rather than overwriting
 them.
 
 Run the automatic infrastructure gate on the four new directories before
-starting the other 16 tasks:
+starting the other 18 tasks:
 
 ```bash
 python scripts/check_run_health.py \

@@ -18,23 +18,23 @@ from asyncodebench.qualification.curated_commit0 import (
 )
 
 ROOT = Path(__file__).resolve().parents[1]
-OFFICIAL_TASKS = ROOT / "manifests/release/v0.3/official_tasks.json"
+OFFICIAL_TASKS = ROOT / "manifests/release/v0.4/official_tasks.json"
 FULL_INVENTORY = ROOT / "configs/tasks/commit0_repositories_full.v0.3.json"
 CURATED_TASKS = ROOT / "configs/tasks/commit0_curated_tasks.v0.3.json"
 DEFAULT_DESTINATION = ROOT / "data/repos/commit0"
 DEFAULT_CURATED_DESTINATION = ROOT / "data/processed/commit0_curated/v0.3"
 
-# FastAPI is not an official task. Its source-selector regression test remains in
-# the historical contract suite, so clean-checkout validation needs its pinned
-# repository until that historical suite is split into a separate package.
-HISTORICAL_REGRESSION_REPOSITORIES = ("fastapi",)
 CURATED_CONTRACT_REPOSITORIES = ("portalocker", "tinydb")
 
 
 def required_repository_names() -> tuple[str, ...]:
     release = json.loads(OFFICIAL_TASKS.read_text(encoding="utf-8"))
-    official = [task_id.split(":", 1)[1] for task_id in release["official_task_ids"]]
-    return tuple(dict.fromkeys([*official, *HISTORICAL_REGRESSION_REPOSITORIES]))
+    official = [
+        task_id.split(":", 1)[1]
+        for task_id in release["official_task_ids"]
+        if not task_id.startswith("asyncodebench:apache-tvm-")
+    ]
+    return tuple(dict.fromkeys(official))
 
 
 def parse_args() -> argparse.Namespace:

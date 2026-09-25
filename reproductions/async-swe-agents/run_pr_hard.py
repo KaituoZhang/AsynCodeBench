@@ -181,7 +181,7 @@ def _write_candidate_status(
 
 
 def main(
-    task_id="pr-hard:apache-tvm-19605",
+    task_id="pr-hard:apache-tvm-20018",
     protocol="single",
     model=None,
     subagent_model=None,

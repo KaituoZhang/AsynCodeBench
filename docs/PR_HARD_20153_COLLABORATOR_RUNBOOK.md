@@ -226,7 +226,6 @@ git add \
   reproductions/async-swe-agents/README.md \
   reproductions/async-swe-agents/run_pr_hard.py \
   reproductions/async-swe-agents/tasks/pr_hard.py \
-  reproductions/async-swe-agents/scripts/run_pr_hard_19605_all_protocols_env.sh \
   reproductions/async-swe-agents/scripts/run_pr_hard_20153_all_protocols_env.sh \
   reproductions/async-swe-agents/asyncodebench_harness/health.py \
   reproductions/async-swe-agents/asyncodebench_harness/results.py \

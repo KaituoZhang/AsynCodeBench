@@ -132,69 +132,6 @@
       ]
     },
     {
-      "task_id": "commit0:graphene",
-      "repository": "graphene",
-      "base_ref": "origin/commit0_combined",
-      "base_sha": "ec2d3f476a7fa94a7a2ffc3c145422b0c3b7e71a",
-      "overlays": [
-        {
-          "path": "data/overlays/commit0/graphene/0001-types-utils-import-bootstrap.patch",
-          "sha256": "b440d6ad5764ed3ad3fabc83e2f3ead96e84fa3440d2927fca7dda0fb2e627ca",
-          "rationale": "Expose only missing type utility symbols needed for package import and test class construction. Field extraction intentionally returns an empty structure, so object/input metadata behavior remains unfinished."
-        },
-        {
-          "path": "data/overlays/commit0/graphene/0002-subclass-meta-syntax-bootstrap.patch",
-          "sha256": "f687a691798797a17235d2515cc5692148e02b0822bee246404a54ebc81c2976",
-          "rationale": "Repair a stripped f-string syntax placeholder in subclass_with_meta so public modules can parse. No metaclass behavior is supplied."
-        },
-        {
-          "path": "data/overlays/commit0/graphene/0003-props-import-bootstrap.patch",
-          "sha256": "9d16540505bdffaff1da63215c6ea30c575f5eb948bb3f7ae443bf0c8d57e958",
-          "rationale": "Expose only the class-construction Meta attribute reader needed by public graphene type tests. This bootstrap is intentionally flagged for human review because it is less trivial than a pure pass stub."
-        },
-        {
-          "path": "data/overlays/commit0/graphene/0004-utils-import-bootstrap.patch",
-          "sha256": "ce15d97fd1d5243a3a095b81404914f602091f36d9126f3de9898655f77ad483",
-          "rationale": "Expose missing utility symbols imported by public modules. Helper bodies remain intentionally unfinished placeholders."
-        },
-        {
-          "path": "data/overlays/commit0/graphene/0005-scalars-class-bootstrap.patch",
-          "sha256": "a3f1c3d1afd0c99cd795516caf604afff19c667724cfa692a962da5051ee3d91",
-          "rationale": "Expose scalar coercion function names required by scalar class definitions. Scalar coercion and serialization behavior remains unfinished."
-        },
-        {
-          "path": "data/overlays/commit0/graphene/0006-base-options-bootstrap.patch",
-          "sha256": "dc40335e51f73cb595035c711fa8153b6b6300fc5d57f0a2118a121279dc678b",
-          "rationale": "Expose BaseOptions.freeze for metaclass construction. Option freezing behavior remains unfinished."
-        },
-        {
-          "path": "data/overlays/commit0/graphene/0007-enum-class-bootstrap.patch",
-          "sha256": "e9d584e79f4abec6fd7af34e5841e17b4b3a59f1a12692097636ecd6c97a4d6e",
-          "rationale": "Expose enum helper functions needed for enum class construction. Enum value equality/hash behavior remains unfinished."
-        },
-        {
-          "path": "data/overlays/commit0/graphene/0008-argument-field-import-bootstrap.patch",
-          "sha256": "eabaafa7bd9b8b789e9abccfc3668fe5394826cf8fdabb8c7efab121b874b57b",
-          "rationale": "Expose to_arguments and warn_deprecation import-time symbols. Argument conversion and deprecation warning behavior remains unfinished."
-        },
-        {
-          "path": "data/overlays/commit0/graphene/0009-resolver-import-bootstrap.patch",
-          "sha256": "00f7079b233680cf9f540270bacf7963fa88cb3bd7c098dee996a1e5f3f0c327",
-          "rationale": "Expose resolver names imported by schema and field code. Default resolving behavior remains unfinished."
-        },
-        {
-          "path": "data/overlays/commit0/graphene/0010-relay-mutation-import-bootstrap.patch",
-          "sha256": "5d80d14f50438a88f8f3a225de8920baedea7e088c09daa1f00f4f8a35859108",
-          "rationale": "Expose ClientIDMutation.mutate so relay mutation subclasses can be constructed during package import. Mutation behavior remains unfinished."
-        },
-        {
-          "path": "data/overlays/commit0/graphene/0011-resolve-only-args-import-bootstrap.patch",
-          "sha256": "e8eacc348068858aeb7129731927888ab08fdc11893e0c35de6fc37693871350",
-          "rationale": "Expose resolve_only_args imported by relay mutation code. Resolver adaptation behavior remains unfinished."
-        }
-      ]
-    },
-    {
       "task_id": "commit0:imapclient",
       "repository": "imapclient",
       "base_ref": "origin/commit0_combined",
@@ -300,19 +237,6 @@
           "path": "data/overlays/commit0/flask/0011-conftest-monkeypatch-sentinel-bootstrap.patch",
           "sha256": "5678881b4022e089eb26d961b0674e6058f8874c384cc7a8f2875601ed08678c",
           "rationale": "Bootstrap-only evaluator compatibility patch that removes dependence on the unstable package-level _pytest.monkeypatch.notset export in tests/conftest.py so public Flask tests remain stable across pytest minor versions. It preserves pytest MonkeyPatch's real missing-value sentinel and does not modify Flask implementation files or supply scoped Flask runtime behavior."
-        }
-      ]
-    },
-    {
-      "task_id": "commit0:fastapi",
-      "repository": "fastapi",
-      "base_ref": "origin/commit0_combined",
-      "base_sha": "0ee9d513da2f664b076c13a5f0969ecd1bfd25dd",
-      "overlays": [
-        {
-          "path": "data/overlays/commit0/fastapi/0001-import-bootstrap.patch",
-          "sha256": "2c000be9d3cb44c5c674de09b5385ead0acbebce49adefab0e3fb6deb2e4521b",
-          "rationale": "Expose only import-time compatibility, security, parameter-function, encoder, and concurrency symbols required for FastAPI public test collection. Runtime routing, dependency solving, response serialization, and OpenAPI behavior remain unfinished and must be implemented by agents."
         }
       ]
     },

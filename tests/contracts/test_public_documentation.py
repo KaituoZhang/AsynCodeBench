@@ -95,7 +95,7 @@ def test_result_validity_uses_canonical_derived_report_directory():
 
 def test_preview_installation_and_clean_checkout_validation_are_explicit():
     clone_command = (
-        "git clone --branch agent/community-ready-release --single-branch"
+        "git clone --branch agent/community-ready-release-clean --single-branch"
     )
     assert clone_command in read(ROOT / "README")
     assert clone_command in read(ROOT / "docs" / "QUICKSTART.md")
