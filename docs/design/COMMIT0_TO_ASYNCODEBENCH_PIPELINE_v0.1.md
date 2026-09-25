@@ -198,24 +198,12 @@ Independent annotators decide:
 Adjudication resolves disagreements. The annotation forms remain part of the
 dataset provenance and should be reported in the paper methodology.
 
-## Skill Packaging
+## Reusable Construction Workflow
 
-The transformation protocol should be packaged as a skill named
-`commit0-to-asyncodebench`.
-
-Recommended structure:
-
-```text
-skills/commit0-to-asyncodebench/
-  SKILL.md
-  references/
-    artifact-checklist.md
-    validation-gates.md
-```
-
-Use one skill for the v0.3 release. The workflow is still evolving, and a single
-skill avoids divergence between multiple subskills. Later, after the protocol is
-stable, deterministic driver scripts can expose phase-specific commands:
+The transformation protocol is maintained as public construction documentation,
+deterministic scripts, schemas, and contract tests. This avoids coupling the
+benchmark release to an agent-specific local skill package. The driver scripts
+expose phase-specific commands such as:
 
 ```text
 discover-next-task

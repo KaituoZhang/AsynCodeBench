@@ -36,10 +36,8 @@ Include these project assets:
 - `data/overlays/`
 - `docs/`
 - `manifests/`
-- `pipelines/`
 - `schemas/`
 - `scripts/`
-- `skills/`
 - `src/`
 - `tests/`
 - `reproductions/async-swe-agents/` source code and scripts
@@ -102,7 +100,7 @@ git remote add origin https://github.com/KaituoZhang/Asynccodebench.git
 
 git status --short
 git add .gitignore README SPECIFICATION_v0.3.md pyproject.toml environment.yml
-git add configs data/overlays docs manifests pipelines schemas scripts skills src tests
+git add configs data/overlays docs manifests schemas scripts src tests
 git add reproductions/README.md reproductions/async-swe-agents
 
 git status --short

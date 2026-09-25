@@ -1,8 +1,7 @@
 # AsynCodeBench repository layout
 
-This layout implements Specification v0.2. It separates benchmark semantics
-from executable pipelines, task material, experimental configuration, and
-generated outputs.
+This layout separates benchmark semantics from task material, experimental
+configuration, executable runner code, and generated outputs.
 
 ## Core library
 
@@ -27,7 +26,6 @@ generated outputs.
 
 ## Top-level operational directories
 
-- `pipelines/`: reproducible workflows that compose library components;
 - `scripts/`: thin human-facing CLIs; business logic belongs in the library;
 - `configs/`: versioned profiles, policies, latency schedules, task selection,
   and pilot matrices;

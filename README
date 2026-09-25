@@ -386,7 +386,7 @@ Validate one completed run and summarize a complete campaign with:
 ./.venv/bin/python -m protocols.async_manager.campaign \
   --root outputs \
   --run-id async-manager-v2-s1 \
-  --output-dir ../../docs/results/async-manager-v2-s1 \
+  --output-dir outputs/reports/async-manager-v2-s1 \
   --require-complete
 ```
 
@@ -496,16 +496,17 @@ AsynCodeBench instance by identifying natural subproblems, labeling observable
 producer/consumer dependencies, defining the four controlled protocols,
 creating dependency probes, and running automatic validation gates.
 
-The reusable construction instructions are in:
+The reusable construction instructions and validation gates are documented in:
 
 ```text
-skills/commit0-to-asyncodebench/SKILL.md
+docs/SECTION_2_BENCHMARK_CONSTRUCTION_MATERIALS.md
+docs/protocols/COMMIT0_DATA_AND_METRIC_LABEL_GUIDE_v0.3.md
 ```
 
-The skill and generated manifests make benchmark construction auditable; they
-do not replace contract tests or the required human review. Empty required
-forms remain explicit pending work. Optional secondary-review and adjudication
-templates are retained for additional auditing and provenance.
+The construction scripts and generated manifests make benchmark construction
+auditable; they do not replace contract tests or the required human review.
+Empty required forms remain explicit pending work. Optional secondary-review
+and adjudication templates are retained for additional auditing and provenance.
 
 ## Bring Your Own Agent
 

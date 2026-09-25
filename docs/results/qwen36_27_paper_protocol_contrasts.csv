@@ -1,4 +1,0 @@
-research_question,baseline_protocol,comparison_protocol,success_rate_delta,test_pass_rate_delta,ADPR_delta,ADPR_task_wins,ADPR_task_ties,ADPR_task_losses,pass_task_wins,pass_task_ties,pass_task_losses,unresolved_dependency_delta,DRE_delta,DRS_penalized_delta,CAIL_penalized_delta,FSAR_delta,IFR_delta,SVR_delta,MRR_delta,token_ratio,runtime_ratio
-Async visibility loss,serial_specialists,async_private,-0.15,-0.095985936096,-0.266666666667,0,12,8,7,3,10,0.75,-0.0713514448514,3.19166666667,2.15,0.166666666667,0.15,0.2125,-0.482051282051,0.970630121642,0.74691810055
-CAID recovery,async_private,caid_manager,0.6,0.413605551361,0.575,14,5,1,14,5,1,-1.65,0.0578913863914,-1.00000000001,-2.50833333334,-0.0158333333334,-0.6,0.0175000000001,0.0547619047619,1.54917510322,1.87513259779
-CAID versus single,single,caid_manager,0.4,0.339999768872,0.366666666667,9,11,0,12,7,1,-1,-0.215597624598,7.305,2.84666666667,0.2425,0.3,,,2.44430673938,3.00221801811

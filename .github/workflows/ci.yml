@@ -6,6 +6,7 @@ on:
     branches:
       - main
       - agent/community-ready-release
+      - agent/community-ready-release-clean
       - agent/reproducible-model-evaluation
 
 permissions:

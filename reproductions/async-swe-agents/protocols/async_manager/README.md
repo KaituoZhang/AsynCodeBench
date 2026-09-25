@@ -195,7 +195,7 @@ Validate and summarize a complete 19-task campaign:
 ./.venv/bin/python -m protocols.async_manager.campaign \
   --root outputs \
   --run-id async_manager_v2_s1 \
-  --output-dir ../../docs/results/async_manager_v2_s1 \
+  --output-dir outputs/reports/async_manager_v2_s1 \
   --require-complete
 ```
 

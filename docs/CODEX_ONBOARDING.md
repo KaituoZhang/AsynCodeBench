@@ -17,7 +17,7 @@ Read in this order:
 8. `docs/GITHUB_COLLABORATOR_HANDOFF.md`
 9. `docs/protocols/COMMIT0_DATA_AND_METRIC_LABEL_GUIDE_v0.3.md`
 10. `docs/protocols/README.md`
-11. `skills/commit0-to-asyncodebench/SKILL.md`
+11. `docs/SECTION_2_BENCHMARK_CONSTRUCTION_MATERIALS.md`
 12. `reproductions/async-swe-agents/protocols/README.md`
 
 If the task is about paper writing or methodology, also read:
@@ -94,7 +94,6 @@ manifests/pilot/v0.3/scenarios/        # execution scenario manifests
 manifests/pilot/v0.3/quality/          # quality records
 manifests/pilot/v0.3/metrics/          # async metrics manifests
 manifests/annotations/asyncodebench_v0.3/    # human annotation forms
-skills/commit0-to-asyncodebench/      # reusable construction skill
 src/asyncodebench/                    # Python library code
 tests/contracts/                       # artifact validation tests
 reproductions/async-swe-agents/        # CAID-based agent runner
@@ -300,7 +299,8 @@ python3 -m py_compile reproductions/async-swe-agents/run_asyncodebench.py \
 If asked to process a new task, use:
 
 ```text
-skills/commit0-to-asyncodebench/SKILL.md
+docs/SECTION_2_BENCHMARK_CONSTRUCTION_MATERIALS.md
+docs/protocols/COMMIT0_DATA_AND_METRIC_LABEL_GUIDE_v0.3.md
 ```
 
 If asked to run or debug experiments, start from:

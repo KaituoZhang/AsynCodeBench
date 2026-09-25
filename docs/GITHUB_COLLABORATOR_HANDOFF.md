@@ -16,13 +16,11 @@ data/overlays/
 docs/
 environment.yml
 manifests/
-pipelines/
 pyproject.toml
 reproductions/README.md
 reproductions/async-swe-agents/
 schemas/
 scripts/
-skills/
 src/
 tests/
 ```

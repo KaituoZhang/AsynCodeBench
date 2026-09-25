@@ -21,9 +21,6 @@ Start here when onboarding a collaborator or a new Codex session.
 | [`VLLM_QWEN_LOCAL_RUNBOOK.md`](VLLM_QWEN_LOCAL_RUNBOOK.md) | Qwen-specific local vLLM setup and tool calling. |
 | [`QWEN3_CODER_NEXT_LOCAL_RUNBOOK.md`](QWEN3_CODER_NEXT_LOCAL_RUNBOOK.md) | Validated Qwen3-Coder-Next FP8 TP2 profile, NCCL incident record, and startup commands. |
 | [`GEMMA4_CAID_HARNESS_FIX.md`](GEMMA4_CAID_HARNESS_FIX.md) | Gemma 4 parser/version and CAID lifecycle notes. |
-| [`results/SIX_LOCAL_MODEL_UNIFIED_RESULTS_20260904.md`](results/SIX_LOCAL_MODEL_UNIFIED_RESULTS_20260904.md) | Audited six-model result summary with coverage and historical manager-policy qualifications. |
-| [`results/TVM_FOUR_TASK_MODEL_ANALYSIS_20260904.md`](results/TVM_FOUR_TASK_MODEL_ANALYSIS_20260904.md) | Four-task TVM comparison, benchmark metrics, figures, and provenance limitations. |
-| [`paper/ICLR_MANAGER_POLICY_JUSTIFICATION.md`](paper/ICLR_MANAGER_POLICY_JUSTIFICATION.md) | Paper-ready motivation and bibliography for the read-only manager policy. |
 
 Historical internal references are retained for provenance but are not current
 execution guides: `EVALUATION_BRANCH_QUICKSTART.md`, `CODEX_ONBOARDING.md`,
