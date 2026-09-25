@@ -35,6 +35,7 @@ completion and approval state.
 | [`protocols/README.md`](protocols/README.md) | Protocol documents for v0.3 construction. |
 | [`design/COMMIT0_TO_ASYNCODEBENCH_PIPELINE_v0.1.md`](design/COMMIT0_TO_ASYNCODEBENCH_PIPELINE_v0.1.md) | Pipeline framing for converting public coding tasks. |
 | [`design/PR_HARD_TASK_PILOT_v0.4.md`](design/PR_HARD_TASK_PILOT_v0.4.md) | Construction evidence and promotion gates for the four compiler/IR tasks added to unified v0.4. |
+| [`../skills/contribute-commit0-task/SKILL.md`](../skills/contribute-commit0-task/SKILL.md) | Optional agent guidance for preparing a new Commit0-derived task contribution without modifying the frozen release. |
 
 ## Official Experiment Set
 

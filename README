@@ -498,12 +498,15 @@ The reusable construction instructions and validation gates are documented in:
 ```text
 docs/protocols/COMMIT0_DATA_AND_METRIC_LABEL_GUIDE_v0.3.md
 docs/protocols/ANNOTATOR_GUIDANCE_v0.3.md
+skills/contribute-commit0-task/SKILL.md
 ```
 
 The construction scripts and generated manifests make benchmark construction
 auditable; they do not replace contract tests or the required human review.
 Empty required forms remain explicit pending work. Optional secondary-review
 and adjudication templates are retained for additional auditing and provenance.
+The contribution skill is optional authoring guidance; it is not loaded or
+required when running the frozen 19-task benchmark.
 
 ## Bring Your Own Agent
 
