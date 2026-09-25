@@ -1,6 +1,6 @@
 # Audits
 
-The first report is `PREDECESSOR_INFRASTRUCTURE_GAP_AUDIT_v0.2.md`. Audit
-reports must cite
-files, tests, and executable evidence. They do not modify the predecessor
-prototype.
+This directory retains only task-construction evidence that is referenced by
+an official task manifest or builder. These records document the public
+candidate evidence used for Flask, IMAPClient, Pexpect, and SimPy. They are
+provenance inputs, not benchmark results.

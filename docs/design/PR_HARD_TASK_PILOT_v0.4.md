@@ -277,11 +277,8 @@ model-visible runtime without access to the offline gold:
 The generated task-specific package under `.cache/pr_hard_runtime/v0.4/` is
 local and ignored. It contains a one-commit, no-remote seed plus the locked
 runtime; it does not contain the production gold. See
-`docs/PR_HARD_20107_QWEN36_RUNBOOK.md` for the Qwen3.6-27B execution procedure
-and `docs/PR_HARD_20153_COLLABORATOR_RUNBOOK.md` for PR 20153 handoff details.
-PR 20073 has its own Qwen procedure in
-`docs/PR_HARD_20073_QWEN36_RUNBOOK.md`; PR 20018 uses
-`docs/PR_HARD_20018_QWEN36_RUNBOOK.md`.
+`docs/PR_HARD_20153_COLLABORATOR_RUNBOOK.md` for the detailed reconstruction
+and validation workflow.
 
 The checked-in explicit micromamba lock and pinned Python requirements freeze
 the qualification toolchain: Ubuntu 22.04.4, GCC/G++ 11.4, LLVM 18.1.8, Python
@@ -373,9 +370,6 @@ as a multi-agent task.
 - Unified release-index builder: `scripts/build_v04_release_index.py`
 - Preparation helper: `scripts/prepare_pr_hard_candidate.py`
 - Portable PR 20107/20153/20073/20018 runtime builder: `scripts/prepare_pr_hard_runtime.py`
-- PR 20107 Qwen3.6-27B runbook: `docs/PR_HARD_20107_QWEN36_RUNBOOK.md`
-- PR 20073 Qwen3.6-27B runbook: `docs/PR_HARD_20073_QWEN36_RUNBOOK.md`
-- PR 20018 Qwen3.6-27B runbook: `docs/PR_HARD_20018_QWEN36_RUNBOOK.md`
 - Collaborator runbook: `docs/PR_HARD_20153_COLLABORATOR_RUNBOOK.md`
 
 Source facts and test patches were verified against the merged Apache TVM pull

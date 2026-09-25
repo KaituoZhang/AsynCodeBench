@@ -12,15 +12,14 @@ Start here when onboarding a collaborator or a new Codex session.
 | [`RESULT_VALIDITY.md`](RESULT_VALIDITY.md) | Canonical run status, per-metric eligibility, official profile, bundle integrity, and legacy-result triage. |
 | [`EVALUATION_METRICS.md`](EVALUATION_METRICS.md) | Metric definitions and post-run analysis rules. |
 | [`ASYNCODEBENCH_HARNESS_V2.md`](ASYNCODEBENCH_HARNESS_V2.md) | Native `task_id`-based runner and protocol guarantees. |
+| [`ASYNC_MANAGER_PROTOCOL_V1.md`](ASYNC_MANAGER_PROTOCOL_V1.md) | Online Async-Manager execution, intervention, and integrity contract. |
 | [`ITERATION_BUDGET_AND_TERMINATION.md`](ITERATION_BUDGET_AND_TERMINATION.md) | Official 100-response capability profile and stop-reason semantics. |
 | [`OPENHANDS_RUNTIME_CONSISTENCY.md`](OPENHANDS_RUNTIME_CONSISTENCY.md) | Locked host/server OpenHands runtime, event-schema smoke, and invalid-run policy. |
 | [`LOCAL_VLLM_EXPERIMENT_RUNBOOK.md`](LOCAL_VLLM_EXPERIMENT_RUNBOOK.md) | Local-vLLM capacity, networking, smoke gates, and failure diagnosis. |
 | [`AGENT_ADAPTER.md`](AGENT_ADAPTER.md) | Public bring-your-own-agent contract, loading commands, enforcement, and provenance. |
 | [`HUMAN_REVIEW.md`](HUMAN_REVIEW.md) | Required one-human review fields, acceptance checklist, status, and validation. |
 | [`PR_HARD_20153_COLLABORATOR_RUNBOOK.md`](PR_HARD_20153_COLLABORATOR_RUNBOOK.md) | Fresh-clone reconstruction, execution, and result validation for the qualified compiler/IR task 20153. |
-| [`VLLM_QWEN_LOCAL_RUNBOOK.md`](VLLM_QWEN_LOCAL_RUNBOOK.md) | Qwen-specific local vLLM setup and tool calling. |
-| [`QWEN3_CODER_NEXT_LOCAL_RUNBOOK.md`](QWEN3_CODER_NEXT_LOCAL_RUNBOOK.md) | Validated Qwen3-Coder-Next FP8 TP2 profile, NCCL incident record, and startup commands. |
-| [`GEMMA4_CAID_HARNESS_FIX.md`](GEMMA4_CAID_HARNESS_FIX.md) | Gemma 4 parser/version and CAID lifecycle notes. |
+| [`REPOSITORY_LAYOUT.md`](REPOSITORY_LAYOUT.md) | Maintained source, manifest, runner, test, and generated-data boundaries. |
 
 The official task directories contain one required human-review form, one
 automated audit record, and optional secondary-review/adjudication forms. Form
@@ -36,13 +35,6 @@ completion and approval state.
 | [`protocols/README.md`](protocols/README.md) | Protocol documents for v0.3 construction. |
 | [`design/COMMIT0_TO_ASYNCODEBENCH_PIPELINE_v0.1.md`](design/COMMIT0_TO_ASYNCODEBENCH_PIPELINE_v0.1.md) | Pipeline framing for converting public coding tasks. |
 | [`design/PR_HARD_TASK_PILOT_v0.4.md`](design/PR_HARD_TASK_PILOT_v0.4.md) | Construction evidence and promotion gates for the four compiler/IR tasks added to unified v0.4. |
-
-## Task-specific Runner Notes
-
-| Document | Use |
-| --- | --- |
-| [`COOKIECUTTER_RUNNER_EVALUATOR_FIX.md`](COOKIECUTTER_RUNNER_EVALUATOR_FIX.md) | `cookiecutter` evaluator, dependency, and transient test-artifact notes. |
-| [`FLASK_EVALUATOR_COMPATIBILITY_FIX.md`](FLASK_EVALUATOR_COMPATIBILITY_FIX.md) | `flask` evaluator compatibility notes. |
 
 ## Official Experiment Set
 

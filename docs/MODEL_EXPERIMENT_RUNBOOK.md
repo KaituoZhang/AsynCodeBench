@@ -198,9 +198,7 @@ Keep model-serving and generation settings fixed across the four protocols of a
 task. Use separate vLLM ports and disjoint workspace-port scan ranges when
 running tasks in parallel terminals. Read
 [`LOCAL_VLLM_EXPERIMENT_RUNBOOK.md`](LOCAL_VLLM_EXPERIMENT_RUNBOOK.md) for model
-parser, context, Docker networking, and GPU-capacity checks. The prepared
-single-A100 Devstral Small 2 candidate is documented in
-[`DEVSTRAL_SMALL2_LOCAL_RUNBOOK.md`](DEVSTRAL_SMALL2_LOCAL_RUNBOOK.md).
+parser, context, Docker networking, and GPU-capacity checks.
 
 ## 6. Preflight Gates
 
@@ -510,11 +508,6 @@ For a public campaign:
 Bootstrap overlays are checksum-pinned non-solution compatibility patches. They
 make stripped source importable or testable; they do not implement the target
 solution.
-
-Task-specific compatibility notes are documented in:
-
-- [`COOKIECUTTER_RUNNER_EVALUATOR_FIX.md`](COOKIECUTTER_RUNNER_EVALUATOR_FIX.md)
-- [`FLASK_EVALUATOR_COMPATIBILITY_FIX.md`](FLASK_EVALUATOR_COMPATIBILITY_FIX.md)
 
 ## 17. New Session Handoff
 

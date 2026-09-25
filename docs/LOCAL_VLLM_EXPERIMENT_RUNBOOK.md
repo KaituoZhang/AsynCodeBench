@@ -5,12 +5,6 @@ OpenAI-compatible vLLM server. It is intended for collaborators, fresh agent
 sessions, and public reproduction. Use it together with:
 
 - `docs/MODEL_EXPERIMENT_RUNBOOK.md` for the official tasks and evaluation flow.
-- `docs/VLLM_QWEN_LOCAL_RUNBOOK.md` for the tested Qwen3.6-27B configuration and
-  model-specific failure history.
-- `docs/DEVSTRAL_SMALL2_LOCAL_RUNBOOK.md` for the single-A100 Devstral Small 2
-  candidate profile, server wrapper, and smoke gates.
-- `docs/QWEN3_CODER_NEXT_LOCAL_RUNBOOK.md` for the validated two-A100
-  Qwen3-Coder-Next FP8 profile and its NCCL compatibility incident.
 - `docs/EVALUATION_METRICS.md` for ADPR, DRS, CAIL, FSAR, IFR, and aggregation.
 
 Local inference is not a drop-in replacement for a remote API. A valid local
@@ -420,10 +414,8 @@ The corrected profile changes only the model adapter and serving harness:
 The currently tracked template exactly matches Hugging Face model revision
 `4d7ae4984b7db7de8f8457170b3f1a419ee76d52` (SHA-256
 `ae53464bf3be25802b3a5b37def7fd89667067d7577049b3b2d74c4d8de4c6d4`).
-The remaining parser requirement is vLLM 0.24.0 or newer. The previously used
-vLLM 0.19.1 has the legacy split parser and is not valid for formal multi-turn
-Gemma agent runs. See `docs/GEMMA4_CAID_HARNESS_FIX.md` for the diagnosis,
-separate environment setup, and result-classification rules.
+The remaining parser requirement is vLLM 0.24.0 or newer. Earlier split-parser
+implementations are not valid for formal multi-turn Gemma agent runs.
 
 The tracked collaborator profile is:
 
