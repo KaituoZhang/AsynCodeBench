@@ -470,11 +470,9 @@ This is a guide-level example, not the final adjudicated label.
 The dry-run was used to test whether the candidate exposes useful
 AsynCodeBench-style structure. It is not an official benchmark result.
 
-Harness:
-
-```text
-scripts/pilot_commit0_cachetools_agents.py
-```
+The historical prototype harness used for this exploratory observation is not
+part of the community runtime release. The result below is retained only as
+task-construction evidence and is not an official benchmark result.
 
 Protocol:
 
@@ -646,11 +644,12 @@ Rationale:
   <2-4 precise sentences>
 ```
 
-## 7. Current action boundary
+## 7. Community-release boundary
 
-Under v0.3, the `cachetools` workflow is the canonical vertical slice for
-generalizing the benchmark framework. Its numerical dry-run results remain
-exploratory, but its data flow is now the implementation template:
+The `cachetools` workflow was the original vertical slice used to generalize
+the benchmark framework. Its numerical dry-run results remain exploratory,
+while the following data flow is now implemented by the official native
+runner:
 
 ```text
 task record
@@ -661,17 +660,6 @@ task record
 -> run record and failure labels
 ```
 
-The next steps are:
-
-1. implement a shared iterative coding-agent loop;
-2. run the cachetools 4B/32B single-agent baseline condition;
-3. implement serial specialists with the same scaffold;
-4. implement truly concurrent private-workspace specialists;
-5. implement structured message/artifact delivery;
-6. complete independent annotation and freeze task/scenario records;
-7. generalize the hard-coded cachetools runner;
-8. continue SWE-bench official timing and qualification;
-9. run the repeated two-model by four-condition pilot.
-
-Multiple edit-test-repair rounds are now part of the minimum agent scaffold.
-Replay, oracles, and richer policy matrices remain deferred.
+The community release uses the frozen 19-task v0.4 index and the five
+protocols exposed by `run_asyncodebench.py`. Historical cross-source screening
+and one-off model pilots are deliberately outside this release boundary.

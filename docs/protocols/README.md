@@ -19,7 +19,3 @@ replay/live validation, statistics, and release maintenance belong here.
 - `COMMIT0_WCWIDTH_DATA_EXAMPLE_v0.3.md`: compact qualification-ready
   interface-dependency example covering Unicode version catalog handoff into
   terminal-width behavior.
-- `V0.3_IMPLEMENTATION_STATUS_2026-06-22.md`: current narrowed first-paper
-  implementation status.
-- `PHASE2_STATUS_2026-06-22.md`: historical v0.2 Phase 2 status.
-- `PARALLEL_IMPLEMENTATION_PLAN_v0.2.md`: independent workstream boundaries.

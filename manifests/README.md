@@ -18,21 +18,9 @@ The first unlabelled public-evidence inventory is:
 It contains six Commit0 repositories and no annotator decisions or primary
 labels. See `docs/protocols/QUALIFICATION_PROTOCOL_v0.2.md`.
 
-Cross-source Phase 2 assets:
-
-- `candidates/swebench_verified_public_metadata_c104f840.json`: sanitized
-  official 500-task metadata snapshot;
-- `candidates/swebench_verified_screened18_v0.2.json`: deterministic
-  cross-repository SWE-bench screen;
-- `candidates/swebench_verified_materialized18_v0.2.json`: base-commit public
-  evidence for the 18 selected SWE-bench tasks; official-environment timing is
-  still pending;
-- `candidates/swebench_verified_timing*.json`: official SWE-bench Docker
-  harness timing metadata, generated only after Docker daemon access is
-  available;
-- `candidates/phase2_candidate_index_v0.2.json`: current 24-task status index;
-- `candidates/annotation_packets/commit0_v0.2/`: answer-free independent
-  annotation packets for the six ready Commit0 candidates.
+The retained v0.2 candidate assets document the Commit0 provenance used by
+the official v0.3 task-construction pipeline. Historical cross-source
+SWE-bench screening assets are not part of the community runtime release.
 
 AsynCodeBench v0.3 Commit0 draft assets:
 

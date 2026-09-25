@@ -304,7 +304,7 @@ No predecessor files were deleted or moved.
 ### Parallel batch — qualification and causal event queue
 
 The two independent workstreams completed under
-`docs/protocols/PARALLEL_IMPLEMENTATION_PLAN_v0.2.md`.
+the original internal parallel implementation plan.
 
 Qualification now provides:
 
