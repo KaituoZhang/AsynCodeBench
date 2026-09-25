@@ -14,7 +14,7 @@ task="${1:?Usage: ENV_FILE=.env.gemma4-... scripts/run_gemma4_task_env.sh <task>
 
 case "$task" in
   cachetools|deprecated|portalocker|tinydb|wcwidth) max_subagents=2 ;;
-  requests|parsel|filesystem_spec|marshmallow|graphene|imapclient) max_subagents=3 ;;
+  requests|parsel|filesystem_spec|marshmallow|imapclient) max_subagents=3 ;;
   simpy|pexpect|flask|python-rsa|cookiecutter) max_subagents=4 ;;
   *) echo "Not an official AsynCodeBench v0.3 task: $task" >&2; exit 1 ;;
 esac

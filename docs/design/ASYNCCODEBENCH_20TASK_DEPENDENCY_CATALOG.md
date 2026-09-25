@@ -1,5 +1,9 @@
 # AsynCodeBench 20-task dependency catalog
 
+> Historical catalog: this preserves the original 20-task construction view.
+> The executable v0.4.1 community benchmark contains 19 tasks and 53 dependency
+> points; Graphene is retained here only for provenance.
+
 This catalog enumerates the 56 frozen dependency points in the v0.4 20-task release. Direction is always `producer → consumer`; labels are preserved from each task's canonical async-metrics annotation.
 
 Each SVG is a node-based dependency graph: a canonical subproblem/artifact appears once, its owned file set is shown inside the node, and all contracts reuse that node. This makes fan-out, fan-in, chains, parallel contracts, and cycles visible without duplicating producer or consumer boxes.

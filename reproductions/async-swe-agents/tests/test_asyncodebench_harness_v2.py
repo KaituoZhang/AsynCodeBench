@@ -276,7 +276,7 @@ def test_native_task_loads_required_manifests_and_curated_source():
 
     assert task.task_id == "asyncodebench:cachetools"
     assert task.source_task_id == "commit0:cachetools"
-    assert len(task.official_tasks) == 16
+    assert len(task.official_tasks) == 15
     assert task.curated_task["base_sha"] == task.task_manifest["upstream_version"]
     assert task.metrics_manifest["task_id"] == task.source_task_id
     assert task.scenario_for("single")["execution_mode"] == "iterative_single"
@@ -300,6 +300,11 @@ def test_native_task_rejects_non_official_task():
         make_task("asyncodebench:fastapi")
 
 
+def test_native_task_rejects_historical_graphene_task():
+    with pytest.raises(ValueError, match="not an official"):
+        make_task("asyncodebench:graphene")
+
+
 def test_native_task_rejects_commit0_namespace():
     with pytest.raises(ValueError, match="Legacy source-task IDs are provenance only"):
         make_task("commit0:cachetools")
@@ -313,8 +318,9 @@ def test_native_task_rejects_nested_namespace():
 def test_all_official_tasks_have_native_v2_contracts():
     official_tasks = make_task().official_tasks
 
-    assert len(official_tasks) == 16
+    assert len(official_tasks) == 15
     assert "dulwich" not in official_tasks
+    assert "graphene" not in official_tasks
     for repository in official_tasks:
         task = make_task(f"asyncodebench:{repository}")
         assert task.curated_task.get("base_sha")

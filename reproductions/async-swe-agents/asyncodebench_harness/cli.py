@@ -46,7 +46,14 @@ def _image_registry():
 
 
 def _selected_image_records(task_selectors):
-    records = _image_registry().get("records", [])
+    official_task_ids = {
+        task.get("task_id") for task in _release_index().get("tasks", [])
+    }
+    records = [
+        record
+        for record in _image_registry().get("records", [])
+        if record.get("task_id") in official_task_ids
+    ]
     if not task_selectors:
         return records
     requested = set(task_selectors)
@@ -280,6 +287,10 @@ def _release_status(args):
         "release_version": index.get("release_version"),
         "task_count": index.get("task_count", 0),
         "scenario_count": index.get("scenario_count", 0),
+        "online_scenario_count": index.get("online_scenario_count", 0),
+        "total_protocol_condition_count": index.get(
+            "total_protocol_condition_count", index.get("scenario_count", 0)
+        ),
         "dependency_point_count": index.get("dependency_point_count", 0),
         "bootstrap_overlay_count": sum(
             task.get("source", {}).get("overlay_count", 0) for task in tasks
@@ -316,6 +327,8 @@ def _release_status(args):
         )
         print(
             f"tasks={payload['task_count']} scenarios={payload['scenario_count']} "
+            f"online_scenarios={payload['online_scenario_count']} "
+            f"protocol_conditions={payload['total_protocol_condition_count']} "
             f"dependencies={payload['dependency_point_count']} "
             f"overlays={payload['bootstrap_overlay_count']}"
         )

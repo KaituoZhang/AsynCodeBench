@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the unified 20-task AsynCodeBench v0.4 community-preview index."""
+"""Build the unified 19-task AsynCodeBench v0.4 community-preview index."""
 
 from __future__ import annotations
 
@@ -22,6 +22,11 @@ ADDED_TASK_IDS = (
     "pr-hard:apache-tvm-20107",
     "pr-hard:apache-tvm-20153",
 )
+EXCLUDED_V03_TASK_IDS = {
+    # Graphene remains available as a historical v0.3 artifact, but its
+    # decomposition is excluded from the matched paper/community benchmark.
+    "asyncodebench:graphene",
+}
 PROTOCOL_NAMES = {
     "iterative_single": "single",
     "serial_specialists": "serial_specialists",
@@ -158,6 +163,8 @@ def build_documents() -> tuple[dict, dict]:
     records = {record["task_id"]: record for record in registry["records"]}
     tasks = []
     for entry in v03["tasks"]:
+        if entry["task_id"] in EXCLUDED_V03_TASK_IDS:
+            continue
         copied = dict(entry)
         copied["official_result_eligible"] = True
         tasks.append(copied)
@@ -174,7 +181,7 @@ def build_documents() -> tuple[dict, dict]:
         "human_review_policy": HUMAN_POLICY,
         "release": "v0.4",
         "release_stage": "community_preview",
-        "release_version": "0.4.0",
+        "release_version": "0.4.1",
         "stable_release_ready": False,
         "task_count": len(tasks),
         "validated_baseline_bundle_count": 0,
@@ -187,6 +194,12 @@ def build_documents() -> tuple[dict, dict]:
         ),
         "protocols": list(v03["protocols"]),
         "scenario_count": sum(len(task["protocols"]) for task in tasks),
+        "online_protocols": ["async_manager"],
+        "online_scenario_count": len(tasks),
+        "total_protocol_condition_count": sum(
+            len(task["protocols"]) for task in tasks
+        )
+        + len(tasks),
         "schema_version": "asyncodebench-task-index-v1",
         "tasks": tasks,
     }
@@ -197,9 +210,9 @@ def build_documents() -> tuple[dict, dict]:
         "task_namespace": "asyncodebench",
     }
     if (len(tasks), index["scenario_count"], index["dependency_point_count"]) != (
-        20,
-        80,
-        56,
+        19,
+        76,
+        53,
     ):
         raise ValueError("unexpected unified v0.4 release composition")
     return index, official

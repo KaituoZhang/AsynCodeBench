@@ -582,6 +582,13 @@ def test_duplicate_tasks_are_not_best_of_selected():
     assert summary["metrics"]["FSR_higher_is_better"] is None
 
 
+def test_campaign_uses_the_matched_19_task_release():
+    from protocols.async_manager.campaign import EXPECTED_TASKS
+
+    assert len(EXPECTED_TASKS) == 19
+    assert "asyncodebench:graphene" not in EXPECTED_TASKS
+
+
 def test_unknown_shutdown_status_is_not_confirmation(tmp_path):
     from test_async_manager_budget import bare_manager
 

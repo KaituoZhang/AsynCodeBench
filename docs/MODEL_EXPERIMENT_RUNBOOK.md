@@ -1,7 +1,7 @@
 # AsynCodeBench Model Experiment Runbook
 
 This is the canonical procedure for evaluating a new model on the current
-20-task AsynCodeBench v0.4 release. It uses the unified `asyncodebench` CLI.
+19-task AsynCodeBench v0.4.1 release. It uses the unified `asyncodebench` CLI.
 Legacy source-specific task IDs are provenance only.
 
 ## 1. Experiment Contract
@@ -11,7 +11,7 @@ software dependencies under controlled execution and communication conditions.
 It reports final tests together with dependency, coordination, and efficiency
 evidence.
 
-Every task is evaluated under the same four protocols:
+Every task is evaluated under the same five protocols:
 
 | Protocol | Controlled condition |
 | --- | --- |
@@ -19,6 +19,11 @@ Every task is evaluated under the same four protocols:
 | `serial_specialists` | Specialists run in dependency order and receive completed upstream handoffs. |
 | `async_private` | Specialists run concurrently from the same base without in-flight communication. |
 | `caid_manager` | A manager coordinates asynchronous private-worktree specialists. |
+| `async_manager` | A persistent online manager coordinates specialists and may submit scope-validated production patches at explicit intervention checkpoints. |
+
+The first four conditions use the unified scenario runner. The fifth uses the
+budgeted Async-Manager wrapper documented in the repository README; together
+they form the matched five-protocol matrix.
 
 The benchmark harness, not the model or agent adapter, controls task selection,
 source SHA, overlays, ownership, writable paths, protocol scheduling, artifact
@@ -26,13 +31,13 @@ integration, dependency probes, final evaluation, and result admission.
 
 ## 2. Official Tasks
 
-The release contains exactly 20 tasks:
+The release contains exactly 19 tasks:
 
 ```text
 cachetools       deprecated       portalocker       tinydb
 wcwidth          requests         simpy              parsel
-filesystem_spec  marshmallow      graphene           imapclient
-pexpect          flask            python-rsa         cookiecutter
+filesystem_spec  marshmallow      imapclient          pexpect
+flask            python-rsa       cookiecutter
 apache-tvm-20018 apache-tvm-20073 apache-tvm-20107 apache-tvm-20153
 ```
 
@@ -41,12 +46,13 @@ The scenario manifests declare these specialist counts:
 | Specialists | Tasks |
 | ---: | --- |
 | 2 | `cachetools`, `deprecated`, `portalocker`, `tinydb`, `wcwidth` |
-| 3 | `requests`, `parsel`, `filesystem_spec`, `marshmallow`, `graphene`, `imapclient`, `apache-tvm-20018`, `apache-tvm-20073`, `apache-tvm-20107`, `apache-tvm-20153` |
+| 3 | `requests`, `parsel`, `filesystem_spec`, `marshmallow`, `imapclient`, `apache-tvm-20018`, `apache-tvm-20073`, `apache-tvm-20107`, `apache-tvm-20153` |
 | 4 | `simpy`, `pexpect`, `flask`, `python-rsa`, `cookiecutter` |
 
-Do not add `dulwich`, `fastapi`, `python-progressbar`, `fabric`, or `chardet` to
-an official aggregate. Historical candidate files do not define release
-membership. The authoritative list is:
+Do not add `graphene`, `dulwich`, `fastapi`, `python-progressbar`, `fabric`, or
+`chardet` to an official aggregate. Graphene remains available for historical
+v0.3 reproduction, but is excluded from the matched v0.4.1 set. Historical
+files do not define release membership. The authoritative list is:
 
 ```text
 manifests/release/v0.4/official_tasks.json
@@ -86,11 +92,11 @@ configs/environments/official_task_images.v0.4.json
 schemas/release/run_bundle.schema.json
 ```
 
-The v0.3 paths remain the frozen source manifests for the first 16 tasks; the
-v0.4 index composes them with the four compiler tasks. This preserves existing
-bundle checksums while exposing one 20-task release. Source-specific filenames
-and IDs are provenance. The public runtime ID is always
-`asyncodebench:<repository>`, and native runs do not read
+The v0.3 paths remain the frozen source manifests for the original 16 tasks;
+the v0.4.1 index selects 15 of them and composes those with the four compiler
+tasks. This preserves historical bundle checksums while exposing one 19-task
+release. Source-specific filenames and IDs are provenance. The public runtime
+ID is always `asyncodebench:<repository>`, and native runs do not read
 `COMMIT0_DATASET_PATH`.
 
 The runner is located at:
@@ -312,14 +318,14 @@ WORKSPACE_PORT_STRATEGY=auto \
 scripts/run_asyncodebench_all_protocols_env.sh portalocker
 ```
 
-## 9. Run All 16 Tasks
+## 9. Run All 15 Non-Compiler Tasks
 
 Start sequentially unless the endpoint has known concurrency capacity:
 
 ```bash
 TASKS=(
   cachetools deprecated portalocker tinydb wcwidth requests simpy parsel
-  filesystem_spec marshmallow graphene imapclient pexpect flask python-rsa
+  filesystem_spec marshmallow imapclient pexpect flask python-rsa
   cookiecutter
 )
 
@@ -444,7 +450,7 @@ argument cannot substitute a different adapter name.
 
 ## 13. Build The Model Aggregate
 
-After generating all 20 task report sets:
+After generating all 19 task report sets:
 
 ```bash
 reproductions/async-swe-agents/.venv/bin/python \

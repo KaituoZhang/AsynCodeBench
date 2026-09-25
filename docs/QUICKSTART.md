@@ -217,7 +217,7 @@ See [`RESULT_VALIDITY.md`](RESULT_VALIDITY.md) for the exact machine-checked
 rules, and see
 [`EVALUATION_METRICS.md`](EVALUATION_METRICS.md) for metric definitions and
 [`MODEL_EXPERIMENT_RUNBOOK.md`](MODEL_EXPERIMENT_RUNBOOK.md) before running all
-20 tasks.
+19 tasks.
 
 The same command also runs one of the four compiler tasks; its immutable image
 is pulled automatically when absent:

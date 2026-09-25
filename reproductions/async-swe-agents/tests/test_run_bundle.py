@@ -495,7 +495,8 @@ def test_cli_lists_all_official_tasks(capsys):
     assert cli_main(["tasks", "--json"]) == 0
 
     tasks = json.loads(capsys.readouterr().out)
-    assert len(tasks) == 20
+    assert len(tasks) == 19
+    assert all(item["task_id"] != "asyncodebench:graphene" for item in tasks)
     assert all(item["task_id"].startswith("asyncodebench:") for item in tasks)
 
 
@@ -503,7 +504,8 @@ def test_cli_lists_all_official_images(capsys):
     assert cli_main(["images", "list", "--json"]) == 0
 
     images = json.loads(capsys.readouterr().out)
-    assert len(images) == 20
+    assert len(images) == 19
+    assert all(item["task_id"] != "asyncodebench:graphene" for item in images)
     assert all(item["task_id"].startswith("asyncodebench:") for item in images)
     assert all(
         item["reference"].startswith(("docker.io/", "ghcr.io/")) for item in images
@@ -588,12 +590,14 @@ def test_cli_reports_release_and_review_status(capsys):
     assert cli_main(["release-status", "--json"]) == 0
 
     status = json.loads(capsys.readouterr().out)
-    assert status["task_count"] == 20
-    assert status["scenario_count"] == 80
-    assert status["dependency_point_count"] == 55
-    assert status["automated_audit_complete_task_count"] == 20
-    assert status["human_review_complete_task_count"] == 20
-    assert status["human_review_passed_task_count"] == 20
+    assert status["task_count"] == 19
+    assert status["scenario_count"] == 76
+    assert status["online_scenario_count"] == 19
+    assert status["total_protocol_condition_count"] == 95
+    assert status["dependency_point_count"] == 53
+    assert status["automated_audit_complete_task_count"] == 19
+    assert status["human_review_complete_task_count"] == 19
+    assert status["human_review_passed_task_count"] == 19
     assert status["executable_release_complete"] is True
     assert status["release_stage"] == "community_preview"
     assert status["community_preview_ready"] is True

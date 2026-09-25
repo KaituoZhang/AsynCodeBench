@@ -27,10 +27,11 @@ def test_official_task_image_registry_matches_schema_and_release() -> None:
 
     records = registry["records"]
     official_ids = load(OFFICIAL)["official_task_ids"]
-    assert len(records) == 20
+    assert len(records) == 19
     assert [record["task_id"] for record in records] == official_ids
-    assert len({record["image"] for record in records}) == 20
-    assert len({record["source_task_id"] for record in records}) == 20
+    assert len({record["image"] for record in records}) == 19
+    assert len({record["source_task_id"] for record in records}) == 19
+    assert "asyncodebench:graphene" not in official_ids
 
 
 def test_all_official_task_images_are_published_and_digest_pinned() -> None:

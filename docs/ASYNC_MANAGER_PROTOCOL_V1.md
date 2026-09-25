@@ -70,7 +70,7 @@ protocol progress, not raw latency.
 
 See
 `reproductions/async-swe-agents/protocols/async_manager/README.md` for the
-single-task, sharded 20-task, validation, and campaign-summary commands. Every
+single-task, sharded 19-task, validation, and campaign-summary commands. Every
 completed bundle snapshots the protocol profile and exact source files with
 SHA-256 hashes.
 

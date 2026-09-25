@@ -21,8 +21,8 @@
     },
     "records": {
       "type": "array",
-      "minItems": 20,
-      "maxItems": 20,
+      "minItems": 19,
+      "maxItems": 19,
       "items": {"$ref": "#/$defs/image"}
     }
   },

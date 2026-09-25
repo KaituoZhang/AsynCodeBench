@@ -7,7 +7,7 @@ Start here when onboarding a collaborator or a new Codex session.
 | Document | Use |
 | --- | --- |
 | [`QUICKSTART.md`](QUICKSTART.md) | Canonical fresh-clone installation, model configuration, dry-run, and first task. |
-| [`MODEL_EXPERIMENT_RUNBOOK.md`](MODEL_EXPERIMENT_RUNBOOK.md) | Main guide for running another model across the official 20 tasks. |
+| [`MODEL_EXPERIMENT_RUNBOOK.md`](MODEL_EXPERIMENT_RUNBOOK.md) | Main guide for running another model across the official 19 tasks. |
 | [`TASK_IMAGE_DISTRIBUTION.md`](TASK_IMAGE_DISTRIBUTION.md) | Immutable Docker images, four compiler-task snapshots, pull/run commands, and source fallback. |
 | [`RESULT_VALIDITY.md`](RESULT_VALIDITY.md) | Canonical run status, per-metric eligibility, official profile, bundle integrity, and legacy-result triage. |
 | [`EVALUATION_METRICS.md`](EVALUATION_METRICS.md) | Metric definitions and post-run analysis rules. |
@@ -55,7 +55,7 @@ completion and approval state.
 
 ## Official Experiment Set
 
-The current unified v0.4 model-comparison set contains 20 tasks:
+The current unified v0.4.1 model-comparison set contains 19 tasks:
 
 ```text
 cachetools
@@ -68,7 +68,6 @@ simpy
 parsel
 filesystem_spec
 marshmallow
-graphene
 imapclient
 pexpect
 flask
@@ -83,6 +82,7 @@ apache-tvm-20153
 Excluded from the current official aggregate:
 
 ```text
+graphene
 fastapi
 python-progressbar
 fabric

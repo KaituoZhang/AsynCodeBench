@@ -23,7 +23,6 @@ EXPECTED_TASKS = frozenset(
         "asyncodebench:parsel",
         "asyncodebench:filesystem_spec",
         "asyncodebench:marshmallow",
-        "asyncodebench:graphene",
         "asyncodebench:imapclient",
         "asyncodebench:pexpect",
         "asyncodebench:flask",

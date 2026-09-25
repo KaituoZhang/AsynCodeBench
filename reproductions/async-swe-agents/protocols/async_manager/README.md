@@ -147,7 +147,7 @@ Output directories are immutable. Use a new `RUN_ID` after any interruption.
 ```bash
 export TASK_GROUP=all        # core, tvm, or all
 export CONTINUE_ON_ERROR=1
-bash scripts/run_async_manager_20tasks_env.sh
+bash scripts/run_async_manager_19tasks_env.sh
 ```
 
 The suite has stable zero-based sharding. Four foreground terminals can share
@@ -157,7 +157,7 @@ an environment file:
 ```bash
 # terminal 1
 SHARD_COUNT=4 SHARD_INDEX=0 ENV_FILE="$PWD/.env.port-8006" \
-  RUN_ID=async_manager_v2_s1 bash scripts/run_async_manager_20tasks_env.sh
+  RUN_ID=async_manager_v2_s1 bash scripts/run_async_manager_19tasks_env.sh
 
 # terminals 2--4: use SHARD_INDEX=1, 2, 3 and their corresponding ENV_FILE.
 ```
@@ -172,7 +172,7 @@ validation and immutable per-task output behavior remain active. For example:
 ```bash
 TASK_LIST="cachetools requests pr-hard:apache-tvm-20018" \
   SHARD_COUNT=1 SHARD_INDEX=0 ENV_FILE="$PWD/.env.local" \
-  RUN_ID=new-campaign bash scripts/run_async_manager_20tasks_env.sh
+  RUN_ID=new-campaign bash scripts/run_async_manager_19tasks_env.sh
 ```
 
 ## Dry-run and validate
@@ -189,7 +189,7 @@ TASK_LIST="cachetools requests pr-hard:apache-tvm-20018" \
   --validate_dir=/absolute/path/to/completed/run
 ```
 
-Validate and summarize a complete 20-task campaign:
+Validate and summarize a complete 19-task campaign:
 
 ```bash
 ./.venv/bin/python -m protocols.async_manager.campaign \

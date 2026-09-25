@@ -1,7 +1,9 @@
 # Official Task Images
 
-AsynCodeBench v0.4 distributes all 20 official tasks as Linux/AMD64 container
-images. The image layer is a reproducibility and delivery mechanism only: it
+AsynCodeBench v0.4.1 distributes all 19 official tasks as Linux/AMD64 container
+images. Historical Graphene source artifacts remain in the repository, but its
+image is not part of the current official registry. The image layer is a
+reproducibility and delivery mechanism only: it
 does not change task statements, model-visible evidence, source states,
 overlays, ownership, protocol schedules, Dependency Checkers, evaluators, or
 execution budgets.
@@ -28,7 +30,7 @@ uv run asyncodebench images pull --task cachetools
 uv run asyncodebench images pull --task apache-tvm-20018
 ```
 
-Or prefetch all 20. This requires substantial disk space because the four
+Or prefetch all 19. This requires substantial disk space because the four
 compiler tasks include a frozen native toolchain:
 
 ```bash
@@ -71,7 +73,7 @@ Remove one task and its matching OpenHands derived images:
 uv run asyncodebench images remove --task apache-tvm-20018
 ```
 
-Remove all 20 official task images after a campaign:
+Remove all 19 official task images after a campaign:
 
 ```bash
 uv run asyncodebench images remove --all --yes

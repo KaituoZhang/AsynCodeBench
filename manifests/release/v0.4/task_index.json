@@ -1,14 +1,14 @@
 {
-  "automated_audit_complete_task_count": 20,
+  "automated_audit_complete_task_count": 19,
   "community_preview_ready": true,
-  "dependency_point_count": 56,
+  "dependency_point_count": 53,
   "execution_profile": {
     "path": "configs/evaluation/official_execution_profile.v2.json",
     "profile_id": "asyncodebench-v0.3-standard-100",
     "sha256": "4d63f8d7176c0391528b39e283cd2f7ba53c15c99bc958f9674ebbe65cbef609"
   },
-  "human_review_complete_task_count": 20,
-  "human_review_passed_task_count": 20,
+  "human_review_complete_task_count": 19,
+  "human_review_passed_task_count": 19,
   "human_review_policy": {
     "adjudication_required": false,
     "automated_audit_counts_as_human": false,
@@ -18,6 +18,10 @@
     "required_human_review_count_per_task": 1,
     "secondary_human_annotation_required": false
   },
+  "online_protocols": [
+    "async_manager"
+  ],
+  "online_scenario_count": 19,
   "protocols": [
     "single",
     "serial_specialists",
@@ -26,11 +30,11 @@
   ],
   "release": "v0.4",
   "release_stage": "community_preview",
-  "release_version": "0.4.0",
-  "scenario_count": 80,
+  "release_version": "0.4.1",
+  "scenario_count": 76,
   "schema_version": "asyncodebench-task-index-v1",
   "stable_release_ready": false,
-  "task_count": 20,
+  "task_count": 19,
   "tasks": [
     {
       "annotation_status": {
@@ -1159,165 +1163,6 @@
       },
       "artifacts": {
         "adjudication_template": {
-          "path": "manifests/annotations/asyncodebench_v0.3/graphene/adjudication.template.json",
-          "sha256": "874e91e0e7954caff5abf8b2a665a77da9ed766f540a73ed60885088469a07ed"
-        },
-        "annotation_a": {
-          "path": "manifests/annotations/asyncodebench_v0.3/graphene/annotator_a.json",
-          "sha256": "36fb093a134de4c9a906067eb0d5c3e826069aac7a3cc5ac419f0c7f0f9ba6ea"
-        },
-        "annotation_audit": {
-          "path": "manifests/annotations/asyncodebench_v0.3/graphene/annotator_codex_audit.json",
-          "sha256": "1d702faa99ae2caf90bdb08a71c9e02e7c40eb7a323c4a2bf52f0309fe5b4752"
-        },
-        "annotation_b": {
-          "path": "manifests/annotations/asyncodebench_v0.3/graphene/annotator_b.json",
-          "sha256": "cc2c4539c3ce1a2af6df69cc3372c4231c780aec6c062fa02b295f309f6b36b1"
-        },
-        "metrics": {
-          "path": "manifests/pilot/v0.3/metrics/commit0_graphene_async_metrics.json",
-          "sha256": "7185bddae58451042063c8efc5adf07c925452dbd5e027547b7fb8ef4173004e"
-        },
-        "quality": {
-          "path": "manifests/pilot/v0.3/quality/commit0_graphene.json",
-          "sha256": "0e7fb4fac8a606e94d6ed42bea02a2d4887b0adddf9310b79eff7bf7ae20c5ee"
-        },
-        "scenarios": {
-          "path": "manifests/pilot/v0.3/scenarios/commit0_graphene.json",
-          "sha256": "1a6c8641c8d402b8541843c37d664e20c6c64f39ea02edc668d377ed5e4177bc"
-        },
-        "task": {
-          "path": "manifests/pilot/v0.3/tasks/commit0_graphene.json",
-          "sha256": "b90148ed3ef451b3a5ede722751e2a6540de93fe683c250a19058c0821224699"
-        }
-      },
-      "dependency_point_count": 3,
-      "official_result_eligible": true,
-      "parallelizability": "partially_parallelizable",
-      "protocols": {
-        "async_private": {
-          "agent_count": 3,
-          "communication_condition": "private_concurrent_workspaces",
-          "concurrent_execution": true,
-          "execution_mode": "async_private",
-          "scenario_id": "asyncodebench-graphene.async-private.v0.3",
-          "source_scenario_id": "commit0-graphene.async-private.v0.3"
-        },
-        "caid_manager": {
-          "agent_count": 3,
-          "communication_condition": "asynchronous_message_handoff",
-          "concurrent_execution": true,
-          "execution_mode": "async_message",
-          "scenario_id": "asyncodebench-graphene.async-message.v0.3",
-          "source_scenario_id": "commit0-graphene.async-message.v0.3"
-        },
-        "serial_specialists": {
-          "agent_count": 3,
-          "communication_condition": "completed_artifact_handoff",
-          "concurrent_execution": false,
-          "execution_mode": "serial_specialists",
-          "scenario_id": "asyncodebench-graphene.serial-specialists.v0.3",
-          "source_scenario_id": "commit0-graphene.serial-specialists.v0.3"
-        },
-        "single": {
-          "agent_count": 1,
-          "communication_condition": "not_applicable",
-          "concurrent_execution": false,
-          "execution_mode": "iterative_single",
-          "scenario_id": "asyncodebench-graphene.iterative-single.v0.3",
-          "source_scenario_id": "commit0-graphene.iterative-single.v0.3"
-        }
-      },
-      "quality_status": "qualification_ready",
-      "repository": "graphene",
-      "source": {
-        "base_ref": "origin/commit0_combined",
-        "base_sha": "ec2d3f476a7fa94a7a2ffc3c145422b0c3b7e71a",
-        "benchmark": "Commit0",
-        "overlay_count": 11,
-        "overlays": [
-          {
-            "path": "data/overlays/commit0/graphene/0001-types-utils-import-bootstrap.patch",
-            "rationale": "Expose only missing type utility symbols needed for package import and test class construction. Field extraction intentionally returns an empty structure, so object/input metadata behavior remains unfinished.",
-            "sha256": "b440d6ad5764ed3ad3fabc83e2f3ead96e84fa3440d2927fca7dda0fb2e627ca"
-          },
-          {
-            "path": "data/overlays/commit0/graphene/0002-subclass-meta-syntax-bootstrap.patch",
-            "rationale": "Repair a stripped f-string syntax placeholder in subclass_with_meta so public modules can parse. No metaclass behavior is supplied.",
-            "sha256": "f687a691798797a17235d2515cc5692148e02b0822bee246404a54ebc81c2976"
-          },
-          {
-            "path": "data/overlays/commit0/graphene/0003-props-import-bootstrap.patch",
-            "rationale": "Expose only the class-construction Meta attribute reader needed by public graphene type tests. This bootstrap is intentionally flagged for human review because it is less trivial than a pure pass stub.",
-            "sha256": "9d16540505bdffaff1da63215c6ea30c575f5eb948bb3f7ae443bf0c8d57e958"
-          },
-          {
-            "path": "data/overlays/commit0/graphene/0004-utils-import-bootstrap.patch",
-            "rationale": "Expose missing utility symbols imported by public modules. Helper bodies remain intentionally unfinished placeholders.",
-            "sha256": "ce15d97fd1d5243a3a095b81404914f602091f36d9126f3de9898655f77ad483"
-          },
-          {
-            "path": "data/overlays/commit0/graphene/0005-scalars-class-bootstrap.patch",
-            "rationale": "Expose scalar coercion function names required by scalar class definitions. Scalar coercion and serialization behavior remains unfinished.",
-            "sha256": "a3f1c3d1afd0c99cd795516caf604afff19c667724cfa692a962da5051ee3d91"
-          },
-          {
-            "path": "data/overlays/commit0/graphene/0006-base-options-bootstrap.patch",
-            "rationale": "Expose BaseOptions.freeze for metaclass construction. Option freezing behavior remains unfinished.",
-            "sha256": "dc40335e51f73cb595035c711fa8153b6b6300fc5d57f0a2118a121279dc678b"
-          },
-          {
-            "path": "data/overlays/commit0/graphene/0007-enum-class-bootstrap.patch",
-            "rationale": "Expose enum helper functions needed for enum class construction. Enum value equality/hash behavior remains unfinished.",
-            "sha256": "e9d584e79f4abec6fd7af34e5841e17b4b3a59f1a12692097636ecd6c97a4d6e"
-          },
-          {
-            "path": "data/overlays/commit0/graphene/0008-argument-field-import-bootstrap.patch",
-            "rationale": "Expose to_arguments and warn_deprecation import-time symbols. Argument conversion and deprecation warning behavior remains unfinished.",
-            "sha256": "eabaafa7bd9b8b789e9abccfc3668fe5394826cf8fdabb8c7efab121b874b57b"
-          },
-          {
-            "path": "data/overlays/commit0/graphene/0009-resolver-import-bootstrap.patch",
-            "rationale": "Expose resolver names imported by schema and field code. Default resolving behavior remains unfinished.",
-            "sha256": "00f7079b233680cf9f540270bacf7963fa88cb3bd7c098dee996a1e5f3f0c327"
-          },
-          {
-            "path": "data/overlays/commit0/graphene/0010-relay-mutation-import-bootstrap.patch",
-            "rationale": "Expose ClientIDMutation.mutate so relay mutation subclasses can be constructed during package import. Mutation behavior remains unfinished.",
-            "sha256": "5d80d14f50438a88f8f3a225de8920baedea7e088c09daa1f00f4f8a35859108"
-          },
-          {
-            "path": "data/overlays/commit0/graphene/0011-resolve-only-args-import-bootstrap.patch",
-            "rationale": "Expose resolve_only_args imported by relay mutation code. Resolver adaptation behavior remains unfinished.",
-            "sha256": "e8eacc348068858aeb7129731927888ab08fdc11893e0c35de6fc37693871350"
-          }
-        ],
-        "repository": "graphene"
-      },
-      "source_task_id": "commit0:graphene",
-      "task_id": "asyncodebench:graphene"
-    },
-    {
-      "annotation_status": {
-        "adjudication_complete": false,
-        "adjudication_required": false,
-        "annotator_a_complete": true,
-        "annotator_b_complete": false,
-        "automated_audit_complete": true,
-        "automated_audit_counts_as_human": false,
-        "completed_human_review_count": 1,
-        "human_annotations_agree": false,
-        "human_automated_audit_agree": true,
-        "human_review_complete": true,
-        "human_review_passed": true,
-        "policy_id": "single-human-plus-automated-audit-v1",
-        "required_human_annotation_artifact": "annotation_a",
-        "required_human_review_count": 1,
-        "secondary_human_annotation_required": false,
-        "status": "complete_pass"
-      },
-      "artifacts": {
-        "adjudication_template": {
           "path": "manifests/annotations/asyncodebench_v0.3/imapclient/adjudication.template.json",
           "sha256": "5f531a3766f93e5967b580950c62c339c519252f2167d26872670f9ea1dd628b"
         },
@@ -2293,6 +2138,7 @@
       "task_id": "asyncodebench:apache-tvm-20153"
     }
   ],
+  "total_protocol_condition_count": 95,
   "validated_baseline_bundle_count": 0,
   "validated_baseline_registry": {
     "path": "manifests/release/v0.4/validated_baselines.json",

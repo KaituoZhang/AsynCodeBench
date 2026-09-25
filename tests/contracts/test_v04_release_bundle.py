@@ -28,20 +28,23 @@ def test_v04_release_index_is_current() -> None:
     assert completed.returncode == 0, completed.stdout + completed.stderr
 
 
-def test_v04_unifies_twenty_qualified_tasks() -> None:
+def test_v04_unifies_nineteen_qualified_tasks() -> None:
     index = load(INDEX)
     official = load(OFFICIAL)
     assert index["release"] == official["release"] == "v0.4"
-    assert index["task_count"] == official["task_count"] == 20
-    assert index["scenario_count"] == 80
-    assert index["dependency_point_count"] == 56
-    assert index["human_review_passed_task_count"] == 20
-    assert index["automated_audit_complete_task_count"] == 20
+    assert index["task_count"] == official["task_count"] == 19
+    assert index["scenario_count"] == 76
+    assert index["online_scenario_count"] == 19
+    assert index["total_protocol_condition_count"] == 95
+    assert index["dependency_point_count"] == 53
+    assert index["human_review_passed_task_count"] == 19
+    assert index["automated_audit_complete_task_count"] == 19
     assert index["community_preview_ready"] is True
     assert index["stable_release_ready"] is False
     assert index["validated_baseline_bundle_count"] == 0
-    assert len(index["tasks"]) == len(official["official_task_ids"]) == 20
-    assert len({task["task_id"] for task in index["tasks"]}) == 20
+    assert len(index["tasks"]) == len(official["official_task_ids"]) == 19
+    assert len({task["task_id"] for task in index["tasks"]}) == 19
+    assert "asyncodebench:graphene" not in official["official_task_ids"]
     assert all(task["official_result_eligible"] for task in index["tasks"])
     assert all(
         task["annotation_status"]["human_review_passed"]

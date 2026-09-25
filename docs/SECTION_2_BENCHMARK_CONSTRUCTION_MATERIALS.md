@@ -1,5 +1,10 @@
 # Section 2 Materials: AsynCodeBench Benchmark Construction
 
+> Historical construction snapshot: this document records the earlier
+> 20-task candidate/review population. The executable v0.4.1 community and
+> matched paper benchmark contains 19 tasks and excludes Graphene. Use
+> `manifests/release/v0.4/task_index.json` for current release membership.
+
 This document is a paper-writing source packet for the unified v0.4
 community-preview release. It separates text that can be adapted directly into
 the main paper from audit evidence and claims that require careful wording.

@@ -28,11 +28,11 @@ readable and reproducible.
 
 ## At A Glance
 
-- **20 official repository-level tasks**, adapted from public projects;
+- **19 official repository-level tasks**, adapted from public projects;
 - **5 controlled agent protocols** per task;
-- **80 task-protocol scenarios** preserved in the frozen v0.4 release index,
-  plus 20 registry-defined online Async-Manager conditions (**100 total**);
-- **56 executable producer/consumer dependency points** across the official
+- **76 task-protocol scenarios** preserved in the frozen v0.4 release index,
+  plus 19 registry-defined online Async-Manager conditions (**95 total**);
+- **53 executable producer/consumer dependency points** across the official
   tasks;
 - an **AsynCodeBench-native harness** with a built-in OpenHands agent and a
   public bring-your-own-agent adapter;
@@ -97,9 +97,10 @@ The following table is an initial descriptive evaluation of
 adapter. This historical snapshot covers the first 16 tasks and all four
 protocols under the unchanged `asyncodebench-v0.3-standard-100` execution
 profile. All 64 selected run bundles passed their released admission checks.
-It is retained as an initial subset result, not presented as a complete v0.4
-20-task baseline. The harness revision was `ddebb7d`, and each task-protocol
-cell was run once.
+It is retained as a historical v0.3 result, not presented as a complete v0.4
+19-task baseline. The historical snapshot includes Graphene, which is not part
+of the matched v0.4 paper/community task set. The harness revision was
+`ddebb7d`, and each task-protocol cell was run once.
 
 | Protocol | Successful tasks | Mean test pass rate | Mean ADPR | Mean unresolved dependencies | Mean penalized DRS | Mean penalized CAIL | Mean tokens | Mean runtime |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -135,8 +136,8 @@ for the stable-release gate.
 ```text
 cachetools       deprecated       portalocker       tinydb
 wcwidth          requests         simpy              parsel
-filesystem_spec  marshmallow      graphene           imapclient
-pexpect          flask            python-rsa         cookiecutter
+filesystem_spec  marshmallow      imapclient          pexpect
+flask            python-rsa       cookiecutter
 apache-tvm-20018 apache-tvm-20073 apache-tvm-20107 apache-tvm-20153
 ```
 
@@ -162,23 +163,24 @@ For each official task, AsynCodeBench supplies:
   secondary-review/adjudication forms for auditing labels;
 - contract tests validating cross-file consistency.
 
-The first 16 frozen task artifacts remain under `manifests/pilot/v0.3/`; the
+The 16 frozen v0.3 task artifacts remain under `manifests/pilot/v0.3/`; the
 four compiler task artifacts are under `manifests/candidates/pr_hard_v0.4/`.
 These source-specific paths are retained for artifact and historical result
-compatibility. The public release treats all 20 as
-`asyncodebench:<repository>` tasks.
+compatibility. Graphene remains available as a historical v0.3 artifact but is
+excluded from the matched v0.4 aggregate. The public release treats the other
+15 v0.3 tasks and four compiler tasks as `asyncodebench:<repository>` tasks.
 
 [`manifests/release/v0.4/task_index.json`](manifests/release/v0.4/task_index.json)
 is the machine-readable release inventory. It checksum-pins every runtime
 manifest, annotation/audit/template file, source SHA, and bootstrap overlay for
-all 20 tasks.
+all 19 official tasks.
 
 Human-review completion is reported separately from automatic qualification.
 The release policy requires one completed human approval in `annotator_a.json`
 per task, plus the separately identified automated audit. The automated audit
 does not count as a human reviewer. At the current checkout, the automated
-audit is complete for 20/20 tasks and the required human approval is complete
-for 20/20 tasks. See
+audit is complete for 19/19 tasks and the required human approval is complete
+for 19/19 tasks. See
 [`docs/HUMAN_REVIEW.md`](docs/HUMAN_REVIEW.md).
 
 No current native model result bundle is committed as a public baseline yet.
@@ -223,9 +225,11 @@ reproductions/async-swe-agents/run_asyncodebench.py
 Legacy Commit0-named runner scripts remain only for reproducing historical
 experiments. New runs should use the native entry point or wrapper below.
 
-All 20 official environments are recorded in
+All 19 official environments are recorded in
 [`configs/environments/official_task_images.v0.4.json`](configs/environments/official_task_images.v0.4.json)
-and consumed by immutable digest. The four compiler images are built from
+and consumed by immutable digest. Historical Graphene source artifacts remain
+in the repository, but its image is not part of the v0.4.1 registry. The four
+compiler images are built from
 independent, read-only, answer-free runtime snapshots; the production fixes,
 upstream history, build caches, and prior outputs are not included. See
 [`docs/TASK_IMAGE_DISTRIBUTION.md`](docs/TASK_IMAGE_DISTRIBUTION.md) for pull,
@@ -352,20 +356,20 @@ The wrapper also accepts compiler-task IDs:
 bash scripts/run_async_manager_env.sh pr-hard:apache-tvm-20153
 ```
 
-Run all 20 tasks sequentially, or split the stable task list across multiple
+Run all 19 tasks sequentially, or split the stable task list across multiple
 independent model endpoints:
 
 ```bash
 # One endpoint, all tasks.
 TASK_GROUP=all CONTINUE_ON_ERROR=1 \
-  bash scripts/run_async_manager_20tasks_env.sh
+  bash scripts/run_async_manager_19tasks_env.sh
 
 # Example: terminal 1 of a four-endpoint campaign.
 SHARD_COUNT=4 SHARD_INDEX=0 \
 ENV_FILE="$PWD/.env.port-8006" \
 RUN_ID=async-manager-v2-s1 \
 CONTINUE_ON_ERROR=1 \
-  bash scripts/run_async_manager_20tasks_env.sh
+  bash scripts/run_async_manager_19tasks_env.sh
 ```
 
 Use `SHARD_INDEX=1`, `2`, and `3` with separate endpoint files in the other

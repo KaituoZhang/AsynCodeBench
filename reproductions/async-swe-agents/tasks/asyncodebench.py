@@ -49,14 +49,26 @@ class AsynCodeBenchTask(Commit0Task):
 
         self.release_root = self._repo_root() / "manifests" / "pilot" / config.release
         self.official_manifest = self._read_json(
-            self._repo_root() / "configs" / "tasks" / "commit0_official_tasks.v0.3.json"
+            self._repo_root() / "manifests" / "release" / "v0.4" / "official_tasks.json"
         )
-        official_tasks = self.official_manifest.get("official_tasks", [])
-        if config.enforce_official and repo_name not in official_tasks:
+        official_task_ids = set(self.official_manifest.get("official_task_ids", []))
+        if config.enforce_official and self.public_task_id not in official_task_ids:
             raise ValueError(
                 f"{config.task_id!r} is not an official AsynCodeBench "
-                f"{config.release} task"
+                "v0.4.1 task"
             )
+        self._official_source_tasks = []
+        for task_id in self.official_manifest.get("official_task_ids", []):
+            if not task_id.startswith(f"{self.PUBLIC_NAMESPACE}:"):
+                continue
+            official_repo_name = task_id.split(":", 1)[1]
+            source_manifest = (
+                self.release_root
+                / "tasks"
+                / f"commit0_{official_repo_name.replace('-', '_')}.json"
+            )
+            if source_manifest.is_file():
+                self._official_source_tasks.append(official_repo_name)
 
         normalized = repo_name.replace("-", "_")
         self.manifest_paths = {
@@ -119,7 +131,9 @@ class AsynCodeBenchTask(Commit0Task):
 
     @property
     def official_tasks(self):
-        return list(self.official_manifest.get("official_tasks", []))
+        """Return official tasks backed by the v0.3 source-manifest adapter."""
+
+        return list(self._official_source_tasks)
 
     def get_docker_image(self):
         """Use the immutable v0.4 distribution reference for official runs."""
