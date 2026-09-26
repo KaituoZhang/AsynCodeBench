@@ -110,8 +110,8 @@ From `reproductions/async-swe-agents`:
 ```bash
 ENV_FILE="$PWD/.env" \
 DRY_RUN=1 \
-RUN_SERIAL=0 RUN_ASYNC_PRIVATE=0 RUN_CAID=0 \
-scripts/run_pr_hard_20153_all_protocols_env.sh
+RUN_SERIAL=0 RUN_ASYNC_PRIVATE=0 RUN_CAID=0 RUN_ASYNC_MANAGER=0 \
+scripts/run_pr_hard_five_protocols_env.sh apache-tvm-20153
 ```
 
 The output must report the candidate task, the `single` protocol, the frozen
@@ -121,12 +121,12 @@ package exists and is isolated correctly.
 
 ## 5. Run one or all matched conditions
 
-Run all four conditions with the same run identifier:
+Run all five conditions with the same run identifier:
 
 ```bash
 ENV_FILE="$PWD/.env" \
 RUN_ID="my-model-20153-seed1-$(date -u +%Y%m%dT%H%M%SZ)" \
-scripts/run_pr_hard_20153_all_protocols_env.sh
+scripts/run_pr_hard_five_protocols_env.sh apache-tvm-20153
 ```
 
 Run only CAID, for example:
@@ -134,14 +134,15 @@ Run only CAID, for example:
 ```bash
 ENV_FILE="$PWD/.env" \
 RUN_ID="my-model-20153-caid-seed2-$(date -u +%Y%m%dT%H%M%SZ)" \
-RUN_SINGLE=0 RUN_SERIAL=0 RUN_ASYNC_PRIVATE=0 RUN_CAID=1 \
-scripts/run_pr_hard_20153_all_protocols_env.sh
+RUN_SINGLE=0 RUN_SERIAL=0 RUN_ASYNC_PRIVATE=0 RUN_CAID=1 RUN_ASYNC_MANAGER=0 \
+scripts/run_pr_hard_five_protocols_env.sh apache-tvm-20153
 ```
 
-Supported flags are `RUN_SINGLE`, `RUN_SERIAL`, `RUN_ASYNC_PRIVATE`, and
-`RUN_CAID`; each is `0` or `1`. Every non-diagnostic comparison must retain the
-frozen 100-response profile. A fresh run ID is required because completed or
-interrupted output directories are immutable evidence.
+Supported flags are `RUN_SINGLE`, `RUN_SERIAL`, `RUN_ASYNC_PRIVATE`, `RUN_CAID`,
+and `RUN_ASYNC_MANAGER`; each is `0` or `1`. Every non-diagnostic comparison
+must retain the released execution profile for that protocol. A fresh run ID
+is required because completed or interrupted output directories are immutable
+evidence.
 
 ## 6. Validate and interpret results
 

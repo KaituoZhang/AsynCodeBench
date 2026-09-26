@@ -308,7 +308,7 @@ cd /absolute/path/to/AsynCodeBench/reproductions/async-swe-agents
 .venv/bin/python -m pytest -q tests/test_asyncodebench_harness_v2.py
 ```
 
-The tests check the 16-task official set, required manifests, curated source
+The tests check the 19-task official set, required manifests, curated source
 records, four scenario types, dependency ordering, active CAID fallback,
 initial and follow-up delegation validation, real git worktree isolation,
 committed-patch rejection and merge behavior, snapshots, scope matching, and

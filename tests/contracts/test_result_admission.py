@@ -199,7 +199,7 @@ def test_exploratory_override_is_explicitly_labeled(tmp_path):
     report = output_dir / "test-model_1task_compact_metrics_table.md"
     content = report.read_text(encoding="utf-8")
     assert "exploratory aggregate" in content
-    assert "1/16 task subset" in content
+    assert "1/19 task subset" in content
     campaign = json.loads(
         (output_dir / "test-model_1task_campaign_manifest.json").read_text(
             encoding="utf-8"
@@ -225,7 +225,7 @@ def test_official_aggregate_accepts_eligible_model_failures(tmp_path):
     report = output_dir / "test-model_1task_compact_metrics_table.md"
     content = report.read_text(encoding="utf-8")
     assert "all rows satisfy the released official aggregate contract" in content
-    assert "1/16 task subset" in content
+    assert "1/19 task subset" in content
     assert "0.000" in content
     campaign = json.loads(
         (output_dir / "test-model_1task_campaign_manifest.json").read_text(

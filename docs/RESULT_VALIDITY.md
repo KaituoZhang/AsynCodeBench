@@ -110,13 +110,13 @@ but silently collects no tests cannot appear as a successful coding run.
 
 The model-level aggregator also checks campaign lineage. For an official table,
 the model ID, bundle-recorded agent-adapter class, code/version, configuration
-SHA, and execution-profile ID and SHA256 must be consistent, and the four
+SHA, and execution-profile ID and SHA256 must be consistent, and all compared
 protocols for each task must share one recorded
 generation-configuration SHA. The adapter recorded by the harness is
 authoritative; a reporting command cannot replace it with an arbitrary label.
 The aggregator emits `<model>_<N>task_campaign_manifest.json`, which links every
 row to its run-bundle, per-task CSV, and artifact-index checksums. A task subset
-is labeled `official_profile_subset`, never presented as a complete 16-task
+is labeled `official_profile_subset`, never presented as a complete 19-task
 score.
 
 ## Minimum Public Result Package
@@ -184,7 +184,7 @@ Each run stores:
 A healthy run with a budget deviation remains useful exploratory evidence, but
 `official_profile` and `official_aggregate` are false. Model-specific serving
 settings are not forced to be identical across model families; they must be
-fully recorded in `run_metadata.json` and held fixed across the four protocols
+fully recorded in `run_metadata.json` and held fixed across all five protocols
 being compared for one model-task pair.
 
 Generation parameters in `run_metadata.json` state whether each value came
@@ -255,7 +255,7 @@ uv run asyncodebench release-status --require stable
 ```
 
 The preview gate requires all released tasks to pass automatic qualification.
-The stable gate additionally requires 16/16 one-human approvals and at least
+The stable gate additionally requires 19/19 one-human approvals and at least
 one checksum-registered public baseline bundle. Missing evidence remains an
 explicit nonzero gate rather than being inferred from prose.
 

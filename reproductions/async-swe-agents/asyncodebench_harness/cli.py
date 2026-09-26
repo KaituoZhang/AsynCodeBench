@@ -398,7 +398,7 @@ def _run_one(args, protocol, output_dir, run_id):
         rounds_of_chat=rounds_of_chat,
         output_dir=output_dir,
         run_id=run_id,
-        # The first 16 task records retain their v0.3 source manifests inside
+        # The 15 Commit0-derived task records retain their v0.3 source manifests inside
         # the unified v0.4 release.  Their executable content is unchanged.
         release="v0.3" if args.release == "v0.4" else args.release,
         agent=args.agent,

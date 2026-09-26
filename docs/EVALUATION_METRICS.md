@@ -382,9 +382,9 @@ post-run audit must write to a separate derived-output path, as shown in
 
 ### Derived Reports
 
-After all four task protocols validate, use
+After all five task protocols validate, use
 `scripts/summarize_model_task_runs.py` to create the task Markdown, metrics CSV,
-and artifact index outside the immutable run directories. After all 16 task
+and artifact index outside the immutable run directories. After all 19 task
 reports exist, use `scripts/aggregate_model_task_results.py` to create the
 model-level tables and campaign manifest. Copy-ready commands are in
 [`MODEL_EXPERIMENT_RUNBOOK.md`](MODEL_EXPERIMENT_RUNBOOK.md).

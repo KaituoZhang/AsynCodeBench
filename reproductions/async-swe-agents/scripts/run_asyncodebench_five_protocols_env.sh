@@ -179,11 +179,15 @@ run_protocol() {
     --task_id "$task_id"
     --protocol "$protocol"
     --model "$LLM_MODEL"
-    --max_iterations "$max_iterations"
-    --sub_iterations "$sub_iterations"
-    --rounds_of_chat "$rounds_of_chat"
     --output_dir "${base_output}/${protocol}/${run_version}"
   )
+  if [[ "$protocol" != "async_manager" ]]; then
+    args+=(
+      --max_iterations "$max_iterations"
+      --sub_iterations "$sub_iterations"
+      --rounds_of_chat "$rounds_of_chat"
+    )
+  fi
   if [[ -n "${LLM_SUBAGENT_MODEL:-}" ]]; then
     args+=(--subagent_model "$LLM_SUBAGENT_MODEL")
   fi
@@ -215,6 +219,6 @@ echo "[AsynCodeBench] Agent counts are loaded from the release scenario manifest
 [[ "$run_serial" == "1" ]] && run_protocol serial_specialists 1 "$specialist_iterations" "$specialist_iterations"
 [[ "$run_async_private" == "1" ]] && run_protocol async_private 2 "$specialist_iterations" "$specialist_iterations"
 [[ "$run_caid" == "1" ]] && run_protocol caid_manager 3 "$caid_manager_iterations" "$caid_sub_iterations"
-[[ "$run_async_manager" == "1" ]] && run_protocol async_manager 4 "$caid_manager_iterations" "$caid_sub_iterations"
+[[ "$run_async_manager" == "1" ]] && run_protocol async_manager 4 "" ""
 
 echo "[AsynCodeBench] All selected protocols completed."

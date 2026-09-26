@@ -194,7 +194,7 @@ export ASYNCODEBENCH_VLLM_CONFIG_JSON='{"max_model_len":131000,"max_num_seqs":2,
 ```
 
 Use `max_num_seqs` at least as large as the task's concurrent specialist count.
-Keep model-serving and generation settings fixed across the four protocols of a
+Keep model-serving and generation settings fixed across all five protocols of a
 task. Use separate vLLM ports and disjoint workspace-port scan ranges when
 running tasks in parallel terminals. Read
 [`LOCAL_VLLM_EXPERIMENT_RUNBOOK.md`](LOCAL_VLLM_EXPERIMENT_RUNBOOK.md) for model
@@ -223,20 +223,20 @@ docker run --rm --network host curlimages/curl:8.10.1 \
   -fsS http://127.0.0.1:8006/v1/models
 ```
 
-Then dry-run all four protocols:
+Then dry-run all five protocols:
 
 ```bash
 ENV_FILE="$PWD/.env.<model-tag>" \
 MODEL_TAG=<model-tag> \
 RUN_VERSION=dry-run-v01 \
 DRY_RUN=1 \
-scripts/run_asyncodebench_all_protocols_env.sh cachetools
+scripts/run_asyncodebench_five_protocols_env.sh cachetools
 ```
 
 Confirm that the output reports:
 
 - `task_id=asyncodebench:cachetools`;
-- all four canonical protocol names;
+- all five canonical protocol names;
 - `official=True`;
 - the curated base SHA and overlay count;
 - manifest-defined agent assignments and writable paths;
@@ -259,11 +259,14 @@ SPECIALIST_ITERATIONS=2 \
 CAID_MANAGER_ITERATIONS=2 \
 CAID_SUB_ITERATIONS=2 \
 ROUNDS_OF_CHAT=1 \
-scripts/run_asyncodebench_all_protocols_env.sh cachetools
+scripts/run_asyncodebench_five_protocols_env.sh cachetools
 ```
 
-The model is not expected to solve cachetools in two iterations. The smoke is
-successful when all four runs call the model and produce evaluator evidence,
+The model is not expected to solve cachetools in two iterations. Async-Manager
+retains its frozen 100-response task-level manager budget, 30-response
+per-intervention guard, and 100-response specialist budget; the other four
+protocols use the reduced smoke budget. The smoke is successful when all five
+runs call the model and produce evaluator evidence,
 dependency checkpoints, process metrics, snapshots, and a `run_bundle.json`.
 These profile-deviating smoke runs are exploratory and must not enter the
 official aggregate.
@@ -271,7 +274,7 @@ official aggregate.
 Validate each smoke directory:
 
 ```bash
-for protocol in single serial_specialists async_private caid_manager; do
+for protocol in single serial_specialists async_private caid_manager async_manager; do
   uv run asyncodebench validate-run \
     "outputs/asyncodebench/v0.3/<model-tag>/cachetools/$protocol/smoke-v01" || true
 done
@@ -293,10 +296,10 @@ ENV_FILE="$PWD/.env.<model-tag>" \
 MODEL_TAG=<model-tag> \
 RUN_VERSION=official-v01 \
 WORKSPACE_PORT_STRATEGY=auto \
-scripts/run_asyncodebench_all_protocols_env.sh cachetools
+scripts/run_asyncodebench_five_protocols_env.sh cachetools
 ```
 
-The four protocols run sequentially. Never reuse an interrupted or completed
+The five protocols run sequentially. Never reuse an interrupted or completed
 output directory. Retry an infrastructure-invalid run with a new
 `RUN_VERSION`; retain the invalid evidence.
 
@@ -307,11 +310,12 @@ RUN_SINGLE=0 \
 RUN_SERIAL=0 \
 RUN_ASYNC_PRIVATE=0 \
 RUN_CAID=1 \
+RUN_ASYNC_MANAGER=0 \
 ENV_FILE="$PWD/.env.<model-tag>" \
 MODEL_TAG=<model-tag> \
 RUN_VERSION=official-caid-v01 \
 WORKSPACE_PORT_STRATEGY=auto \
-scripts/run_asyncodebench_all_protocols_env.sh portalocker
+scripts/run_asyncodebench_five_protocols_env.sh portalocker
 ```
 
 ## 9. Run All 15 Non-Compiler Tasks
@@ -330,7 +334,7 @@ for TASK in "${TASKS[@]}"; do
   MODEL_TAG=<model-tag> \
   RUN_VERSION=official-v01 \
   WORKSPACE_PORT_STRATEGY=auto \
-  scripts/run_asyncodebench_all_protocols_env.sh "$TASK"
+  scripts/run_asyncodebench_five_protocols_env.sh "$TASK"
 done
 ```
 
@@ -521,6 +525,7 @@ Give a collaborator or a new coding-agent session these documents in order:
 6. [`LOCAL_VLLM_EXPERIMENT_RUNBOOK.md`](LOCAL_VLLM_EXPERIMENT_RUNBOOK.md) for local models;
 7. [`AGENT_ADAPTER.md`](AGENT_ADAPTER.md) for a custom coding agent.
 
-Earlier internal Commit0 and PaperBench pilot launchers are intentionally not
-distributed with the community runtime. New campaigns must use the native
-`asyncodebench:<task>` interface and official release manifests described here.
+Earlier internal Commit0 and PaperBench-era modules are retained only to keep
+the checksum-protected four-protocol implementation byte-stable. They are not
+public entry points. New campaigns must use the native `asyncodebench:<task>`
+interface and official release manifests described here.

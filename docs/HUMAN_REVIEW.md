@@ -1,13 +1,13 @@
 # AsynCodeBench Human Review
 
-This is the canonical checklist for the required human review of the 16-task
+This is the canonical checklist for the required human review of the 19-task
 release. The policy is one human approval per task plus a separate automated
 audit. The human completes `annotator_a.json`; the automated audit does not
 count as a second human.
 
 ## Files To Review
 
-For each repository, read these public, answer-free artifacts:
+For each Commit0-derived repository, read these public, answer-free artifacts:
 
 ```text
 manifests/pilot/v0.3/tasks/commit0_<task>.json
@@ -16,6 +16,12 @@ manifests/pilot/v0.3/scenarios/commit0_<task>.json
 manifests/pilot/v0.3/metrics/commit0_<task>_async_metrics.json
 configs/tasks/commit0_curated_tasks.v0.3.json
 ```
+
+For each Apache TVM task, review the corresponding files under
+`manifests/candidates/pr_hard_v0.4/{tasks,scenarios,metrics,qualification}/`
+and its required `annotator_a.json` under
+`manifests/annotations/pr_hard_v0.4/`. The authoritative paths for every task
+are recorded in `manifests/release/v0.4/task_index.json`.
 
 The `commit0_` filenames and `source_task_id` fields preserve source
 provenance. The public benchmark identity remains `asyncodebench:<task>`.
@@ -59,10 +65,10 @@ such as "the task is difficult and supports multiple agents" is insufficient.
 
 ## Review Status
 
-The required `annotator_a.json` form is complete and approved for all 16
+The required `annotator_a.json` form is complete and approved for all 19
 official tasks. The generated release index records both
-`human_review_complete_task_count: 16` and
-`human_review_passed_task_count: 16`.
+`human_review_complete_task_count: 19` and
+`human_review_passed_task_count: 19`.
 
 `annotator_b.json` and `adjudication.template.json` remain optional provenance
 artifacts. They do not block the one-human release gate.

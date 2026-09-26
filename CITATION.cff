@@ -2,8 +2,8 @@ cff-version: 1.2.0
 message: "If you use AsynCodeBench, please cite this software release."
 type: software
 title: "AsynCodeBench: Dependency-Aware Asynchronous Multi-Agent Coding Benchmark"
-version: 0.3.0
-date-released: 2026-08-08
+version: 0.4.1
+date-released: 2026-09-25
 license: Apache-2.0
 repository-code: "https://github.com/KaituoZhang/Asynccodebench"
 authors:

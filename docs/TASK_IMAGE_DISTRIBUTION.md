@@ -128,7 +128,7 @@ to an isolated, per-run host cache and are deleted after the run.
 
 Container distribution is additive. In particular:
 
-- the existing 16 image contents are unchanged; v0.4 records their current
+- the existing 15 non-compiler official image contents are unchanged; v0.4 records their current
   registry digests;
 - the historical raw TVM entry point still defaults to `runtime_backend=local`;
 - `PR_HARD_RUNTIME_BACKEND=local` keeps the previous reconstruction and mount

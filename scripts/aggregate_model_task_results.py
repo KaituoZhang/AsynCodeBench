@@ -13,23 +13,20 @@ from pathlib import Path
 from statistics import mean
 from typing import Any
 
-OFFICIAL_TASKS = [
-    "cachetools",
-    "deprecated",
-    "portalocker",
-    "tinydb",
-    "wcwidth",
-    "requests",
-    "simpy",
-    "parsel",
-    "filesystem_spec",
-    "marshmallow",
-    "imapclient",
-    "pexpect",
-    "flask",
-    "python-rsa",
-    "cookiecutter",
-]
+ROOT = Path(__file__).resolve().parents[1]
+OFFICIAL_TASKS_FILE = ROOT / "manifests/release/v0.4/official_tasks.json"
+
+
+def load_official_tasks() -> list[str]:
+    """Load the frozen release inventory instead of duplicating it here."""
+    payload = json.loads(OFFICIAL_TASKS_FILE.read_text(encoding="utf-8"))
+    return [
+        task_id.removeprefix("asyncodebench:")
+        for task_id in payload["official_task_ids"]
+    ]
+
+
+OFFICIAL_TASKS = load_official_tasks()
 LEGACY_MODE_ORDER = ["single", "serial_specialists", "async_private", "caid_manager"]
 FIVE_PROTOCOL_MODE_ORDER = [*LEGACY_MODE_ORDER, "async_manager"]
 MODE_ORDER = FIVE_PROTOCOL_MODE_ORDER
@@ -397,7 +394,7 @@ def write_campaign_manifest(
     payload = {
         "schema_version": "asyncodebench-campaign-manifest-v1",
         "benchmark": "AsynCodeBench",
-        "release": "v0.3",
+        "release": "v0.4",
         "created_at": datetime.now(timezone.utc).isoformat(),
         "model_tag": args.model_tag,
         "model_id": next(
@@ -599,6 +596,9 @@ def write_compact_markdown(
     rows: list[dict[str, Any]],
     tasks: list[str],
 ) -> None:
+    complete_release = (
+        len(tasks) == len(OFFICIAL_TASKS) and set(tasks) == set(OFFICIAL_TASKS)
+    )
     protocol_labels = {
         "single": "Single",
         "serial_specialists": "Serial",
@@ -616,9 +616,9 @@ def write_compact_markdown(
         ),
         "",
         (
-            "Scope: complete 16-task AsynCodeBench release."
-            if tasks == OFFICIAL_TASKS
-            else f"Scope: {len(tasks)}/16 task subset; this is not a complete benchmark result."
+            f"Scope: complete {len(OFFICIAL_TASKS)}-task AsynCodeBench release."
+            if complete_release
+            else f"Scope: {len(tasks)}/{len(OFFICIAL_TASKS)} task subset; this is not a complete benchmark result."
         ),
         "",
         "## Protocol Summary",

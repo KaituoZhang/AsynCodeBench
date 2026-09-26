@@ -4,7 +4,7 @@ This packet records the construction provenance for recent, PR-derived Apache
 TVM tasks. Four multi-agent tasks have now passed every promotion gate and are
 included alongside the existing repository tasks in the unified AsynCodeBench
 v0.4 community-preview release. Two single-agent calibration records and one
-invalidated decomposition remain outside the released 20-task set.
+invalidated decomposition remain outside the released 19-task set.
 
 ## Current decision
 
@@ -311,11 +311,11 @@ uv run python run_pr_hard.py \
   --dry_run
 ```
 
-Run all four matched conditions with a fresh run ID:
+Run all five matched conditions with a fresh run ID:
 
 ```bash
 RUN_ID="qwen36-27b-gpu1-standard100-$(date -u +%Y%m%dT%H%M%SZ)" \
-  scripts/run_pr_hard_20107_all_protocols_env.sh
+  scripts/run_pr_hard_five_protocols_env.sh apache-tvm-20107
 ```
 
 New runs for the four qualified tasks report

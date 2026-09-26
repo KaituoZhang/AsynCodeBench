@@ -32,25 +32,24 @@ uv run asyncodebench tasks
 
 ## Run
 
-For the qualified Apache TVM 20153 task, first reconstruct the isolated TVM
-runtime and follow
+For the qualified Apache TVM 20153 task, follow
 [`../../docs/PR_HARD_20153_COLLABORATOR_RUNBOOK.md`](../../docs/PR_HARD_20153_COLLABORATOR_RUNBOOK.md).
 The task wrapper validates the runtime before any model call:
 
 ```bash
 ENV_FILE="$PWD/.env" \
 RUN_ID="my-model-20153-seed1-$(date -u +%Y%m%dT%H%M%SZ)" \
-scripts/run_pr_hard_20153_all_protocols_env.sh
+scripts/run_pr_hard_five_protocols_env.sh apache-tvm-20153
 ```
 
-Run the original four-protocol profile for one task:
+Run all five official protocols for one task:
 
 ```bash
 ENV_FILE="$PWD/.env" \
 MODEL_TAG=my-model \
 RUN_VERSION=official-v01 \
 WORKSPACE_PORT_STRATEGY=auto \
-scripts/run_asyncodebench_all_protocols_env.sh cachetools
+scripts/run_asyncodebench_five_protocols_env.sh cachetools
 ```
 
 The public task ID is `asyncodebench:<task>`. The wrapper accepts a short task
@@ -68,8 +67,8 @@ async_manager
 ```
 
 `caid_manager` is the read-only-manager condition (Async-RO-Manager), while
-`async_manager` is the online, scope-constrained editing manager. Run all five
-official protocols with:
+`async_manager` is the online, scope-constrained editing manager. The same
+five-protocol wrapper can be used with any official non-compiler task:
 
 ```bash
 ENV_FILE="$PWD/.env" \
@@ -134,8 +133,9 @@ The internal `tasks/commit0.py` materialization backend and
 `protocols/static_commit0.py` baseline engine retain their historical names so
 the released four-protocol implementation remains byte-stable. They are used
 through the native `asyncodebench:<task>` interface and are not separate public
-entry points. Obsolete Commit0/PaperBench pilot launchers are not distributed
-in the community runtime.
+entry points. Frozen PaperBench-era modules remain internal compatibility
+assets because removing them would alter the checksum-protected four-protocol
+implementation; they are unsupported and are not exposed by the public CLI.
 
 See the repository-level `LICENSE`, `THIRD_PARTY_NOTICES.md`, and `CITATION.cff`
 for licensing, attribution, and citation information.

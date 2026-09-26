@@ -24,7 +24,7 @@ Start here when onboarding a collaborator or a new Codex session.
 The official task directories contain one required human-review form, one
 automated audit record, and optional secondary-review/adjudication forms. Form
 presence is not evidence of completion. The automated audit never counts as a
-human. `manifests/release/v0.3/task_index.json` reports the machine-readable
+human. `manifests/release/v0.4/task_index.json` reports the machine-readable
 completion and approval state.
 
 ## Task Construction And Methodology

@@ -8,7 +8,6 @@ import hashlib
 import json
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 V03_INDEX = ROOT / "manifests/release/v0.3/task_index.json"
 REGISTRY = ROOT / "configs/tasks/pr_hard_candidates.v0.4.json"

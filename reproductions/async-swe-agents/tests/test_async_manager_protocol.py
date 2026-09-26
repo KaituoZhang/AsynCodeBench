@@ -195,6 +195,24 @@ def test_existing_protocol_implementation_paths_are_unchanged():
     assert_legacy_execution_unchanged(root)
 
 
+def test_five_protocol_wrapper_defers_async_manager_budget_to_frozen_profile():
+    root = Path(__file__).resolve().parents[3]
+    wrapper = (
+        root
+        / "reproductions"
+        / "async-swe-agents"
+        / "scripts"
+        / "run_asyncodebench_five_protocols_env.sh"
+    ).read_text(encoding="utf-8")
+
+    assert "ASYNC_MANAGER_ITERATIONS" not in wrapper
+    assert 'if [[ "$protocol" != "async_manager" ]]; then' in wrapper
+    assert (
+        '[[ "$run_async_manager" == "1" ]] '
+        '&& run_protocol async_manager 4 "" ""' in wrapper
+    )
+
+
 def test_async_manager_enables_private_subagent_workspaces_process_locally():
     task = SimpleNamespace(
         task_id="pr-hard:apache-tvm-20107", active_protocol=PROTOCOL

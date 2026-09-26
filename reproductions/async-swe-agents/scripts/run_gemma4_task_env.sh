@@ -3,7 +3,7 @@ set -euo pipefail
 
 runner_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$runner_root"
-all_protocols_runner="$runner_root/scripts/run_asyncodebench_all_protocols_env.sh"
+all_protocols_runner="$runner_root/scripts/run_asyncodebench_five_protocols_env.sh"
 
 [[ -x "$all_protocols_runner" ]] || {
   echo "Missing executable protocol runner: $all_protocols_runner" >&2

@@ -23,7 +23,7 @@ Before a formal local-model run, verify all of the following:
 3. Thinking mode is configured explicitly and held constant across all tasks.
 4. `--max-num-seqs` is at least `2` for AsynCodeBench multi-agent runs.
 5. The Docker workspace can reach the vLLM endpoint, not just the host shell.
-6. The same vLLM command and runner environment are used for all four protocols.
+6. The same vLLM command and runner environment are used for all five protocols.
 7. Runs are executed sequentially unless parallel task execution is an explicit
    serving-capacity experiment.
 8. A failed or interrupted output directory is never reused.
@@ -114,7 +114,7 @@ so an asynchronous run is not reduced to single-request scheduling.
 ```bash
 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
 TRANSFORMERS_NO_TF=1 USE_TF=0 CUDA_VISIBLE_DEVICES=1 \
-/home/kzhang42/anaconda3/envs/vllm_qwen3_128k/bin/vllm serve Qwen/Qwen3.6-27B \
+vllm serve Qwen/Qwen3.6-27B \
   --served-model-name Qwen/Qwen3.6-27B \
   --trust-remote-code \
   --host 0.0.0.0 \
@@ -340,7 +340,7 @@ RUN_SERIAL=0 \
 RUN_ASYNC_PRIVATE=0 \
 RUN_CAID=0 \
 WORKSPACE_PORT_STRATEGY=auto \
-scripts/run_asyncodebench_all_protocols_env.sh "$TASK"
+scripts/run_asyncodebench_five_protocols_env.sh "$TASK"
 ```
 
 A valid smoke run has all of these properties:
@@ -356,9 +356,9 @@ A valid smoke run has all of these properties:
 The model does not need to solve the smoke task. The smoke gate checks the
 harness, not model quality.
 
-## Four-protocol Cachetools Template
+## Five-protocol Cachetools Template
 
-After the smoke passes, use the same server process and environment for all four
+After the smoke passes, use the same server process and environment for all five
 protocols. Run these commands sequentially:
 
 ```bash
@@ -382,8 +382,13 @@ CAID_MANAGER_ITERATIONS=100 \
 CAID_SUB_ITERATIONS=100 \
 ROUNDS_OF_CHAT=2 \
 WORKSPACE_PORT_STRATEGY=auto \
-scripts/run_asyncodebench_all_protocols_env.sh "$TASK"
+scripts/run_asyncodebench_five_protocols_env.sh "$TASK"
 ```
+
+The wrapper does not accept a separate Async-Manager iteration override.
+Async-Manager reads the frozen official profile used by the released runs:
+100 model responses for the persistent manager across the task, a 30-response
+guard for any one intervention, and 100 responses per specialist assignment.
 
 Use `docs/MODEL_EXPERIMENT_RUNBOOK.md` for per-task specialist counts and the
 post-run analysis commands.
@@ -407,7 +412,7 @@ The corrected profile changes only the model adapter and serving harness:
 - the client input limit is 131,072 tokens and the server window is 135,168;
 - the fixed per-call output limit remains 32,768 tokens, preserving Gemma's
   long-reasoning capacity;
-- task/scenario manifests, agent assignments, four protocols, and the released
+- task/scenario manifests, agent assignments, five protocols, and the released
   100-response capability profile remain unchanged.
 
 The currently tracked template exactly matches Hugging Face model revision
@@ -436,7 +441,7 @@ scripts/serve_gemma4_26b_a4b.sh 0 8006 2
 ```
 
 Use `2`, `3`, or `4` sequence slots according to the task's specialist count.
-Do not change that value between the four protocols for one task. The wrapper
+Do not change that value between the five protocols for one task. The wrapper
 starts the text-only profile with a 135,168-token server window, 32K scheduler
 batching, official Gemma 4 parsers, and the repository's pinned official
 template. It rejects vLLM older than 0.24.0 before loading the model.
@@ -454,9 +459,9 @@ scripts/run_gemma4_task_env.sh cachetools
 
 The wrapper rejects non-official tasks, selects the official number of
 specialists, verifies the Gemma model and context settings, checks the endpoint,
-and invokes the shared four-protocol runner. For parallel task sweeps, each
+and invokes the shared five-protocol runner. For parallel task sweeps, each
 terminal needs a different vLLM port, env file, GPU, and a non-overlapping block
-of four OpenHands workspace ports, for example `18000`, `18010`, `18020`, and
+of five OpenHands workspace ports, for example `18000`, `18010`, `18020`, and
 `18030`.
 
 Before starting all 19 tasks, run `cachetools` as the formal v2 smoke and
@@ -682,7 +687,7 @@ Include a local run in the official result set only when:
 - the output directory was fresh and contains one run log;
 - agent iterations are greater than zero;
 - no provider/network/parser/context instrumentation failure occurred;
-- the same vLLM profile was used across all four protocols;
+- the same vLLM profile was used across all five protocols;
 - the run used the curated AsynCodeBench task source and manifest evaluator;
 - `dependency_probe_checkpoints.jsonl` and `process_metrics_summary.json` exist;
 - final tests were collected consistently with the task manifest;
