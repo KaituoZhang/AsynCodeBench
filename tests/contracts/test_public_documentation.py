@@ -45,7 +45,9 @@ def test_public_human_review_archive_matches_canonical_forms():
             "*/annotator_a.json"
         )
     )
-    archive_paths = sorted((ROOT / "Human_Review_Record").glob("*.json"))
+    archive_paths = sorted(
+        (ROOT / "Human_Review_Record" / "Reviewer 1").glob("*.json")
+    )
 
     def by_task(paths):
         return {
