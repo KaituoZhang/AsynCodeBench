@@ -34,6 +34,24 @@ def test_readme_is_a_concise_community_entry_point():
     assert "**Async-Manager-RO** (`caid_manager` in the CLI)" in readme
 
 
+def test_public_human_review_archive_matches_canonical_forms():
+    for task in ("20018", "20073", "20107", "20153"):
+        archive = (
+            ROOT
+            / "Human_Review_Record"
+            / f"pz0512_apache_tvm_{task}.json"
+        )
+        canonical = (
+            ROOT
+            / "manifests"
+            / "annotations"
+            / "pr_hard_v0.4"
+            / f"apache_tvm_{task}"
+            / "annotator_a.json"
+        )
+        assert archive.read_bytes() == canonical.read_bytes()
+
+
 def test_current_guides_do_not_offer_legacy_execution_commands():
     forbidden = (
         "run_commit0_",

@@ -48,6 +48,7 @@ jobs:
       - run: >-
           python scripts/check_markdown_links.py
           README.md
+          Human_Review_Record/README.md
           docs/README.md
           docs/QUICKSTART.md
           docs/AGENT_ADAPTER.md

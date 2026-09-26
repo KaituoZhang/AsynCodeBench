@@ -1,0 +1,25 @@
+{
+  "allowed_labels": [
+    "parallelizable",
+    "partially_parallelizable",
+    "effectively_serial"
+  ],
+  "annotator_id": "pz0512",
+  "candidate_evidence_file": "manifests/candidates/pr_hard_v0.4/qualification/apache_tvm_20018.json",
+  "exclusion_reason": null,
+  "include": true,
+  "independence_instructions": [
+    "Use only the public, answer-free task, scenario, metric, qualification, and overlay evidence listed in the review worksheet.",
+    "Do not inspect the gold production patch, reference solution, hidden tests, or model-generated implementation.",
+    "Judge semantic naturalness yourself; automated qualification is evidence, not inclusion authority.",
+    "Confirm that ownership follows coherent responsibilities rather than arbitrary file partitions.",
+    "Confirm at least one genuine cross-owner producer-consumer dependency with public executable evidence.",
+    "Complete annotator_id, include, parallelizability_label, rationale, and exclusion_reason as applicable."
+  ],
+  "parallelizability_label": "partially_parallelizable",
+  "rationale": "This task is suitable for AsynCodeBench because it has three natural but dependent responsibilities: the first-class Return IR schema and visitor contract, the TVMScript construction and rendering surface, and legality/lowering plus C and LLVM target emission. The Script owner consumes the Return node, value field, FFI constructor, and visitor semantics produced by the IR-core owner; the backend owner then consumes the Script-produced Return representation. Public role-ablation evidence progresses from base 0/8 to core 3/8, core plus Script 5/8, and complete integration 8/8, while the selected regression suite reports 782 passes and three expected failures. In private asynchronous work, the Script layer may retain the retired legacy-return intrinsic or the backend may retire that contract before the Script migration, producing round-trip, legality, build, or malformed-control-flow failures. The roles can make local progress, but both directed contracts require coordinated integration, so partially_parallelizable is the appropriate label.",
+  "schema_version": "0.3",
+  "source_task_id": null,
+  "task_id": "pr-hard:apache-tvm-20018",
+  "task_record_file": "manifests/candidates/pr_hard_v0.4/tasks/apache_tvm_20018.json"
+}

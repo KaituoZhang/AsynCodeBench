@@ -132,6 +132,7 @@ generated-artifact boundaries.
 - [Iteration budget and termination](docs/ITERATION_BUDGET_AND_TERMINATION.md)
 - [Bring your own agent](docs/AGENT_ADAPTER.md)
 - [Task images](docs/TASK_IMAGE_DISTRIBUTION.md)
+- [Human review records](Human_Review_Record/README.md)
 
 ## Citation and License
 
