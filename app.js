@@ -1,6 +1,6 @@
 const REPO_ROOT = "https://github.com/KaituoZhang/Asynccodebench";
-const REPO = `${REPO_ROOT}/tree/agent/community-ready-release`;
-const REPO_FILE = path => `${REPO_ROOT}/blob/agent/community-ready-release/${path}`;
+const REPO = `${REPO_ROOT}/tree/main`;
+const REPO_FILE = path => `${REPO_ROOT}/blob/main/${path}`;
 
 const TASKS = [
   { id:"cachetools", project:"cachetools", domain:"Caching", nodes:4, deps:5, agents:2, summary:"Implement cache key construction and decorator factories while preserving typed keys, metadata, limits, and lock semantics." },
@@ -13,7 +13,6 @@ const TASKS = [
   { id:"parsel", project:"Parsel", domain:"Parsing", nodes:3, deps:2, agents:3, summary:"Coordinate CSS translation, XPath utilities, and selector behavior so queries preserve the same observable semantics." },
   { id:"filesystem_spec", project:"fsspec", domain:"Filesystems", nodes:3, deps:2, agents:3, summary:"Complete filesystem core, registry, and utility behavior around protocol discovery and shared path conventions." },
   { id:"marshmallow", project:"marshmallow", domain:"Serialization", nodes:3, deps:3, agents:3, summary:"Connect field behavior, class registry, and schema loading while preserving nested serialization contracts." },
-  { id:"graphene", project:"Graphene", domain:"GraphQL", nodes:3, deps:3, agents:3, summary:"Coordinate type metadata, schema construction, and mounted GraphQL types across the public schema API." },
   { id:"imapclient", project:"IMAPClient", domain:"Email", nodes:3, deps:3, agents:3, summary:"Join lexer and parsing utilities with the client API so wire responses become stable high-level values." },
   { id:"pexpect", project:"Pexpect", domain:"Processes", nodes:4, deps:3, agents:4, summary:"Implement process transport, spawn, expect, and wrapper behavior across timing and stream-boundary contracts." },
   { id:"flask", project:"Flask", domain:"Web framework", nodes:4, deps:3, agents:4, summary:"Coordinate dispatch, sessions, templates, testing, and scaffolding behavior in a real web framework codebase." },
@@ -26,16 +25,20 @@ const TASKS = [
 ];
 
 const CATEGORIES = [
-  { name:"Framework and libraries", count:7, percentage:"35%", tasks:["cachetools","deprecated","parsel","marshmallow","graphene","flask","cookiecutter"] },
-  { name:"Systems and storage", count:6, percentage:"30%", tasks:["portalocker","tinydb","wcwidth","simpy","filesystem_spec","pexpect"] },
-  { name:"Compiler and IR", count:4, percentage:"20%", tasks:["apache-tvm-20018","apache-tvm-20073","apache-tvm-20107","apache-tvm-20153"] },
-  { name:"Network protocols", count:2, percentage:"10%", tasks:["requests","imapclient"] },
-  { name:"Security", count:1, percentage:"5%", tasks:["python-rsa"] }
+  { name:"Framework and libraries", tasks:["cachetools","deprecated","parsel","marshmallow","flask","cookiecutter"] },
+  { name:"Systems and storage", tasks:["portalocker","tinydb","wcwidth","simpy","filesystem_spec","pexpect"] },
+  { name:"Compiler and IR", tasks:["apache-tvm-20018","apache-tvm-20073","apache-tvm-20107","apache-tvm-20153"] },
+  { name:"Network protocols", tasks:["requests","imapclient"] },
+  { name:"Security", tasks:["python-rsa"] }
 ];
-CATEGORIES.forEach(category => category.tasks.forEach(id => {
-  const task = TASKS.find(item => item.id === id);
-  if (task) task.category = category.name;
-}));
+CATEGORIES.forEach(category => {
+  category.count = category.tasks.length;
+  category.percentage = `${Math.round((category.count / TASKS.length) * 100)}%`;
+  category.tasks.forEach(id => {
+    const task = TASKS.find(item => item.id === id);
+    if (task) task.category = category.name;
+  });
+});
 
 const PROTOCOLS = [
   ["single", "Single agent", "One iterative agent owns the complete task."],
@@ -57,7 +60,7 @@ const METRICS = [
 
 const copyBlock = (text, lang="bash") => `<div class="code-wrap"><pre><code class="language-${lang}">${escapeHtml(text.replaceAll("\n+", "\n"))}</code></pre><button class="copy" data-copy>Copy</button></div>`;
 const escapeHtml = value => value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-const header = current => `<a class="skip-link" href="#main">Skip to content</a><header class="site-header"><div class="container nav"><a class="brand" href="/"><span class="brand-mark">A↗</span><span>AsynCodeBench</span></a><nav class="nav-links" aria-label="Primary"><a href="/" ${current==="home"?'aria-current="page"':''}>Overview</a><a href="/run/" ${current==="run"?'aria-current="page"':''}>Quick Run</a><a href="${REPO}" target="_blank" rel="noreferrer">GitHub</a><a class="nav-task" href="/tasks/" ${current==="tasks"?'aria-current="page"':''}>Explore 20 tasks</a><a class="nav-cta" href="/run/">Run a task →</a></nav></div></header>`;
+const header = current => `<a class="skip-link" href="#main">Skip to content</a><header class="site-header"><div class="container nav"><a class="brand" href="/"><span class="brand-mark">A↗</span><span>AsynCodeBench</span></a><nav class="nav-links" aria-label="Primary"><a href="/" ${current==="home"?'aria-current="page"':''}>Overview</a><a href="/run/" ${current==="run"?'aria-current="page"':''}>Quick Run</a><a href="${REPO}" target="_blank" rel="noreferrer">GitHub</a><a class="nav-task" href="/tasks/" ${current==="tasks"?'aria-current="page"':''}>Explore ${TASKS.length} tasks</a><a class="nav-cta" href="/run/">Run a task →</a></nav></div></header>`;
 const footer = () => `<footer class="site-footer"><div class="container footer-row"><span>AsynCodeBench · Dependency-aware asynchronous coding evaluation</span><span><a href="${REPO_FILE("LICENSE")}">Apache-2.0</a> · <span>Citation coming with the paper</span> · <a href="${REPO_ROOT}/graphs/contributors">Contributors</a></span></div></footer>`;
 
 function home() {
@@ -67,8 +70,8 @@ function home() {
       <span class="eyebrow">Dependency-aware coding benchmark</span>
       <h1>Can coding agents work <em>together</em>?</h1>
       <p class="hero-copy">Passing tests is only the end state. AsynCodeBench reveals whether asynchronous agents discover, communicate, and resolve the software dependencies between their private workspaces.</p>
-      <div class="hero-actions"><a class="button primary" href="/run/">Run your first task →</a><a class="button" href="/tasks/">Explore 20 tasks</a><a class="button" href="${REPO}" target="_blank" rel="noreferrer">View on GitHub ↗</a></div>
-      <div class="proof-strip"><div class="proof"><strong>20</strong><span>repository-level tasks</span></div><div class="proof"><strong>5</strong><span>controlled protocols</span></div><div class="proof"><strong>100</strong><span>task–protocol conditions</span></div><div class="proof"><strong>55</strong><span>executable dependencies</span></div></div>
+      <div class="hero-actions"><a class="button primary" href="/run/">Run your first task →</a><a class="button" href="/tasks/">Explore ${TASKS.length} tasks</a><a class="button" href="${REPO}" target="_blank" rel="noreferrer">View on GitHub ↗</a></div>
+      <div class="proof-strip"><div class="proof"><strong>${TASKS.length}</strong><span>repository-level tasks</span></div><div class="proof"><strong>${PROTOCOLS.length}</strong><span>controlled protocols</span></div><div class="proof"><strong>${TASKS.length * PROTOCOLS.length}</strong><span>task–protocol conditions</span></div><div class="proof"><strong>${TASKS.reduce((sum, task) => sum + task.deps, 0)}</strong><span>executable dependencies</span></div></div>
     </div></section>
     <section class="section alt"><div class="container"><div class="section-head"><span class="section-kicker">The missing signal</span><div><h2>A correct patch can hide a broken team.</h2><p class="section-lede">Most coding benchmarks grade only the final repository. That cannot tell us whether parallel work was actually coordinated—or whether an integrator merely repaired incompatible changes at the end.</p></div></div>
       <div class="cards"><article class="card"><span class="card-num">01</span><h3>Tests miss the process</h3><p>Final pass rate says what survived integration, not when cross-agent assumptions became compatible.</p></article><article class="card"><span class="card-num">02</span><h3>Parallelism creates stale state</h3><p>Private workspaces make interfaces, data formats, and shared invariants easy to violate without visibility.</p></article><article class="card"><span class="card-num">03</span><h3>Coordination has a cost</h3><p>Speed, tokens, failed attempts, scope violations, and recovery all matter alongside correctness.</p></article></div>
@@ -82,7 +85,7 @@ function home() {
 
 function quickStart(linkMore=true) {
   return `<section class="section"><div class="container"><div class="quick-shell"><span class="section-kicker" style="color:var(--lime)">Three steps</span><h2>From clone to a validated dry run.</h2><p class="section-lede">Start with cachetools and one protocol. The dry run checks configuration without starting a container or spending model tokens.</p><div class="steps">
-    <div class="step"><span class="step-index">01</span><h3>Install</h3>${copyBlock(`git clone --branch agent/community-ready-release --single-branch \\\n  https://github.com/KaituoZhang/Asynccodebench.git AsynCodeBench\ncd AsynCodeBench\nbash scripts/setup_evaluation.sh`)}</div>
+    <div class="step"><span class="step-index">01</span><h3>Install</h3>${copyBlock(`git clone https://github.com/KaituoZhang/Asynccodebench.git AsynCodeBench\ncd AsynCodeBench\nbash scripts/setup_evaluation.sh`)}</div>
     <div class="step"><span class="step-index">02</span><h3>Configure</h3>${copyBlock(`cd reproductions/async-swe-agents\ncp .env.example .env\n# Add LLM_BASE_URL, LLM_API_KEY, and LLM_MODEL`)}</div>
     <div class="step"><span class="step-index">03</span><h3>Dry run</h3>${copyBlock(`export ENV_FILE="$PWD/.env"\nsource scripts/env.sh\nuv run asyncodebench run \\\n  --task asyncodebench:cachetools \\\n  --protocol async_private \\\n  --model "$LLM_MODEL" \\\n  --dry-run`)}</div>
   </div>${linkMore?'<div class="hero-actions"><a class="button" href="/run/">Open the complete run guide →</a></div>':''}</div></div></section>`;
@@ -90,7 +93,7 @@ function quickStart(linkMore=true) {
 
 function tasksPage() {
   document.title = "Tasks — AsynCodeBench";
-  document.body.innerHTML = `${header("tasks")}<main id="main"><section class="page-hero"><div class="container"><div class="breadcrumbs"><a href="/">Overview</a> / Tasks</div><span class="eyebrow">Official task set</span><h1>Choose where your agents collaborate.</h1><p class="hero-copy">Every task exposes real cross-file dependencies, fixed ownership, executable checks, and the same five controlled protocols.</p><div class="category-summary">${CATEGORIES.map(c=>`<button class="category-stat" type="button" data-category="${c.name}"><strong>${c.count}</strong><span>${c.name}</span><small>${c.percentage}</small></button>`).join("")}</div><div class="toolbar"><input class="search" id="task-search" type="search" placeholder="Search tasks or categories…" aria-label="Search tasks"><select id="domain-filter" aria-label="Filter by category"><option value="">All categories</option>${CATEGORIES.map(c=>`<option>${c.name}</option>`).join("")}</select><span id="task-count" class="pill">20 tasks</span></div><div class="task-grid" id="task-grid"></div></div></section></main>${footer()}`;
+  document.body.innerHTML = `${header("tasks")}<main id="main"><section class="page-hero"><div class="container"><div class="breadcrumbs"><a href="/">Overview</a> / Tasks</div><span class="eyebrow">Official task set</span><h1>Choose where your agents collaborate.</h1><p class="hero-copy">Every task exposes real cross-file dependencies, fixed ownership, executable checks, and the same five controlled protocols.</p><div class="category-summary">${CATEGORIES.map(c=>`<button class="category-stat" type="button" data-category="${c.name}"><strong>${c.count}</strong><span>${c.name}</span><small>${c.percentage}</small></button>`).join("")}</div><div class="toolbar"><input class="search" id="task-search" type="search" placeholder="Search tasks or categories…" aria-label="Search tasks"><select id="domain-filter" aria-label="Filter by category"><option value="">All categories</option>${CATEGORIES.map(c=>`<option>${c.name}</option>`).join("")}</select><span id="task-count" class="pill">${TASKS.length} tasks</span></div><div class="task-grid" id="task-grid"></div></div></section></main>${footer()}`;
   const render = () => {
     const q = document.querySelector("#task-search").value.toLowerCase().trim();
     const category = document.querySelector("#domain-filter").value;
@@ -183,7 +186,7 @@ function runPage() {
   document.title = "Quick Run — AsynCodeBench";
   document.body.innerHTML = `${header("run")}<main id="main"><section class="page-hero"><div class="container"><div class="breadcrumbs"><a href="/">Overview</a> / Quick Run</div><span class="eyebrow">Start here</span><h1>Run one task in minutes.</h1><p class="hero-copy">The benchmark image, task contract, ownership, dependency checks, and evaluator are selected for you. Bring Docker and an OpenAI-compatible model endpoint.</p></div></section><div class="container run-layout"><nav class="run-nav" aria-label="On this page"><a href="#requirements">Requirements</a><a href="#install">1. Install</a><a href="#configure">2. Configure</a><a href="#verify">3. Verify</a><a href="#run">4. Run</a><a href="#five-protocols">All five</a><a href="#async-manager">Async-Manager</a><a href="#own-agent">Bring your agent</a></nav><article class="run-content">
     <section class="run-section" id="requirements"><h2>Requirements</h2><ul class="checks"><li>Linux x86_64 host</li><li>Python 3.12 and uv</li><li>Docker available without sudo</li><li>Git and enough disk space for task images</li><li>An OpenAI-compatible endpoint or local vLLM server</li></ul><div class="callout">Want the fastest confidence check? Use <strong>doctor --offline</strong>, then dry-run cachetools. A dry run does not call the model or start a task container.</div></section>
-    <section class="run-section" id="install"><span class="section-kicker">Step 1</span><h2>Install the harness</h2><p>Clone the community release branch and run the setup contract.</p>${copyBlock(`git clone --branch agent/community-ready-release --single-branch \\\n+  https://github.com/KaituoZhang/Asynccodebench.git AsynCodeBench\ncd AsynCodeBench\nbash scripts/setup_evaluation.sh`)}<h3>Faster setup, skip the test suite</h3>${copyBlock(`ASYNCODEBENCH_SETUP_SKIP_TESTS=1 bash scripts/setup_evaluation.sh`)}</section>
+    <section class="run-section" id="install"><span class="section-kicker">Step 1</span><h2>Install the harness</h2><p>Clone the official <code>main</code> branch and run the setup contract.</p>${copyBlock(`git clone https://github.com/KaituoZhang/Asynccodebench.git AsynCodeBench\ncd AsynCodeBench\nbash scripts/setup_evaluation.sh`)}<h3>Faster setup, skip the test suite</h3>${copyBlock(`ASYNCODEBENCH_SETUP_SKIP_TESTS=1 bash scripts/setup_evaluation.sh`)}</section>
     <section class="run-section" id="configure"><span class="section-kicker">Step 2</span><h2>Connect your model</h2>${copyBlock(`cd reproductions/async-swe-agents\ncp .env.example .env`)}<p>Add the endpoint and model values to <code>.env</code>:</p>${copyBlock(`LLM_BASE_URL=https://your-endpoint.example/v1\nLLM_API_KEY=your-api-key\nLLM_MODEL=openai/your-model-name\nLLM_SUBAGENT_MODEL=\nSDK_SOURCE_DIR=/absolute/path/to/AsynCodeBench/reproductions/software-agent-sdk`,"dotenv")}</section>
     <section class="run-section" id="verify"><span class="section-kicker">Step 3</span><h2>Verify before spending tokens</h2>${copyBlock(`export ENV_FILE="$PWD/.env"\nsource scripts/env.sh\nuv run asyncodebench doctor --offline\nuv run asyncodebench release-status --require preview\nuv run asyncodebench tasks\nuv run asyncodebench images list`)}<h3>Dry-run one task</h3>${copyBlock(`uv run asyncodebench run \\\n+  --task asyncodebench:cachetools \\\n+  --protocol async_private \\\n+  --model "$LLM_MODEL" \\\n+  --dry-run`)}</section>
     <section class="run-section" id="run"><span class="section-kicker">Step 4</span><h2>Start the evaluation</h2><p>Remove <code>--dry-run</code> when the plan looks correct. Missing task images are pulled automatically by immutable digest.</p>${copyBlock(`uv run asyncodebench run \\\n+  --task asyncodebench:cachetools \\\n+  --protocol async_private \\\n+  --model "$LLM_MODEL"`)}<p><a class="button" href="/tasks/">Choose another task →</a></p></section>
@@ -206,8 +209,8 @@ function wireCopies(scope=document) {
 function fixRepositoryLinks() {
   document.querySelectorAll("a[href]").forEach(link => {
     link.href = link.href
-      .replace("/tree/agent/community-ready-release/blob/", "/blob/agent/community-ready-release/")
-      .replace("/tree/agent/community-ready-release/graphs/", "/graphs/");
+      .replace("/tree/main/blob/", "/blob/main/")
+      .replace("/tree/main/graphs/", "/graphs/");
   });
 }
 
