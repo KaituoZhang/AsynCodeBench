@@ -1,4 +1,4 @@
-"""Strict input and reporting models for task qualification."""
+"""Frozen public-evidence candidate inventory models."""
 
 from __future__ import annotations
 
@@ -6,13 +6,11 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from asyncodebench.contracts import ParallelizabilityLabel
-
 QUALIFICATION_PROTOCOL_VERSION = "qualification-v0.2"
 
 
 class QualificationModel(BaseModel):
-    """Forbid undeclared fields in qualification inputs and outputs."""
+    """Preserve the v0.2 candidate-evidence format used by released tasks."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -74,65 +72,6 @@ class CandidateRecord(QualificationModel):
         return self
 
 
-class AnnotatorDecision(QualificationModel):
-    """One annotator's decision, stored independently of other decisions."""
-
-    task_id: str = Field(min_length=1)
-    annotator_id: str = Field(min_length=1)
-    parallelizability_label: ParallelizabilityLabel
-    include: bool = True
-    rationale: str = Field(min_length=1)
-    exclusion_reason: str | None = None
-
-    @model_validator(mode="after")
-    def validate_exclusion(self) -> AnnotatorDecision:
-        if self.include and self.exclusion_reason is not None:
-            raise ValueError("Included decisions cannot have an exclusion reason")
-        if not self.include and not self.exclusion_reason:
-            raise ValueError("Excluded decisions require an exclusion reason")
-        return self
-
-
-class AdjudicationDecision(QualificationModel):
-    """Resolution for a disagreement between the two independent annotators."""
-
-    task_id: str = Field(min_length=1)
-    adjudicator_id: str = Field(min_length=1)
-    parallelizability_label: ParallelizabilityLabel
-    include: bool
-    rationale: str = Field(min_length=1)
-    exclusion_reason: str | None = None
-
-    @model_validator(mode="after")
-    def validate_exclusion(self) -> AdjudicationDecision:
-        if self.include and self.exclusion_reason is not None:
-            raise ValueError("Included adjudications cannot have an exclusion reason")
-        if not self.include and not self.exclusion_reason:
-            raise ValueError("Excluded adjudications require an exclusion reason")
-        return self
-
-
-class QualificationBatchInput(QualificationModel):
-    """Complete, immutable input to one manifest build."""
-
-    candidates: tuple[CandidateRecord, ...]
-    annotator_decisions: tuple[AnnotatorDecision, ...]
-    adjudications: tuple[AdjudicationDecision, ...] = ()
-
-    @model_validator(mode="after")
-    def validate_identifiers(self) -> QualificationBatchInput:
-        candidate_ids = [candidate.task_id for candidate in self.candidates]
-        if len(candidate_ids) != len(set(candidate_ids)):
-            raise ValueError("Candidate task_id values must be unique")
-
-        adjudication_ids = [
-            adjudication.task_id for adjudication in self.adjudications
-        ]
-        if len(adjudication_ids) != len(set(adjudication_ids)):
-            raise ValueError("At most one adjudication is allowed per task")
-        return self
-
-
 class CandidateInventory(QualificationModel):
     """Unlabelled public-evidence candidates prepared for independent review."""
 
@@ -144,22 +83,3 @@ class CandidateInventory(QualificationModel):
         if len(task_ids) != len(set(task_ids)):
             raise ValueError("Candidate task_id values must be unique")
         return self
-
-
-class AgreementStatistics(QualificationModel):
-    """Pre-adjudication agreement across the two annotators."""
-
-    task_count: int = Field(ge=0)
-    label_agreement_count: int = Field(ge=0)
-    inclusion_agreement_count: int = Field(ge=0)
-    exact_agreement_count: int = Field(ge=0)
-    label_agreement_rate: float = Field(ge=0.0, le=1.0)
-    inclusion_agreement_rate: float = Field(ge=0.0, le=1.0)
-    exact_agreement_rate: float = Field(ge=0.0, le=1.0)
-    label_cohen_kappa: float | None = Field(default=None, ge=-1.0, le=1.0)
-    inclusion_cohen_kappa: float | None = Field(
-        default=None,
-        ge=-1.0,
-        le=1.0,
-    )
-    disagreement_task_ids: tuple[str, ...]

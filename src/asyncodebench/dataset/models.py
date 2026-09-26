@@ -7,8 +7,6 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from asyncodebench.contracts import ParallelizabilityLabel
-
 DATASET_SCHEMA_VERSION = "0.3"
 
 
@@ -47,6 +45,12 @@ class QualificationStatus(str, Enum):
     PENDING_INDEPENDENT_ANNOTATION = "pending_independent_annotation"
     PENDING_ADJUDICATION = "pending_adjudication"
     FINALIZED = "finalized"
+
+
+class ParallelizabilityLabel(str, Enum):
+    PARALLELIZABLE = "parallelizable"
+    PARTIALLY_PARALLELIZABLE = "partially_parallelizable"
+    EFFECTIVELY_SERIAL = "effectively_serial"
 
 
 class ExecutionMode(str, Enum):

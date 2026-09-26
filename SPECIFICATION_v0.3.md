@@ -3,12 +3,11 @@
 **Status:** Active first-paper specification  
 **Date:** 2026-06-22  
 **Scope:** Benchmark dataset, execution framework, and empirical evaluation  
-**Supersedes for implementation:** `SPECIFICATION_v0.2.md`  
 **Canonical location:** `SPECIFICATION_v0.3.md`
 
-Version 0.3 narrows the first paper. Version 0.2 is retained as the long-term
-measurement-science vision, but its full replay, oracle, intervention, and
-runtime-factorization program is no longer required for the first release.
+Version 0.3 narrows the first paper relative to earlier internal designs. The
+full replay, oracle, intervention, and runtime-factorization program is not
+required for this release.
 
 If a README, handoff, implementation note, or historical plan conflicts with
 this document, v0.3 takes precedence for the first paper.
@@ -882,7 +881,7 @@ Redesign if:
 - model conditions are incomparable;
 - SWE-bench integration cannot preserve official evaluation semantics.
 
-## 22. Deferred v0.2 extensions
+## 22. Deferred extensions
 
 The following remain valuable but are deferred:
 

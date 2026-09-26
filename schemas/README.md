@@ -1,14 +1,7 @@
 # Public schemas
 
-Machine-readable benchmark contracts will be published here. Python models in
-`src/asyncodebench/contracts/` are the implementation, while exported schemas
-in this directory are versioned public assets.
-
-Regenerate the current schemas with:
-
-```bash
-PYTHONPATH=src python scripts/export_schemas.py --output schemas/v0.2
-```
+This directory contains the machine-readable contracts used by the released
+dataset and evaluation harness.
 
 The v0.3 dataset schemas are:
 
@@ -31,7 +24,7 @@ tests.
 The v0.4 qualification path adds
 `v0.4/pr_hard_candidate_registry.schema.json` and
 `v0.4/pr_hard_qualification_record.schema.json`. The distribution layer adds
-`v0.4/official_task_images.schema.json` for the 20 digest-pinned official
+`v0.4/official_task_images.schema.json` for the 19 digest-pinned official
 images. The candidate registry retains both
 promoted and non-promoted construction records; the unified release index
 contains only tasks that have a frozen environment, red-green evaluator

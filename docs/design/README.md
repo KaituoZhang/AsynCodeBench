@@ -1,6 +1,6 @@
 # Design records
 
-Design records explain implementation decisions under Specification v0.2.
+Design records explain implementation decisions behind the current benchmark.
 They cannot change canonical benchmark claims or semantics.
 
 - `COMMIT0_TO_ASYNCODEBENCH_PIPELINE_v0.1.md`: design draft for packaging

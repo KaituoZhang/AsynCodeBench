@@ -1,32 +1,30 @@
 # AsynCodeBench repository layout
 
-This layout separates benchmark semantics from task material, experimental
-configuration, executable runner code, and generated outputs.
+This layout separates frozen benchmark material from task-construction tools,
+the executable evaluation harness, and generated outputs.
 
 ## Core library
 
-`src/asyncodebench/` contains importable benchmark code:
+`src/asyncodebench/` contains the importable task-construction and analysis
+library:
 
-- `contracts/`: typed task, event, action, observation, message, job, resource,
-  artifact, snapshot, trajectory, and outcome contracts;
-- `adapters/`: official task-source adapters without benchmark-specific task
-  modification;
-- `runtime/`: event scheduling, information profiles, workspace isolation,
-  asynchronous jobs, messaging, provenance, snapshots, replay, and live
-  execution;
-- `policies/`: fixed policies, runtime-protection conditions, and audited
-  oracles;
-- `qualification/`: task-card generation, annotation, agreement, and
-  adjudication;
-- `metrics/`: task outcomes, cost accounting, staleness harm, invalidation,
-  synchronization, and integration diagnostics;
-- `audit/`: leakage, exploit, capability, semantic-card, and trajectory audits;
-- `agents/`: model/tool interfaces shared by policies, without training code;
-- `utils/`: narrow utilities with no benchmark semantics.
+- `dataset/`: strict v0.3 task, scenario, annotation, and metric records plus
+  the builders used to reproduce the frozen Commit0 manifests;
+- `qualification/`: public-source candidate screening, pinned repository
+  materialization, curated overlays, and contribution-review support;
+- `metrics/`: dependency-resolution analysis for compatible event-log bundles.
+
+The executable five-protocol harness is
+`reproductions/async-swe-agents/asyncodebench_harness/`, with protocol and task
+implementations in the neighboring `protocols/` and `tasks/` packages. During
+evaluation it consumes the frozen JSON records under
+`manifests/release/v0.4/` rather than a second runtime implementation under
+`src/`.
 
 ## Top-level operational directories
 
-- `scripts/`: thin human-facing CLIs; business logic belongs in the library;
+- `scripts/`: task construction, release validation, image management, and
+  result-analysis entry points;
 - `configs/`: versioned profiles, policies, latency schedules, task selection,
   and pilot matrices;
 - `schemas/`: published JSON Schema or equivalent machine-readable contracts;
@@ -36,21 +34,9 @@ configuration, executable runner code, and generated outputs.
 - `docs/design/`: design decisions that do not override the specification;
 - `docs/protocols/`: operational protocols and preregistered experiment plans;
 - `data/`: local source material and derived task metadata;
-- `outputs/`: generated trajectories, logs, metrics, and reports.
-
-## Predecessor-code migration rule
-
-The predecessor prototype remains external to AsynCodeBench. Components are
-copied only after they receive one of these audit dispositions:
-
-1. `reuse`: semantics already satisfy v0.2;
-2. `adapt`: useful implementation with a documented contract gap;
-3. `rewrite`: concept is needed but implementation violates the new boundary;
-4. `exclude`: historical training, embodied, or obsolete preliminary code.
-
-Migration is copy-and-verify, not a destructive filesystem move. AsynCodeBench
-must not contain runtime paths or imports that point to the predecessor
-workspace.
+- `reproductions/`: the installable evaluation harness and protocol runtime;
+- `outputs/`: generated trajectories, logs, metrics, and reports; outputs are
+  local artifacts and are not part of the source release.
 
 Public task repositories are independently materialized under:
 
@@ -62,15 +48,10 @@ Their public origins and pinned refs live in
 `configs/tasks/commit0_repositories.v0.3.json`. The repositories themselves are
 local generated data and are not committed.
 
-## Historical migration order
+## Community contribution boundary
 
-1. contracts and pure schemas;
-2. immutable workspace/version and patch primitives;
-3. deterministic event scheduler and snapshots;
-4. official Commit0 qualification and adapter code;
-5. fixed baseline policies;
-6. trajectory serialization and replay support;
-7. agent backends needed by live validation.
-
-Training, GRPO, LoRA, Robotouille, Collab-Overcooked, and historical
-Checkpoint-A-specific code are excluded from the initial migration.
+The official 19-task release is frozen. New Commit0-derived tasks are prepared
+as qualification-ready candidates and promoted only through an explicit
+release review. See `skills/contribute-commit0-task/` for the scoped authoring
+workflow. Training code and unrelated predecessor-project components are not
+part of this repository.

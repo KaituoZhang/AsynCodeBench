@@ -18,8 +18,9 @@ AsynCodeBench release. Reusable implementation logic lives under
   Commit0-derived tasks.
 - `build_release_index.py` and `build_v04_release_index.py` assemble the frozen
   release indexes.
-- `qualification_*`, `screen_commit0_async_candidates.py`, and the annotation
-  utilities support the documented task qualification workflow.
+- `qualification_extract_commit0.py` and
+  `screen_commit0_async_candidates.py` prepare public-evidence candidate
+  inventories for the documented task-contribution workflow.
 - `materialize_commit0_repositories.py` and
   `materialize_contract_test_repositories.py` reconstruct pinned public source
   inputs used by builders and contract tests.

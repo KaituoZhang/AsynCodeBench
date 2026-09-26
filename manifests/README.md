@@ -6,20 +6,17 @@
 
 Every frozen manifest records its specification and schema versions.
 
-Start a qualification batch from
-`candidates/qualification_batch.template.json`. The historical predecessor
-Commit0 qualification output may be used to enumerate candidate repositories,
-but its reference-derived changed-file labels are secondary evidence only.
-
 The first unlabelled public-evidence inventory is:
 
 `candidates/commit0_public_candidates_v0.2.json`
 
 It contains six Commit0 repositories and no annotator decisions or primary
-labels. See `docs/protocols/QUALIFICATION_PROTOCOL_v0.2.md`.
+labels.
 
-The retained v0.2 candidate assets document the Commit0 provenance used by
-the official v0.3 task-construction pipeline. Historical cross-source
+Its filename and embedded protocol version remain unchanged because released
+v0.3 records cite it as immutable provenance. This retained inventory documents
+the Commit0 evidence used by the official task-construction pipeline.
+Historical cross-source
 SWE-bench screening assets are not part of the community runtime release.
 
 AsynCodeBench v0.3 Commit0 draft assets:

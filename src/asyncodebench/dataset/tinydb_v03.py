@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from asyncodebench.contracts import ParallelizabilityLabel
 from asyncodebench.dataset.models import (
     AdjudicationForm,
     AgentAssignment,
@@ -15,6 +14,7 @@ from asyncodebench.dataset.models import (
     DependencyAnnotation,
     EvaluationSnapshot,
     ExecutionMode,
+    ParallelizabilityLabel,
     QualificationStatus,
     ScenarioRecord,
     TaskQualityRecord,
