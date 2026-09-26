@@ -10,6 +10,7 @@ max_model_len="${GEMMA_MAX_MODEL_LEN:-163840}"
 vllm_bin="${VLLM_BIN:-$runner_root/.venv-vllm-gemma4/bin/vllm}"
 vllm_python="${VLLM_PYTHON:-$(dirname "$vllm_bin")/python}"
 model="${GEMMA_MODEL:-google/gemma-4-26B-A4B-it}"
+served_model_name="${GEMMA_SERVED_MODEL_NAME:-google/gemma-4-26B-A4B-it}"
 template="$runner_root/configs/chat_templates/tool_chat_template_gemma4.jinja"
 # Pinned from google/gemma-4-26B-A4B-it revision
 # 4d7ae4984b7db7de8f8457170b3f1a419ee76d52 (SHA-256 ae53464b...).
@@ -31,7 +32,7 @@ if ! "$vllm_python" -c 'import re, sys; parts = [int(item) for item in re.findal
   echo "[Gemma4] WARNING: allowing legacy vLLM $vllm_version for diagnostics only" >&2
 fi
 
-echo "[Gemma4] vllm=$vllm_version gpu=$gpu_id port=$port max_seqs=$max_seqs max_model_len=$max_model_len model=$model"
+echo "[Gemma4] vllm=$vllm_version gpu=$gpu_id port=$port max_seqs=$max_seqs max_model_len=$max_model_len model=$model served_model_name=$served_model_name"
 
 if [[ -n "${CUDA_HOME:-}" ]]; then
   echo "[Gemma4] ignoring inherited CUDA_HOME=$CUDA_HOME"
@@ -48,7 +49,7 @@ exec env \
   VLLM_USE_FLASHINFER_SAMPLER=0 \
   CUDA_VISIBLE_DEVICES="$gpu_id" \
   "$vllm_bin" serve "$model" \
-    --served-model-name "$model" \
+    --served-model-name "$served_model_name" \
     --trust-remote-code \
     --host 0.0.0.0 \
     --port "$port" \

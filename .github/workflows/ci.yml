@@ -95,7 +95,7 @@ jobs:
           --select F,E9,I
       - name: Dry-run all native protocols
         run: |
-          for protocol in single serial_specialists async_private caid_manager; do
+          for protocol in single serial_specialists async_private caid_manager async_manager; do
             uv run python run_asyncodebench.py \
               --task_id asyncodebench:cachetools \
               --protocol "$protocol" \

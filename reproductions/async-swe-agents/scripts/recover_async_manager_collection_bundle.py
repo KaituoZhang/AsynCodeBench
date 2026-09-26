@@ -272,8 +272,61 @@ def verify_source(source: Path) -> dict:
         if row.get("agent_id") == key[0]
         and row.get("task_assignment_id") == key[1]
     ]
-    if not matching_templates:
-        raise RuntimeError("No earlier scope record can anchor the recovery")
+    if matching_templates:
+        scope_template = matching_templates[-1]
+        template_source = "earlier_specialist_scope_record"
+    else:
+        # A first-round collection timeout has no earlier scope record for
+        # this specialist.  Anchor its identity and writable paths to the
+        # immutable scenario and delegation snapshots, rather than borrowing
+        # another specialist's authority or guessing from the response.
+        scenario = read_json(source / "scenario_snapshot.json")
+        delegations = read_json(source / "delegations.json")
+        assignments = [
+            assignment
+            for assignment in scenario.get("assignments", [])
+            if assignment.get("subproblem_id") == key[1]
+        ]
+        delegated = [
+            task
+            for task in delegations.get("delegation_plan", {})
+            .get("first_round", {})
+            .get("tasks", [])
+            if task.get("engineer_id") == key[0]
+            and task.get("task_id") == key[1]
+        ]
+        if (
+            len(assignments) != 1
+            or len(delegated) != 1
+            or key[2] != 1
+            or not scope_rows
+        ):
+            raise RuntimeError("No verified first-round assignment can anchor recovery")
+        allowed_paths = assignments[0].get("writable_paths")
+        delegated_paths = [
+            path.strip()
+            for path in delegated[0].get("file_path", "").split(",")
+            if path.strip()
+        ]
+        if (
+            not isinstance(allowed_paths, list)
+            or not allowed_paths
+            or len(set(allowed_paths)) != len(allowed_paths)
+            or set(delegated_paths) != set(allowed_paths)
+            or any(
+                row.get("scenario_id") != scenario.get("scenario_id")
+                for row in scope_rows
+            )
+        ):
+            raise RuntimeError("Delegation and scenario scope do not agree")
+        scope_template = dict(scope_rows[0])
+        scope_template.update(
+            agent_id=key[0],
+            task_assignment_id=key[1],
+            manifest_subproblem_id=key[1],
+            writable_paths=allowed_paths,
+        )
+        template_source = "verified_scenario_and_first_round_delegation"
 
     protected = [
         *RESULT_BEARING_FILES,
@@ -286,7 +339,8 @@ def verify_source(source: Path) -> dict:
         "logical_key": key,
         "rich_event_id": rich[0]["event_id"],
         "synthetic_event_id": synthetic[0]["event_id"],
-        "scope_template": matching_templates[-1],
+        "scope_template": scope_template,
+        "scope_template_source": template_source,
         "accepted_head": workspace_rows[-1].get("accepted_head"),
         "verified_artifact_count": verified_artifact_count,
         "source_hashes": {
@@ -373,6 +427,7 @@ def recover(source: Path, destination: Path) -> Path:
             "retained_response_event_id": proof["rich_event_id"],
             "reclassified_timeout_event_id": proof["synthetic_event_id"],
         },
+        "scope_template_source": proof["scope_template_source"],
         "source_outputs_sha256": proof["outputs_sha256"],
         "source_scope_validation_sha256": proof["scope_sha256"],
         "source_status_artifact_sha256": proof["status_hashes"],
