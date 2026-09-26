@@ -1,4 +1,141 @@
 # AsynCodeBench
 
-AsynCodeBench is a dependency-centric benchmark for evaluating asynchronous multi-agent coding across 19 repository-level tasks and five controlled protocols.
-This branch is a minimal community-ready preview; full public documentation and release materials will be added when the benchmark moves to its permanent public home.
+<div align="center">
+
+**Dependency-centric evaluation of asynchronous multi-agent coding**
+
+[![CI](https://github.com/KaituoZhang/AsynCodeBench/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/KaituoZhang/AsynCodeBench/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/badge/release-v0.4.1-orange.svg)](manifests/release/v0.4/official_tasks.json)
+[![Tasks](https://img.shields.io/badge/tasks-19-4C78A8.svg)](manifests/release/v0.4/task_index.json)
+[![Protocols](https://img.shields.io/badge/protocols-5-59A14F.svg)](configs/evaluation/protocol_registry.v2.json)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+
+[Website](https://asyncodebench.org) · [Quickstart](docs/QUICKSTART.md) · [Documentation](docs/README.md) · [Specification](SPECIFICATION_v0.3.md)
+
+</div>
+
+AsynCodeBench is a community-ready benchmark for studying how coding agents
+produce, communicate, and integrate dependent changes. It evaluates the same
+19 repository-level tasks under five controlled single- and multi-agent
+protocols, with checkpointed dependency probes that expose *when* and *where*
+collaboration succeeds or breaks.
+
+> **Release status:** v0.4.1 community preview. The task set, protocol
+> contracts, execution budget, and result-validity rules are frozen for
+> comparable runs.
+
+## What It Measures
+
+| Dimension | Measurement |
+| --- | --- |
+| Broad implementation progress | Test Pass Rate |
+| Final producer–consumer closure | Async Dependency Pass Rate (ADPR) |
+| When dependencies first resolve | Dependency Resolution Step (DRS) |
+| End-to-end completion | Final Success Rate (FSR) |
+| Resource use | Model token consumption |
+
+Unlike a final-test-only benchmark, AsynCodeBench records dependency state
+throughout execution. This separates individual coding ability from the
+ability to coordinate changes across agents and files.
+
+## Quick Start
+
+**Requirements:** Linux `x86_64`, Git, Docker, [`uv`](https://docs.astral.sh/uv/),
+Python 3.12, and an OpenAI-compatible model endpoint.
+
+```bash
+git clone https://github.com/KaituoZhang/AsynCodeBench.git
+cd AsynCodeBench
+bash scripts/setup_evaluation.sh
+```
+
+Configure the generated runner environment:
+
+```bash
+cd reproductions/async-swe-agents
+$EDITOR .env
+```
+
+At minimum, set `LLM_BASE_URL`, `LLM_API_KEY`, and a LiteLLM-qualified
+`LLM_MODEL`, such as `openai/your-model-name`. Then verify the endpoint and
+inspect the official release:
+
+```bash
+export ENV_FILE="$PWD/.env"
+source scripts/env.sh
+
+uv run asyncodebench doctor
+uv run asyncodebench release-status --require preview
+uv run asyncodebench tasks
+```
+
+Run all five protocols on one task:
+
+```bash
+ENV_FILE="$PWD/.env" \
+MODEL_TAG=my-model \
+RUN_VERSION=official-v01 \
+WORKSPACE_PORT_STRATEGY=auto \
+scripts/run_asyncodebench_five_protocols_env.sh cachetools
+```
+
+For model configuration, local vLLM serving, compiler tasks, campaign runs,
+and failure handling, follow the full [Quickstart](docs/QUICKSTART.md) and
+[Model Experiment Runbook](docs/MODEL_EXPERIMENT_RUNBOOK.md).
+
+## Five Controlled Protocols
+
+| Protocol | Execution model |
+| --- | --- |
+| `single` | One iterative agent owns the complete task. |
+| `serial_specialists` | Specialists execute in dependency order with merged upstream handoffs. |
+| `async_private` | Specialists work concurrently from the same base in private worktrees. |
+| **Async-Manager-RO** (`caid_manager` in the CLI) | A read-only manager delegates, reviews, and integrates specialist artifacts. |
+| `async_manager` | An online manager observes checkpoints and may intervene under recorded, scope-validated controls. |
+
+Every official condition uses the same manifest-defined task contract and the
+same 100-response capability budget.
+
+## Repository Map
+
+```text
+configs/       execution profiles, task sources, and protocol registry
+manifests/     frozen task, scenario, dependency, and release records
+reproductions/ executable five-protocol agent harness
+src/           task-construction and dependency-analysis library
+schemas/       machine-readable benchmark contracts
+scripts/       setup, validation, image, and analysis utilities
+tests/         contract, unit, integration, and smoke tests
+docs/          methodology, runbooks, metrics, and validity rules
+skills/        optional workflow for contributing candidate tasks
+```
+
+Generated trajectories and reports are written to:
+
+```text
+reproductions/async-swe-agents/outputs/<suite>/<version>/<model>/<task>/<protocol>/<run-id>/
+```
+
+Validate a completed bundle without calling the model again:
+
+```bash
+uv run asyncodebench validate-run outputs/<suite>/<version>/<model>/<task>/<protocol>/<run-id>
+```
+
+See [Repository Layout](docs/REPOSITORY_LAYOUT.md) for the maintained-source and
+generated-artifact boundaries.
+
+## Documentation
+
+- [Evaluation metrics](docs/EVALUATION_METRICS.md)
+- [Result validity and admission](docs/RESULT_VALIDITY.md)
+- [Async-Manager protocol](docs/ASYNC_MANAGER_PROTOCOL_V1.md)
+- [Iteration budget and termination](docs/ITERATION_BUDGET_AND_TERMINATION.md)
+- [Bring your own agent](docs/AGENT_ADAPTER.md)
+- [Task images](docs/TASK_IMAGE_DISTRIBUTION.md)
+
+## Citation and License
+
+If you use AsynCodeBench, cite the metadata in [`CITATION.cff`](CITATION.cff).
+The code is released under the [Apache License 2.0](LICENSE); third-party
+components are documented in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).

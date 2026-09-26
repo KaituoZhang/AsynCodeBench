@@ -20,17 +20,18 @@ def shell_blocks(document: str) -> list[str]:
     return re.findall(r"```(?:bash|sh|shell)\n(.*?)\n```", document, re.DOTALL)
 
 
-def test_readme_is_a_minimal_community_preview():
+def test_readme_is_a_concise_community_entry_point():
     readme = read(ROOT / "README")
-    prose = " ".join(
-        line.strip() for line in readme.splitlines() if line and not line.startswith("#")
-    )
 
     assert readme.startswith("# AsynCodeBench\n")
-    assert "19 repository-level tasks" in prose
-    assert "five controlled protocols" in prose
-    assert "community-ready preview" in prose
-    assert prose.count(".") == 2
+    assert "19 repository-level tasks" in readme
+    assert "five controlled single- and multi-agent" in readme
+    assert "v0.4.1 community preview" in readme
+    assert "## Quick Start" in readme
+    assert "scripts/run_asyncodebench_five_protocols_env.sh" in readme
+    assert "## Repository Map" in readme
+    assert "docs/QUICKSTART.md" in readme
+    assert "**Async-Manager-RO** (`caid_manager` in the CLI)" in readme
 
 
 def test_current_guides_do_not_offer_legacy_execution_commands():
@@ -82,9 +83,7 @@ def test_result_validity_uses_canonical_derived_report_directory():
 
 
 def test_preview_installation_and_clean_checkout_validation_are_explicit():
-    clone_command = (
-        "git clone --branch agent/community-ready-release-clean --single-branch"
-    )
+    clone_command = "git clone https://github.com/KaituoZhang/AsynCodeBench.git"
     assert clone_command in read(ROOT / "docs" / "QUICKSTART.md")
 
     setup = read(ROOT / "scripts" / "setup_evaluation.sh")

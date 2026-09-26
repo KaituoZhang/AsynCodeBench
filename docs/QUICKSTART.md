@@ -23,8 +23,7 @@ starting a local campaign.
 ## 1. Install
 
 ```bash
-git clone --branch agent/community-ready-release-clean --single-branch \
-  https://github.com/KaituoZhang/Asynccodebench.git AsynCodeBench
+git clone https://github.com/KaituoZhang/AsynCodeBench.git
 cd AsynCodeBench
 bash scripts/setup_evaluation.sh
 ```
