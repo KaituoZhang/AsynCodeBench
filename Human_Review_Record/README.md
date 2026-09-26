@@ -40,6 +40,12 @@ Future independent reviews can be added as sibling directories such as
 | `apache-tvm-20107` | `pz0512` | [JSON](<Reviewer 1/pz0512_apache_tvm_20107.json>) | [JSON](../manifests/candidates/pr_hard_v0.4/qualification/apache_tvm_20107.json) |
 | `apache-tvm-20153` | `pz0512` | [JSON](<Reviewer 1/pz0512_apache_tvm_20153.json>) | [JSON](../manifests/candidates/pr_hard_v0.4/qualification/apache_tvm_20153.json) |
 
+## Reviewer 2
+
+Reviewer <code>quackquack</code> independently reviewed all 19 official
+tasks. The submitted records and source provenance are available in
+[Reviewer 2](<Reviewer 2/README.md>).
+
 The canonical machine-consumed forms remain under
 [`manifests/annotations/`](../manifests/annotations/). The files here are
 byte-identical archival copies added for discoverability; they do not replace

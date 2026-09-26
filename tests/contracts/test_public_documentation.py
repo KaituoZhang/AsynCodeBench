@@ -63,6 +63,31 @@ def test_public_human_review_archive_matches_canonical_forms():
         assert archive_by_task[task_id].read_bytes() == canonical.read_bytes()
 
 
+def test_reviewer_two_archive_is_complete():
+    reviewer_one_paths = sorted(
+        (ROOT / "Human_Review_Record" / "Reviewer 1").glob("*.json")
+    )
+    reviewer_two_paths = sorted(
+        (ROOT / "Human_Review_Record" / "Reviewer 2").glob(
+            "*/annotator_collaborator.json"
+        )
+    )
+
+    reviewer_one_tasks = {
+        json.loads(path.read_text())["task_id"] for path in reviewer_one_paths
+    }
+    reviewer_two = [json.loads(path.read_text()) for path in reviewer_two_paths]
+    reviewer_two_tasks = {record["task_id"] for record in reviewer_two}
+
+    assert len(reviewer_two) == len(reviewer_two_tasks) == 19
+    assert reviewer_two_tasks == reviewer_one_tasks
+    for record in reviewer_two:
+        assert record["annotator_id"] == "quackquack"
+        assert record["include"] is True
+        assert record["parallelizability_label"] == "partially_parallelizable"
+        assert record["rationale"].strip()
+
+
 def test_current_guides_do_not_offer_legacy_execution_commands():
     forbidden = (
         "run_commit0_",

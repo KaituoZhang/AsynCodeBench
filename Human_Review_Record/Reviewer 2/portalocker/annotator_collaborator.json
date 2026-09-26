@@ -1,0 +1,24 @@
+{
+  "allowed_labels": [
+    "parallelizable",
+    "partially_parallelizable",
+    "effectively_serial"
+  ],
+  "annotator_id": "quackquack",
+  "candidate_evidence_file": "manifests/candidates/commit0_public_candidates_v0.2.json",
+  "exclusion_reason": null,
+  "include": true,
+  "independence_instructions": [
+    "Use only public Commit0 evidence and the draft task record.",
+    "Review the linked TaskQualityRecord and curated overlay provenance.",
+    "Do not inspect reference branches, solution patches, or diffs.",
+    "Do not consult the other annotator before submitting.",
+    "Explicitly assess whether the empty lock/unlock bootstrap is answer-free and whether excluding Redis preserves task value."
+  ],
+  "parallelizability_label": "partially_parallelizable",
+  "rationale": "The utilities depend on the locking backend, but the work can be split.",
+  "schema_version": "0.3",
+  "source_task_id": "commit0:portalocker",
+  "task_id": "asyncodebench:portalocker",
+  "task_record_file": "manifests/pilot/v0.3/tasks/commit0_portalocker.json"
+}

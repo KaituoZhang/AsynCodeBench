@@ -1,0 +1,25 @@
+{
+  "allowed_labels": [
+    "parallelizable",
+    "partially_parallelizable",
+    "effectively_serial"
+  ],
+  "annotator_id": "quackquack",
+  "candidate_evidence_file": "manifests/candidates/pr_hard_v0.4/qualification/apache_tvm_20107.json",
+  "exclusion_reason": null,
+  "include": true,
+  "independence_instructions": [
+    "Use only the public, answer-free task, scenario, metric, qualification, and overlay evidence listed in the review worksheet.",
+    "Do not inspect the gold production patch, reference solution, hidden tests, or model-generated implementation.",
+    "Judge semantic naturalness yourself; automated qualification is evidence, not inclusion authority.",
+    "Confirm that ownership follows coherent responsibilities rather than arbitrary file partitions.",
+    "Confirm at least one genuine cross-owner producer-consumer dependency with public executable evidence.",
+    "Complete annotator_id, include, parallelizability_label, rationale, and exclusion_reason as applicable."
+  ],
+  "parallelizability_label": "partially_parallelizable",
+  "rationale": "Relax and TIRx can be worked on separately, but both need the shared signature format.",
+  "schema_version": "0.3",
+  "source_task_id": null,
+  "task_id": "pr-hard:apache-tvm-20107",
+  "task_record_file": "manifests/candidates/pr_hard_v0.4/tasks/apache_tvm_20107.json"
+}
