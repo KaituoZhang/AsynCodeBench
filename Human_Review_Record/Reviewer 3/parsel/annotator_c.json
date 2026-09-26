@@ -1,0 +1,24 @@
+{
+    "allowed_labels":  [
+                           "parallelizable",
+                           "partially_parallelizable",
+                           "effectively_serial"
+                       ],
+    "annotator_id": "annotator_c",
+    "candidate_evidence_file":  "manifests/candidates/commit0_async_screening_v0.3.json",
+    "exclusion_reason":  null,
+    "include":  true,
+    "independence_instructions":  [
+                                      "Use only public Commit0 evidence and the draft task record.",
+                                      "Review the linked TaskQualityRecord, including the requirement to use origin/commit0_combined plus the checksum-recorded setup bootstrap overlay.",
+                                      "Do not inspect reference branches, solution patches, or diffs.",
+                                      "Do not consult the other annotator before submitting.",
+                                      "Explicitly assess whether the utility/CSS-\u003eselector splits are natural AsynCodeBench dependencies rather than artificial file partitioning."
+                                  ],
+    "parallelizability_label":  "partially_parallelizable",
+    "rationale":  "_init_.py selector.py used ccstranslator, utils, xpathfuncs.py, they are dependent",
+    "schema_version":  "0.3",
+    "source_task_id":  "commit0:parsel",
+    "task_id":  "asyncodebench:parsel",
+    "task_record_file":  "manifests/pilot/v0.3/tasks/commit0_parsel.json"
+}

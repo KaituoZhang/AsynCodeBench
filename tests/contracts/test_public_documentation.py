@@ -88,6 +88,33 @@ def test_reviewer_two_archive_is_complete():
         assert record["rationale"].strip()
 
 
+def test_reviewer_three_archive_covers_official_and_historical_tasks():
+    reviewer_one_paths = sorted(
+        (ROOT / "Human_Review_Record" / "Reviewer 1").glob("*.json")
+    )
+    reviewer_three_paths = sorted(
+        (ROOT / "Human_Review_Record" / "Reviewer 3").glob(
+            "*/annotator_c.json"
+        )
+    )
+
+    reviewer_one_tasks = {
+        json.loads(path.read_text())["task_id"] for path in reviewer_one_paths
+    }
+    reviewer_three = [
+        json.loads(path.read_text()) for path in reviewer_three_paths
+    ]
+    reviewer_three_tasks = {record["task_id"] for record in reviewer_three}
+
+    assert len(reviewer_three) == len(reviewer_three_tasks) == 20
+    assert reviewer_three_tasks == reviewer_one_tasks | {"asyncodebench:graphene"}
+    for record in reviewer_three:
+        assert record["annotator_id"] == "annotator_c"
+        assert record["include"] is True
+        assert record["parallelizability_label"] == "partially_parallelizable"
+        assert record["rationale"].strip()
+
+
 def test_current_guides_do_not_offer_legacy_execution_commands():
     forbidden = (
         "run_commit0_",

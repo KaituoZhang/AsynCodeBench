@@ -1,15 +1,14 @@
 # Human Review Record
 
-This directory provides community-facing archive copies of all 19 required
-human reviews in the AsynCodeBench v0.4.1 release. Every task was included and
-labelled `partially_parallelizable`. Reviewer identifiers are replaced with
-stable anonymous labels for double-blind review.
+This directory provides community-facing archive copies of three independent
+human-review rounds for the 19 required tasks in the AsynCodeBench v0.4.1
+release. Every official task was included and labelled
+`partially_parallelizable`. Reviewer identifiers are replaced with stable
+anonymous labels for double-blind review.
 
 ## Reviewer 1
 
 This batch contains the complete first-review pass over all 19 official tasks.
-Future independent reviews can be added as sibling directories such as
-`Reviewer 2/` and `Reviewer 3/` without modifying these records.
 
 ### Commit0 tasks
 
@@ -46,7 +45,12 @@ Reviewer <code>annotator_b</code> independently reviewed all 19 official
 tasks. The submitted records are available in
 [Reviewer 2](<Reviewer 2/README.md>).
 
+## Reviewer 3
+
+Reviewer <code>annotator_c</code> independently reviewed all 19 official tasks
+and one historical candidate, Graphene. The anonymized records are available
+in [Reviewer 3](<Reviewer 3/README.md>).
+
 The canonical machine-consumed forms remain under
-[`manifests/annotations/`](../manifests/annotations/). The files here are
-byte-identical archival copies added for discoverability; they do not replace
-the canonical annotation paths.
+[`manifests/annotations/`](../manifests/annotations/). These archives are added
+for discoverability and do not replace the canonical annotation paths.

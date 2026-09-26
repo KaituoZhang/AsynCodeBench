@@ -59,7 +59,7 @@ RULES = (
 
 ANNOTATOR_ID = re.compile(r'"annotator_id"\s*:\s*"([^"]+)"')
 ANONYMOUS_ANNOTATOR_ID = re.compile(
-    r"(?:annotator_[ab]|reviewer_[a-z0-9_]+|"
+    r"(?:annotator_[abc]|reviewer_[a-z0-9_]+|"
     r"codex_ai_assisted_audit_[0-9]{8}|"
     r"your-stable-public-or-pseudonymous-id)\Z"
 )
