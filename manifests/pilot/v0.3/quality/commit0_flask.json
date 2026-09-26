@@ -1,0 +1,267 @@
+{
+  "coordination_structure_tags": [
+    "interface_dependency",
+    "shared_abstraction",
+    "shared_state"
+  ],
+  "environment_requirements": [
+    "Python 3.10.12",
+    "pytest==9.0.3",
+    "Werkzeug==3.0.4",
+    "Jinja2==3.1.6",
+    "itsdangerous==2.2.0",
+    "click==8.4.2",
+    "blinker==1.9.0",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
+    "Run from the repository root with PYTHONPATH=src.",
+    "Use origin/commit0_combined plus bootstrap overlays from configs/tasks/commit0_curated_tasks.v0.3.json."
+  ],
+  "evaluation_snapshots": [
+    {
+      "collected": 244,
+      "command": [
+        "python3.10",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_basic.py",
+        "tests/test_reqctx.py",
+        "tests/test_appctx.py",
+        "tests/test_json.py",
+        "tests/test_session_interface.py",
+        "tests/test_templating.py",
+        "tests/test_testing.py"
+      ],
+      "dependency_versions": {
+        "Werkzeug": "3.0.4",
+        "Jinja2": "3.1.6",
+        "itsdangerous": "2.2.0",
+        "click": "8.4.2",
+        "blinker": "1.9.0",
+        "pytest": "9.0.3"
+      },
+      "duration_seconds": 6.01,
+      "errors": 211,
+      "evidence_scope": "public_initial_state",
+      "failed": 30,
+      "notes": [
+        "Verified with PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 and PYTHONPATH=<materialized-root>/src after applying only checksum-recorded bootstrap overlays.",
+        "Failures and errors are caused by unfinished scaffold, app, context, JSON, session, templating, and testing behavior; there are no remaining collection errors."
+      ],
+      "passed": 1,
+      "python_version": "3.10.12",
+      "return_code": 1,
+      "schema_version": "0.3",
+      "skipped": 2,
+      "snapshot_id": "curated_commit0_initial_flask_app_context_evaluator",
+      "source_ref": "origin/commit0_combined:af126af63a288df1d4edfe07e82a3b241aa4567a+bootstrap-overlays"
+    },
+    {
+      "collected": 244,
+      "command": [
+        "python3.10",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_basic.py",
+        "tests/test_reqctx.py",
+        "tests/test_appctx.py",
+        "tests/test_json.py",
+        "tests/test_session_interface.py",
+        "tests/test_templating.py",
+        "tests/test_testing.py"
+      ],
+      "dependency_versions": {
+        "Werkzeug": "3.0.4",
+        "Jinja2": "3.1.6",
+        "itsdangerous": "2.2.0",
+        "click": "8.4.2",
+        "blinker": "1.9.0",
+        "pytest": "9.0.3"
+      },
+      "duration_seconds": 1.11,
+      "errors": 0,
+      "evidence_scope": "evaluator_sanity_only",
+      "failed": 0,
+      "notes": [
+        "The complete local main/commit0 ref passes the same scoped evaluator in the same environment.",
+        "The complete ref is evaluator validation only and must not define decomposition, prompts, or agent-visible evidence."
+      ],
+      "passed": 242,
+      "python_version": "3.10.12",
+      "return_code": 0,
+      "schema_version": "0.3",
+      "skipped": 2,
+      "snapshot_id": "complete_commit0_flask_app_context_evaluator_sanity",
+      "source_ref": "main:2fec0b206c6e83ea813ab26597e15c96fab08be7"
+    }
+  ],
+  "known_limitations": [
+    "The local main/commit0 branch is complete. Benchmark workspaces must be materialized from origin/commit0_combined.",
+    "Raw origin/commit0_combined collection fails before bootstrap overlays because several stripped class-level callbacks, decorators, and one f-string quote are missing.",
+    "Bootstrap overlays are intentionally numerous for Flask; they only make public tests importable and collectable and do not implement scoped Flask runtime behavior.",
+    "The conftest monkeypatch sentinel overlay is evaluator compatibility only: it removes dependence on the unstable package-level _pytest.monkeypatch.notset export while preserving pytest MonkeyPatch's real missing-value sentinel across pytest minor versions.",
+    "CLI, async extra, dev-server behavior, and full blueprint edge cases are excluded from this scoped task.",
+    "Single-agent and multi-agent model results are evaluation outputs to report, not dataset qualification gates."
+  ],
+  "public_statement_sources": [
+    "README.md@origin/commit0_combined",
+    "src/flask/*.py and src/flask/sansio/*.py docstrings@origin/commit0_combined",
+    "tests/test_*.py@origin/commit0_combined",
+    "docs/audits/COMMIT0_CANDIDATE_REVIEW_babel_geopandas_flask_v0.3.md"
+  ],
+  "quality_status": "qualification_ready",
+  "remaining_gates": [
+    "two independent human inclusion/exclusion annotations"
+  ],
+  "schema_version": "0.3",
+  "structure_rationale": "Flask exposes semantic async dependencies between shared sansio scaffold/app registries, Flask request dispatch and context lifecycle, JSON/session serialization, and templating/testing consumers. Downstream workers can make stale assumptions about endpoint registration, context stack state, session opening/saving, JSON response shape, or test-client environment construction even when patches merge textually.",
+  "task_id": "commit0:flask",
+  "test_groups": [
+    {
+      "command": [
+        "python3.10",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_basic.py"
+      ],
+      "description": "Core app dispatch, route registration, response conversion, sessions, and error handling.",
+      "group_id": "basic_dispatch_local",
+      "owner_subproblem": "dispatch_context_layer",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python3.10",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_json.py",
+        "tests/test_session_interface.py"
+      ],
+      "description": "JSON provider, tagged serializer, and session interface behavior.",
+      "group_id": "json_session_local",
+      "owner_subproblem": "session_json_layer",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python3.10",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_reqctx.py",
+        "tests/test_appctx.py"
+      ],
+      "description": "Request and application context lifecycle behavior.",
+      "group_id": "context_lifecycle_local",
+      "owner_subproblem": "dispatch_context_layer",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python3.10",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_templating.py",
+        "tests/test_testing.py"
+      ],
+      "description": "Templating context and FlaskClient/EnvironBuilder behavior.",
+      "group_id": "templating_testing_local",
+      "owner_subproblem": "templating_testing_layer",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python3.10",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_basic.py::test_request_dispatching",
+        "tests/test_basic.py::test_url_mapping"
+      ],
+      "description": "Request dispatch after scaffold/app route and URL map contracts are integrated.",
+      "group_id": "scaffold_dispatch_cross_contract",
+      "owner_subproblem": null,
+      "prerequisites": [
+        "scaffold_app_layer artifact is integrated",
+        "dispatch_context_layer artifact is integrated"
+      ],
+      "purpose": "cross_subproblem",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python3.10",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_json.py::test_jsonify_basic_types",
+        "tests/test_basic.py::test_session"
+      ],
+      "description": "Session and JSON behavior after dispatch/context integration.",
+      "group_id": "session_json_dispatch_cross_contract",
+      "owner_subproblem": null,
+      "prerequisites": [
+        "session_json_layer artifact is integrated",
+        "dispatch_context_layer artifact is integrated"
+      ],
+      "purpose": "cross_subproblem",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python3.10",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_basic.py",
+        "tests/test_reqctx.py",
+        "tests/test_appctx.py",
+        "tests/test_json.py",
+        "tests/test_session_interface.py",
+        "tests/test_templating.py",
+        "tests/test_testing.py"
+      ],
+      "description": "Full scoped Flask app/context evaluator.",
+      "group_id": "full_scoped_evaluator",
+      "owner_subproblem": null,
+      "prerequisites": [
+        "scaffold_app_layer artifact is integrated",
+        "dispatch_context_layer artifact is integrated",
+        "session_json_layer artifact is integrated",
+        "templating_testing_layer artifact is integrated"
+      ],
+      "purpose": "full_evaluator",
+      "schema_version": "0.3"
+    }
+  ]
+}

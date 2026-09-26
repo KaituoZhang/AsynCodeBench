@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Environments and local configuration
+.env
+.anonymous-private-terms
+.env.*
+!.env.example
+!.env.*.example
+!**/.env.example
+!**/.env.*.example
+.venv/
+
+# Generated benchmark state
+outputs/*
+!outputs/README.md
+data/raw/*
+!data/raw/.gitkeep
+data/interim/*
+!data/interim/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/external/*
+!data/external/.gitkeep
+
+# Local task repositories and caches
+data/repos/
+.cache/
+
+# Reproduction runtime state and external checkouts
+reproductions/async-swe-agents/outputs/
+reproductions/async-swe-agents/data/
+reproductions/async-swe-agents/.venv/
+reproductions/async-swe-agents/*.egg-info/
+reproductions/software-agent-sdk/
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store

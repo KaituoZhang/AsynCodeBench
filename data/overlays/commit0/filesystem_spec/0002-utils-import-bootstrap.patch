@@ -1,0 +1,29 @@
+diff --git a/fsspec/utils.py b/fsspec/utils.py
+index 5bdcf14..e951de6 100644
+--- a/fsspec/utils.py
++++ b/fsspec/utils.py
+@@ -52,6 +52,24 @@ def stringify_path(filepath: str | os.PathLike[str] | pathlib.Path) -> str:
+     """
+     pass
+ 
++def is_exception(obj: Any) -> bool:
++    pass
++
++def isfilelike(f: Any) -> "TypeGuard[IO[bytes]]":
++    pass
++
++def get_protocol(url: str) -> str:
++    pass
++
++def _unstrip_protocol(name: str, fs: "AbstractFileSystem") -> str:
++    pass
++
++def setup_logging(logger=None, logger_name=None, level="DEBUG", clear=True):
++    pass
++
++def nullcontext(obj):
++    pass
++
+ def common_prefix(paths: Iterable[str]) -> str:
+     """For a list of paths, find the shortest prefix common to all"""
+     pass

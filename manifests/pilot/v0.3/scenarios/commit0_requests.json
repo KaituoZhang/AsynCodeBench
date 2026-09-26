@@ -1,0 +1,406 @@
+{
+  "scenarios": [
+    {
+      "agent_count": 1,
+      "assignments": [
+        {
+          "agent_id": "integrator",
+          "primary_test_targets": [
+            "tests/test_structures.py",
+            "tests/test_utils.py",
+            "tests/test_hooks.py",
+            "tests/test_adapters.py",
+            "tests/test_packages.py"
+          ],
+          "role": "iterative full-task coding agent",
+          "schema_version": "0.3",
+          "subproblem_id": "full_task",
+          "writable_paths": [
+            "src/requests/_internal_utils.py",
+            "src/requests/auth.py",
+            "src/requests/compat.py",
+            "src/requests/cookies.py",
+            "src/requests/hooks.py",
+            "src/requests/models.py",
+            "src/requests/status_codes.py",
+            "src/requests/structures.py",
+            "src/requests/utils.py",
+            "src/requests/api.py",
+            "src/requests/sessions.py",
+            "src/requests/adapters.py",
+            "src/requests/__init__.py"
+          ]
+        }
+      ],
+      "communication_condition": "not_applicable",
+      "competence_gate_required": true,
+      "concurrent_execution": false,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "session_transport_layer",
+          "dependency_type": "api_contract",
+          "description": "Session and adapter request flow consumes PreparedRequest, Response, cookie, hook, authentication, proxy, URL, and body length contracts from the preparation core.",
+          "evidence_paths": [
+            "src/requests/models.py",
+            "src/requests/cookies.py",
+            "src/requests/hooks.py",
+            "src/requests/auth.py",
+            "src/requests/utils.py",
+            "src/requests/sessions.py",
+            "src/requests/adapters.py",
+            "tests/test_utils.py",
+            "tests/test_hooks.py",
+            "tests/test_adapters.py"
+          ],
+          "producer_subproblem": "request_preparation_core",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "integration_validation",
+          "dependency_type": "integration",
+          "description": "Package-level import and vendored dependency compatibility consume foundation structures, status codes, utility helpers, and public module exports.",
+          "evidence_paths": [
+            "src/requests/__init__.py",
+            "src/requests/status_codes.py",
+            "src/requests/structures.py",
+            "src/requests/utils.py",
+            "tests/test_packages.py",
+            "tests/test_structures.py"
+          ],
+          "producer_subproblem": "request_preparation_core",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "iterative_single",
+      "information_profile": "complete-task",
+      "integration_policy": "Agent submits its final workspace.",
+      "message_delivery_policy": "No inter-agent messages.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-requests.iterative-single.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 28,
+      "task_id": "commit0:requests",
+      "test_budget_per_agent": 10,
+      "token_budget_per_agent": 70000,
+      "wall_clock_budget_seconds": 2400
+    },
+    {
+      "agent_count": 3,
+      "assignments": [
+        {
+          "agent_id": "prep_agent",
+          "primary_test_targets": [
+            "tests/test_structures.py",
+            "tests/test_utils.py",
+            "tests/test_hooks.py"
+          ],
+          "role": "request preparation, utilities, hooks, cookies, auth, and response specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "request_preparation_core",
+          "writable_paths": [
+            "src/requests/_internal_utils.py",
+            "src/requests/auth.py",
+            "src/requests/compat.py",
+            "src/requests/cookies.py",
+            "src/requests/hooks.py",
+            "src/requests/models.py",
+            "src/requests/status_codes.py",
+            "src/requests/structures.py",
+            "src/requests/utils.py"
+          ]
+        },
+        {
+          "agent_id": "transport_agent",
+          "primary_test_targets": [
+            "tests/test_adapters.py"
+          ],
+          "role": "session, public API, adapter, proxy, TLS, and response transport specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "session_transport_layer",
+          "writable_paths": [
+            "src/requests/api.py",
+            "src/requests/sessions.py",
+            "src/requests/adapters.py"
+          ]
+        },
+        {
+          "agent_id": "integration_agent",
+          "primary_test_targets": [
+            "tests/test_packages.py"
+          ],
+          "role": "package import and public export compatibility specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "integration_validation",
+          "writable_paths": [
+            "src/requests/__init__.py"
+          ]
+        }
+      ],
+      "communication_condition": "completed_artifact_handoff",
+      "competence_gate_required": true,
+      "concurrent_execution": false,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "session_transport_layer",
+          "dependency_type": "api_contract",
+          "description": "Session and adapter request flow consumes PreparedRequest, Response, cookie, hook, authentication, proxy, URL, and body length contracts from the preparation core.",
+          "evidence_paths": [
+            "src/requests/models.py",
+            "src/requests/cookies.py",
+            "src/requests/hooks.py",
+            "src/requests/auth.py",
+            "src/requests/utils.py",
+            "src/requests/sessions.py",
+            "src/requests/adapters.py",
+            "tests/test_utils.py",
+            "tests/test_hooks.py",
+            "tests/test_adapters.py"
+          ],
+          "producer_subproblem": "request_preparation_core",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "integration_validation",
+          "dependency_type": "integration",
+          "description": "Package-level import and vendored dependency compatibility consume foundation structures, status codes, utility helpers, and public module exports.",
+          "evidence_paths": [
+            "src/requests/__init__.py",
+            "src/requests/status_codes.py",
+            "src/requests/structures.py",
+            "src/requests/utils.py",
+            "tests/test_packages.py",
+            "tests/test_structures.py"
+          ],
+          "producer_subproblem": "request_preparation_core",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "serial_specialists",
+      "information_profile": "private-workspace",
+      "integration_policy": "Apply request-preparation artifacts before transport and package validation artifacts, then run the local-core evaluator.",
+      "message_delivery_policy": "Specialists run with barrier synchronization. Transport and integration workers receive completed preparation artifacts and targeted test results before dependent validation.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-requests.serial-specialists.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 28,
+      "task_id": "commit0:requests",
+      "test_budget_per_agent": 10,
+      "token_budget_per_agent": 70000,
+      "wall_clock_budget_seconds": 2400
+    },
+    {
+      "agent_count": 3,
+      "assignments": [
+        {
+          "agent_id": "prep_agent",
+          "primary_test_targets": [
+            "tests/test_structures.py",
+            "tests/test_utils.py",
+            "tests/test_hooks.py"
+          ],
+          "role": "request preparation, utilities, hooks, cookies, auth, and response specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "request_preparation_core",
+          "writable_paths": [
+            "src/requests/_internal_utils.py",
+            "src/requests/auth.py",
+            "src/requests/compat.py",
+            "src/requests/cookies.py",
+            "src/requests/hooks.py",
+            "src/requests/models.py",
+            "src/requests/status_codes.py",
+            "src/requests/structures.py",
+            "src/requests/utils.py"
+          ]
+        },
+        {
+          "agent_id": "transport_agent",
+          "primary_test_targets": [
+            "tests/test_adapters.py"
+          ],
+          "role": "session, public API, adapter, proxy, TLS, and response transport specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "session_transport_layer",
+          "writable_paths": [
+            "src/requests/api.py",
+            "src/requests/sessions.py",
+            "src/requests/adapters.py"
+          ]
+        },
+        {
+          "agent_id": "integration_agent",
+          "primary_test_targets": [
+            "tests/test_packages.py"
+          ],
+          "role": "package import and public export compatibility specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "integration_validation",
+          "writable_paths": [
+            "src/requests/__init__.py"
+          ]
+        }
+      ],
+      "communication_condition": "none_in_flight",
+      "competence_gate_required": true,
+      "concurrent_execution": true,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "session_transport_layer",
+          "dependency_type": "api_contract",
+          "description": "Session and adapter request flow consumes PreparedRequest, Response, cookie, hook, authentication, proxy, URL, and body length contracts from the preparation core.",
+          "evidence_paths": [
+            "src/requests/models.py",
+            "src/requests/cookies.py",
+            "src/requests/hooks.py",
+            "src/requests/auth.py",
+            "src/requests/utils.py",
+            "src/requests/sessions.py",
+            "src/requests/adapters.py",
+            "tests/test_utils.py",
+            "tests/test_hooks.py",
+            "tests/test_adapters.py"
+          ],
+          "producer_subproblem": "request_preparation_core",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "integration_validation",
+          "dependency_type": "integration",
+          "description": "Package-level import and vendored dependency compatibility consume foundation structures, status codes, utility helpers, and public module exports.",
+          "evidence_paths": [
+            "src/requests/__init__.py",
+            "src/requests/status_codes.py",
+            "src/requests/structures.py",
+            "src/requests/utils.py",
+            "tests/test_packages.py",
+            "tests/test_structures.py"
+          ],
+          "producer_subproblem": "request_preparation_core",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "async_private",
+      "information_profile": "private-workspace",
+      "integration_policy": "Run specialists concurrently in private workspaces and integrate final artifacts after all workers finish.",
+      "message_delivery_policy": "No in-flight worker messages or artifacts are delivered.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-requests.async-private.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 28,
+      "task_id": "commit0:requests",
+      "test_budget_per_agent": 10,
+      "token_budget_per_agent": 70000,
+      "wall_clock_budget_seconds": 2400
+    },
+    {
+      "agent_count": 3,
+      "assignments": [
+        {
+          "agent_id": "prep_agent",
+          "primary_test_targets": [
+            "tests/test_structures.py",
+            "tests/test_utils.py",
+            "tests/test_hooks.py"
+          ],
+          "role": "request preparation, utilities, hooks, cookies, auth, and response specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "request_preparation_core",
+          "writable_paths": [
+            "src/requests/_internal_utils.py",
+            "src/requests/auth.py",
+            "src/requests/compat.py",
+            "src/requests/cookies.py",
+            "src/requests/hooks.py",
+            "src/requests/models.py",
+            "src/requests/status_codes.py",
+            "src/requests/structures.py",
+            "src/requests/utils.py"
+          ]
+        },
+        {
+          "agent_id": "transport_agent",
+          "primary_test_targets": [
+            "tests/test_adapters.py"
+          ],
+          "role": "session, public API, adapter, proxy, TLS, and response transport specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "session_transport_layer",
+          "writable_paths": [
+            "src/requests/api.py",
+            "src/requests/sessions.py",
+            "src/requests/adapters.py"
+          ]
+        },
+        {
+          "agent_id": "integration_agent",
+          "primary_test_targets": [
+            "tests/test_packages.py"
+          ],
+          "role": "package import and public export compatibility specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "integration_validation",
+          "writable_paths": [
+            "src/requests/__init__.py"
+          ]
+        }
+      ],
+      "communication_condition": "structured_message_and_artifact",
+      "competence_gate_required": true,
+      "concurrent_execution": true,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "session_transport_layer",
+          "dependency_type": "api_contract",
+          "description": "Session and adapter request flow consumes PreparedRequest, Response, cookie, hook, authentication, proxy, URL, and body length contracts from the preparation core.",
+          "evidence_paths": [
+            "src/requests/models.py",
+            "src/requests/cookies.py",
+            "src/requests/hooks.py",
+            "src/requests/auth.py",
+            "src/requests/utils.py",
+            "src/requests/sessions.py",
+            "src/requests/adapters.py",
+            "tests/test_utils.py",
+            "tests/test_hooks.py",
+            "tests/test_adapters.py"
+          ],
+          "producer_subproblem": "request_preparation_core",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "integration_validation",
+          "dependency_type": "integration",
+          "description": "Package-level import and vendored dependency compatibility consume foundation structures, status codes, utility helpers, and public module exports.",
+          "evidence_paths": [
+            "src/requests/__init__.py",
+            "src/requests/status_codes.py",
+            "src/requests/structures.py",
+            "src/requests/utils.py",
+            "tests/test_packages.py",
+            "tests/test_structures.py"
+          ],
+          "producer_subproblem": "request_preparation_core",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "async_message",
+      "information_profile": "private-workspace",
+      "integration_policy": "Integrate latest explicitly transferred artifacts and record stale request-preparation or transport assumptions.",
+      "message_delivery_policy": "Workers may transfer prepared-request, cookie, hook, proxy, adapter, and package-export assumptions while active.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-requests.async-message.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 28,
+      "task_id": "commit0:requests",
+      "test_budget_per_agent": 10,
+      "token_budget_per_agent": 70000,
+      "wall_clock_budget_seconds": 2400
+    }
+  ],
+  "schema_version": "0.3",
+  "task_id": "commit0:requests"
+}

@@ -1,0 +1,180 @@
+{
+  "aggregate_metrics": {
+    "ADPR_denominator": "All dependency_points unless a paper section explicitly reports primary_async_dependency_ids only.",
+    "dependency_point_count": 3,
+    "minimum_success_condition_for_task_level_async_dependency_resolution": "All primary_async_dependency_ids pass in the final integrated workspace.",
+    "primary_async_dependency_ids": [
+      "flask.scaffold_to_dispatch.route_context_contract",
+      "flask.session_json_to_context.cookie_response_contract",
+      "flask.context_to_template_testing.client_context_contract"
+    ],
+    "primary_paper_dependency_id": "flask.scaffold_to_dispatch.route_context_contract"
+  },
+  "annotation_notes": [
+    "The scaffold_to_dispatch dependency is the primary signal because Flask dispatch is highly sensitive to stale route, endpoint, URL map, and callback registry semantics.",
+    "The session_json_to_context dependency captures stale assumptions around JSON response shape, tagged session serialization, and cookie lifecycle.",
+    "The context_to_template_testing dependency captures stale context-stack assumptions consumed by templating and FlaskClient helpers.",
+    "These labels identify public test-observable contracts, not solution code."
+  ],
+  "dependency_points": [
+    {
+      "consumer_agent": "dispatch_agent",
+      "consumer_files": [
+        "src/flask/app.py",
+        "src/flask/ctx.py"
+      ],
+      "consumer_subproblem": "dispatch_context_layer",
+      "contract_summary": "Scaffold and sansio App route registration, endpoint naming, URL map, and callback registries must be stable for Flask request dispatch and URL generation.",
+      "dependency_id": "flask.scaffold_to_dispatch.route_context_contract",
+      "dependency_type": "interface_dependency",
+      "downstream_probe_tests": [
+        "tests/test_basic.py::test_request_dispatching",
+        "tests/test_basic.py::test_url_generation"
+      ],
+      "integrated_probe_tests": [
+        "tests/test_basic.py::test_route_decorator_custom_endpoint",
+        "tests/test_basic.py::test_request_dispatching",
+        "tests/test_basic.py::test_url_mapping"
+      ],
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL",
+        "SAD"
+      ],
+      "primary_paper_probe": true,
+      "producer_agent": "scaffold_agent",
+      "producer_files": [
+        "src/flask/sansio/scaffold.py",
+        "src/flask/sansio/app.py",
+        "src/flask/config.py"
+      ],
+      "producer_subproblem": "scaffold_app_layer",
+      "resolution_criteria": "Resolved when route registration, request dispatch, and URL map probes pass together in the integrated workspace.",
+      "stale_failure_mode": "The dispatch agent may assume stale endpoint naming, URL map, or callback registry semantics from the scaffold layer.",
+      "upstream_probe_tests": [
+        "tests/test_basic.py::test_route_decorator_custom_endpoint",
+        "tests/test_basic.py::test_url_mapping"
+      ]
+    },
+    {
+      "consumer_agent": "dispatch_agent",
+      "consumer_files": [
+        "src/flask/app.py",
+        "src/flask/ctx.py"
+      ],
+      "consumer_subproblem": "dispatch_context_layer",
+      "contract_summary": "SessionInterface, SecureCookieSession, TaggedJSONSerializer, and JSONProvider response behavior must be stable for request context open/save and response conversion.",
+      "dependency_id": "flask.session_json_to_context.cookie_response_contract",
+      "dependency_type": "shared_state_contract",
+      "downstream_probe_tests": [
+        "tests/test_basic.py::test_session",
+        "tests/test_reqctx.py::test_session_dynamic_cookie_name"
+      ],
+      "integrated_probe_tests": [
+        "tests/test_json.py::test_jsonify_basic_types",
+        "tests/test_basic.py::test_session",
+        "tests/test_session_interface.py::test_open_session_with_endpoint"
+      ],
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL",
+        "SAD"
+      ],
+      "producer_agent": "session_json_agent",
+      "producer_files": [
+        "src/flask/sessions.py",
+        "src/flask/json/provider.py",
+        "src/flask/json/tag.py"
+      ],
+      "producer_subproblem": "session_json_layer",
+      "resolution_criteria": "Resolved when JSON provider, session cookie, and request-context session probes pass after integration.",
+      "stale_failure_mode": "The dispatch/context agent may save sessions or convert responses against stale JSON serialization or cookie lifecycle assumptions.",
+      "upstream_probe_tests": [
+        "tests/test_json.py::test_jsonify_basic_types",
+        "tests/test_json.py::test_jsonify_datetime"
+      ]
+    },
+    {
+      "consumer_agent": "template_testing_agent",
+      "consumer_files": [
+        "src/flask/templating.py",
+        "src/flask/testing.py"
+      ],
+      "consumer_subproblem": "templating_testing_layer",
+      "contract_summary": "Templating and test client helpers must consume current_app/request/session context, JSON dumps, and response/session behavior consistently.",
+      "dependency_id": "flask.context_to_template_testing.client_context_contract",
+      "dependency_type": "integration_contract",
+      "downstream_probe_tests": [
+        "tests/test_templating.py::test_context_processing",
+        "tests/test_testing.py::test_json_request_and_response"
+      ],
+      "integrated_probe_tests": [
+        "tests/test_appctx.py::test_request_context_means_app_context",
+        "tests/test_templating.py::test_context_processing",
+        "tests/test_testing.py::test_session_transactions"
+      ],
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL",
+        "SAD"
+      ],
+      "producer_agent": "dispatch_agent",
+      "producer_files": [
+        "src/flask/app.py",
+        "src/flask/ctx.py"
+      ],
+      "producer_subproblem": "dispatch_context_layer",
+      "resolution_criteria": "Resolved when app/request context probes, templating context probes, and test-client session probes pass after integration.",
+      "stale_failure_mode": "The templating/testing agent may build clients or render templates against stale context stack and JSON/session assumptions.",
+      "upstream_probe_tests": [
+        "tests/test_reqctx.py::test_context_binding",
+        "tests/test_appctx.py::test_request_context_means_app_context"
+      ]
+    }
+  ],
+  "evaluation_checkpoint_policy": {
+    "checkpoint_record_fields": [
+      "run_id",
+      "scenario_id",
+      "checkpoint_id",
+      "logical_iteration",
+      "agent_id",
+      "visible_upstream_artifact_version",
+      "integrated_workspace_version",
+      "probe_test_results"
+    ],
+    "minimum_policy": "Run probe tests after each agent final artifact and after final integration.",
+    "recommended_policy": "Run probe tests after every committed patch, every explicit artifact transfer, and final integration."
+  },
+  "metric_annotation_id": "commit0-flask.async-metrics.v0.3",
+  "metric_definitions": {
+    "ADPR": {
+      "definition": "Fraction of registered dependency_points whose required integrated_probe_tests pass in the final integrated workspace.",
+      "name": "Async Dependency Pass Rate",
+      "unit": "fraction"
+    },
+    "CAIL": {
+      "definition": "downstream_resolution_step minus upstream_resolution_step when both probe groups have been evaluated.",
+      "name": "Cross-Agent Integration Lag",
+      "unit": "agent iteration or evaluation checkpoint"
+    },
+    "DRS": {
+      "definition": "First recorded checkpoint at which all required integrated_probe_tests for a dependency point pass.",
+      "name": "Dependency Resolution Step",
+      "unit": "agent iteration or evaluation checkpoint"
+    },
+    "SAD": {
+      "definition": "Interval during which a downstream worker acts on a contract assumption inconsistent with the latest upstream artifact.",
+      "name": "Stale Assumption Duration",
+      "unit": "agent iteration or event interval"
+    }
+  },
+  "purpose": "Dependency-level labels for measuring whether asynchronous multi-agent coding resolves Flask scaffold/app, request context, JSON/session, templating, and testing-client contracts.",
+  "schema_version": "0.3-async-metrics",
+  "source_quality_record": "manifests/pilot/v0.3/quality/commit0_flask.json",
+  "source_task_record": "manifests/pilot/v0.3/tasks/commit0_flask.json",
+  "task_id": "commit0:flask"
+}

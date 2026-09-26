@@ -1,0 +1,18 @@
+--- a/fsspec/compression.py
++++ b/fsspec/compression.py
+@@ -2,6 +2,15 @@
+ from zipfile import ZipFile
+ import fsspec.utils
+ from fsspec.spec import AbstractBufferedFile
++
++def noop_file(file, mode, **kwargs):
++    return file
++
++def unzip(infile, mode="rb", filename=None, **kwargs):
++    return infile
++
++def zstandard_file(infile, mode="rb"):
++    return infile
+ compr = {None: noop_file}
+ 
+ def register_compression(name, callback, extensions, force=False):

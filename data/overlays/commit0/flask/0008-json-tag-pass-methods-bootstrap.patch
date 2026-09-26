@@ -1,0 +1,25 @@
+diff --git a/src/flask/json/tag.py b/src/flask/json/tag.py
+index ec76cc7..2cdb093 100644
+--- a/src/flask/json/tag.py
++++ b/src/flask/json/tag.py
+@@ -90,16 +90,20 @@ class TagDict(JSONTag):
+     key = ' di'
+ 
+ class PassDict(JSONTag):
+     __slots__ = ()
++    def to_json(self, value: t.Any) -> t.Any:
++        pass
+     tag = to_json
+ 
+ class TagTuple(JSONTag):
+     __slots__ = ()
+     key = ' t'
+ 
+ class PassList(JSONTag):
+     __slots__ = ()
++    def to_json(self, value: t.Any) -> t.Any:
++        pass
+     tag = to_json
+ 
+ class TagBytes(JSONTag):
+     __slots__ = ()

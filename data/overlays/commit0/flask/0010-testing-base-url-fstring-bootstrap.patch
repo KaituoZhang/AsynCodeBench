@@ -1,0 +1,13 @@
+diff --git a/src/flask/testing.py b/src/flask/testing.py
+index 84bcb71..f53c293 100644
+--- a/src/flask/testing.py
++++ b/src/flask/testing.py
+@@ -49,7 +49,7 @@ class EnvironBuilder(werkzeug.test.EnvironBuilder):
+             if url_scheme is None:
+                 url_scheme = app.config['PREFERRED_URL_SCHEME']
+             url = urlsplit(path)
+-            base_url = f'{url.scheme or url_scheme}://{url.netloc or http_host}/{app_root.lstrip('/')}'
++            base_url = f"{url.scheme or url_scheme}://{url.netloc or http_host}/{app_root.lstrip('/')}"
+             path = url.path
+             if url.query:
+                 sep = b'?' if isinstance(url.query, bytes) else '?'

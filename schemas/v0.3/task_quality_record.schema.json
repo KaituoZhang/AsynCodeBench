@@ -1,0 +1,292 @@
+{
+  "$defs": {
+    "CoordinationStructureTag": {
+      "enum": [
+        "interface_dependency",
+        "shared_abstraction",
+        "control"
+      ],
+      "title": "CoordinationStructureTag",
+      "type": "string"
+    },
+    "DatasetQualityStatus": {
+      "enum": [
+        "needs_revision",
+        "qualification_ready",
+        "release_ready"
+      ],
+      "title": "DatasetQualityStatus",
+      "type": "string"
+    },
+    "EvaluationSnapshot": {
+      "additionalProperties": false,
+      "description": "Observed evaluator behavior in a controlled, non-agent workspace.",
+      "properties": {
+        "collected": {
+          "minimum": 0,
+          "title": "Collected",
+          "type": "integer"
+        },
+        "command": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Command",
+          "type": "array"
+        },
+        "dependency_versions": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Dependency Versions",
+          "type": "object"
+        },
+        "duration_seconds": {
+          "exclusiveMinimum": 0,
+          "title": "Duration Seconds",
+          "type": "number"
+        },
+        "errors": {
+          "minimum": 0,
+          "title": "Errors",
+          "type": "integer"
+        },
+        "evidence_scope": {
+          "enum": [
+            "public_initial_state",
+            "evaluator_sanity_only"
+          ],
+          "title": "Evidence Scope",
+          "type": "string"
+        },
+        "failed": {
+          "minimum": 0,
+          "title": "Failed",
+          "type": "integer"
+        },
+        "notes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "passed": {
+          "minimum": 0,
+          "title": "Passed",
+          "type": "integer"
+        },
+        "python_version": {
+          "minLength": 1,
+          "title": "Python Version",
+          "type": "string"
+        },
+        "return_code": {
+          "title": "Return Code",
+          "type": "integer"
+        },
+        "schema_version": {
+          "const": "0.3",
+          "default": "0.3",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "skipped": {
+          "minimum": 0,
+          "title": "Skipped",
+          "type": "integer"
+        },
+        "snapshot_id": {
+          "minLength": 1,
+          "title": "Snapshot Id",
+          "type": "string"
+        },
+        "source_ref": {
+          "minLength": 1,
+          "title": "Source Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "snapshot_id",
+        "source_ref",
+        "evidence_scope",
+        "command",
+        "python_version",
+        "dependency_versions",
+        "collected",
+        "passed",
+        "failed",
+        "errors",
+        "skipped",
+        "return_code",
+        "duration_seconds"
+      ],
+      "title": "EvaluationSnapshot",
+      "type": "object"
+    },
+    "TaskTestGroup": {
+      "additionalProperties": false,
+      "description": "One explicit evaluator slice used for qualification or competence.",
+      "properties": {
+        "command": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Command",
+          "type": "array"
+        },
+        "description": {
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "group_id": {
+          "minLength": 1,
+          "title": "Group Id",
+          "type": "string"
+        },
+        "owner_subproblem": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Owner Subproblem"
+        },
+        "prerequisites": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Prerequisites",
+          "type": "array"
+        },
+        "purpose": {
+          "$ref": "#/$defs/TestGroupPurpose"
+        },
+        "schema_version": {
+          "const": "0.3",
+          "default": "0.3",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "group_id",
+        "purpose",
+        "command",
+        "description"
+      ],
+      "title": "TaskTestGroup",
+      "type": "object"
+    },
+    "TestGroupPurpose": {
+      "enum": [
+        "environment_control",
+        "specialist_local",
+        "cross_subproblem",
+        "full_evaluator"
+      ],
+      "title": "TestGroupPurpose",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Release-facing evidence that a generated task is executable and scoped.",
+  "properties": {
+    "coordination_structure_tags": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/CoordinationStructureTag"
+      },
+      "title": "Coordination Structure Tags",
+      "type": "array"
+    },
+    "environment_requirements": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Environment Requirements",
+      "type": "array"
+    },
+    "evaluation_snapshots": {
+      "items": {
+        "$ref": "#/$defs/EvaluationSnapshot"
+      },
+      "title": "Evaluation Snapshots",
+      "type": "array"
+    },
+    "known_limitations": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Known Limitations",
+      "type": "array"
+    },
+    "public_statement_sources": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Public Statement Sources",
+      "type": "array"
+    },
+    "quality_status": {
+      "$ref": "#/$defs/DatasetQualityStatus"
+    },
+    "remaining_gates": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Remaining Gates",
+      "type": "array"
+    },
+    "schema_version": {
+      "const": "0.3",
+      "default": "0.3",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "structure_rationale": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Structure Rationale"
+    },
+    "task_id": {
+      "minLength": 1,
+      "title": "Task Id",
+      "type": "string"
+    },
+    "test_groups": {
+      "items": {
+        "$ref": "#/$defs/TaskTestGroup"
+      },
+      "title": "Test Groups",
+      "type": "array"
+    }
+  },
+  "required": [
+    "task_id",
+    "quality_status",
+    "public_statement_sources",
+    "environment_requirements",
+    "test_groups",
+    "evaluation_snapshots"
+  ],
+  "title": "TaskQualityRecord",
+  "type": "object"
+}

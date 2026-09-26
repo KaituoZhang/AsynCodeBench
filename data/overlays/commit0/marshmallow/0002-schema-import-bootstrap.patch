@@ -1,0 +1,40 @@
+diff --git a/src/marshmallow/schema.py b/src/marshmallow/schema.py
+index 7b9efc5..3f12d9f 100644
+--- a/src/marshmallow/schema.py
++++ b/src/marshmallow/schema.py
+@@ -26,7 +26,7 @@ def _get_fields(attrs):
+ 
+     :param attrs: Mapping of class attributes
+     """
+-    pass
++    return []
+ 
+ def _get_fields_by_mro(klass):
+     """Collect fields from a class, following its method resolution order. The
+@@ -35,7 +35,7 @@ def _get_fields_by_mro(klass):
+ 
+     :param type klass: Class whose fields to retrieve
+     """
+-    pass
++    return []
+ 
+ class SchemaMeta(ABCMeta):
+     """Metaclass for the Schema class. Binds the declared fields to
+@@ -77,7 +77,7 @@ class SchemaMeta(ABCMeta):
+         :param inherited_fields: Inherited fields.
+         :param dict_cls: dict-like class to use for dict output Default to ``dict``.
+         """
+-        pass
++        return dict_cls(inherited_fields + cls_fields)
+ 
+     def __init__(cls, name, bases, attrs):
+         super().__init__(name, bases, attrs)
+@@ -91,7 +91,7 @@ class SchemaMeta(ABCMeta):
+         By doing this after constructing the class, we let standard inheritance
+         do all the hard work.
+         """
+-        pass
++        return defaultdict(list)
+ 
+ class SchemaOpts:
+     """class Meta options for the :class:`Schema`. Defines defaults."""

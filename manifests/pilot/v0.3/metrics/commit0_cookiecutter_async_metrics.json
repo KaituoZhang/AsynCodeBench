@@ -1,0 +1,191 @@
+{
+  "aggregate_metrics": {
+    "ADPR_denominator": "All dependency_points unless a paper section explicitly reports primary_async_dependency_ids only.",
+    "dependency_point_count": 3,
+    "minimum_success_condition_for_task_level_async_dependency_resolution": "All primary_async_dependency_ids pass in the final integrated workspace.",
+    "primary_async_dependency_ids": [
+      "cookiecutter.config_prompt_to_main.context_contract",
+      "cookiecutter.source_to_main.repo_dir_contract",
+      "cookiecutter.generate_hooks_to_main.project_contract"
+    ],
+    "primary_paper_dependency_id": "cookiecutter.config_prompt_to_main.context_contract"
+  },
+  "annotation_notes": [
+    "The config_prompt_to_main dependency is the primary signal because top-level workflow behavior is sensitive to stale context, prompt, and replay contracts.",
+    "The source_to_main dependency captures stale assumptions around local path, URL, VCS, zip, cache reuse, and cleanup behavior.",
+    "The generate_hooks_to_main dependency captures stale assumptions around project directory creation, hook failure cleanup, and generation exceptions.",
+    "These labels identify public test-observable contracts, not solution code."
+  ],
+  "dependency_points": [
+    {
+      "consumer_agent": "orchestration_agent",
+      "consumer_files": [
+        "cookiecutter/main.py",
+        "cookiecutter/cli.py"
+      ],
+      "consumer_subproblem": "orchestration_layer",
+      "contract_summary": "Configuration, replay, and prompt code must provide stable context shape, default merging, no_input, choices, and extra_context behavior consumed by the top-level workflow.",
+      "dependency_id": "cookiecutter.config_prompt_to_main.context_contract",
+      "dependency_type": "shared_state_contract",
+      "downstream_probe_tests": [
+        "tests/test_main.py::test_original_cookiecutter_options_preserved_in__cookiecutter",
+        "tests/test_main.py::test_replay_load_template_name"
+      ],
+      "integrated_probe_tests": [
+        "tests/test_get_config.py::test_get_config",
+        "tests/test_generate_context.py::test_generate_context",
+        "tests/test_prompt.py::TestRenderVariable::test_convert_to_str",
+        "tests/test_main.py::test_original_cookiecutter_options_preserved_in__cookiecutter"
+      ],
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL",
+        "SAD"
+      ],
+      "primary_paper_probe": true,
+      "producer_agent": "config_prompt_agent",
+      "producer_files": [
+        "cookiecutter/config.py",
+        "cookiecutter/prompt.py",
+        "cookiecutter/replay.py"
+      ],
+      "producer_subproblem": "config_prompt_layer",
+      "resolution_criteria": "Resolved when config/context/prompt probes and main workflow context preservation probes pass in the integrated workspace.",
+      "stale_failure_mode": "The orchestration agent may preserve, replay, or pass context using stale assumptions about config defaults, extra_context overwrites, choices, or no_input prompt behavior.",
+      "upstream_probe_tests": [
+        "tests/test_get_config.py::test_get_config",
+        "tests/test_generate_context.py::test_generate_context",
+        "tests/test_prompt.py::TestRenderVariable::test_convert_to_str"
+      ]
+    },
+    {
+      "consumer_agent": "orchestration_agent",
+      "consumer_files": [
+        "cookiecutter/main.py"
+      ],
+      "consumer_subproblem": "orchestration_layer",
+      "contract_summary": "Repository, VCS, and zipfile source resolution must return stable repo_dir, cleanup, URL/archive classification, and cache reuse semantics consumed by cookiecutter().",
+      "dependency_id": "cookiecutter.source_to_main.repo_dir_contract",
+      "dependency_type": "interface_dependency",
+      "downstream_probe_tests": [
+        "tests/test_main.py::test_replay_dump_template_name",
+        "tests/test_main.py::test_custom_replay_file"
+      ],
+      "integrated_probe_tests": [
+        "tests/repository/test_is_repo_url.py::test_is_repo_url_for_remote_urls",
+        "tests/repository/test_determine_repository_should_use_local_repo.py::test_finds_local_repo",
+        "tests/vcs/test_identify_repo.py::test_identify_known_repo",
+        "tests/zipfile/test_unzip.py::test_unzip_local_file",
+        "tests/test_main.py::test_custom_replay_file"
+      ],
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL",
+        "SAD"
+      ],
+      "producer_agent": "source_agent",
+      "producer_files": [
+        "cookiecutter/repository.py",
+        "cookiecutter/vcs.py",
+        "cookiecutter/zipfile.py"
+      ],
+      "producer_subproblem": "repository_source_layer",
+      "resolution_criteria": "Resolved when source resolution probes and top-level workflow probes pass after integration.",
+      "stale_failure_mode": "The orchestration agent may use stale assumptions about whether a source path must be cloned, unzipped, reused, prompted for deletion, or cleaned up.",
+      "upstream_probe_tests": [
+        "tests/repository/test_is_repo_url.py::test_is_repo_url_for_remote_urls",
+        "tests/repository/test_repository_has_cookiecutter_json.py::test_valid_repository",
+        "tests/vcs/test_identify_repo.py::test_identify_known_repo",
+        "tests/zipfile/test_unzip.py::test_unzip_local_file"
+      ]
+    },
+    {
+      "consumer_agent": "orchestration_agent",
+      "consumer_files": [
+        "cookiecutter/main.py"
+      ],
+      "consumer_subproblem": "orchestration_layer",
+      "contract_summary": "Generation and hooks must provide stable project directory creation, overwrite/skip behavior, hook execution, failure cleanup, and undefined-variable semantics consumed by the workflow.",
+      "dependency_id": "cookiecutter.generate_hooks_to_main.project_contract",
+      "dependency_type": "integration_contract",
+      "downstream_probe_tests": [
+        "tests/test_main.py::test_original_cookiecutter_options_preserved_in__cookiecutter",
+        "tests/test_main.py::test_replay_dump_template_name"
+      ],
+      "integrated_probe_tests": [
+        "tests/test_find.py::test_find_template",
+        "tests/test_generate_files.py::test_generate_files",
+        "tests/test_generate_hooks.py::test_run_python_hooks",
+        "tests/test_hooks.py::TestExternalHooks::test_run_hook",
+        "tests/test_main.py::test_original_cookiecutter_options_preserved_in__cookiecutter"
+      ],
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL",
+        "SAD"
+      ],
+      "producer_agent": "generation_agent",
+      "producer_files": [
+        "cookiecutter/environment.py",
+        "cookiecutter/find.py",
+        "cookiecutter/generate.py",
+        "cookiecutter/hooks.py",
+        "cookiecutter/utils.py"
+      ],
+      "producer_subproblem": "generation_hook_layer",
+      "resolution_criteria": "Resolved when template discovery, file generation, hook execution, and main workflow probes pass together.",
+      "stale_failure_mode": "The orchestration agent may call generation or cleanup code using stale assumptions about generated project paths, hook failure behavior, overwrite flags, or undefined-variable exceptions.",
+      "upstream_probe_tests": [
+        "tests/test_find.py::test_find_template",
+        "tests/test_generate_files.py::test_generate_files",
+        "tests/test_generate_hooks.py::test_run_python_hooks",
+        "tests/test_hooks.py::TestExternalHooks::test_run_hook"
+      ]
+    }
+  ],
+  "evaluation_checkpoint_policy": {
+    "checkpoint_record_fields": [
+      "run_id",
+      "scenario_id",
+      "checkpoint_id",
+      "logical_iteration",
+      "agent_id",
+      "visible_upstream_artifact_version",
+      "integrated_workspace_version",
+      "probe_test_results"
+    ],
+    "minimum_policy": "Run probe tests after each agent final artifact and after final integration.",
+    "recommended_policy": "Run probe tests after every committed patch, every explicit artifact transfer, and final integration."
+  },
+  "metric_annotation_id": "commit0-cookiecutter.async-metrics.v0.3",
+  "metric_definitions": {
+    "ADPR": {
+      "definition": "Fraction of registered dependency_points whose required integrated_probe_tests pass in the final integrated workspace.",
+      "name": "Async Dependency Pass Rate",
+      "unit": "fraction"
+    },
+    "CAIL": {
+      "definition": "downstream_resolution_step minus upstream_resolution_step when both probe groups have been evaluated.",
+      "name": "Cross-Agent Integration Lag",
+      "unit": "agent iteration or evaluation checkpoint"
+    },
+    "DRS": {
+      "definition": "First recorded checkpoint at which all required integrated_probe_tests for a dependency point pass.",
+      "name": "Dependency Resolution Step",
+      "unit": "agent iteration or evaluation checkpoint"
+    },
+    "SAD": {
+      "definition": "Interval during which a downstream worker acts on a contract assumption inconsistent with the latest upstream artifact.",
+      "name": "Stale Assumption Duration",
+      "unit": "agent iteration or event interval"
+    }
+  },
+  "purpose": "Dependency-level labels for measuring whether asynchronous multi-agent coding resolves Cookiecutter config/prompt, source resolution, generation/hook, and main workflow contracts.",
+  "schema_version": "0.3-async-metrics",
+  "source_quality_record": "manifests/pilot/v0.3/quality/commit0_cookiecutter.json",
+  "source_task_record": "manifests/pilot/v0.3/tasks/commit0_cookiecutter.json",
+  "task_id": "commit0:cookiecutter"
+}

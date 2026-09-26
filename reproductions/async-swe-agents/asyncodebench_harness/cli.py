@@ -1,0 +1,754 @@
+"""Command-line interface for running and validating AsynCodeBench."""
+
+import argparse
+import json
+import os
+import subprocess
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+from urllib import error, request
+
+from .health import inspect_run
+from .protocol_registry import PROTOCOL_ORDER
+from .results import validate_run_bundle
+
+LITELLM_PROVIDER_PREFIXES = {
+    "anthropic",
+    "azure",
+    "bedrock",
+    "gemini",
+    "huggingface",
+    "ollama",
+    "openai",
+    "openrouter",
+    "together_ai",
+    "vertex_ai",
+    "vllm",
+}
+
+
+def _repo_root():
+    configured = os.getenv("ASYNCODEBENCH_ROOT")
+    if configured:
+        return Path(configured).expanduser().resolve()
+    return Path(__file__).resolve().parents[3]
+
+
+def _release_index():
+    path = _repo_root() / "manifests" / "release" / "v0.4" / "task_index.json"
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _image_registry():
+    path = _repo_root() / "configs" / "environments" / "official_task_images.v0.4.json"
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _selected_image_records(task_selectors):
+    official_task_ids = {
+        task.get("task_id") for task in _release_index().get("tasks", [])
+    }
+    records = [
+        record
+        for record in _image_registry().get("records", [])
+        if record.get("task_id") in official_task_ids
+    ]
+    if not task_selectors:
+        return records
+    requested = set(task_selectors)
+    selected = [
+        record
+        for record in records
+        if record.get("task_id") in requested
+        or record.get("source_task_id") in requested
+        or str(record.get("task_id", "")).removeprefix("asyncodebench:") in requested
+    ]
+    matched = {
+        value
+        for record in selected
+        for value in (
+            record.get("task_id"),
+            record.get("source_task_id"),
+            str(record.get("task_id", "")).removeprefix("asyncodebench:"),
+        )
+    }
+    missing = requested - matched
+    if missing:
+        raise ValueError(f"Unknown task image selectors: {sorted(missing)}")
+    return selected
+
+
+def _immutable_image_reference(record):
+    digest = record.get("digest")
+    if record.get("status") != "published" or not digest:
+        raise RuntimeError(f"Task image is not published: {record.get('task_id')}")
+    repository = str(record["image"]).rsplit(":", 1)[0]
+    return f"{repository}@{digest}"
+
+
+def _openhands_derived_image_references(records):
+    """Find only OpenHands images derived from the selected task repositories."""
+    completed = subprocess.run(
+        [
+            "docker",
+            "image",
+            "ls",
+            "--filter",
+            "reference=ghcr.io/openhands/agent-server:*",
+            "--format",
+            "{{.Repository}}\t{{.Tag}}",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode != 0:
+        detail = completed.stderr.strip() or completed.stdout.strip()
+        raise RuntimeError(f"Could not list local OpenHands images: {detail}")
+
+    # OpenHands encodes the source-image repository in its derived tag. Match
+    # the complete repository token, independent of whether the source was
+    # supplied by a mutable tag or an immutable digest.
+    repository_tokens = {
+        str(record["image"]).rsplit(":", 1)[0].replace("/", "_s_")
+        for record in records
+    }
+    references = set()
+    for line in completed.stdout.splitlines():
+        fields = line.strip().split("\t", 1)
+        if len(fields) != 2:
+            continue
+        repository, tag = fields
+        if repository != "ghcr.io/openhands/agent-server" or tag == "<none>":
+            continue
+        if any(token in tag for token in repository_tokens):
+            references.add(f"{repository}:{tag}")
+    return sorted(references)
+
+
+def _local_image_exists(reference):
+    completed = subprocess.run(
+        ["docker", "image", "inspect", reference],
+        check=False,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    return completed.returncode == 0
+
+
+def _remove_image_references(references, *, dry_run):
+    result = {"planned": [], "removed": [], "missing": [], "failed": []}
+    for reference in dict.fromkeys(references):
+        if not _local_image_exists(reference):
+            result["missing"].append(reference)
+            continue
+        result["planned"].append(reference)
+        if dry_run:
+            continue
+        completed = subprocess.run(
+            ["docker", "image", "rm", reference],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if completed.returncode == 0:
+            result["removed"].append(reference)
+        else:
+            result["failed"].append(
+                {
+                    "reference": reference,
+                    "error": completed.stderr.strip() or completed.stdout.strip(),
+                }
+            )
+    return result
+
+
+def _remove_images(args, records):
+    derived = (
+        [] if args.base_only else _openhands_derived_image_references(records)
+    )
+    official = []
+    for record in records:
+        official.extend((record["image"], _immutable_image_reference(record)))
+    result = _remove_image_references([*derived, *official], dry_run=args.dry_run)
+    payload = {
+        "action": "remove",
+        "dry_run": args.dry_run,
+        "selected_task_ids": [record["task_id"] for record in records],
+        "include_openhands_derived_images": not args.base_only,
+        **result,
+        "outputs_preserved": True,
+    }
+    if args.json:
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        label = "Would remove" if args.dry_run else "Removed"
+        references = result["planned"] if args.dry_run else result["removed"]
+        print(f"{label} {len(references)} local image reference(s):")
+        for reference in references:
+            print(f"- {reference}")
+        print(f"Already absent: {len(result['missing'])}")
+        print("Experiment outputs preserved: yes")
+        for failure in result["failed"]:
+            print(
+                f"Failed to remove {failure['reference']}: {failure['error']}",
+                file=sys.stderr,
+            )
+    return 1 if result["failed"] else 0
+
+
+def _images(args):
+    if args.action == "remove":
+        if args.all and args.tasks:
+            print(
+                "images remove accepts either --all or --task, not both",
+                file=sys.stderr,
+            )
+            return 2
+        if not args.all and not args.tasks:
+            print("images remove requires --task ... or --all", file=sys.stderr)
+            return 2
+        if args.all and not args.yes and not args.dry_run:
+            print(
+                "images remove --all requires --yes (or use --dry-run)",
+                file=sys.stderr,
+            )
+            return 2
+        records = _selected_image_records(None if args.all else args.tasks)
+        return _remove_images(args, records)
+
+    records = _selected_image_records(args.tasks)
+    if args.action == "list":
+        payload = [
+            {
+                "task_id": record["task_id"],
+                "status": record["status"],
+                "reference": (
+                    _immutable_image_reference(record)
+                    if record["status"] == "published"
+                    else record["image"]
+                ),
+            }
+            for record in records
+        ]
+        if args.json:
+            print(json.dumps(payload, indent=2, sort_keys=True))
+        else:
+            print("TASK ID\tSTATUS\tIMAGE")
+            for item in payload:
+                print(f"{item['task_id']}\t{item['status']}\t{item['reference']}")
+        return 0
+
+    registry = _image_registry()
+    for record in records:
+        reference = _immutable_image_reference(record)
+        completed = subprocess.run(
+            ["docker", "pull", "--platform", registry["platform"], reference],
+            check=False,
+        )
+        if completed.returncode != 0:
+            return completed.returncode
+    return 0
+
+
+def _tasks(args):
+    index = _release_index()
+    tasks = index.get("tasks", [])
+    if args.json:
+        print(json.dumps(tasks, indent=2, sort_keys=True))
+        return 0
+    print("TASK ID\tAGENTS\tDEPENDENCIES")
+    for task in tasks:
+        counts = sorted(
+            {
+                protocol.get("agent_count", 0)
+                for protocol in task.get("protocols", {}).values()
+            }
+        )
+        print(
+            f"{task['task_id']}\t{','.join(map(str, counts))}\t"
+            f"{task.get('dependency_point_count', 0)}"
+        )
+    return 0
+
+
+def _release_status(args):
+    index = _release_index()
+    tasks = index.get("tasks", [])
+    pending_human_review = [
+        task.get("task_id")
+        for task in tasks
+        if not task.get("annotation_status", {}).get("human_review_passed")
+    ]
+    payload = {
+        "benchmark": "AsynCodeBench",
+        "release": index.get("release"),
+        "release_version": index.get("release_version"),
+        "task_count": index.get("task_count", 0),
+        "scenario_count": index.get("scenario_count", 0),
+        "online_scenario_count": index.get("online_scenario_count", 0),
+        "total_protocol_condition_count": index.get(
+            "total_protocol_condition_count", index.get("scenario_count", 0)
+        ),
+        "dependency_point_count": index.get("dependency_point_count", 0),
+        "bootstrap_overlay_count": sum(
+            task.get("source", {}).get("overlay_count", 0) for task in tasks
+        ),
+        "automated_audit_complete_task_count": index.get(
+            "automated_audit_complete_task_count", 0
+        ),
+        "human_review_complete_task_count": index.get(
+            "human_review_complete_task_count", 0
+        ),
+        "human_review_passed_task_count": index.get(
+            "human_review_passed_task_count", 0
+        ),
+        "human_review_policy": index.get("human_review_policy", {}),
+        "release_stage": index.get("release_stage", "unknown"),
+        "community_preview_ready": index.get("community_preview_ready", False),
+        "stable_release_ready": index.get("stable_release_ready", False),
+        "validated_baseline_bundle_count": index.get(
+            "validated_baseline_bundle_count", 0
+        ),
+        "pending_human_review_task_ids": pending_human_review,
+        "executable_release_complete": len(tasks) == index.get("task_count", 0)
+        and all(task.get("quality_status") == "qualification_ready" for task in tasks),
+        "human_validation_complete": not pending_human_review,
+    }
+    if args.json:
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print(f"AsynCodeBench {payload['release']} ({payload['release_version']})")
+        print(
+            f"stage={payload['release_stage']} "
+            f"community_preview_ready={payload['community_preview_ready']} "
+            f"stable_release_ready={payload['stable_release_ready']}"
+        )
+        print(
+            f"tasks={payload['task_count']} scenarios={payload['scenario_count']} "
+            f"online_scenarios={payload['online_scenario_count']} "
+            f"protocol_conditions={payload['total_protocol_condition_count']} "
+            f"dependencies={payload['dependency_point_count']} "
+            f"overlays={payload['bootstrap_overlay_count']}"
+        )
+        print(
+            "automated_audit="
+            f"{payload['automated_audit_complete_task_count']}/{payload['task_count']} "
+            "human_review="
+            f"{payload['human_review_passed_task_count']}/{payload['task_count']} "
+            "(one required human approval per task)"
+        )
+        if pending_human_review:
+            print("pending_human_review=" + ",".join(pending_human_review))
+        print(
+            f"validated_baseline_bundles={payload['validated_baseline_bundle_count']}"
+        )
+    required_ready = {
+        None: True,
+        "preview": payload["community_preview_ready"],
+        "stable": payload["stable_release_ready"],
+    }[args.require]
+    return 0 if required_ready else 2
+
+
+def _run_one(args, protocol, output_dir, run_id):
+    if args.dry_run:
+        os.environ.setdefault("LITELLM_LOCAL_MODEL_COST_MAP", "True")
+    max_iterations = args.max_iterations
+    sub_iterations = args.sub_iterations
+    rounds_of_chat = args.rounds_of_chat
+    if protocol != "async_manager":
+        max_iterations = 100 if max_iterations is None else max_iterations
+        sub_iterations = 100 if sub_iterations is None else sub_iterations
+        rounds_of_chat = 2 if rounds_of_chat is None else rounds_of_chat
+    if args.task.startswith("asyncodebench:apache-tvm-"):
+        if args.release != "v0.4":
+            raise ValueError("The Apache TVM tasks belong to release v0.4")
+        from run_pr_hard import main as run_pr_hard
+
+        source_task_id = args.task.replace("asyncodebench:", "pr-hard:", 1)
+        return run_pr_hard(
+            task_id=source_task_id,
+            protocol=protocol,
+            model=args.model,
+            subagent_model=args.subagent_model,
+            max_iterations=max_iterations,
+            sub_iterations=sub_iterations,
+            rounds_of_chat=rounds_of_chat,
+            output_dir=output_dir,
+            run_id=run_id,
+            runtime_root=args.runtime_root,
+            runtime_backend=args.runtime_backend,
+            runtime_image=args.runtime_image,
+            agent=args.agent,
+            agent_import_path=args.agent_import_path,
+            agent_config_json=args.agent_config_json,
+            dry_run=args.dry_run,
+        )
+    from run_asyncodebench import main as run_benchmark
+
+    return run_benchmark(
+        task_id=args.task,
+        protocol=protocol,
+        model=args.model,
+        subagent_model=args.subagent_model,
+        max_iterations=max_iterations,
+        sub_iterations=sub_iterations,
+        rounds_of_chat=rounds_of_chat,
+        output_dir=output_dir,
+        run_id=run_id,
+        # The 15 Commit0-derived task records retain their v0.3 source manifests inside
+        # the unified v0.4 release.  Their executable content is unchanged.
+        release="v0.3" if args.release == "v0.4" else args.release,
+        agent=args.agent,
+        agent_import_path=args.agent_import_path,
+        agent_config_json=args.agent_config_json,
+        dry_run=args.dry_run,
+    )
+
+
+def _run(args):
+    if args.protocol != "all":
+        return _run_one(args, args.protocol, args.output_dir, args.run_id)
+
+    run_id = args.run_id or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    for protocol in PROTOCOL_ORDER:
+        output_dir = None
+        if args.output_dir:
+            output_dir = str(Path(args.output_dir) / protocol / run_id)
+        _run_one(args, protocol, output_dir, run_id)
+    return 0
+
+
+def _validate(args):
+    result = validate_run_bundle(args.run_dir, verify_checksums=not args.skip_checksums)
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 0 if result["valid"] else 1
+
+
+def _inspect(args):
+    results = [inspect_run(Path(run_dir)) for run_dir in args.run_dirs]
+    payload = {
+        "valid": all(result["status"] == "valid" for result in results),
+        "runs": results,
+    }
+    print(json.dumps(payload, indent=2, sort_keys=True))
+    return 0 if payload["valid"] else 1
+
+
+def _http_json(url, *, api_key, timeout, payload=None):
+    body = None if payload is None else json.dumps(payload).encode("utf-8")
+    headers = {"Accept": "application/json", "User-Agent": "AsynCodeBench-doctor"}
+    if body is not None:
+        headers["Content-Type"] = "application/json"
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
+    http_request = request.Request(url, data=body, headers=headers)
+    try:
+        with request.urlopen(http_request, timeout=timeout) as response:
+            return json.loads(response.read().decode("utf-8"))
+    except error.HTTPError as exc:
+        detail = exc.read(500).decode("utf-8", errors="replace").strip()
+        suffix = f": {detail}" if detail else ""
+        raise RuntimeError(f"HTTP {exc.code}{suffix}") from exc
+    except (error.URLError, TimeoutError, json.JSONDecodeError) as exc:
+        raise RuntimeError(str(exc)) from exc
+
+
+def _api_model_id(configured_model, model_response):
+    available = {
+        item.get("id")
+        for item in model_response.get("data", [])
+        if isinstance(item, dict) and item.get("id")
+    }
+    candidates = [configured_model]
+    if "/" in configured_model:
+        candidates.append(configured_model.split("/", 1)[1])
+    for candidate in candidates:
+        if candidate in available:
+            return candidate
+    if len(available) == 1:
+        return next(iter(available))
+    return candidates[-1]
+
+
+def _has_litellm_provider_prefix(model):
+    prefix, separator, remainder = model.partition("/")
+    return bool(separator and remainder and prefix in LITELLM_PROVIDER_PREFIXES)
+
+
+def _online_doctor_checks(*, base_url, api_key, model, timeout):
+    checks = []
+    try:
+        models = _http_json(
+            f"{base_url.rstrip('/')}/models",
+            api_key=api_key,
+            timeout=timeout,
+        )
+        checks.append({"name": "model_api_auth", "ok": True})
+    except RuntimeError as exc:
+        detail = str(exc)
+        return [
+            {"name": "model_api_auth", "ok": False, "detail": detail},
+            {"name": "model_completion", "ok": False, "detail": "blocked"},
+            {"name": "model_tool_call", "ok": False, "detail": "blocked"},
+        ]
+
+    tool_name = "asyncodebench_healthcheck"
+    payload = {
+        "model": _api_model_id(model, models),
+        "messages": [
+            {
+                "role": "user",
+                "content": "Call the healthcheck tool once with status ready.",
+            }
+        ],
+        "tools": [
+            {
+                "type": "function",
+                "function": {
+                    "name": tool_name,
+                    "description": "Confirm that model tool calling is available.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {"status": {"type": "string"}},
+                        "required": ["status"],
+                    },
+                },
+            }
+        ],
+        "tool_choice": {"type": "function", "function": {"name": tool_name}},
+        "temperature": 0,
+        "max_tokens": 512,
+    }
+    try:
+        completion = _http_json(
+            f"{base_url.rstrip('/')}/chat/completions",
+            api_key=api_key,
+            timeout=timeout,
+            payload=payload,
+        )
+    except RuntimeError as exc:
+        detail = str(exc)
+        return [
+            *checks,
+            {"name": "model_completion", "ok": False, "detail": detail},
+            {"name": "model_tool_call", "ok": False, "detail": "blocked"},
+        ]
+
+    choices = completion.get("choices", [])
+    message = choices[0].get("message", {}) if choices else {}
+    checks.append({"name": "model_completion", "ok": bool(choices)})
+    tool_calls = message.get("tool_calls") or []
+    tool_call_ok = any(
+        call.get("type") == "function"
+        and call.get("function", {}).get("name") == tool_name
+        for call in tool_calls
+        if isinstance(call, dict)
+    )
+    checks.append(
+        {
+            "name": "model_tool_call",
+            "ok": tool_call_ok,
+            **({} if tool_call_ok else {"detail": "expected forced tool call missing"}),
+        }
+    )
+    return checks
+
+
+def _doctor(args):
+    checks = []
+    checks.append(
+        {
+            "name": "release_index",
+            "ok": (_repo_root() / "manifests/release/v0.4/task_index.json").is_file(),
+        }
+    )
+    checks.append(
+        {
+            "name": "official_execution_profile",
+            "ok": (
+                _repo_root() / "configs/evaluation/official_execution_profile.v2.json"
+            ).is_file(),
+        }
+    )
+    checks.append(
+        {
+            "name": "five_protocol_execution_profile",
+            "ok": (
+                _repo_root() / "configs/evaluation/official_execution_profile.v4.json"
+            ).is_file(),
+        }
+    )
+    checks.append(
+        {
+            "name": "protocol_registry",
+            "ok": (
+                _repo_root() / "configs/evaluation/protocol_registry.v2.json"
+            ).is_file(),
+        }
+    )
+    checks.append(
+        {
+            "name": "run_bundle_schema",
+            "ok": (_repo_root() / "schemas/release/run_bundle.schema.json").is_file(),
+        }
+    )
+    checks.append(
+        {
+            "name": "sdk_source_dir",
+            "ok": Path(
+                os.getenv(
+                    "SDK_SOURCE_DIR",
+                    _repo_root() / "reproductions" / "software-agent-sdk",
+                )
+            ).is_dir(),
+        }
+    )
+    try:
+        docker = subprocess.run(
+            ["docker", "info"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+        docker_ok = docker.returncode == 0
+    except OSError:
+        docker_ok = False
+    checks.append({"name": "docker", "ok": docker_ok})
+    model = os.getenv("LLM_MODEL", "")
+    base_url = os.getenv("LLM_BASE_URL", "")
+    api_key = os.getenv("LLM_API_KEY", "")
+    checks.append({"name": "model", "ok": bool(model)})
+    checks.append(
+        {"name": "model_provider_prefix", "ok": _has_litellm_provider_prefix(model)}
+    )
+    checks.append({"name": "model_base_url", "ok": bool(base_url)})
+    checks.append({"name": "model_api_key", "ok": bool(api_key)})
+    if not args.offline and model and base_url and api_key:
+        checks.extend(
+            _online_doctor_checks(
+                base_url=base_url,
+                api_key=api_key,
+                model=model,
+                timeout=args.timeout,
+            )
+        )
+    print(json.dumps({"checks": checks}, indent=2, sort_keys=True))
+    return 0 if all(item["ok"] for item in checks) else 1
+
+
+def build_parser():
+    parser = argparse.ArgumentParser(
+        prog="asyncodebench",
+        description="Run and validate the AsynCodeBench benchmark.",
+    )
+    commands = parser.add_subparsers(dest="command", required=True)
+
+    tasks = commands.add_parser("tasks", help="List official release tasks")
+    tasks.add_argument("--json", action="store_true")
+    tasks.set_defaults(handler=_tasks)
+
+    images = commands.add_parser(
+        "images", help="List, pull, or safely remove official task images"
+    )
+    images.add_argument("action", choices=("list", "pull", "remove"))
+    images.add_argument(
+        "--task",
+        action="append",
+        dest="tasks",
+        help="Task ID or short task name; repeat to select multiple images",
+    )
+    images.add_argument(
+        "--all",
+        action="store_true",
+        help="Remove all official task images; valid only with the remove action",
+    )
+    images.add_argument(
+        "--yes",
+        action="store_true",
+        help="Required confirmation for images remove --all",
+    )
+    images.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show matching local images without deleting them",
+    )
+    images.add_argument(
+        "--base-only",
+        action="store_true",
+        help="Do not remove matching OpenHands agent-server derived images",
+    )
+    images.add_argument("--json", action="store_true")
+    images.set_defaults(handler=_images)
+
+    release_status = commands.add_parser(
+        "release-status", help="Show executable and human-review release status"
+    )
+    release_status.add_argument("--json", action="store_true")
+    release_status.add_argument("--require", choices=("preview", "stable"))
+    release_status.set_defaults(handler=_release_status)
+
+    run = commands.add_parser("run", help="Run one task and protocol")
+    run.add_argument("--task", required=True, help="asyncodebench:<repository>")
+    run.add_argument("--protocol", choices=[*PROTOCOL_ORDER, "all"], required=True)
+    run.add_argument("--model", default=os.getenv("LLM_MODEL"))
+    run.add_argument("--subagent-model", default=os.getenv("LLM_SUBAGENT_MODEL"))
+    run.add_argument("--max-iterations", type=int)
+    run.add_argument("--sub-iterations", type=int)
+    run.add_argument("--rounds-of-chat", type=int)
+    run.add_argument("--output-dir")
+    run.add_argument("--run-id")
+    run.add_argument("--release", default="v0.4")
+    run.add_argument(
+        "--runtime-backend",
+        choices=("container", "local"),
+        default="container",
+        help="TVM only: use the published image or a reconstructed local runtime",
+    )
+    run.add_argument("--runtime-root", default="")
+    run.add_argument(
+        "--runtime-image",
+        default="",
+        help="TVM only: explicit development image; official runs use registry digest",
+    )
+    run.add_argument("--agent", default="openhands")
+    run.add_argument("--agent-import-path")
+    run.add_argument("--agent-config-json")
+    run.add_argument("--dry-run", action="store_true")
+    run.set_defaults(handler=_run)
+
+    validate = commands.add_parser("validate-run", help="Validate a result bundle")
+    validate.add_argument("run_dir")
+    validate.add_argument("--skip-checksums", action="store_true")
+    validate.set_defaults(handler=_validate)
+
+    inspect = commands.add_parser(
+        "inspect-run",
+        help="Classify old or new run directories without requiring a bundle",
+    )
+    inspect.add_argument("run_dirs", nargs="+")
+    inspect.set_defaults(handler=_inspect)
+
+    doctor = commands.add_parser("doctor", help="Check the local runtime")
+    doctor.add_argument(
+        "--offline",
+        action="store_true",
+        help="Skip the authenticated model completion and tool-call smoke test.",
+    )
+    doctor.add_argument("--timeout", type=float, default=60.0)
+    doctor.set_defaults(handler=_doctor)
+    return parser
+
+
+def main(argv=None):
+    args = build_parser().parse_args(argv)
+    if args.command == "run" and not args.model:
+        raise SystemExit("--model or LLM_MODEL is required")
+    result = args.handler(args)
+    return int(result or 0)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

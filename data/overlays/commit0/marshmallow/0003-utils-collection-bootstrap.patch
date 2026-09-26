@@ -1,0 +1,18 @@
+diff --git a/src/marshmallow/utils.py b/src/marshmallow/utils.py
+index 1c20aa5..23b4737 100644
+--- a/src/marshmallow/utils.py
++++ b/src/marshmallow/utils.py
+@@ -40,11 +40,11 @@ def is_generator(obj) -> bool:
+ 
+ def is_iterable_but_not_string(obj) -> bool:
+     """Return True if ``obj`` is an iterable object that isn't a string."""
+-    pass
++    return hasattr(obj, "__iter__") and not isinstance(obj, (str, bytes))
+ 
+ def is_collection(obj) -> bool:
+     """Return True if ``obj`` is a collection type, e.g list, tuple, queryset."""
+-    pass
++    return is_iterable_but_not_string(obj)
+ 
+ def is_instance_or_subclass(val, class_) -> bool:
+     """Return True if ``val`` is either a subclass or instance of ``class_``."""

@@ -1,0 +1,350 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://anonymous.invalid/schemas/v0.4/pr_hard_qualification_record.schema.json",
+  "title": "AsynCodeBench PR-hard qualification record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "qualified_at",
+    "automated_status",
+    "human_review",
+    "provenance",
+    "source_integrity",
+    "environment",
+    "evaluator_runs",
+    "role_local_observability",
+    "dependency_checkers",
+    "remaining_gates"
+  ],
+  "properties": {
+    "schema_version": {"const": "pr-hard-qualification-v0.4"},
+    "task_id": {
+      "type": "string",
+      "pattern": "^pr-hard:[a-z0-9_.-]+-[a-z0-9_.-]+-[0-9]+$"
+    },
+    "qualified_at": {"type": "string", "format": "date"},
+    "automated_status": {
+      "enum": ["passed_pending_human_review", "passed", "needs_revision"]
+    },
+    "human_review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "counts_as_completed_human_review"],
+      "properties": {
+        "status": {
+          "enum": ["pending", "complete_pass", "complete_reject"]
+        },
+        "counts_as_completed_human_review": {"type": "boolean"},
+        "annotation_file": {
+          "type": "string",
+          "pattern": "^manifests/annotations/pr_hard_v0\\.4/.+/annotator_a\\.json$"
+        },
+        "annotator_id": {"type": "string", "minLength": 1},
+        "parallelizability_label": {
+          "enum": [
+            "parallelizable",
+            "partially_parallelizable",
+            "effectively_serial"
+          ]
+        },
+        "reviewed_at": {"type": "string", "format": "date"}
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "base_sha",
+        "gold_sha",
+        "gold_first_parent_is_base",
+        "production_diff"
+      ],
+      "properties": {
+        "base_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "gold_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "gold_first_parent_is_base": {"const": true},
+        "production_diff": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["files", "additions", "deletions", "matches_editable_paths"],
+          "properties": {
+            "files": {"type": "integer", "minimum": 2},
+            "additions": {"type": "integer", "minimum": 1},
+            "deletions": {"type": "integer", "minimum": 0},
+            "matches_editable_paths": {"const": true}
+          }
+        }
+      }
+    },
+    "source_integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "public_overlays",
+        "test_only",
+        "apply_cleanly_in_order",
+        "model_visible_git_history",
+        "model_visible_gold_patch",
+        "model_trajectory_used_for_construction"
+      ],
+      "properties": {
+        "public_overlays": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "sha256"],
+            "properties": {
+              "path": {"type": "string", "pattern": "^data/overlays/pr_hard/.+\\.patch$"},
+              "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+            }
+          }
+        },
+        "test_only": {"const": true},
+        "apply_cleanly_in_order": {"const": true},
+        "model_visible_git_history": {"const": false},
+        "model_visible_gold_patch": {"const": false},
+        "model_trajectory_used_for_construction": {"const": false}
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "registry",
+        "profile",
+        "conda_lock_sha256",
+        "requirements_lock_sha256",
+        "recursive_submodule_manifest_sha256",
+        "tvm_ffi_sha",
+        "configure",
+        "cold_build_elapsed_seconds",
+        "cold_build_timing_method",
+        "gpu_execution_required"
+      ],
+      "properties": {
+        "registry": {"const": "configs/environments/pr_hard_tvm.v0.4.json"},
+        "profile": {
+          "enum": ["tvm-cpu-llvm-source-build", "tvm-cuda-codegen-source-build"]
+        },
+        "conda_lock_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "requirements_lock_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "recursive_submodule_manifest_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "tvm_ffi_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "configure": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+        "cold_build_elapsed_seconds": {"type": "integer", "minimum": 1},
+        "cold_build_timing_method": {
+          "const": "filesystem_birthtime_delta_from_CMakeCache_to_libtvm_compiler"
+        },
+        "gpu_execution_required": {"const": false}
+      }
+    },
+    "evaluator_runs": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["stage", "expected", "exit_code", "collected", "outcomes"],
+        "properties": {
+          "stage": {"enum": ["base_focused", "gold_focused", "gold_role_local", "gold_regression"]},
+          "expected": {"enum": ["red", "green"]},
+          "exit_code": {"type": "integer", "minimum": 0, "maximum": 1},
+          "collected": {"type": "integer", "minimum": 1},
+          "duration_seconds": {"type": "number", "minimum": 0},
+          "outcomes": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "passed": {"type": "integer", "minimum": 0},
+              "failed": {"type": "integer", "minimum": 0},
+              "skipped": {"type": "integer", "minimum": 0},
+              "xfailed": {"type": "integer", "minimum": 0},
+              "xpassed": {"type": "integer", "minimum": 0}
+            }
+          },
+          "notes": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "dependency_checkers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["dependency_id", "upstream", "downstream", "integrated"],
+        "properties": {
+          "dependency_id": {"type": "string", "minLength": 1},
+          "upstream": {"enum": ["passed", "failed", "unverified"]},
+          "downstream": {"enum": ["passed", "failed", "unverified"]},
+          "integrated": {"enum": ["passed", "failed", "unverified"]},
+          "finding": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "role_local_observability": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["subproblem_id", "base_status", "selectors"],
+        "properties": {
+          "subproblem_id": {"type": "string", "minLength": 1},
+          "base_status": {
+            "enum": ["base_red", "base_green", "red_outside_owned_surface", "unverified"]
+          },
+          "selectors": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"type": "string", "minLength": 1}
+          },
+          "finding": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "blocking_findings": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "runtime_package_validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "validated_at",
+        "seed_commit",
+        "seed_commit_count",
+        "seed_has_remotes",
+        "task_local_ffi_version",
+        "task_local_ffi_editable",
+        "base_focused",
+        "gold_regression"
+      ],
+      "properties": {
+        "validated_at": {"type": "string", "format": "date"},
+        "seed_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "seed_commit_count": {"const": 1},
+        "seed_has_remotes": {"const": false},
+        "task_local_ffi_version": {"type": "string", "minLength": 1},
+        "task_local_ffi_editable": {"const": false},
+        "base_focused": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["passed", "failed"],
+          "properties": {
+            "passed": {"type": "integer", "minimum": 0},
+            "failed": {"type": "integer", "minimum": 1}
+          }
+        },
+        "gold_regression": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["passed", "skipped"],
+          "properties": {
+            "passed": {"type": "integer", "minimum": 1},
+            "skipped": {"type": "integer", "minimum": 0}
+          }
+        }
+      }
+    },
+    "remaining_gates": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "role_local_observability",
+          "integration_necessity",
+          "evaluator_coverage",
+          "human_review"
+        ]
+      },
+      "minItems": 0,
+      "maxItems": 4
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "automated_status": {"const": "passed_pending_human_review"}
+        }
+      },
+      "then": {
+        "properties": {
+          "human_review": {
+            "properties": {
+              "status": {"const": "pending"},
+              "counts_as_completed_human_review": {"const": false}
+            }
+          },
+          "remaining_gates": {
+            "prefixItems": [{"const": "human_review"}],
+            "items": false,
+            "minItems": 1,
+            "maxItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "automated_status": {"const": "passed"}
+        }
+      },
+      "then": {
+        "properties": {
+          "human_review": {
+            "required": [
+              "status",
+              "counts_as_completed_human_review",
+              "annotation_file",
+              "annotator_id",
+              "parallelizability_label",
+              "reviewed_at"
+            ],
+            "properties": {
+              "status": {"const": "complete_pass"},
+              "counts_as_completed_human_review": {"const": true}
+            }
+          },
+          "remaining_gates": {
+            "maxItems": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "human_review": {
+            "properties": {"status": {"const": "pending"}}
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "human_review": {
+            "properties": {
+              "counts_as_completed_human_review": {"const": false}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"automated_status": {"const": "needs_revision"}}
+      },
+      "then": {"required": ["blocking_findings"]}
+    }
+  ]
+}

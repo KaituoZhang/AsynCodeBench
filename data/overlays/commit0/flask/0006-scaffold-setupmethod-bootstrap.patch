@@ -1,0 +1,14 @@
+diff --git a/src/flask/sansio/scaffold.py b/src/flask/sansio/scaffold.py
+index 0663d91..3118aa7 100644
+--- a/src/flask/sansio/scaffold.py
++++ b/src/flask/sansio/scaffold.py
+@@ -24,6 +24,9 @@ T_url_defaults = t.TypeVar('T_url_defaults', bound=ft.URLDefaultCallable)
+ T_url_value_preprocessor = t.TypeVar('T_url_value_preprocessor', bound=ft.URLValuePreprocessorCallable)
+ T_route = t.TypeVar('T_route', bound=ft.RouteCallable)
+ 
++def setupmethod(f: F) -> F:
++    return f
++
+ class Scaffold:
+     """Common behavior shared between :class:`~flask.Flask` and
+     :class:`~flask.blueprints.Blueprint`.

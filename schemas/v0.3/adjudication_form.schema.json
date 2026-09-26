@@ -1,0 +1,114 @@
+{
+  "$defs": {
+    "ParallelizabilityLabel": {
+      "enum": [
+        "parallelizable",
+        "partially_parallelizable",
+        "effectively_serial"
+      ],
+      "title": "ParallelizabilityLabel",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Independent resolution used only when two annotators disagree.",
+  "properties": {
+    "adjudicator_id": {
+      "minLength": 1,
+      "title": "Adjudicator Id",
+      "type": "string"
+    },
+    "annotator_ids": {
+      "maxItems": 2,
+      "minItems": 2,
+      "prefixItems": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "title": "Annotator Ids",
+      "type": "array"
+    },
+    "exclusion_reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Exclusion Reason"
+    },
+    "include": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Include"
+    },
+    "parallelizability_label": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ParallelizabilityLabel"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "rationale": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Rationale"
+    },
+    "schema_version": {
+      "const": "0.3",
+      "default": "0.3",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_task_id": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Task Id"
+    },
+    "task_id": {
+      "minLength": 1,
+      "title": "Task Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "task_id",
+    "adjudicator_id",
+    "annotator_ids"
+  ],
+  "title": "AdjudicationForm",
+  "type": "object"
+}

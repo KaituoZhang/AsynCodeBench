@@ -1,0 +1,175 @@
+{
+  "schema_version": "0.3",
+  "task_id": "pr-hard:apache-tvm-20153",
+  "candidate_status": "qualified",
+  "scenarios": [
+    {
+      "schema_version": "0.3",
+      "scenario_id": "pr-hard-apache-tvm-20153.iterative-single.v0.4",
+      "task_id": "pr-hard:apache-tvm-20153",
+      "execution_mode": "iterative_single",
+      "agent_count": 1,
+      "assignments": [
+        {
+          "schema_version": "0.3",
+          "agent_id": "integrator",
+          "role": "iterative full-task coding agent",
+          "subproblem_id": "full_task",
+          "writable_paths": [
+            "python/tvm/backend/cuda/ptx/__init__.py",
+            "python/tvm/backend/cuda/ptx/engine.py",
+            "python/tvm/backend/cuda/ptx/gen_stubs.py",
+            "python/tvm/backend/cuda/ptx/render.py",
+            "python/tvm/backend/cuda/ptx/table.py",
+            "python/tvm/script/tirx.pyi"
+          ],
+          "primary_test_targets": ["tests/python/tirx/codegen/test_ptx_addr.py"]
+        }
+      ],
+      "dependency_annotations": [
+        {
+          "schema_version": "0.3",
+          "producer_subproblem": "ptx_dialect_schema",
+          "consumer_subproblem": "ptx_operand_lowering",
+          "dependency_type": "api_contract",
+          "description": "The public address expression and table-declared slot capabilities define the metadata and address classes consumed by operand lowering.",
+          "evidence_paths": [
+            "python/tvm/backend/cuda/ptx/__init__.py",
+            "python/tvm/backend/cuda/ptx/table.py",
+            "python/tvm/backend/cuda/ptx/engine.py",
+            "tests/python/tirx/codegen/test_ptx_addr.py"
+          ]
+        },
+        {
+          "schema_version": "0.3",
+          "producer_subproblem": "ptx_operand_lowering",
+          "consumer_subproblem": "ptx_rendering",
+          "dependency_type": "integration",
+          "description": "Lowering must pass normalized signed offsets and logical slot identities that the renderer consumes for unique helpers and legal PTX memory operands.",
+          "evidence_paths": [
+            "python/tvm/backend/cuda/ptx/engine.py",
+            "python/tvm/backend/cuda/ptx/render.py",
+            "tests/python/tirx/codegen/test_ptx_addr.py"
+          ]
+        }
+      ],
+      "information_profile": "complete-task",
+      "concurrent_execution": false,
+      "communication_condition": "not_applicable",
+      "message_delivery_policy": "No inter-agent messages.",
+      "integration_policy": "Agent submits its final workspace.",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "token_budget_per_agent": 60000,
+      "test_budget_per_agent": 8,
+      "wall_clock_budget_seconds": 1800,
+      "competence_gate_required": true,
+      "official_result_eligible": true
+    },
+    {
+      "schema_version": "0.3",
+      "scenario_id": "pr-hard-apache-tvm-20153.serial-specialists.v0.4",
+      "task_id": "pr-hard:apache-tvm-20153",
+      "execution_mode": "serial_specialists",
+      "agent_count": 3,
+      "assignments": [
+        {
+          "schema_version": "0.3",
+          "agent_id": "dialect_agent",
+          "role": "PTX dialect schema and public API specialist",
+          "subproblem_id": "ptx_dialect_schema",
+          "writable_paths": ["python/tvm/backend/cuda/ptx/__init__.py", "python/tvm/backend/cuda/ptx/gen_stubs.py", "python/tvm/backend/cuda/ptx/table.py", "python/tvm/script/tirx.pyi"],
+          "primary_test_targets": ["tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_registration_and_table_capabilities", "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_table_validation_rejects_wrong_operand_classes"]
+        },
+        {
+          "schema_version": "0.3",
+          "agent_id": "lowering_agent",
+          "role": "PTX address operand lowering specialist",
+          "subproblem_id": "ptx_operand_lowering",
+          "writable_paths": ["python/tvm/backend/cuda/ptx/engine.py"],
+          "primary_test_targets": ["tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_coercion_ir_order_and_shared_codegen", "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_unrolled_expression_and_dynamic_rejection"]
+        },
+        {
+          "schema_version": "0.3",
+          "agent_id": "render_agent",
+          "role": "PTX helper rendering specialist",
+          "subproblem_id": "ptx_rendering",
+          "writable_paths": ["python/tvm/backend/cuda/ptx/render.py"],
+          "primary_test_targets": ["tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_zero_sign_boundaries_and_helper_names", "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_scalar_vector_cache_predicate_and_multi_address_codegen"]
+        }
+      ],
+      "dependency_annotations": [
+        {"schema_version": "0.3", "producer_subproblem": "ptx_dialect_schema", "consumer_subproblem": "ptx_operand_lowering", "dependency_type": "api_contract", "description": "The public address expression and table-declared slot capabilities define the metadata and address classes consumed by operand lowering.", "evidence_paths": ["python/tvm/backend/cuda/ptx/__init__.py", "python/tvm/backend/cuda/ptx/table.py", "python/tvm/backend/cuda/ptx/engine.py", "tests/python/tirx/codegen/test_ptx_addr.py"]},
+        {"schema_version": "0.3", "producer_subproblem": "ptx_operand_lowering", "consumer_subproblem": "ptx_rendering", "dependency_type": "integration", "description": "Lowering must pass normalized signed offsets and logical slot identities that the renderer consumes for unique helpers and legal PTX memory operands.", "evidence_paths": ["python/tvm/backend/cuda/ptx/engine.py", "python/tvm/backend/cuda/ptx/render.py", "tests/python/tirx/codegen/test_ptx_addr.py"]}
+      ],
+      "information_profile": "private-workspace",
+      "concurrent_execution": false,
+      "communication_condition": "completed_artifact_handoff",
+      "message_delivery_policy": "Run schema, lowering, and rendering specialists in producer-to-consumer order, delivering each completed artifact and targeted result.",
+      "integration_policy": "Apply each completed producer artifact before starting its consumer, then evaluate the combined workspace.",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "token_budget_per_agent": 60000,
+      "test_budget_per_agent": 8,
+      "wall_clock_budget_seconds": 1800,
+      "competence_gate_required": true,
+      "official_result_eligible": true
+    },
+    {
+      "schema_version": "0.3",
+      "scenario_id": "pr-hard-apache-tvm-20153.async-private.v0.4",
+      "task_id": "pr-hard:apache-tvm-20153",
+      "execution_mode": "async_private",
+      "agent_count": 3,
+      "assignments": [
+        {"schema_version": "0.3", "agent_id": "dialect_agent", "role": "PTX dialect schema and public API specialist", "subproblem_id": "ptx_dialect_schema", "writable_paths": ["python/tvm/backend/cuda/ptx/__init__.py", "python/tvm/backend/cuda/ptx/gen_stubs.py", "python/tvm/backend/cuda/ptx/table.py", "python/tvm/script/tirx.pyi"], "primary_test_targets": ["tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_registration_and_table_capabilities", "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_table_validation_rejects_wrong_operand_classes"]},
+        {"schema_version": "0.3", "agent_id": "lowering_agent", "role": "PTX address operand lowering specialist", "subproblem_id": "ptx_operand_lowering", "writable_paths": ["python/tvm/backend/cuda/ptx/engine.py"], "primary_test_targets": ["tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_coercion_ir_order_and_shared_codegen", "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_unrolled_expression_and_dynamic_rejection"]},
+        {"schema_version": "0.3", "agent_id": "render_agent", "role": "PTX helper rendering specialist", "subproblem_id": "ptx_rendering", "writable_paths": ["python/tvm/backend/cuda/ptx/render.py"], "primary_test_targets": ["tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_zero_sign_boundaries_and_helper_names", "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_scalar_vector_cache_predicate_and_multi_address_codegen"]}
+      ],
+      "dependency_annotations": [
+        {"schema_version": "0.3", "producer_subproblem": "ptx_dialect_schema", "consumer_subproblem": "ptx_operand_lowering", "dependency_type": "api_contract", "description": "The public address expression and table-declared slot capabilities define the metadata and address classes consumed by operand lowering.", "evidence_paths": ["python/tvm/backend/cuda/ptx/__init__.py", "python/tvm/backend/cuda/ptx/table.py", "python/tvm/backend/cuda/ptx/engine.py", "tests/python/tirx/codegen/test_ptx_addr.py"]},
+        {"schema_version": "0.3", "producer_subproblem": "ptx_operand_lowering", "consumer_subproblem": "ptx_rendering", "dependency_type": "integration", "description": "Lowering must pass normalized signed offsets and logical slot identities that the renderer consumes for unique helpers and legal PTX memory operands.", "evidence_paths": ["python/tvm/backend/cuda/ptx/engine.py", "python/tvm/backend/cuda/ptx/render.py", "tests/python/tirx/codegen/test_ptx_addr.py"]}
+      ],
+      "information_profile": "private-workspace",
+      "concurrent_execution": true,
+      "communication_condition": "none_in_flight",
+      "message_delivery_policy": "No in-flight worker messages or artifacts are delivered.",
+      "integration_policy": "Run all three specialists concurrently in private workspaces and integrate their final artifacts only after all finish.",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "token_budget_per_agent": 60000,
+      "test_budget_per_agent": 8,
+      "wall_clock_budget_seconds": 1800,
+      "competence_gate_required": true,
+      "official_result_eligible": true
+    },
+    {
+      "schema_version": "0.3",
+      "scenario_id": "pr-hard-apache-tvm-20153.async-message.v0.4",
+      "task_id": "pr-hard:apache-tvm-20153",
+      "execution_mode": "async_message",
+      "agent_count": 3,
+      "assignments": [
+        {"schema_version": "0.3", "agent_id": "dialect_agent", "role": "PTX dialect schema and public API specialist", "subproblem_id": "ptx_dialect_schema", "writable_paths": ["python/tvm/backend/cuda/ptx/__init__.py", "python/tvm/backend/cuda/ptx/gen_stubs.py", "python/tvm/backend/cuda/ptx/table.py", "python/tvm/script/tirx.pyi"], "primary_test_targets": ["tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_registration_and_table_capabilities", "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_table_validation_rejects_wrong_operand_classes"]},
+        {"schema_version": "0.3", "agent_id": "lowering_agent", "role": "PTX address operand lowering specialist", "subproblem_id": "ptx_operand_lowering", "writable_paths": ["python/tvm/backend/cuda/ptx/engine.py"], "primary_test_targets": ["tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_coercion_ir_order_and_shared_codegen", "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_unrolled_expression_and_dynamic_rejection"]},
+        {"schema_version": "0.3", "agent_id": "render_agent", "role": "PTX helper rendering specialist", "subproblem_id": "ptx_rendering", "writable_paths": ["python/tvm/backend/cuda/ptx/render.py"], "primary_test_targets": ["tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_zero_sign_boundaries_and_helper_names", "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_scalar_vector_cache_predicate_and_multi_address_codegen"]}
+      ],
+      "dependency_annotations": [
+        {"schema_version": "0.3", "producer_subproblem": "ptx_dialect_schema", "consumer_subproblem": "ptx_operand_lowering", "dependency_type": "api_contract", "description": "The public address expression and table-declared slot capabilities define the metadata and address classes consumed by operand lowering.", "evidence_paths": ["python/tvm/backend/cuda/ptx/__init__.py", "python/tvm/backend/cuda/ptx/table.py", "python/tvm/backend/cuda/ptx/engine.py", "tests/python/tirx/codegen/test_ptx_addr.py"]},
+        {"schema_version": "0.3", "producer_subproblem": "ptx_operand_lowering", "consumer_subproblem": "ptx_rendering", "dependency_type": "integration", "description": "Lowering must pass normalized signed offsets and logical slot identities that the renderer consumes for unique helpers and legal PTX memory operands.", "evidence_paths": ["python/tvm/backend/cuda/ptx/engine.py", "python/tvm/backend/cuda/ptx/render.py", "tests/python/tirx/codegen/test_ptx_addr.py"]}
+      ],
+      "information_profile": "private-workspace",
+      "concurrent_execution": true,
+      "communication_condition": "structured_message_and_artifact",
+      "message_delivery_policy": "Workers may send schema decisions, operand metadata, helper naming conventions, targeted results, and explicit patch artifacts while active.",
+      "integration_policy": "Integrate the latest explicitly transferred artifacts and record whether delivered contract information changed later actions.",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "token_budget_per_agent": 60000,
+      "test_budget_per_agent": 8,
+      "wall_clock_budget_seconds": 1800,
+      "competence_gate_required": true,
+      "official_result_eligible": true
+    }
+  ]
+}

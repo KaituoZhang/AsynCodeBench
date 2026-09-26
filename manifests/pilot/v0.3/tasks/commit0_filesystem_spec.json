@@ -1,0 +1,128 @@
+{
+  "annotation_provenance": [],
+  "candidate_evidence_file": "manifests/candidates/commit0_async_screening_v0.3.json",
+  "dependency_annotations": [
+    {
+      "consumer_subproblem": "core_open_path_layer",
+      "dependency_type": "api_contract",
+      "description": "Core URL resolution and open path behavior consume registry protocol lookup, deferred class imports, and filesystem instantiation.",
+      "evidence_paths": [
+        "fsspec/registry.py",
+        "fsspec/core.py",
+        "fsspec/tests/test_registry.py",
+        "fsspec/tests/test_core.py"
+      ],
+      "producer_subproblem": "registry_protocol_layer",
+      "schema_version": "0.3"
+    },
+    {
+      "consumer_subproblem": "core_open_path_layer",
+      "dependency_type": "api_contract",
+      "description": "OpenFile, open_files, path expansion, and local-open behavior consume utility path/protocol helpers and compression lookup.",
+      "evidence_paths": [
+        "fsspec/utils.py",
+        "fsspec/compression.py",
+        "fsspec/core.py",
+        "fsspec/tests/test_utils.py",
+        "fsspec/tests/test_compression.py",
+        "fsspec/tests/test_core.py"
+      ],
+      "producer_subproblem": "utility_compression_layer",
+      "schema_version": "0.3"
+    },
+    {
+      "consumer_subproblem": "core_open_path_layer",
+      "dependency_type": "api_contract",
+      "description": "OpenFile, open_local, and multi-file context behavior consume AbstractFileSystem plus the local, memory, and cache backend contracts reached by the public core tests.",
+      "evidence_paths": [
+        "fsspec/spec.py",
+        "fsspec/implementations/local.py",
+        "fsspec/implementations/memory.py",
+        "fsspec/implementations/cached.py",
+        "fsspec/implementations/cache_mapper.py",
+        "fsspec/implementations/cache_metadata.py",
+        "fsspec/core.py",
+        "fsspec/tests/test_core.py"
+      ],
+      "producer_subproblem": "filesystem_backend_layer",
+      "schema_version": "0.3"
+    }
+  ],
+  "evaluator_command": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "fsspec/tests/test_registry.py",
+    "fsspec/tests/test_utils.py",
+    "fsspec/tests/test_compression.py",
+    "fsspec/tests/test_core.py"
+  ],
+  "inclusion_decision": null,
+  "natural_subproblems": {
+    "core_open_path_layer": [
+      "fsspec/core.py",
+      "fsspec/tests/test_core.py"
+    ],
+    "filesystem_backend_layer": [
+      "fsspec/spec.py",
+      "fsspec/implementations/cache_mapper.py",
+      "fsspec/implementations/cache_metadata.py",
+      "fsspec/implementations/cached.py",
+      "fsspec/implementations/local.py",
+      "fsspec/implementations/memory.py",
+      "fsspec/tests/test_core.py"
+    ],
+    "registry_protocol_layer": [
+      "fsspec/registry.py",
+      "fsspec/__init__.py",
+      "fsspec/tests/test_registry.py"
+    ],
+    "utility_compression_layer": [
+      "fsspec/utils.py",
+      "fsspec/compression.py",
+      "fsspec/tests/test_utils.py",
+      "fsspec/tests/test_compression.py"
+    ]
+  },
+  "notes": [
+    "Task source and tests are unchanged; only import/bootstrap overlays are applied.",
+    "The local commit0/default branch is complete. Benchmark workspaces must be materialized from origin/commit0_combined.",
+    "The evaluator is scoped to core fsspec tests. It does not run backend-specific suites, but its public core tests do exercise the local, memory, and simple-cache support paths.",
+    "Manifest revision v0.3.2 closes the writable dependency scope over the stripped filesystem abstractions and minimal backends already exercised by the unchanged public evaluator; it adds no implementation hints or reference code.",
+    "The proposed label is a draft curation decision and not a final independent annotation."
+  ],
+  "problem_statement": "Restore the scoped core fsspec behavior exercised by the public Commit0 tests\nwithout modifying the tests.\n\nThe registry layer must implement protocol registration, deferred imports,\nentry-point loading, and filesystem instantiation. The utility/compression\nlayer must implement URL/protocol parsing, path helpers, read-block behavior,\ncompression inference/registration, and logging helpers. The filesystem\nbackend layer must implement the abstract filesystem operations and the\nlocal, memory, and cache behavior exercised indirectly by the public core\ntests. The core open/path layer must consume those contracts to implement\nOpenFile/OpenFiles, URL to filesystem resolution, path expansion, compression\nselection, local-open handling, and multi-file context behavior.\n\nThe v0.3 evaluator intentionally excludes optional implementation backends,\nHTTP/Arrow-dependent test_spec import paths, callbacks requiring pytest-mock,\nand implementation test conftests. The initial benchmark source is the stripped\nCommit0-style ref `origin/commit0_combined`, plus checksum-recorded bootstrap\noverlays that only make public core tests importable.",
+  "proposed_parallelizability_label": "partially_parallelizable",
+  "publicly_implicated_modules": [
+    "fsspec/__init__.py",
+    "fsspec/_version.py",
+    "fsspec/compression.py",
+    "fsspec/core.py",
+    "fsspec/registry.py",
+    "fsspec/spec.py",
+    "fsspec/utils.py",
+    "fsspec/implementations/cache_mapper.py",
+    "fsspec/implementations/cache_metadata.py",
+    "fsspec/implementations/cached.py",
+    "fsspec/implementations/local.py",
+    "fsspec/implementations/memory.py"
+  ],
+  "qualification_label": null,
+  "qualification_status": "pending_independent_annotation",
+  "quality_evidence_file": "manifests/pilot/v0.3/quality/commit0_filesystem_spec.json",
+  "repository": "commit0/filesystem_spec",
+  "schema_version": "0.3",
+  "source_materialization": "git archive of the stripped Commit0-style filesystem_spec ref origin/commit0_combined at 0d34761eb6ca0af8a6f33eb83dd9630a4a370da0, plus checksum-recorded import/bootstrap overlays in configs/tasks/commit0_curated_tasks.v0.3.json",
+  "task_id": "commit0:filesystem_spec",
+  "task_source": "Commit0",
+  "test_targets": [
+    "fsspec/tests/test_registry.py",
+    "fsspec/tests/test_utils.py",
+    "fsspec/tests/test_compression.py",
+    "fsspec/tests/test_core.py"
+  ],
+  "upstream_version": "0d34761eb6ca0af8a6f33eb83dd9630a4a370da0"
+}

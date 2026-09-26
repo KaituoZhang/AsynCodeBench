@@ -1,0 +1,16 @@
+--- a/fsspec/core.py
++++ b/fsspec/core.py
+@@ -9,6 +9,13 @@
+ from fsspec.registry import filesystem, get_filesystem_class
+ from fsspec.utils import _unstrip_protocol, build_name_function, infer_compression, stringify_path
+ logger = logging.getLogger('fsspec')
++
++def get_compression(urlpath, compression):
++    pass
++
++def _expand_paths(path, name_function, num):
++    pass
++
+ 
+ class OpenFile:
+     """

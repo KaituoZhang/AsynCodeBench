@@ -1,0 +1,462 @@
+{
+  "scenarios": [
+    {
+      "agent_count": 1,
+      "assignments": [
+        {
+          "agent_id": "integrator",
+          "primary_test_targets": [
+            "tests/test_response_lexer.py",
+            "tests/test_response_parser.py",
+            "tests/test_imapclient.py",
+            "tests/test_search.py",
+            "tests/test_folder_status.py",
+            "tests/test_store.py",
+            "tests/test_datetime_util.py",
+            "tests/test_imap_utf7.py",
+            "tests/test_util_functions.py"
+          ],
+          "role": "iterative full-task coding agent",
+          "schema_version": "0.3",
+          "subproblem_id": "full_task",
+          "writable_paths": [
+            "imapclient/datetime_util.py",
+            "imapclient/fixed_offset.py",
+            "imapclient/imap_utf7.py",
+            "imapclient/imapclient.py",
+            "imapclient/response_lexer.py",
+            "imapclient/response_parser.py",
+            "imapclient/response_types.py",
+            "imapclient/util.py",
+            "imapclient/version.py"
+          ]
+        }
+      ],
+      "communication_condition": "not_applicable",
+      "concurrent_execution": false,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "response_parser_layer",
+          "dependency_type": "api_contract",
+          "description": "Response parser behavior consumes lexer tokenization, literal handling, IMAP protocol assertion, and bytes/text utility contracts.",
+          "evidence_paths": [
+            "imapclient/response_lexer.py",
+            "imapclient/util.py",
+            "imapclient/response_parser.py",
+            "tests/test_response_lexer.py",
+            "tests/test_response_parser.py"
+          ],
+          "producer_subproblem": "utility_lexer_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "client_command_layer",
+          "dependency_type": "api_contract",
+          "description": "High-level IMAPClient search, fetch, folder, status, and store behavior consumes typed parsed response shapes from response_parser and response_types.",
+          "evidence_paths": [
+            "imapclient/response_parser.py",
+            "imapclient/response_types.py",
+            "imapclient/imapclient.py",
+            "tests/test_response_parser.py",
+            "tests/test_search.py",
+            "tests/test_folder_status.py",
+            "tests/test_store.py",
+            "tests/test_imapclient.py"
+          ],
+          "producer_subproblem": "response_parser_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "client_command_layer",
+          "dependency_type": "shared_state_contract",
+          "description": "Client command construction and response normalization consume IMAP UTF-7, date formatting, bytes/text conversion, and fixed-offset datetime contracts.",
+          "evidence_paths": [
+            "imapclient/imap_utf7.py",
+            "imapclient/datetime_util.py",
+            "imapclient/fixed_offset.py",
+            "imapclient/util.py",
+            "imapclient/imapclient.py",
+            "tests/test_imap_utf7.py",
+            "tests/test_datetime_util.py",
+            "tests/test_util_functions.py",
+            "tests/test_search.py",
+            "tests/test_imapclient.py"
+          ],
+          "producer_subproblem": "utility_lexer_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "iterative_single",
+      "information_profile": "complete-task",
+      "integration_policy": "Agent submits its final workspace.",
+      "message_delivery_policy": "No inter-agent messages.",
+      "scenario_id": "commit0-imapclient.iterative-single.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 34,
+      "task_id": "commit0:imapclient",
+      "test_budget_per_agent": 12,
+      "token_budget_per_agent": 85000,
+      "wall_clock_budget_seconds": 3000
+    },
+    {
+      "agent_count": 3,
+      "assignments": [
+        {
+          "agent_id": "utility_lexer_agent",
+          "primary_test_targets": [
+            "tests/test_response_lexer.py",
+            "tests/test_datetime_util.py",
+            "tests/test_imap_utf7.py",
+            "tests/test_util_functions.py"
+          ],
+          "role": "IMAP lexer, UTF-7, datetime, fixed-offset, and utility helper specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "utility_lexer_layer",
+          "writable_paths": [
+            "imapclient/datetime_util.py",
+            "imapclient/fixed_offset.py",
+            "imapclient/imap_utf7.py",
+            "imapclient/response_lexer.py",
+            "imapclient/util.py"
+          ]
+        },
+        {
+          "agent_id": "parser_agent",
+          "primary_test_targets": [
+            "tests/test_response_parser.py"
+          ],
+          "role": "IMAP response parser and typed response object specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "response_parser_layer",
+          "writable_paths": [
+            "imapclient/response_parser.py",
+            "imapclient/response_types.py"
+          ]
+        },
+        {
+          "agent_id": "client_agent",
+          "primary_test_targets": [
+            "tests/test_imapclient.py",
+            "tests/test_search.py",
+            "tests/test_folder_status.py",
+            "tests/test_store.py"
+          ],
+          "role": "high-level IMAPClient command, folder, search, status, and store specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "client_command_layer",
+          "writable_paths": [
+            "imapclient/imapclient.py",
+            "imapclient/testable_imapclient.py"
+          ]
+        }
+      ],
+      "communication_condition": "completed_artifact_handoff",
+      "concurrent_execution": false,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "response_parser_layer",
+          "dependency_type": "api_contract",
+          "description": "Response parser behavior consumes lexer tokenization, literal handling, IMAP protocol assertion, and bytes/text utility contracts.",
+          "evidence_paths": [
+            "imapclient/response_lexer.py",
+            "imapclient/util.py",
+            "imapclient/response_parser.py",
+            "tests/test_response_lexer.py",
+            "tests/test_response_parser.py"
+          ],
+          "producer_subproblem": "utility_lexer_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "client_command_layer",
+          "dependency_type": "api_contract",
+          "description": "High-level IMAPClient search, fetch, folder, status, and store behavior consumes typed parsed response shapes from response_parser and response_types.",
+          "evidence_paths": [
+            "imapclient/response_parser.py",
+            "imapclient/response_types.py",
+            "imapclient/imapclient.py",
+            "tests/test_response_parser.py",
+            "tests/test_search.py",
+            "tests/test_folder_status.py",
+            "tests/test_store.py",
+            "tests/test_imapclient.py"
+          ],
+          "producer_subproblem": "response_parser_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "client_command_layer",
+          "dependency_type": "shared_state_contract",
+          "description": "Client command construction and response normalization consume IMAP UTF-7, date formatting, bytes/text conversion, and fixed-offset datetime contracts.",
+          "evidence_paths": [
+            "imapclient/imap_utf7.py",
+            "imapclient/datetime_util.py",
+            "imapclient/fixed_offset.py",
+            "imapclient/util.py",
+            "imapclient/imapclient.py",
+            "tests/test_imap_utf7.py",
+            "tests/test_datetime_util.py",
+            "tests/test_util_functions.py",
+            "tests/test_search.py",
+            "tests/test_imapclient.py"
+          ],
+          "producer_subproblem": "utility_lexer_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "serial_specialists",
+      "information_profile": "private-workspace",
+      "integration_policy": "Apply utility/lexer artifacts before parser artifacts, then client artifacts, then run the scoped evaluator.",
+      "message_delivery_policy": "Specialists run with barrier synchronization. Parser receives utility/lexer artifacts; client receives parser and utility artifacts before final validation.",
+      "scenario_id": "commit0-imapclient.serial-specialists.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 34,
+      "task_id": "commit0:imapclient",
+      "test_budget_per_agent": 12,
+      "token_budget_per_agent": 85000,
+      "wall_clock_budget_seconds": 3000
+    },
+    {
+      "agent_count": 3,
+      "assignments": [
+        {
+          "agent_id": "utility_lexer_agent",
+          "primary_test_targets": [
+            "tests/test_response_lexer.py",
+            "tests/test_datetime_util.py",
+            "tests/test_imap_utf7.py",
+            "tests/test_util_functions.py"
+          ],
+          "role": "IMAP lexer, UTF-7, datetime, fixed-offset, and utility helper specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "utility_lexer_layer",
+          "writable_paths": [
+            "imapclient/datetime_util.py",
+            "imapclient/fixed_offset.py",
+            "imapclient/imap_utf7.py",
+            "imapclient/response_lexer.py",
+            "imapclient/util.py"
+          ]
+        },
+        {
+          "agent_id": "parser_agent",
+          "primary_test_targets": [
+            "tests/test_response_parser.py"
+          ],
+          "role": "IMAP response parser and typed response object specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "response_parser_layer",
+          "writable_paths": [
+            "imapclient/response_parser.py",
+            "imapclient/response_types.py"
+          ]
+        },
+        {
+          "agent_id": "client_agent",
+          "primary_test_targets": [
+            "tests/test_imapclient.py",
+            "tests/test_search.py",
+            "tests/test_folder_status.py",
+            "tests/test_store.py"
+          ],
+          "role": "high-level IMAPClient command, folder, search, status, and store specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "client_command_layer",
+          "writable_paths": [
+            "imapclient/imapclient.py",
+            "imapclient/testable_imapclient.py"
+          ]
+        }
+      ],
+      "communication_condition": "private_concurrent_workspaces",
+      "concurrent_execution": true,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "response_parser_layer",
+          "dependency_type": "api_contract",
+          "description": "Response parser behavior consumes lexer tokenization, literal handling, IMAP protocol assertion, and bytes/text utility contracts.",
+          "evidence_paths": [
+            "imapclient/response_lexer.py",
+            "imapclient/util.py",
+            "imapclient/response_parser.py",
+            "tests/test_response_lexer.py",
+            "tests/test_response_parser.py"
+          ],
+          "producer_subproblem": "utility_lexer_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "client_command_layer",
+          "dependency_type": "api_contract",
+          "description": "High-level IMAPClient search, fetch, folder, status, and store behavior consumes typed parsed response shapes from response_parser and response_types.",
+          "evidence_paths": [
+            "imapclient/response_parser.py",
+            "imapclient/response_types.py",
+            "imapclient/imapclient.py",
+            "tests/test_response_parser.py",
+            "tests/test_search.py",
+            "tests/test_folder_status.py",
+            "tests/test_store.py",
+            "tests/test_imapclient.py"
+          ],
+          "producer_subproblem": "response_parser_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "client_command_layer",
+          "dependency_type": "shared_state_contract",
+          "description": "Client command construction and response normalization consume IMAP UTF-7, date formatting, bytes/text conversion, and fixed-offset datetime contracts.",
+          "evidence_paths": [
+            "imapclient/imap_utf7.py",
+            "imapclient/datetime_util.py",
+            "imapclient/fixed_offset.py",
+            "imapclient/util.py",
+            "imapclient/imapclient.py",
+            "tests/test_imap_utf7.py",
+            "tests/test_datetime_util.py",
+            "tests/test_util_functions.py",
+            "tests/test_search.py",
+            "tests/test_imapclient.py"
+          ],
+          "producer_subproblem": "utility_lexer_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "async_private",
+      "information_profile": "private-workspace",
+      "integration_policy": "Integrate independently produced specialist artifacts at the end, then run dependency probes and the scoped evaluator.",
+      "message_delivery_policy": "Agents work concurrently without messages while parser/client contract assumptions may become stale.",
+      "scenario_id": "commit0-imapclient.async-private.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 34,
+      "task_id": "commit0:imapclient",
+      "test_budget_per_agent": 12,
+      "token_budget_per_agent": 85000,
+      "wall_clock_budget_seconds": 3000
+    },
+    {
+      "agent_count": 3,
+      "assignments": [
+        {
+          "agent_id": "utility_lexer_agent",
+          "primary_test_targets": [
+            "tests/test_response_lexer.py",
+            "tests/test_datetime_util.py",
+            "tests/test_imap_utf7.py",
+            "tests/test_util_functions.py"
+          ],
+          "role": "IMAP lexer, UTF-7, datetime, fixed-offset, and utility helper specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "utility_lexer_layer",
+          "writable_paths": [
+            "imapclient/datetime_util.py",
+            "imapclient/fixed_offset.py",
+            "imapclient/imap_utf7.py",
+            "imapclient/response_lexer.py",
+            "imapclient/util.py"
+          ]
+        },
+        {
+          "agent_id": "parser_agent",
+          "primary_test_targets": [
+            "tests/test_response_parser.py"
+          ],
+          "role": "IMAP response parser and typed response object specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "response_parser_layer",
+          "writable_paths": [
+            "imapclient/response_parser.py",
+            "imapclient/response_types.py"
+          ]
+        },
+        {
+          "agent_id": "client_agent",
+          "primary_test_targets": [
+            "tests/test_imapclient.py",
+            "tests/test_search.py",
+            "tests/test_folder_status.py",
+            "tests/test_store.py"
+          ],
+          "role": "high-level IMAPClient command, folder, search, status, and store specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "client_command_layer",
+          "writable_paths": [
+            "imapclient/imapclient.py",
+            "imapclient/testable_imapclient.py"
+          ]
+        }
+      ],
+      "communication_condition": "asynchronous_message_handoff",
+      "concurrent_execution": true,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "response_parser_layer",
+          "dependency_type": "api_contract",
+          "description": "Response parser behavior consumes lexer tokenization, literal handling, IMAP protocol assertion, and bytes/text utility contracts.",
+          "evidence_paths": [
+            "imapclient/response_lexer.py",
+            "imapclient/util.py",
+            "imapclient/response_parser.py",
+            "tests/test_response_lexer.py",
+            "tests/test_response_parser.py"
+          ],
+          "producer_subproblem": "utility_lexer_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "client_command_layer",
+          "dependency_type": "api_contract",
+          "description": "High-level IMAPClient search, fetch, folder, status, and store behavior consumes typed parsed response shapes from response_parser and response_types.",
+          "evidence_paths": [
+            "imapclient/response_parser.py",
+            "imapclient/response_types.py",
+            "imapclient/imapclient.py",
+            "tests/test_response_parser.py",
+            "tests/test_search.py",
+            "tests/test_folder_status.py",
+            "tests/test_store.py",
+            "tests/test_imapclient.py"
+          ],
+          "producer_subproblem": "response_parser_layer",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "client_command_layer",
+          "dependency_type": "shared_state_contract",
+          "description": "Client command construction and response normalization consume IMAP UTF-7, date formatting, bytes/text conversion, and fixed-offset datetime contracts.",
+          "evidence_paths": [
+            "imapclient/imap_utf7.py",
+            "imapclient/datetime_util.py",
+            "imapclient/fixed_offset.py",
+            "imapclient/util.py",
+            "imapclient/imapclient.py",
+            "tests/test_imap_utf7.py",
+            "tests/test_datetime_util.py",
+            "tests/test_util_functions.py",
+            "tests/test_search.py",
+            "tests/test_imapclient.py"
+          ],
+          "producer_subproblem": "utility_lexer_layer",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "async_message",
+      "information_profile": "message-passing",
+      "integration_policy": "Integrate independently produced specialist artifacts after asynchronous handoffs, then run dependency probes and the scoped evaluator.",
+      "message_delivery_policy": "Agents may send artifact summaries asynchronously; downstream workers are not guaranteed to see the newest parser or utility contract before acting.",
+      "scenario_id": "commit0-imapclient.async-message.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 34,
+      "task_id": "commit0:imapclient",
+      "test_budget_per_agent": 12,
+      "token_budget_per_agent": 85000,
+      "wall_clock_budget_seconds": 3000
+    }
+  ],
+  "schema_version": "0.3",
+  "task_id": "commit0:imapclient"
+}

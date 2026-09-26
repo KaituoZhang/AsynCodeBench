@@ -1,0 +1,14 @@
+diff --git a/src/flask/sansio/app.py b/src/flask/sansio/app.py
+index a8b4992..e1ccb25 100644
+--- a/src/flask/sansio/app.py
++++ b/src/flask/sansio/app.py
+@@ -35,6 +35,9 @@ T_template_filter = t.TypeVar('T_template_filter', bound=ft.TemplateFilterCallab
+ T_template_global = t.TypeVar('T_template_global', bound=ft.TemplateGlobalCallable)
+ T_template_test = t.TypeVar('T_template_test', bound=ft.TemplateTestCallable)
+ 
++def _make_timedelta(value: timedelta | int | None) -> timedelta | None:
++    pass
++
+ class App(Scaffold):
+     """The flask object implements a WSGI application and acts as the central
+     object.  It is passed the name of the module or package of the

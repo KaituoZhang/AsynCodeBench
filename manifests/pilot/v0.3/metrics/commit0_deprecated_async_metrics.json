@@ -1,0 +1,182 @@
+{
+  "aggregate_metrics": {
+    "ADPR_denominator": "All dependency_points unless a paper section explicitly reports primary_async_dependency_ids only.",
+    "dependency_point_count": 3,
+    "minimum_success_condition_for_task_level_async_dependency_resolution": "Both primary_async_dependency_ids pass in the final integrated workspace.",
+    "primary_async_dependency_ids": [
+      "deprecated.classic_to_sphinx.warning_message_contract",
+      "deprecated.classic_to_sphinx.class_identity_contract"
+    ],
+    "primary_paper_dependency_id": "deprecated.classic_to_sphinx.warning_message_contract"
+  },
+  "annotation_notes": [
+    "The classic_to_sphinx warning-message dependency is the clearest async signal because SphinxAdapter inherits ClassicAdapter and can continue under stale assumptions about warning formatting, categories, actions, reason, version fields, and descriptor-specific method kinds such as classmethod.",
+    "The class-identity dependency captures decorator and metaclass integration failures that can remain hidden until the classic and Sphinx artifacts are combined.",
+    "The docstring directive dependency is retained as an integration-contract probe for Sphinx-specific behavior beyond the upstream classic handoff.",
+    "These labels identify public test-observable contracts and implicated files, not solution code."
+  ],
+  "dependency_points": [
+    {
+      "consumer_agent": "sphinx_agent",
+      "consumer_files": [
+        "deprecated/sphinx.py"
+      ],
+      "consumer_subproblem": "sphinx_directive_layer",
+      "contract_summary": "SphinxAdapter must consume ClassicAdapter's configured and bare decorator behavior, warning category/action handling, reason/version fields, and warning-message construction while adding Sphinx-specific directive behavior.",
+      "dependency_id": "deprecated.classic_to_sphinx.warning_message_contract",
+      "dependency_type": "interface_dependency",
+      "downstream_probe_tests": [
+        "tests/test_sphinx.py::test_sphinx_deprecated_function__warns",
+        "tests/test_sphinx.py::test_sphinx_deprecated_class_method__warns",
+        "tests/test_sphinx.py::test_warning_msg_has_reason",
+        "tests/test_sphinx.py::test_specific_warning_cls_is_used"
+      ],
+      "integrated_probe_tests": [
+        "tests/test_deprecated.py::test_classic_deprecated_function__warns",
+        "tests/test_deprecated.py::test_classic_deprecated_class_method__warns",
+        "tests/test_deprecated.py::test_warning_msg_has_reason",
+        "tests/test_sphinx.py::test_sphinx_deprecated_function__warns",
+        "tests/test_sphinx.py::test_sphinx_deprecated_class_method__warns",
+        "tests/test_sphinx.py::test_warning_msg_has_reason",
+        "tests/test_sphinx.py::test_specific_warning_cls_is_used"
+      ],
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL",
+        "SAD"
+      ],
+      "primary_paper_probe": true,
+      "producer_agent": "classic_agent",
+      "producer_files": [
+        "deprecated/classic.py"
+      ],
+      "producer_subproblem": "classic_warning_core",
+      "resolution_criteria": "Resolved when classic warning-message, classmethod descriptor, and Sphinx deprecated-warning probes pass in the integrated workspace.",
+      "stale_failure_mode": "The Sphinx worker may implement its deprecated path against stale ClassicAdapter assumptions, causing warning category, reason/version, descriptor kind, or message-format failures after clean integration.",
+      "upstream_probe_tests": [
+        "tests/test_deprecated.py::test_classic_deprecated_function__warns",
+        "tests/test_deprecated.py::test_classic_deprecated_class_method__warns",
+        "tests/test_deprecated.py::test_warning_msg_has_reason",
+        "tests/test_deprecated.py::test_specific_warning_cls_is_used"
+      ]
+    },
+    {
+      "consumer_agent": "sphinx_agent",
+      "consumer_files": [
+        "deprecated/sphinx.py"
+      ],
+      "consumer_subproblem": "sphinx_directive_layer",
+      "contract_summary": "Classic class decorator and metaclass behavior must remain compatible with Sphinx class decorators so class identity, isinstance behavior, and construction semantics are preserved.",
+      "dependency_id": "deprecated.classic_to_sphinx.class_identity_contract",
+      "dependency_type": "integration_contract",
+      "downstream_probe_tests": [
+        "tests/test_sphinx_class.py::test_isinstance_deprecated",
+        "tests/test_sphinx_class.py::test_isinstance_versionadded_versionchanged",
+        "tests/test_sphinx.py::test_sphinx_deprecated_class__warns"
+      ],
+      "integrated_probe_tests": [
+        "tests/test_deprecated_class.py::test_class_deprecation_using_deprecated_decorator",
+        "tests/test_deprecated_metaclass.py::test_with_metaclass",
+        "tests/test_sphinx_class.py::test_isinstance_deprecated",
+        "tests/test_sphinx.py::test_sphinx_deprecated_class__warns"
+      ],
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL",
+        "SAD"
+      ],
+      "producer_agent": "classic_agent",
+      "producer_files": [
+        "deprecated/classic.py"
+      ],
+      "producer_subproblem": "classic_warning_core",
+      "resolution_criteria": "Resolved when classic class/metaclass probes and Sphinx class-identity probes pass after integration.",
+      "stale_failure_mode": "The Sphinx worker may wrap classes or metaclasses using stale classic decorator semantics, preserving local docstring behavior while breaking class identity or construction after integration.",
+      "upstream_probe_tests": [
+        "tests/test_deprecated_class.py::test_class_deprecation_using_deprecated_decorator",
+        "tests/test_deprecated_metaclass.py::test_with_metaclass"
+      ]
+    },
+    {
+      "consumer_agent": "integrator",
+      "consumer_files": [
+        "deprecated/__init__.py",
+        "deprecated/sphinx.py"
+      ],
+      "consumer_subproblem": "integration_validation",
+      "contract_summary": "Sphinx directive factories must append wrapped directives to function and class docstrings and strip Sphinx cross-reference syntax from emitted warning text while preserving the public package API.",
+      "dependency_id": "deprecated.sphinx_to_integration.docstring_reference_contract",
+      "dependency_type": "integration_contract",
+      "downstream_probe_tests": [
+        "tests/test_sphinx.py::test_has_sphinx_docstring",
+        "tests/test_sphinx.py::test_sphinx_syntax_trimming"
+      ],
+      "integrated_probe_tests": [
+        "tests/test_sphinx_adapter.py::test_sphinx_adapter",
+        "tests/test_sphinx_adapter.py::test_decorator_accept_line_length",
+        "tests/test_sphinx.py::test_has_sphinx_docstring",
+        "tests/test_sphinx.py::test_sphinx_syntax_trimming"
+      ],
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL"
+      ],
+      "producer_agent": "sphinx_agent",
+      "producer_files": [
+        "deprecated/sphinx.py"
+      ],
+      "producer_subproblem": "sphinx_directive_layer",
+      "resolution_criteria": "Resolved when Sphinx adapter/directive probes and integrated docstring/reference probes pass in the final workspace.",
+      "stale_failure_mode": "The Sphinx worker may satisfy local directive construction but leave public integrated warning text or docstring formatting inconsistent with the package-level behavior.",
+      "upstream_probe_tests": [
+        "tests/test_sphinx_adapter.py::test_sphinx_adapter",
+        "tests/test_sphinx_adapter.py::test_decorator_accept_line_length"
+      ]
+    }
+  ],
+  "evaluation_checkpoint_policy": {
+    "checkpoint_record_fields": [
+      "run_id",
+      "scenario_id",
+      "checkpoint_id",
+      "logical_iteration",
+      "agent_id",
+      "visible_upstream_artifact_version",
+      "integrated_workspace_version",
+      "probe_test_results"
+    ],
+    "minimum_policy": "Run probe tests after each agent final artifact and after final integration.",
+    "recommended_policy": "Run probe tests after every committed patch, every explicit artifact transfer, and final integration."
+  },
+  "metric_annotation_id": "commit0-deprecated.async-metrics.v0.3",
+  "metric_definitions": {
+    "ADPR": {
+      "definition": "Fraction of registered dependency_points whose required integrated_probe_tests pass in the final integrated workspace.",
+      "name": "Async Dependency Pass Rate",
+      "unit": "fraction"
+    },
+    "CAIL": {
+      "definition": "downstream_resolution_step minus upstream_resolution_step when both probe groups have been evaluated.",
+      "name": "Cross-Agent Integration Lag",
+      "unit": "agent iteration or evaluation checkpoint"
+    },
+    "DRS": {
+      "definition": "First recorded checkpoint at which all required integrated_probe_tests for a dependency point pass.",
+      "name": "Dependency Resolution Step",
+      "unit": "agent iteration or evaluation checkpoint"
+    },
+    "SAD": {
+      "definition": "Interval during which a downstream worker acts on a contract assumption inconsistent with the latest upstream artifact visible in the integrated history.",
+      "name": "Stale Assumption Duration",
+      "unit": "agent iteration or event interval"
+    }
+  },
+  "purpose": "Dependency-level labels for measuring whether asynchronous multi-agent coding resolves Deprecated's ClassicAdapter to SphinxAdapter contracts promptly.",
+  "schema_version": "0.3-async-metrics",
+  "source_quality_record": "manifests/pilot/v0.3/quality/commit0_deprecated.json",
+  "source_task_record": "manifests/pilot/v0.3/tasks/commit0_deprecated.json",
+  "task_id": "commit0:deprecated"
+}

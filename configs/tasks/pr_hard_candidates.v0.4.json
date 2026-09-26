@@ -1,0 +1,732 @@
+{
+  "schema_version": "pr-hard-candidates-v0.4",
+  "release_status": "official_release_frozen",
+  "environment_registry": "configs/environments/pr_hard_tvm.v0.4.json",
+  "source_policy": {
+    "base_state": "first_parent_of_merged_pr",
+    "public_evidence": "selected_upstream_test_changes_only",
+    "gold_policy": "offline_qualification_only",
+    "model_visible_git_history": false,
+    "trajectory_used_for_construction": false
+  },
+  "records": [
+    {
+      "task_id": "pr-hard:apache-tvm-20153",
+      "candidate_kind": "multi_agent_benchmark_candidate",
+      "repository": "apache/tvm",
+      "repository_url": "https://github.com/apache/tvm.git",
+      "pull_request_url": "https://github.com/apache/tvm/pull/20153",
+      "pull_request_number": 20153,
+      "base_sha": "a35aca6a0ae5a61c486cb9a61c36b09be45f81af",
+      "gold_sha": "f20fa692d5dd71d875a9e310eae3e754169888fb",
+      "problem_statement": "Add a pure T.ptx.addr(base, byte_offset) expression for PTX memory operands with signed compile-time byte displacements. The dialect schema must declare which address slots support offsets, lowering must validate and normalize operands and immediates, and rendering must produce collision-free helpers and correct PTX syntax while rejecting unsupported address classes.",
+      "public_test_overlay": {
+        "path": "data/overlays/pr_hard/apache_tvm_20153/0001-public-regression-tests.patch",
+        "sha256": "2533917b23c7d481d706390776009f02ca350ff7e32dc54aabfe8dece517de07",
+        "policy": "test_only_answer_free_sanitized",
+        "sanitization_notes": "Selected the upstream dedicated regression file and removed one explanatory implementation hint; all test functions and assertions are retained."
+      },
+      "supplemental_public_test_overlays": [
+        {
+          "path": "data/overlays/pr_hard/apache_tvm_20153/0002-public-regression-updates.patch",
+          "sha256": "7b7c45225f51ebb423e8beb14c5c642bfc9b8ec75b9a732462d9521458084318",
+          "policy": "test_only_answer_free_sanitized",
+          "sanitization_notes": "Retained the upstream behavior and assertions while shortening one explanatory implementation comment."
+        }
+      ],
+      "editable_paths": [
+        "python/tvm/backend/cuda/ptx/__init__.py",
+        "python/tvm/backend/cuda/ptx/engine.py",
+        "python/tvm/backend/cuda/ptx/gen_stubs.py",
+        "python/tvm/backend/cuda/ptx/render.py",
+        "python/tvm/backend/cuda/ptx/table.py",
+        "python/tvm/script/tirx.pyi"
+      ],
+      "public_test_paths": [
+        "tests/python/tirx/codegen/test_ptx_addr.py",
+        "tests/python/tirx/codegen/test_ptx_dialect.py",
+        "tests/python/tirx/codegen/test_ptx_ld_st_ops.py"
+      ],
+      "focused_evaluator": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/python/tirx/codegen/test_ptx_addr.py"
+      ],
+      "regression_evaluator": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/python/tirx/codegen/test_ptx_addr.py",
+        "tests/python/tirx/codegen/test_ptx_dialect.py",
+        "tests/python/tirx/codegen/test_ptx_ld_st_ops.py"
+      ],
+      "environment_profile": "tvm-cuda-codegen-source-build",
+      "difficulty_evidence": {
+        "language_boundary": [
+          "Python TIRx DSL and type stubs",
+          "table-driven PTX instruction schema",
+          "CUDA source generation and PTX rendering"
+        ],
+        "reasoning_scope": [
+          "typed address-expression registration and coercion",
+          "compile-time immediate validation and normalization",
+          "helper-name uniqueness and PTX memory-operand syntax"
+        ],
+        "production_files_changed_by_gold": 6,
+        "production_additions": 339,
+        "production_deletions": 93
+      },
+      "natural_subproblems": [
+        {
+          "subproblem_id": "ptx_dialect_schema",
+          "role": "PTX dialect schema and public API specialist",
+          "writable_paths": [
+            "python/tvm/backend/cuda/ptx/__init__.py",
+            "python/tvm/backend/cuda/ptx/gen_stubs.py",
+            "python/tvm/backend/cuda/ptx/table.py",
+            "python/tvm/script/tirx.pyi"
+          ],
+          "primary_test_targets": [
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_registration_and_table_capabilities",
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_table_validation_rejects_wrong_operand_classes"
+          ]
+        },
+        {
+          "subproblem_id": "ptx_operand_lowering",
+          "role": "PTX address operand lowering specialist",
+          "writable_paths": [
+            "python/tvm/backend/cuda/ptx/engine.py"
+          ],
+          "primary_test_targets": [
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_coercion_ir_order_and_shared_codegen",
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_unrolled_expression_and_dynamic_rejection"
+          ]
+        },
+        {
+          "subproblem_id": "ptx_rendering",
+          "role": "PTX helper rendering specialist",
+          "writable_paths": [
+            "python/tvm/backend/cuda/ptx/render.py"
+          ],
+          "primary_test_targets": [
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_zero_sign_boundaries_and_helper_names",
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_scalar_vector_cache_predicate_and_multi_address_codegen"
+          ]
+        }
+      ],
+      "dependency_points": [
+        {
+          "dependency_id": "dialect-schema-to-lowering",
+          "producer_subproblem": "ptx_dialect_schema",
+          "consumer_subproblem": "ptx_operand_lowering",
+          "dependency_type": "api_contract",
+          "contract": "The public ptx.addr expression and each table-declared offset-capable address slot provide the operand metadata consumed by lowering, including exclusions for pointer, composite, and tensor-memory address classes.",
+          "upstream_evidence": [
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_registration_and_table_capabilities",
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_table_validation_rejects_wrong_operand_classes"
+          ],
+          "downstream_evidence": [
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_coercion_ir_order_and_shared_codegen",
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_pointer_and_raw_address_validation"
+          ],
+          "integrated_evidence": [
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_scalar_vector_cache_predicate_and_multi_address_codegen"
+          ]
+        },
+        {
+          "dependency_id": "operand-lowering-to-rendering",
+          "producer_subproblem": "ptx_operand_lowering",
+          "consumer_subproblem": "ptx_rendering",
+          "dependency_type": "integration",
+          "contract": "Lowering passes normalized signed int32 byte offsets and logical address-slot identities that rendering consumes to create unique helper names and in-bracket PTX displacement syntax.",
+          "upstream_evidence": [
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_offset_type_and_range_rejections",
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_unrolled_expression_and_dynamic_rejection"
+          ],
+          "downstream_evidence": [
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_zero_sign_boundaries_and_helper_names"
+          ],
+          "integrated_evidence": [
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_scalar_vector_cache_predicate_and_multi_address_codegen",
+            "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_printer_script_and_json_roundtrip"
+          ]
+        }
+      ],
+      "scenario_manifest": "manifests/candidates/pr_hard_v0.4/scenarios/apache_tvm_20153.json",
+      "qualification_record": "manifests/candidates/pr_hard_v0.4/qualification/apache_tvm_20153.json",
+      "execution_eligibility": [
+        "iterative_single",
+        "serial_specialists",
+        "async_private",
+        "async_message"
+      ],
+      "qualification_status": "qualified"
+    },
+    {
+      "task_id": "pr-hard:apache-tvm-20107",
+      "candidate_kind": "multi_agent_benchmark_candidate",
+      "repository": "apache/tvm",
+      "repository_url": "https://github.com/apache/tvm.git",
+      "pull_request_url": "https://github.com/apache/tvm/pull/20107",
+      "pull_request_number": 20107,
+      "base_sha": "0468e13a1450a4429758003612aa2b3d080c1f13",
+      "gold_sha": "bb9bc20a8294fb19a2a40f029fe57baa546a8206",
+      "problem_statement": "Add PEP 695-style function type-parameter syntax to TVMScript for symbolic variables shared by Relax and TIRx. The generic Script parser and document printer must preserve type parameters, each dialect must translate them to and from dependent signatures, and parse-print round trips must retain the declared symbolic-variable order and constraints.",
+      "public_test_overlay": {
+        "path": "data/overlays/pr_hard/apache_tvm_20107/0001-public-regression-tests.patch",
+        "sha256": "2bf2a42a33f4d71da3eab1b6508c14a1e0185aace965ecc74235db3391ee1684",
+        "policy": "test_only_answer_free"
+      },
+      "editable_paths": [
+        "include/tvm/script/printer/doc.h",
+        "python/tvm/relax/script/parser/parser.py",
+        "python/tvm/runtime/script_printer.py",
+        "python/tvm/script/parser/_core.py",
+        "python/tvm/script/parser/core/diagnostics.py",
+        "python/tvm/script/parser/core/doc.py",
+        "python/tvm/script/parser/core/doc_core.py",
+        "python/tvm/script/parser/core/entry.py",
+        "python/tvm/script/parser/core/parser.py",
+        "python/tvm/script/printer/doc.py",
+        "python/tvm/tirx/script/parser/parser.py",
+        "src/relax/script/printer/dependent_type.cc",
+        "src/relax/script/printer/function.cc",
+        "src/relax/script/printer/tir.cc",
+        "src/relax/script/printer/utils.h",
+        "src/script/printer/doc.cc",
+        "src/script/printer/doc_printer/python_doc_printer.cc",
+        "src/script/printer/ir/ir.cc",
+        "src/script/printer/utils.h",
+        "src/tirx/script/printer/buffer.cc",
+        "src/tirx/script/printer/function.cc",
+        "src/tirx/script/printer/utils.h"
+      ],
+      "public_test_paths": [
+        "tests/python/relax/test_tvmscript_parser.py",
+        "tests/python/relax/test_tvmscript_type_vars.py",
+        "tests/python/tirx/test_tvmscript_type_vars.py",
+        "tests/python/tvmscript/test_tvmscript_printer_doc.py",
+        "tests/python/tvmscript/test_tvmscript_printer_python_doc_printer.py"
+      ],
+      "focused_evaluator": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/python/tvmscript/test_tvmscript_printer_python_doc_printer.py::test_print_function_doc_with_type_params",
+        "tests/python/relax/test_tvmscript_type_vars.py::test_type_vars_roundtrip",
+        "tests/python/tirx/test_tvmscript_type_vars.py::test_type_vars_roundtrip"
+      ],
+      "regression_evaluator": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/python/relax/test_tvmscript_parser.py",
+        "tests/python/relax/test_tvmscript_type_vars.py",
+        "tests/python/tirx/test_tvmscript_type_vars.py",
+        "tests/python/tvmscript/test_tvmscript_printer_doc.py",
+        "tests/python/tvmscript/test_tvmscript_printer_python_doc_printer.py"
+      ],
+      "environment_profile": "tvm-cpu-llvm-source-build",
+      "difficulty_evidence": {
+        "language_boundary": [
+          "Python generic and dialect-specific TVMScript parsers",
+          "C++ generic, Relax, and TIRx document printers",
+          "Python runtime script-printer API"
+        ],
+        "reasoning_scope": [
+          "PEP 695 type-parameter AST representation",
+          "dependent symbolic-variable signatures",
+          "cross-dialect parse-print round-trip compatibility"
+        ],
+        "production_files_changed_by_gold": 22,
+        "production_additions": 430,
+        "production_deletions": 61
+      },
+      "natural_subproblems": [
+        {
+          "subproblem_id": "shared_script_signature_core",
+          "role": "shared TVMScript signature and document-core specialist",
+          "writable_paths": [
+            "include/tvm/script/printer/doc.h",
+            "python/tvm/runtime/script_printer.py",
+            "python/tvm/script/parser/_core.py",
+            "python/tvm/script/parser/core/diagnostics.py",
+            "python/tvm/script/parser/core/doc.py",
+            "python/tvm/script/parser/core/doc_core.py",
+            "python/tvm/script/parser/core/entry.py",
+            "python/tvm/script/parser/core/parser.py",
+            "python/tvm/script/printer/doc.py",
+            "src/script/printer/doc.cc",
+            "src/script/printer/doc_printer/python_doc_printer.cc",
+            "src/script/printer/ir/ir.cc",
+            "src/script/printer/utils.h"
+          ],
+          "primary_test_targets": [
+            "tests/python/tvmscript/test_tvmscript_printer_python_doc_printer.py::test_print_function_doc_with_type_params"
+          ]
+        },
+        {
+          "subproblem_id": "relax_dependent_signature",
+          "role": "Relax dependent-signature parser and printer specialist",
+          "writable_paths": [
+            "python/tvm/relax/script/parser/parser.py",
+            "src/relax/script/printer/dependent_type.cc",
+            "src/relax/script/printer/function.cc",
+            "src/relax/script/printer/tir.cc",
+            "src/relax/script/printer/utils.h"
+          ],
+          "primary_test_targets": [
+            "tests/python/relax/test_tvmscript_type_vars.py::test_type_vars_roundtrip"
+          ]
+        },
+        {
+          "subproblem_id": "tirx_dependent_signature",
+          "role": "TIRx dependent-signature parser and printer specialist",
+          "writable_paths": [
+            "python/tvm/tirx/script/parser/parser.py",
+            "src/tirx/script/printer/buffer.cc",
+            "src/tirx/script/printer/function.cc",
+            "src/tirx/script/printer/utils.h"
+          ],
+          "primary_test_targets": [
+            "tests/python/tirx/test_tvmscript_type_vars.py::test_type_vars_roundtrip"
+          ]
+        }
+      ],
+      "dependency_points": [
+        {
+          "dependency_id": "shared-core-to-relax-signature",
+          "producer_subproblem": "shared_script_signature_core",
+          "consumer_subproblem": "relax_dependent_signature",
+          "dependency_type": "api_contract",
+          "contract": "The shared Script parser and document model preserve an ordered function type-parameter list that the Relax parser and printer consume as dependent symbolic-variable signature metadata.",
+          "upstream_evidence": [
+            "tests/python/tvmscript/test_tvmscript_printer_python_doc_printer.py::test_print_function_doc_with_type_params"
+          ],
+          "downstream_evidence": [
+            "tests/python/relax/test_tvmscript_type_vars.py::test_type_vars_roundtrip"
+          ],
+          "integrated_evidence": [
+            "tests/python/relax/test_tvmscript_type_vars.py::test_type_vars_roundtrip"
+          ]
+        },
+        {
+          "dependency_id": "shared-core-to-tirx-signature",
+          "producer_subproblem": "shared_script_signature_core",
+          "consumer_subproblem": "tirx_dependent_signature",
+          "dependency_type": "api_contract",
+          "contract": "The shared Script parser and document model preserve an ordered function type-parameter list that the TIRx parser and printer consume as dependent symbolic-variable signature metadata.",
+          "upstream_evidence": [
+            "tests/python/tvmscript/test_tvmscript_printer_python_doc_printer.py::test_print_function_doc_with_type_params"
+          ],
+          "downstream_evidence": [
+            "tests/python/tirx/test_tvmscript_type_vars.py::test_type_vars_roundtrip"
+          ],
+          "integrated_evidence": [
+            "tests/python/tirx/test_tvmscript_type_vars.py::test_type_vars_roundtrip"
+          ]
+        }
+      ],
+      "scenario_manifest": "manifests/candidates/pr_hard_v0.4/scenarios/apache_tvm_20107.json",
+      "qualification_record": "manifests/candidates/pr_hard_v0.4/qualification/apache_tvm_20107.json",
+      "execution_eligibility": [
+        "iterative_single",
+        "serial_specialists",
+        "async_private",
+        "async_message"
+      ],
+      "qualification_status": "qualified"
+    },
+    {
+      "task_id": "pr-hard:apache-tvm-20073",
+      "candidate_kind": "multi_agent_benchmark_candidate",
+      "repository": "apache/tvm",
+      "repository_url": "https://github.com/apache/tvm.git",
+      "pull_request_url": "https://github.com/apache/tvm/pull/20073",
+      "pull_request_number": 20073,
+      "base_sha": "62fb780bb0a8da62e3808f60a2343f6fd1d4b01f",
+      "gold_sha": "ae99c3fd92ddb8cd5bb0cbda1dd9584b525b7a24",
+      "problem_statement": "Preserve Python source locations throughout TVMScript parsing and TIRx IR construction. IRBuilder must maintain scoped active source-span state, Source must map AST coordinates to TVM spans, and parser and evaluator paths must attach direct, inline, and tile-primitive call spans without changing structural identity.",
+      "public_test_overlay": {
+        "path": "data/overlays/pr_hard/apache_tvm_20073/0001-public-regression-tests.patch",
+        "sha256": "9fdc39a78fdea5254633c73f11e87198b193bcaede742e2ac883bf0e947b1940",
+        "policy": "test_only_answer_free"
+      },
+      "editable_paths": [
+        "include/tvm/script/ir_builder/base.h",
+        "python/tvm/script/ir_builder/base.py",
+        "python/tvm/script/parser/core/diagnostics.py",
+        "python/tvm/script/parser/core/evaluator.py",
+        "python/tvm/script/parser/core/parser.py",
+        "src/script/ir_builder/base.cc",
+        "src/tirx/script/builder/utils.h"
+      ],
+      "public_test_paths": [
+        "tests/python/tvmscript/test_tvmscript_ir_builder_tir.py",
+        "tests/python/tvmscript/test_tvmscript_parser_source.py"
+      ],
+      "focused_evaluator": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/python/tvmscript/test_tvmscript_ir_builder_tir.py::test_ir_builder_source_span_applies_to_emitted_stmt",
+        "tests/python/tvmscript/test_tvmscript_parser_source.py::test_source_to_span_matches_parser_diagnostic_coordinates",
+        "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_direct_call",
+        "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_retains_inline_call_site_and_definition_spans",
+        "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_tile_primitive_call",
+        "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_spans_do_not_affect_structural_identity"
+      ],
+      "regression_evaluator": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/python/tvmscript/test_tvmscript_ir_builder_tir.py",
+        "tests/python/tvmscript/test_tvmscript_parser_source.py"
+      ],
+      "environment_profile": "tvm-cpu-llvm-source-build",
+      "difficulty_evidence": {
+        "language_boundary": [
+          "Python parser, evaluator, diagnostics, and IRBuilder API",
+          "C++ IRBuilder state and FFI registration",
+          "C++ TIRx builder emission path"
+        ],
+        "reasoning_scope": [
+          "nested active source-span state and normalization",
+          "Python AST coordinate and offset conversion",
+          "cross-source inline SequentialSpan propagation without structural-identity changes"
+        ],
+        "production_files_changed_by_gold": 7,
+        "production_additions": 191,
+        "production_deletions": 14
+      },
+      "natural_subproblems": [
+        {
+          "subproblem_id": "irbuilder_active_span_state",
+          "role": "IRBuilder scoped source-span state specialist",
+          "writable_paths": [
+            "include/tvm/script/ir_builder/base.h",
+            "python/tvm/script/ir_builder/base.py",
+            "src/script/ir_builder/base.cc"
+          ],
+          "primary_test_targets": [
+            "tests/python/tvmscript/test_tvmscript_ir_builder_tir.py::test_ir_builder_source_span_applies_to_emitted_stmt"
+          ]
+        },
+        {
+          "subproblem_id": "source_coordinate_mapping",
+          "role": "TVMScript AST-to-Span coordinate mapping specialist",
+          "writable_paths": [
+            "python/tvm/script/parser/core/diagnostics.py"
+          ],
+          "primary_test_targets": [
+            "tests/python/tvmscript/test_tvmscript_parser_source.py::test_source_to_span_matches_parser_diagnostic_coordinates"
+          ]
+        },
+        {
+          "subproblem_id": "parser_and_evaluator_span_propagation",
+          "role": "parser, evaluator, and TIRx span propagation specialist",
+          "writable_paths": [
+            "python/tvm/script/parser/core/evaluator.py",
+            "python/tvm/script/parser/core/parser.py",
+            "src/tirx/script/builder/utils.h"
+          ],
+          "primary_test_targets": [
+            "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_direct_call",
+            "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_retains_inline_call_site_and_definition_spans",
+            "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_tile_primitive_call",
+            "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_spans_do_not_affect_structural_identity"
+          ]
+        }
+      ],
+      "dependency_points": [
+        {
+          "dependency_id": "irbuilder-state-to-parser-propagation",
+          "producer_subproblem": "irbuilder_active_span_state",
+          "consumer_subproblem": "parser_and_evaluator_span_propagation",
+          "dependency_type": "api_contract",
+          "contract": "IRBuilder exposes scoped push, pop, normalization, and expression-annotation behavior that parser, evaluator, and TIRx emission paths consume while visiting nested source expressions.",
+          "upstream_evidence": [
+            "tests/python/tvmscript/test_tvmscript_ir_builder_tir.py::test_ir_builder_source_span_applies_to_emitted_stmt"
+          ],
+          "downstream_evidence": [
+            "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_direct_call",
+            "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_retains_inline_call_site_and_definition_spans",
+            "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_tile_primitive_call"
+          ],
+          "integrated_evidence": [
+            "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_direct_call",
+            "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_retains_inline_call_site_and_definition_spans",
+            "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_tile_primitive_call",
+            "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_spans_do_not_affect_structural_identity"
+          ]
+        },
+        {
+          "dependency_id": "source-mapping-to-parser-propagation",
+          "producer_subproblem": "source_coordinate_mapping",
+          "consumer_subproblem": "parser_and_evaluator_span_propagation",
+          "dependency_type": "api_contract",
+          "contract": "Source converts Python AST line and column coordinates, including source offsets, into TVM spans that parser and evaluator propagation consume for emitted IR metadata.",
+          "upstream_evidence": [
+            "tests/python/tvmscript/test_tvmscript_parser_source.py::test_source_to_span_matches_parser_diagnostic_coordinates"
+          ],
+          "downstream_evidence": [
+            "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_direct_call",
+            "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_tile_primitive_call"
+          ],
+          "integrated_evidence": [
+            "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_direct_call",
+            "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_retains_inline_call_site_and_definition_spans",
+            "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_tile_primitive_call",
+            "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_spans_do_not_affect_structural_identity"
+          ]
+        }
+      ],
+      "scenario_manifest": "manifests/candidates/pr_hard_v0.4/scenarios/apache_tvm_20073.json",
+      "qualification_record": "manifests/candidates/pr_hard_v0.4/qualification/apache_tvm_20073.json",
+      "execution_eligibility": [
+        "iterative_single",
+        "serial_specialists",
+        "async_private",
+        "async_message"
+      ],
+      "qualification_status": "qualified"
+    },
+    {
+      "task_id": "pr-hard:apache-tvm-20018",
+      "candidate_kind": "multi_agent_benchmark_candidate",
+      "repository": "apache/tvm",
+      "repository_url": "https://github.com/apache/tvm.git",
+      "pull_request_url": "https://github.com/apache/tvm/pull/20018",
+      "pull_request_number": 20018,
+      "base_sha": "302aaf9f961a6e0a2c5cc23dc87e51fbaabd1e42",
+      "gold_sha": "9bfefb7e4b2f13f92b59ed4755bc83d856369c40",
+      "problem_statement": "Introduce a first-class TIRx Return statement throughout the compiler pipeline. The IR node, structural visitors, Python and TVMScript construction and printing surfaces, legality transforms, Relax consumers, and C/LLVM code generators must agree on return-value semantics. Preserve control-flow behavior, reject illegal device and parallel-scope returns, and do not modify public tests.",
+      "public_test_overlay": {
+        "path": "data/overlays/pr_hard/apache_tvm_20018/0001-public-regression-tests.patch",
+        "sha256": "4d7f24a5fca3967028012742367c608f809f136536db797876976e3ca66eb7ab",
+        "policy": "test_only_answer_free_sanitized",
+        "sanitization_notes": "Excluded a comment-only CUDA hunk that directly narrated the legacy implementation failure; executable upstream tests and assertions are unchanged."
+      },
+      "editable_paths": [
+        "include/tvm/tirx/builtin.h",
+        "include/tvm/tirx/op.h",
+        "include/tvm/tirx/script/builder/ir.h",
+        "include/tvm/tirx/stmt.h",
+        "include/tvm/tirx/stmt_functor.h",
+        "python/tvm/tirx/__init__.py",
+        "python/tvm/tirx/op.py",
+        "python/tvm/tirx/script/builder/ir.py",
+        "python/tvm/tirx/script/parser/parser.py",
+        "python/tvm/tirx/stmt.py",
+        "python/tvm/tirx/stmt_functor.py",
+        "src/relax/op/tensor/inspect.cc",
+        "src/relax/transform/compute_prim_value.cc",
+        "src/target/llvm/codegen_llvm.cc",
+        "src/target/llvm/codegen_llvm.h",
+        "src/target/source/codegen_c.cc",
+        "src/target/source/codegen_c.h",
+        "src/tirx/ir/stmt.cc",
+        "src/tirx/ir/stmt_functor.cc",
+        "src/tirx/ir/tir_visitor_with_path.cc",
+        "src/tirx/ir/tir_visitor_with_path.h",
+        "src/tirx/op/builtin.cc",
+        "src/tirx/op/op.cc",
+        "src/tirx/script/builder/ir.cc",
+        "src/tirx/script/printer/stmt.cc",
+        "src/tirx/transform/make_packed_api.cc",
+        "src/tirx/transform/split_host_device.cc",
+        "src/tirx/transform/storage_rewrite.cc"
+      ],
+      "public_test_paths": [
+        "tests/python/codegen/test_target_codegen_llvm.py",
+        "tests/python/relax/test_transform_compute_prim_value.py",
+        "tests/python/s_tir/analysis/test_s_tir_analysis_is_pure_function.py",
+        "tests/python/tirx-base/test_tir_base.py",
+        "tests/python/tirx-base/test_tir_imm_values.py",
+        "tests/python/tirx-base/test_tir_specialize.py",
+        "tests/python/tirx-transform/test_tir_inline_private_functions.py",
+        "tests/python/tirx-transform/test_tir_transform_make_packed_api.py",
+        "tests/python/tirx-transform/test_tir_transform_split_host_device.py",
+        "tests/python/tirx/transform/test_stmt_functor.py",
+        "tests/python/tvmscript/test_tvmscript_parser_tir.py",
+        "tests/python/tvmscript/test_tvmscript_printer_tir.py",
+        "tests/python/tvmscript/test_tvmscript_roundtrip.py",
+        "tests/python/tvmscript/test_tvmscript_syntax_sugar.py"
+      ],
+      "focused_evaluator": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/python/tirx-base/test_tir_base.py::test_return_accepts_expr_and_roundtrips",
+        "tests/python/tirx-base/test_tir_base.py::test_return_stmt_functor_traversal_and_mutation",
+        "tests/python/tirx/transform/test_stmt_functor.py::test_return",
+        "tests/python/tvmscript/test_tvmscript_syntax_sugar.py::test_return_statement",
+        "tests/python/tvmscript/test_tvmscript_printer_tir.py::test_return_statement",
+        "tests/python/tirx-transform/test_tir_transform_make_packed_api.py::test_return_from_parallel_scope_is_rejected",
+        "tests/python/tirx-transform/test_tir_transform_split_host_device.py::test_device_kernel_nonzero_return_is_rejected",
+        "tests/python/tirx-base/test_tir_base.py::test_return_const"
+      ],
+      "regression_evaluator": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/python/codegen/test_target_codegen_llvm.py",
+        "tests/python/relax/test_transform_compute_prim_value.py",
+        "tests/python/s_tir/analysis/test_s_tir_analysis_is_pure_function.py",
+        "tests/python/tirx-base/test_tir_base.py",
+        "tests/python/tirx-base/test_tir_imm_values.py",
+        "tests/python/tirx-base/test_tir_specialize.py",
+        "tests/python/tirx-transform/test_tir_inline_private_functions.py",
+        "tests/python/tirx-transform/test_tir_transform_make_packed_api.py",
+        "tests/python/tirx-transform/test_tir_transform_split_host_device.py",
+        "tests/python/tirx/transform/test_stmt_functor.py",
+        "tests/python/tvmscript/test_tvmscript_parser_tir.py",
+        "tests/python/tvmscript/test_tvmscript_printer_tir.py",
+        "tests/python/tvmscript/test_tvmscript_roundtrip.py",
+        "tests/python/tvmscript/test_tvmscript_syntax_sugar.py"
+      ],
+      "environment_profile": "tvm-cpu-llvm-source-build",
+      "difficulty_evidence": {
+        "language_boundary": [
+          "Python TIRx and TVMScript APIs",
+          "C++ IR schema, FFI registration, visitors, transforms, and Relax consumers",
+          "C and LLVM target code generation"
+        ],
+        "reasoning_scope": [
+          "first-class statement schema and structural traversal",
+          "Python AST return syntax and script round trips",
+          "return legality across parallel and device scopes",
+          "legacy intrinsic retirement and C/LLVM terminator emission"
+        ],
+        "production_files_changed_by_gold": 28,
+        "production_additions": 180,
+        "production_deletions": 139,
+        "coordination_topology": "three-stage chain",
+        "difficulty_class": "hard"
+      },
+      "natural_subproblems": [
+        {
+          "subproblem_id": "return_ir_core",
+          "role": "TIRx Return IR schema and visitor specialist",
+          "writable_paths": [
+            "include/tvm/tirx/stmt.h",
+            "include/tvm/tirx/stmt_functor.h",
+            "python/tvm/tirx/__init__.py",
+            "python/tvm/tirx/stmt.py",
+            "python/tvm/tirx/stmt_functor.py",
+            "src/tirx/ir/stmt.cc",
+            "src/tirx/ir/stmt_functor.cc",
+            "src/tirx/ir/tir_visitor_with_path.cc",
+            "src/tirx/ir/tir_visitor_with_path.h"
+          ],
+          "primary_test_targets": [
+            "tests/python/tirx-base/test_tir_base.py::test_return_accepts_expr_and_roundtrips",
+            "tests/python/tirx-base/test_tir_base.py::test_return_stmt_functor_traversal_and_mutation",
+            "tests/python/tirx/transform/test_stmt_functor.py::test_return"
+          ]
+        },
+        {
+          "subproblem_id": "return_script_surface",
+          "role": "TVMScript Return construction, parsing, and rendering specialist",
+          "writable_paths": [
+            "include/tvm/tirx/script/builder/ir.h",
+            "python/tvm/tirx/script/builder/ir.py",
+            "python/tvm/tirx/script/parser/parser.py",
+            "src/tirx/script/builder/ir.cc",
+            "src/tirx/script/printer/stmt.cc"
+          ],
+          "primary_test_targets": [
+            "tests/python/tvmscript/test_tvmscript_syntax_sugar.py::test_return_statement",
+            "tests/python/tvmscript/test_tvmscript_printer_tir.py::test_return_statement"
+          ]
+        },
+        {
+          "subproblem_id": "return_lowering_codegen_integration",
+          "role": "Return legality, legacy-contract retirement, and target emission specialist",
+          "writable_paths": [
+            "include/tvm/tirx/builtin.h",
+            "include/tvm/tirx/op.h",
+            "python/tvm/tirx/op.py",
+            "src/relax/op/tensor/inspect.cc",
+            "src/relax/transform/compute_prim_value.cc",
+            "src/target/llvm/codegen_llvm.cc",
+            "src/target/llvm/codegen_llvm.h",
+            "src/target/source/codegen_c.cc",
+            "src/target/source/codegen_c.h",
+            "src/tirx/op/builtin.cc",
+            "src/tirx/op/op.cc",
+            "src/tirx/transform/make_packed_api.cc",
+            "src/tirx/transform/split_host_device.cc",
+            "src/tirx/transform/storage_rewrite.cc"
+          ],
+          "primary_test_targets": [
+            "tests/python/tirx-transform/test_tir_transform_make_packed_api.py::test_return_from_parallel_scope_is_rejected",
+            "tests/python/tirx-transform/test_tir_transform_split_host_device.py::test_device_kernel_nonzero_return_is_rejected",
+            "tests/python/tirx-base/test_tir_base.py::test_return_const"
+          ]
+        }
+      ],
+      "dependency_points": [
+        {
+          "dependency_id": "return-ir-to-script-surface",
+          "producer_subproblem": "return_ir_core",
+          "consumer_subproblem": "return_script_surface",
+          "dependency_type": "api_contract",
+          "contract": "TVMScript construction, parsing, and rendering consume the first-class Return node, its value field, FFI constructor, visitor dispatch, and structural semantics.",
+          "upstream_evidence": [
+            "tests/python/tirx-base/test_tir_base.py::test_return_accepts_expr_and_roundtrips",
+            "tests/python/tirx-base/test_tir_base.py::test_return_stmt_functor_traversal_and_mutation",
+            "tests/python/tirx/transform/test_stmt_functor.py::test_return"
+          ],
+          "downstream_evidence": [
+            "tests/python/tvmscript/test_tvmscript_syntax_sugar.py::test_return_statement",
+            "tests/python/tvmscript/test_tvmscript_printer_tir.py::test_return_statement"
+          ],
+          "integrated_evidence": [
+            "tests/python/tvmscript/test_tvmscript_syntax_sugar.py::test_return_statement",
+            "tests/python/tvmscript/test_tvmscript_printer_tir.py::test_return_statement"
+          ]
+        },
+        {
+          "dependency_id": "script-return-to-lowering-codegen",
+          "producer_subproblem": "return_script_surface",
+          "consumer_subproblem": "return_lowering_codegen_integration",
+          "dependency_type": "integration",
+          "contract": "Return statements emitted and round-tripped by TVMScript must be accepted by legality and host/device transforms, migrated away from the legacy intrinsic contract, and emitted as valid C/LLVM terminators.",
+          "upstream_evidence": [
+            "tests/python/tvmscript/test_tvmscript_syntax_sugar.py::test_return_statement",
+            "tests/python/tvmscript/test_tvmscript_printer_tir.py::test_return_statement"
+          ],
+          "downstream_evidence": [
+            "tests/python/tirx-transform/test_tir_transform_make_packed_api.py::test_return_from_parallel_scope_is_rejected",
+            "tests/python/tirx-transform/test_tir_transform_split_host_device.py::test_device_kernel_nonzero_return_is_rejected",
+            "tests/python/tirx-base/test_tir_base.py::test_return_const"
+          ],
+          "integrated_evidence": [
+            "tests/python/tirx-transform/test_tir_transform_make_packed_api.py::test_return_from_parallel_scope_is_rejected",
+            "tests/python/tirx-transform/test_tir_transform_split_host_device.py::test_device_kernel_nonzero_return_is_rejected",
+            "tests/python/tirx-base/test_tir_base.py::test_return_const"
+          ]
+        }
+      ],
+      "scenario_manifest": "manifests/candidates/pr_hard_v0.4/scenarios/apache_tvm_20018.json",
+      "qualification_record": "manifests/candidates/pr_hard_v0.4/qualification/apache_tvm_20018.json",
+      "execution_eligibility": [
+        "iterative_single",
+        "serial_specialists",
+        "async_private",
+        "async_message"
+      ],
+      "qualification_status": "qualified"
+    }
+  ]
+}

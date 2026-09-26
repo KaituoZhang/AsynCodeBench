@@ -1,0 +1,224 @@
+{
+  "coordination_structure_tags": [
+    "interface_dependency",
+    "shared_abstraction"
+  ],
+  "environment_requirements": [
+    "Python 3.10.4",
+    "pytest==9.0.3",
+    "PyYAML==6.0.3",
+    "setuptools==82.0.1"
+  ],
+  "evaluation_snapshots": [
+    {
+      "collected": 0,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "-o",
+        "addopts=",
+        "tests"
+      ],
+      "dependency_versions": {
+        "PyYAML": "6.0.3",
+        "pytest": "9.0.3",
+        "setuptools": "82.0.1"
+      },
+      "duration_seconds": 0.35,
+      "errors": 0,
+      "evidence_scope": "public_initial_state",
+      "failed": 0,
+      "notes": [
+        "Raw Commit0 fails during package import because FrozenDict aliases an undefined _immutable symbol.",
+        "This snapshot motivates the reviewed bootstrap overlay and is not the released agent initial state."
+      ],
+      "passed": 0,
+      "python_version": "3.10.4",
+      "return_code": 4,
+      "schema_version": "0.3",
+      "skipped": 0,
+      "snapshot_id": "raw_commit0_collection",
+      "source_ref": "commit0:ed761a72c8c1e1cb24ca4dbcc089f35c5264d357"
+    },
+    {
+      "collected": 201,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "-o",
+        "addopts=",
+        "tests"
+      ],
+      "dependency_versions": {
+        "PyYAML": "6.0.3",
+        "pytest": "9.0.3",
+        "setuptools": "82.0.1"
+      },
+      "duration_seconds": 53.19,
+      "errors": 125,
+      "evidence_scope": "public_initial_state",
+      "failed": 71,
+      "notes": [
+        "All upstream tests collect successfully from the checksum-pinned curated initial state.",
+        "Failures and setup errors are caused by unfinished public implementations, not missing dependencies.",
+        "The two import-only overlay edits are controls and must not be counted as agent progress."
+      ],
+      "passed": 5,
+      "python_version": "3.10.4",
+      "return_code": 1,
+      "schema_version": "0.3",
+      "skipped": 0,
+      "snapshot_id": "curated_commit0_initial",
+      "source_ref": "commit0:ed761a72c8c1e1cb24ca4dbcc089f35c5264d357+overlay:fa0d43a64a64d6bcd085661328bfca566f678f384ac4bf6c8bf2b79b0c01a464"
+    },
+    {
+      "collected": 201,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "-o",
+        "addopts=",
+        "tests"
+      ],
+      "dependency_versions": {
+        "PyYAML": "6.0.3",
+        "pytest": "9.0.3",
+        "setuptools": "82.0.1"
+      },
+      "duration_seconds": 0.66,
+      "errors": 0,
+      "evidence_scope": "evaluator_sanity_only",
+      "failed": 0,
+      "notes": [
+        "The unchanged public tests pass against the completed public release in the same environment.",
+        "Completed source is evaluator validation only and must not define decomposition or agent-visible context."
+      ],
+      "passed": 201,
+      "python_version": "3.10.4",
+      "return_code": 0,
+      "schema_version": "0.3",
+      "skipped": 0,
+      "snapshot_id": "completed_evaluator_sanity",
+      "source_ref": "public-tag:v4.8.0"
+    }
+  ],
+  "known_limitations": [
+    "The released task uses an explicitly curated initial state rather than byte-identical raw Commit0.",
+    "The database-state specialist owns four tightly coupled modules; this preserves the natural abstraction but creates an asymmetric workload.",
+    "The task is substantially larger than cachetools and Deprecated; single-agent, serial-specialist, and async results must be interpreted separately.",
+    "Cross-contract tests produce many setup errors until storage and table foundations exist; errors alone do not establish asynchronous freshness harm."
+  ],
+  "public_statement_sources": [
+    "spec.pdf.bz2@commit0",
+    "tinydb/*.py docstrings@commit0",
+    "tests/*.py@commit0"
+  ],
+  "quality_status": "qualification_ready",
+  "remaining_gates": [
+    "two independent human inclusion/exclusion annotations",
+    "recorded environment requirements and evaluator command",
+    "single-agent baseline result pending evaluation",
+    "specialist-local baseline results pending evaluation"
+  ],
+  "schema_version": "0.3",
+  "structure_rationale": "Query/cache semantics feed Table, while Storage, Table, TinyDB, and Middleware share one complete-database state abstraction.",
+  "task_id": "commit0:tinydb",
+  "test_groups": [
+    {
+      "command": [
+        "python",
+        "-c",
+        "import tinydb; from tinydb.utils import FrozenDict"
+      ],
+      "description": "Verify that the checksum-pinned curated state imports. This control is not agent implementation progress.",
+      "group_id": "curated_state_control",
+      "owner_subproblem": null,
+      "prerequisites": [],
+      "purpose": "environment_control",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_utils.py",
+        "tests/test_queries.py"
+      ],
+      "description": "Query, immutable-value, and LRU cache behavior. Curated initial result: 2 passed and 39 failed.",
+      "group_id": "query_contract_local",
+      "owner_subproblem": "query_contract_layer",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_storages.py",
+        "tests/test_middlewares.py"
+      ],
+      "description": "Storage and caching-middleware behavior owned by the shared-state specialist. Curated initial result: 2 passed, 14 failed, and 5 errors.",
+      "group_id": "database_state_local",
+      "owner_subproblem": "database_state_stack",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_operations.py",
+        "tests/test_tables.py",
+        "tests/test_tinydb.py"
+      ],
+      "description": "Integrated operations, Table, TinyDB, query-cache, document-ID, and persistence behavior. Curated initial result: 1 passed, 18 failed, and 120 errors.",
+      "group_id": "query_state_cross_contract",
+      "owner_subproblem": null,
+      "prerequisites": [
+        "query_contract_layer artifact is integrated",
+        "database_state_stack artifact is integrated"
+      ],
+      "purpose": "cross_subproblem",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "-o",
+        "addopts=",
+        "tests"
+      ],
+      "description": "All 201 upstream TinyDB tests.",
+      "group_id": "full_evaluator",
+      "owner_subproblem": null,
+      "prerequisites": [],
+      "purpose": "full_evaluator",
+      "schema_version": "0.3"
+    }
+  ]
+}

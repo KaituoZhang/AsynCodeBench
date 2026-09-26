@@ -1,0 +1,246 @@
+{
+  "$defs": {
+    "AgentAssignment": {
+      "additionalProperties": false,
+      "description": "One agent role and its natural task ownership.",
+      "properties": {
+        "agent_id": {
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "primary_test_targets": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Primary Test Targets",
+          "type": "array"
+        },
+        "role": {
+          "minLength": 1,
+          "title": "Role",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.3",
+          "default": "0.3",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "subproblem_id": {
+          "minLength": 1,
+          "title": "Subproblem Id",
+          "type": "string"
+        },
+        "writable_paths": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Writable Paths",
+          "type": "array"
+        }
+      },
+      "required": [
+        "agent_id",
+        "role",
+        "subproblem_id",
+        "writable_paths",
+        "primary_test_targets"
+      ],
+      "title": "AgentAssignment",
+      "type": "object"
+    },
+    "DependencyAnnotation": {
+      "additionalProperties": false,
+      "description": "Publicly justified semantic dependency between natural subproblems.",
+      "properties": {
+        "consumer_subproblem": {
+          "minLength": 1,
+          "title": "Consumer Subproblem",
+          "type": "string"
+        },
+        "dependency_type": {
+          "enum": [
+            "import",
+            "api_contract",
+            "test_contract",
+            "integration"
+          ],
+          "title": "Dependency Type",
+          "type": "string"
+        },
+        "description": {
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "evidence_paths": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Paths",
+          "type": "array"
+        },
+        "producer_subproblem": {
+          "minLength": 1,
+          "title": "Producer Subproblem",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.3",
+          "default": "0.3",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "producer_subproblem",
+        "consumer_subproblem",
+        "dependency_type",
+        "description"
+      ],
+      "title": "DependencyAnnotation",
+      "type": "object"
+    },
+    "ExecutionMode": {
+      "enum": [
+        "iterative_single",
+        "serial_specialists",
+        "async_private",
+        "async_message"
+      ],
+      "title": "ExecutionMode",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "One execution organization for an unchanged upstream task.",
+  "properties": {
+    "agent_count": {
+      "minimum": 1,
+      "title": "Agent Count",
+      "type": "integer"
+    },
+    "assignments": {
+      "items": {
+        "$ref": "#/$defs/AgentAssignment"
+      },
+      "title": "Assignments",
+      "type": "array"
+    },
+    "communication_condition": {
+      "enum": [
+        "not_applicable",
+        "completed_artifact_handoff",
+        "none_in_flight",
+        "structured_message_and_artifact"
+      ],
+      "title": "Communication Condition",
+      "type": "string"
+    },
+    "competence_gate_required": {
+      "default": true,
+      "title": "Competence Gate Required",
+      "type": "boolean"
+    },
+    "concurrent_execution": {
+      "title": "Concurrent Execution",
+      "type": "boolean"
+    },
+    "dependency_annotations": {
+      "items": {
+        "$ref": "#/$defs/DependencyAnnotation"
+      },
+      "title": "Dependency Annotations",
+      "type": "array"
+    },
+    "execution_mode": {
+      "$ref": "#/$defs/ExecutionMode"
+    },
+    "information_profile": {
+      "enum": [
+        "complete-task",
+        "private-workspace"
+      ],
+      "title": "Information Profile",
+      "type": "string"
+    },
+    "integration_policy": {
+      "minLength": 1,
+      "title": "Integration Policy",
+      "type": "string"
+    },
+    "message_delivery_policy": {
+      "minLength": 1,
+      "title": "Message Delivery Policy",
+      "type": "string"
+    },
+    "official_result_eligible": {
+      "default": false,
+      "title": "Official Result Eligible",
+      "type": "boolean"
+    },
+    "scenario_id": {
+      "minLength": 1,
+      "title": "Scenario Id",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "0.3",
+      "default": "0.3",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "shared_agent_scaffold": {
+      "const": "iterative-inspect-edit-test-repair",
+      "title": "Shared Agent Scaffold",
+      "type": "string"
+    },
+    "step_budget_per_agent": {
+      "exclusiveMinimum": 0,
+      "title": "Step Budget Per Agent",
+      "type": "integer"
+    },
+    "task_id": {
+      "minLength": 1,
+      "title": "Task Id",
+      "type": "string"
+    },
+    "test_budget_per_agent": {
+      "exclusiveMinimum": 0,
+      "title": "Test Budget Per Agent",
+      "type": "integer"
+    },
+    "token_budget_per_agent": {
+      "exclusiveMinimum": 0,
+      "title": "Token Budget Per Agent",
+      "type": "integer"
+    },
+    "wall_clock_budget_seconds": {
+      "exclusiveMinimum": 0,
+      "title": "Wall Clock Budget Seconds",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "scenario_id",
+    "task_id",
+    "execution_mode",
+    "agent_count",
+    "assignments",
+    "dependency_annotations",
+    "information_profile",
+    "concurrent_execution",
+    "communication_condition",
+    "message_delivery_policy",
+    "integration_policy",
+    "shared_agent_scaffold",
+    "step_budget_per_agent",
+    "token_budget_per_agent",
+    "test_budget_per_agent",
+    "wall_clock_budget_seconds"
+  ],
+  "title": "ScenarioRecord",
+  "type": "object"
+}

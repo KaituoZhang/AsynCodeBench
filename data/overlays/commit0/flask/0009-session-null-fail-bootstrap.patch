@@ -1,0 +1,14 @@
+diff --git a/src/flask/sessions.py b/src/flask/sessions.py
+index 7526587..0dfba64 100644
+--- a/src/flask/sessions.py
++++ b/src/flask/sessions.py
+@@ -52,6 +52,9 @@ class NullSession(SecureCookieSession):
+     available.  Will still allow read-only access to the empty session
+     but fail on setting.
+     """
++    def _fail(self, *args: t.Any, **kwargs: t.Any) -> None:
++        pass
++
+     __setitem__ = __delitem__ = clear = pop = popitem = update = setdefault = _fail
+     del _fail
+ 

@@ -1,0 +1,305 @@
+{
+  "schema_version": "0.3-async-metrics",
+  "task_id": "commit0:cachetools",
+  "metric_annotation_id": "commit0-cachetools.async-metrics.v0.3",
+  "source_task_record": "manifests/pilot/v0.3/tasks/commit0_cachetools.json",
+  "source_quality_record": "manifests/pilot/v0.3/quality/commit0_cachetools.json",
+  "purpose": "Dependency-level labels for measuring whether asynchronous multi-agent coding resolves cross-agent contracts promptly, not only whether the final repository passes all tests.",
+  "metric_definitions": {
+    "ADPR": {
+      "name": "Async Dependency Pass Rate",
+      "unit": "fraction",
+      "definition": "For a run, the fraction of registered dependency_points whose required integrated_probe_tests pass in the final integrated workspace."
+    },
+    "DRS": {
+      "name": "Dependency Resolution Step",
+      "unit": "agent iteration or evaluation checkpoint",
+      "definition": "For each dependency point, the first recorded checkpoint at which all required integrated_probe_tests pass in the integrated workspace."
+    },
+    "CAIL": {
+      "name": "Cross-Agent Integration Lag",
+      "unit": "agent iteration or evaluation checkpoint",
+      "definition": "For each dependency point, downstream_resolution_step minus upstream_resolution_step. This should be computed only when both upstream and downstream probe groups have been evaluated."
+    },
+    "SAD": {
+      "name": "Stale Assumption Duration",
+      "unit": "agent iteration or event interval",
+      "definition": "For each dependency point, the duration for which a downstream agent continues to act on an upstream contract assumption that is inconsistent with the latest upstream artifact visible in the integrated history. This can be computed automatically from structured messages when available, or manually audited from event logs."
+    }
+  },
+  "evaluation_checkpoint_policy": {
+    "minimum_policy": "Run probe tests after each agent final artifact and after final integration.",
+    "recommended_policy": "Run probe tests after every committed patch, every explicit artifact transfer, and final integration.",
+    "checkpoint_record_fields": [
+      "run_id",
+      "scenario_id",
+      "checkpoint_id",
+      "logical_iteration",
+      "agent_id",
+      "visible_upstream_artifact_version",
+      "integrated_workspace_version",
+      "probe_test_results"
+    ]
+  },
+  "dependency_points": [
+    {
+      "dependency_id": "cachetools.keys_to_func.untyped_key_contract",
+      "dependency_type": "interface_dependency",
+      "producer_subproblem": "key_construction",
+      "consumer_subproblem": "decorator_factories",
+      "producer_agent": "key_agent",
+      "consumer_agent": "decorator_agent",
+      "producer_files": [
+        "src/cachetools/keys.py"
+      ],
+      "consumer_files": [
+        "src/cachetools/func.py"
+      ],
+      "contract_summary": "Function decorators with typed=False must use the untyped key behavior from hashkey: equal values of different numeric types share the same cache key, positional and keyword arguments are represented stably, and keys remain hashable.",
+      "stale_failure_mode": "The decorator agent may implement per-decorator key construction locally, or assume that int and float arguments should be cached separately even when typed=False. This can pass some decorator tests while violating the shared key contract.",
+      "upstream_probe_tests": [
+        "tests/test_keys.py::CacheKeysTest::test_hashkey"
+      ],
+      "downstream_probe_tests": [
+        "tests/test_func.py::FIFODecoratorTest::test_decorator",
+        "tests/test_func.py::LFUDecoratorTest::test_decorator",
+        "tests/test_func.py::LRUDecoratorTest::test_decorator",
+        "tests/test_func.py::MRUDecoratorTest::test_decorator",
+        "tests/test_func.py::RRDecoratorTest::test_decorator",
+        "tests/test_func.py::TTLDecoratorTest::test_decorator",
+        "tests/test_func.py::FIFODecoratorTest::test_decorator_user_function",
+        "tests/test_func.py::LFUDecoratorTest::test_decorator_user_function",
+        "tests/test_func.py::LRUDecoratorTest::test_decorator_user_function",
+        "tests/test_func.py::MRUDecoratorTest::test_decorator_user_function",
+        "tests/test_func.py::RRDecoratorTest::test_decorator_user_function",
+        "tests/test_func.py::TTLDecoratorTest::test_decorator_user_function"
+      ],
+      "integrated_probe_tests": [
+        "tests/test_keys.py::CacheKeysTest::test_hashkey",
+        "tests/test_func.py::FIFODecoratorTest::test_decorator",
+        "tests/test_func.py::LFUDecoratorTest::test_decorator",
+        "tests/test_func.py::LRUDecoratorTest::test_decorator",
+        "tests/test_func.py::MRUDecoratorTest::test_decorator",
+        "tests/test_func.py::RRDecoratorTest::test_decorator",
+        "tests/test_func.py::TTLDecoratorTest::test_decorator"
+      ],
+      "resolution_criteria": "Resolved when the upstream hashkey probe and the required untyped decorator probes all pass in the integrated workspace.",
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL",
+        "SAD"
+      ]
+    },
+    {
+      "dependency_id": "cachetools.keys_to_func.typed_key_contract",
+      "dependency_type": "interface_dependency",
+      "producer_subproblem": "key_construction",
+      "consumer_subproblem": "decorator_factories",
+      "producer_agent": "key_agent",
+      "consumer_agent": "decorator_agent",
+      "producer_files": [
+        "src/cachetools/keys.py"
+      ],
+      "consumer_files": [
+        "src/cachetools/func.py"
+      ],
+      "contract_summary": "Function decorators with typed=True must select typedkey semantics from keys.py, so equal values of different types are cached separately while preserving the same cache metadata API.",
+      "stale_failure_mode": "The decorator agent may implement typed=True by toggling metadata only, or may keep using hashkey after the key agent defines typedkey. This creates a semantic stale-contract failure: keys.py is correct, but func.py continues to behave as if typed and untyped keys were equivalent.",
+      "upstream_probe_tests": [
+        "tests/test_keys.py::CacheKeysTest::test_typedkey"
+      ],
+      "downstream_probe_tests": [
+        "tests/test_func.py::FIFODecoratorTest::test_decorator_typed",
+        "tests/test_func.py::LFUDecoratorTest::test_decorator_typed",
+        "tests/test_func.py::LRUDecoratorTest::test_decorator_typed",
+        "tests/test_func.py::MRUDecoratorTest::test_decorator_typed",
+        "tests/test_func.py::RRDecoratorTest::test_decorator_typed",
+        "tests/test_func.py::TTLDecoratorTest::test_decorator_typed"
+      ],
+      "integrated_probe_tests": [
+        "tests/test_keys.py::CacheKeysTest::test_typedkey",
+        "tests/test_func.py::FIFODecoratorTest::test_decorator_typed",
+        "tests/test_func.py::LFUDecoratorTest::test_decorator_typed",
+        "tests/test_func.py::LRUDecoratorTest::test_decorator_typed",
+        "tests/test_func.py::MRUDecoratorTest::test_decorator_typed",
+        "tests/test_func.py::RRDecoratorTest::test_decorator_typed",
+        "tests/test_func.py::TTLDecoratorTest::test_decorator_typed"
+      ],
+      "resolution_criteria": "Resolved when typedkey passes and every typed decorator probe passes after integrating key and decorator artifacts.",
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL",
+        "SAD"
+      ],
+      "primary_paper_probe": true
+    },
+    {
+      "dependency_id": "cachetools.keys_to_cachedmethod.typed_method_key_contract",
+      "dependency_type": "interface_dependency",
+      "producer_subproblem": "key_construction",
+      "consumer_subproblem": "key_integration_validation",
+      "producer_agent": "key_agent",
+      "consumer_agent": "integrator",
+      "producer_files": [
+        "src/cachetools/keys.py"
+      ],
+      "consumer_files": [
+        "src/cachetools/__init__.py"
+      ],
+      "contract_summary": "typedmethodkey must ignore self while preserving typed argument distinction for cachedmethod users.",
+      "stale_failure_mode": "A key implementation that handles typedkey but forgets typedmethodkey can appear sufficient for function decorators but fail method-level integration.",
+      "upstream_probe_tests": [
+        "tests/test_keys.py::CacheKeysTest::test_typedmethodkey"
+      ],
+      "downstream_probe_tests": [
+        "tests/test_cachedmethod.py::CachedMethodTest::test_typedmethod_dict",
+        "tests/test_cachedmethod.py::CachedMethodTest::test_typedmethod_lru"
+      ],
+      "integrated_probe_tests": [
+        "tests/test_keys.py::CacheKeysTest::test_typedmethodkey",
+        "tests/test_cachedmethod.py::CachedMethodTest::test_typedmethod_dict",
+        "tests/test_cachedmethod.py::CachedMethodTest::test_typedmethod_lru"
+      ],
+      "resolution_criteria": "Resolved when typedmethodkey and cachedmethod typed-method probes pass in the integrated workspace.",
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL"
+      ]
+    },
+    {
+      "dependency_id": "cachetools.core_to_func.wrapper_metadata_contract",
+      "dependency_type": "shared_api_contract",
+      "producer_subproblem": "core_cache_api",
+      "consumer_subproblem": "decorator_factories",
+      "producer_agent": "integrator",
+      "consumer_agent": "decorator_agent",
+      "producer_files": [
+        "src/cachetools/__init__.py"
+      ],
+      "consumer_files": [
+        "src/cachetools/func.py"
+      ],
+      "contract_summary": "Decorator factories must expose the same cache wrapper metadata contract as cached(): cache_info(), cache_clear(), cache_parameters(), cache attribute, cache_key, and lock behavior where applicable.",
+      "stale_failure_mode": "The decorator agent may implement the caching algorithms but omit metadata methods or return inconsistent cache_parameters, producing late integration failures even when basic caching behavior works.",
+      "upstream_probe_tests": [
+        "tests/test_cached.py::CacheWrapperTest::test_decorator_attributes",
+        "tests/test_cached.py::CacheWrapperTest::test_decorator_clear",
+        "tests/test_cached.py::DictWrapperTest::test_decorator_attributes",
+        "tests/test_cached.py::DictWrapperTest::test_decorator_clear"
+      ],
+      "downstream_probe_tests": [
+        "tests/test_func.py::FIFODecoratorTest::test_decorator_clear",
+        "tests/test_func.py::LFUDecoratorTest::test_decorator_clear",
+        "tests/test_func.py::LRUDecoratorTest::test_decorator_clear",
+        "tests/test_func.py::MRUDecoratorTest::test_decorator_clear",
+        "tests/test_func.py::RRDecoratorTest::test_decorator_clear",
+        "tests/test_func.py::TTLDecoratorTest::test_decorator_clear",
+        "tests/test_func.py::FIFODecoratorTest::test_decorator_user_function",
+        "tests/test_func.py::LFUDecoratorTest::test_decorator_user_function",
+        "tests/test_func.py::LRUDecoratorTest::test_decorator_user_function",
+        "tests/test_func.py::MRUDecoratorTest::test_decorator_user_function",
+        "tests/test_func.py::RRDecoratorTest::test_decorator_user_function",
+        "tests/test_func.py::TTLDecoratorTest::test_decorator_user_function"
+      ],
+      "integrated_probe_tests": [
+        "tests/test_func.py::FIFODecoratorTest::test_decorator_clear",
+        "tests/test_func.py::LFUDecoratorTest::test_decorator_clear",
+        "tests/test_func.py::LRUDecoratorTest::test_decorator_clear",
+        "tests/test_func.py::MRUDecoratorTest::test_decorator_clear",
+        "tests/test_func.py::RRDecoratorTest::test_decorator_clear",
+        "tests/test_func.py::TTLDecoratorTest::test_decorator_clear"
+      ],
+      "resolution_criteria": "Resolved when decorator wrappers expose cache metadata and clear behavior consistently across all cache factory variants.",
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL"
+      ]
+    },
+    {
+      "dependency_id": "cachetools.core_to_func.maxsize_and_lock_contract",
+      "dependency_type": "shared_api_contract",
+      "producer_subproblem": "core_cache_api",
+      "consumer_subproblem": "decorator_factories",
+      "producer_agent": "integrator",
+      "consumer_agent": "decorator_agent",
+      "producer_files": [
+        "src/cachetools/__init__.py"
+      ],
+      "consumer_files": [
+        "src/cachetools/func.py"
+      ],
+      "contract_summary": "Decorator factories must preserve cache-class edge cases and wrapper lock semantics: maxsize=0 disables storage, maxsize=None gives an unbounded cache, and recursive equality requires an RLock-compatible wrapper path.",
+      "stale_failure_mode": "The decorator agent may pass common caching tests while mishandling no-cache, unbounded-cache, or lock-sensitive cases because those semantics are inherited from the shared core wrapper contract.",
+      "upstream_probe_tests": [
+        "tests/test_cached.py::CacheWrapperTest::test_zero_size_cache_decorator",
+        "tests/test_cached.py::CacheWrapperTest::test_zero_size_cache_decorator_lock"
+      ],
+      "downstream_probe_tests": [
+        "tests/test_func.py::FIFODecoratorTest::test_decorator_nocache",
+        "tests/test_func.py::LFUDecoratorTest::test_decorator_nocache",
+        "tests/test_func.py::LRUDecoratorTest::test_decorator_nocache",
+        "tests/test_func.py::MRUDecoratorTest::test_decorator_nocache",
+        "tests/test_func.py::RRDecoratorTest::test_decorator_nocache",
+        "tests/test_func.py::TTLDecoratorTest::test_decorator_nocache",
+        "tests/test_func.py::FIFODecoratorTest::test_decorator_unbound",
+        "tests/test_func.py::LFUDecoratorTest::test_decorator_unbound",
+        "tests/test_func.py::LRUDecoratorTest::test_decorator_unbound",
+        "tests/test_func.py::MRUDecoratorTest::test_decorator_unbound",
+        "tests/test_func.py::RRDecoratorTest::test_decorator_unbound",
+        "tests/test_func.py::TTLDecoratorTest::test_decorator_unbound",
+        "tests/test_func.py::FIFODecoratorTest::test_decorator_needs_rlock",
+        "tests/test_func.py::LFUDecoratorTest::test_decorator_needs_rlock",
+        "tests/test_func.py::LRUDecoratorTest::test_decorator_needs_rlock",
+        "tests/test_func.py::MRUDecoratorTest::test_decorator_needs_rlock",
+        "tests/test_func.py::RRDecoratorTest::test_decorator_needs_rlock",
+        "tests/test_func.py::TTLDecoratorTest::test_decorator_needs_rlock"
+      ],
+      "integrated_probe_tests": [
+        "tests/test_func.py::FIFODecoratorTest::test_decorator_nocache",
+        "tests/test_func.py::LFUDecoratorTest::test_decorator_nocache",
+        "tests/test_func.py::LRUDecoratorTest::test_decorator_nocache",
+        "tests/test_func.py::RRDecoratorTest::test_decorator_nocache",
+        "tests/test_func.py::TTLDecoratorTest::test_decorator_nocache",
+        "tests/test_func.py::FIFODecoratorTest::test_decorator_unbound",
+        "tests/test_func.py::LFUDecoratorTest::test_decorator_unbound",
+        "tests/test_func.py::LRUDecoratorTest::test_decorator_unbound",
+        "tests/test_func.py::RRDecoratorTest::test_decorator_unbound",
+        "tests/test_func.py::TTLDecoratorTest::test_decorator_unbound",
+        "tests/test_func.py::FIFODecoratorTest::test_decorator_needs_rlock",
+        "tests/test_func.py::LFUDecoratorTest::test_decorator_needs_rlock",
+        "tests/test_func.py::LRUDecoratorTest::test_decorator_needs_rlock",
+        "tests/test_func.py::RRDecoratorTest::test_decorator_needs_rlock",
+        "tests/test_func.py::TTLDecoratorTest::test_decorator_needs_rlock"
+      ],
+      "resolution_criteria": "Resolved when no-cache, unbounded-cache, and RLock-sensitive decorator probes pass after integration.",
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL"
+      ],
+      "notes": [
+        "MRU is deprecated and warning-sensitive; MRU lock/maxsize probes are retained in downstream_probe_tests but excluded from the minimum integrated probe set to reduce metric brittleness."
+      ]
+    }
+  ],
+  "aggregate_metrics": {
+    "dependency_point_count": 5,
+    "primary_async_dependency_ids": [
+      "cachetools.keys_to_func.untyped_key_contract",
+      "cachetools.keys_to_func.typed_key_contract"
+    ],
+    "primary_paper_dependency_id": "cachetools.keys_to_func.typed_key_contract",
+    "ADPR_denominator": "All dependency_points unless a paper section explicitly reports primary_async_dependency_ids only.",
+    "minimum_success_condition_for_task_level_async_dependency_resolution": "Both primary_async_dependency_ids pass in the final integrated workspace."
+  },
+  "annotation_notes": [
+    "The two keys_to_func dependency points are the main AsynCodeBench signal for this task because the key_agent and decorator_agent can work concurrently but the decorator behavior depends on the final key contract.",
+    "The typed_key_contract is the clearest stale-assumption probe: a downstream implementation can continue to treat typed=True as metadata or use hashkey even after typedkey exists.",
+    "The wrapper metadata and maxsize/lock points are retained as secondary shared-contract probes because they capture integration failures that are not pure key semantics.",
+    "These labels are answer-free: they identify public test-observable contracts and implicated files, not solution code."
+  ]
+}

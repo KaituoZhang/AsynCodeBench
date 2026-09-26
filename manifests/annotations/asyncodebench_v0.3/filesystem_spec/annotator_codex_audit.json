@@ -1,0 +1,22 @@
+{
+  "allowed_labels": [
+    "parallelizable",
+    "partially_parallelizable",
+    "effectively_serial"
+  ],
+  "annotator_id": "codex_ai_assisted_audit_20260809",
+  "candidate_evidence_file": "manifests/candidates/commit0_async_screening_v0.3.json",
+  "exclusion_reason": null,
+  "include": true,
+  "independence_instructions": [
+    "This is an AI-assisted audit and does not satisfy the independent-human annotation requirement.",
+    "Use only public task, quality, scenario, metric, overlay, source, and test evidence.",
+    "Do not inspect reference branches, solution patches, or model-generated answers."
+  ],
+  "parallelizability_label": "partially_parallelizable",
+  "rationale": "Filesystem-spec has distinct registry, utility/compression, and core open-path surfaces. Core URL resolution and OpenFile behavior consume registry lookup, protocol parsing, path expansion, and compression contracts, producing clear stale-interface risks. The evaluator deliberately scopes out the much larger backend and AbstractFileSystem surface, and the overlays expose unfinished import names rather than completing those selected contracts.",
+  "schema_version": "0.3",
+  "source_task_id": "commit0:filesystem_spec",
+  "task_id": "asyncodebench:filesystem_spec",
+  "task_record_file": "manifests/pilot/v0.3/tasks/commit0_filesystem_spec.json"
+}

@@ -1,0 +1,14 @@
+diff --git a/imapclient/imapclient.py b/imapclient/imapclient.py
+index 9b8cfbe..c519656 100644
+--- a/imapclient/imapclient.py
++++ b/imapclient/imapclient.py
+@@ -1126,6 +1126,9 @@ def join_message_ids(messages):
+     pass
+ _not_present = object()
+ 
++def iteritems(self):
++    pass
++
+ class _dict_bytes_normaliser:
+     """Wrap a dict with unicode/bytes keys and normalise the keys to
+     bytes.

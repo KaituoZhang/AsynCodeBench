@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://anonymous.invalid/schemas/release/agent_response.schema.json",
+  "title": "AsynCodeBench Agent Run Response",
+  "type": "object",
+  "properties": {
+    "error": {"type": ["string", "null"]},
+    "cost": {"type": "number", "minimum": 0},
+    "prompt_tokens": {"type": "integer", "minimum": 0},
+    "completion_tokens": {"type": "integer", "minimum": 0},
+    "iterations": {"type": "integer", "minimum": 0},
+    "events": {"type": "array", "items": {"type": "object"}},
+    "metadata": {"type": "object"}
+  },
+  "additionalProperties": false
+}

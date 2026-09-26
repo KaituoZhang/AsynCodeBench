@@ -1,0 +1,124 @@
+{
+  "schema_version": "0.3",
+  "task_id": "pr-hard:apache-tvm-20073",
+  "candidate_status": "qualified",
+  "scenarios": [
+    {
+      "schema_version": "0.3",
+      "scenario_id": "pr-hard-apache-tvm-20073.iterative-single.v0.4",
+      "task_id": "pr-hard:apache-tvm-20073",
+      "execution_mode": "iterative_single",
+      "agent_count": 1,
+      "assignments": [
+        {
+          "schema_version": "0.3",
+          "agent_id": "integrator",
+          "role": "iterative full-task coding agent",
+          "subproblem_id": "full_task",
+          "writable_paths": ["include/tvm/script/ir_builder/base.h", "python/tvm/script/ir_builder/base.py", "python/tvm/script/parser/core/diagnostics.py", "python/tvm/script/parser/core/evaluator.py", "python/tvm/script/parser/core/parser.py", "src/script/ir_builder/base.cc", "src/tirx/script/builder/utils.h"],
+          "primary_test_targets": ["tests/python/tvmscript/test_tvmscript_ir_builder_tir.py::test_ir_builder_source_span_applies_to_emitted_stmt", "tests/python/tvmscript/test_tvmscript_parser_source.py::test_source_to_span_matches_parser_diagnostic_coordinates", "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_direct_call", "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_retains_inline_call_site_and_definition_spans", "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_tile_primitive_call", "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_spans_do_not_affect_structural_identity"]
+        }
+      ],
+      "dependency_annotations": [
+        {"schema_version": "0.3", "producer_subproblem": "irbuilder_active_span_state", "consumer_subproblem": "parser_and_evaluator_span_propagation", "dependency_type": "api_contract", "description": "IRBuilder scoped span state and annotation operations are consumed by parser, evaluator, and TIRx emission paths.", "evidence_paths": ["include/tvm/script/ir_builder/base.h", "python/tvm/script/ir_builder/base.py", "python/tvm/script/parser/core/evaluator.py", "python/tvm/script/parser/core/parser.py", "src/script/ir_builder/base.cc", "src/tirx/script/builder/utils.h", "tests/python/tvmscript/test_tvmscript_parser_source.py"]},
+        {"schema_version": "0.3", "producer_subproblem": "source_coordinate_mapping", "consumer_subproblem": "parser_and_evaluator_span_propagation", "dependency_type": "api_contract", "description": "The Source AST-coordinate conversion is consumed by parser and evaluator span-propagation scopes.", "evidence_paths": ["python/tvm/script/parser/core/diagnostics.py", "python/tvm/script/parser/core/evaluator.py", "python/tvm/script/parser/core/parser.py", "tests/python/tvmscript/test_tvmscript_parser_source.py"]}
+      ],
+      "information_profile": "complete-task",
+      "concurrent_execution": false,
+      "communication_condition": "not_applicable",
+      "message_delivery_policy": "No inter-agent messages.",
+      "integration_policy": "Agent submits its final workspace.",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "token_budget_per_agent": 60000,
+      "test_budget_per_agent": 8,
+      "wall_clock_budget_seconds": 1800,
+      "competence_gate_required": true,
+      "official_result_eligible": true
+    },
+    {
+      "schema_version": "0.3",
+      "scenario_id": "pr-hard-apache-tvm-20073.serial-specialists.v0.4",
+      "task_id": "pr-hard:apache-tvm-20073",
+      "execution_mode": "serial_specialists",
+      "agent_count": 3,
+      "assignments": [
+        {"schema_version": "0.3", "agent_id": "irbuilder_agent", "role": "IRBuilder scoped source-span state specialist", "subproblem_id": "irbuilder_active_span_state", "writable_paths": ["include/tvm/script/ir_builder/base.h", "python/tvm/script/ir_builder/base.py", "src/script/ir_builder/base.cc"], "primary_test_targets": ["tests/python/tvmscript/test_tvmscript_ir_builder_tir.py::test_ir_builder_source_span_applies_to_emitted_stmt"]},
+        {"schema_version": "0.3", "agent_id": "source_mapping_agent", "role": "TVMScript AST-to-Span coordinate mapping specialist", "subproblem_id": "source_coordinate_mapping", "writable_paths": ["python/tvm/script/parser/core/diagnostics.py"], "primary_test_targets": ["tests/python/tvmscript/test_tvmscript_parser_source.py::test_source_to_span_matches_parser_diagnostic_coordinates"]},
+        {"schema_version": "0.3", "agent_id": "propagation_agent", "role": "parser, evaluator, and TIRx span propagation specialist", "subproblem_id": "parser_and_evaluator_span_propagation", "writable_paths": ["python/tvm/script/parser/core/evaluator.py", "python/tvm/script/parser/core/parser.py", "src/tirx/script/builder/utils.h"], "primary_test_targets": ["tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_direct_call", "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_retains_inline_call_site_and_definition_spans", "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_tile_primitive_call", "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_spans_do_not_affect_structural_identity"]}
+      ],
+      "dependency_annotations": [
+        {"schema_version": "0.3", "producer_subproblem": "irbuilder_active_span_state", "consumer_subproblem": "parser_and_evaluator_span_propagation", "dependency_type": "api_contract", "description": "IRBuilder scoped span state and annotation operations are consumed by parser, evaluator, and TIRx emission paths.", "evidence_paths": ["include/tvm/script/ir_builder/base.h", "python/tvm/script/ir_builder/base.py", "python/tvm/script/parser/core/evaluator.py", "python/tvm/script/parser/core/parser.py", "src/script/ir_builder/base.cc", "src/tirx/script/builder/utils.h", "tests/python/tvmscript/test_tvmscript_parser_source.py"]},
+        {"schema_version": "0.3", "producer_subproblem": "source_coordinate_mapping", "consumer_subproblem": "parser_and_evaluator_span_propagation", "dependency_type": "api_contract", "description": "The Source AST-coordinate conversion is consumed by parser and evaluator span-propagation scopes.", "evidence_paths": ["python/tvm/script/parser/core/diagnostics.py", "python/tvm/script/parser/core/evaluator.py", "python/tvm/script/parser/core/parser.py", "tests/python/tvmscript/test_tvmscript_parser_source.py"]}
+      ],
+      "information_profile": "private-workspace",
+      "concurrent_execution": false,
+      "communication_condition": "completed_artifact_handoff",
+      "message_delivery_policy": "Run both independent producers first, deliver both completed artifacts and targeted results, then start the parser and evaluator consumer.",
+      "integration_policy": "Apply the IRBuilder and source-mapping producer artifacts before starting the propagation consumer, then evaluate the combined workspace.",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "token_budget_per_agent": 60000,
+      "test_budget_per_agent": 8,
+      "wall_clock_budget_seconds": 1800,
+      "competence_gate_required": true,
+      "official_result_eligible": true
+    },
+    {
+      "schema_version": "0.3",
+      "scenario_id": "pr-hard-apache-tvm-20073.async-private.v0.4",
+      "task_id": "pr-hard:apache-tvm-20073",
+      "execution_mode": "async_private",
+      "agent_count": 3,
+      "assignments": [
+        {"schema_version": "0.3", "agent_id": "irbuilder_agent", "role": "IRBuilder scoped source-span state specialist", "subproblem_id": "irbuilder_active_span_state", "writable_paths": ["include/tvm/script/ir_builder/base.h", "python/tvm/script/ir_builder/base.py", "src/script/ir_builder/base.cc"], "primary_test_targets": ["tests/python/tvmscript/test_tvmscript_ir_builder_tir.py::test_ir_builder_source_span_applies_to_emitted_stmt"]},
+        {"schema_version": "0.3", "agent_id": "source_mapping_agent", "role": "TVMScript AST-to-Span coordinate mapping specialist", "subproblem_id": "source_coordinate_mapping", "writable_paths": ["python/tvm/script/parser/core/diagnostics.py"], "primary_test_targets": ["tests/python/tvmscript/test_tvmscript_parser_source.py::test_source_to_span_matches_parser_diagnostic_coordinates"]},
+        {"schema_version": "0.3", "agent_id": "propagation_agent", "role": "parser, evaluator, and TIRx span propagation specialist", "subproblem_id": "parser_and_evaluator_span_propagation", "writable_paths": ["python/tvm/script/parser/core/evaluator.py", "python/tvm/script/parser/core/parser.py", "src/tirx/script/builder/utils.h"], "primary_test_targets": ["tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_direct_call", "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_retains_inline_call_site_and_definition_spans", "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_tile_primitive_call", "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_spans_do_not_affect_structural_identity"]}
+      ],
+      "dependency_annotations": [
+        {"schema_version": "0.3", "producer_subproblem": "irbuilder_active_span_state", "consumer_subproblem": "parser_and_evaluator_span_propagation", "dependency_type": "api_contract", "description": "IRBuilder scoped span state and annotation operations are consumed by parser, evaluator, and TIRx emission paths.", "evidence_paths": ["include/tvm/script/ir_builder/base.h", "python/tvm/script/ir_builder/base.py", "python/tvm/script/parser/core/evaluator.py", "python/tvm/script/parser/core/parser.py", "src/script/ir_builder/base.cc", "src/tirx/script/builder/utils.h", "tests/python/tvmscript/test_tvmscript_parser_source.py"]},
+        {"schema_version": "0.3", "producer_subproblem": "source_coordinate_mapping", "consumer_subproblem": "parser_and_evaluator_span_propagation", "dependency_type": "api_contract", "description": "The Source AST-coordinate conversion is consumed by parser and evaluator span-propagation scopes.", "evidence_paths": ["python/tvm/script/parser/core/diagnostics.py", "python/tvm/script/parser/core/evaluator.py", "python/tvm/script/parser/core/parser.py", "tests/python/tvmscript/test_tvmscript_parser_source.py"]}
+      ],
+      "information_profile": "private-workspace",
+      "concurrent_execution": true,
+      "communication_condition": "none_in_flight",
+      "message_delivery_policy": "No in-flight worker messages or artifacts are delivered.",
+      "integration_policy": "Run all three specialists concurrently in private workspaces and integrate their final artifacts only after all finish.",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "token_budget_per_agent": 60000,
+      "test_budget_per_agent": 8,
+      "wall_clock_budget_seconds": 1800,
+      "competence_gate_required": true,
+      "official_result_eligible": true
+    },
+    {
+      "schema_version": "0.3",
+      "scenario_id": "pr-hard-apache-tvm-20073.async-message.v0.4",
+      "task_id": "pr-hard:apache-tvm-20073",
+      "execution_mode": "async_message",
+      "agent_count": 3,
+      "assignments": [
+        {"schema_version": "0.3", "agent_id": "irbuilder_agent", "role": "IRBuilder scoped source-span state specialist", "subproblem_id": "irbuilder_active_span_state", "writable_paths": ["include/tvm/script/ir_builder/base.h", "python/tvm/script/ir_builder/base.py", "src/script/ir_builder/base.cc"], "primary_test_targets": ["tests/python/tvmscript/test_tvmscript_ir_builder_tir.py::test_ir_builder_source_span_applies_to_emitted_stmt"]},
+        {"schema_version": "0.3", "agent_id": "source_mapping_agent", "role": "TVMScript AST-to-Span coordinate mapping specialist", "subproblem_id": "source_coordinate_mapping", "writable_paths": ["python/tvm/script/parser/core/diagnostics.py"], "primary_test_targets": ["tests/python/tvmscript/test_tvmscript_parser_source.py::test_source_to_span_matches_parser_diagnostic_coordinates"]},
+        {"schema_version": "0.3", "agent_id": "propagation_agent", "role": "parser, evaluator, and TIRx span propagation specialist", "subproblem_id": "parser_and_evaluator_span_propagation", "writable_paths": ["python/tvm/script/parser/core/evaluator.py", "python/tvm/script/parser/core/parser.py", "src/tirx/script/builder/utils.h"], "primary_test_targets": ["tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_direct_call", "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_retains_inline_call_site_and_definition_spans", "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_attaches_span_to_tile_primitive_call", "tests/python/tvmscript/test_tvmscript_parser_source.py::test_parser_spans_do_not_affect_structural_identity"]}
+      ],
+      "dependency_annotations": [
+        {"schema_version": "0.3", "producer_subproblem": "irbuilder_active_span_state", "consumer_subproblem": "parser_and_evaluator_span_propagation", "dependency_type": "api_contract", "description": "IRBuilder scoped span state and annotation operations are consumed by parser, evaluator, and TIRx emission paths.", "evidence_paths": ["include/tvm/script/ir_builder/base.h", "python/tvm/script/ir_builder/base.py", "python/tvm/script/parser/core/evaluator.py", "python/tvm/script/parser/core/parser.py", "src/script/ir_builder/base.cc", "src/tirx/script/builder/utils.h", "tests/python/tvmscript/test_tvmscript_parser_source.py"]},
+        {"schema_version": "0.3", "producer_subproblem": "source_coordinate_mapping", "consumer_subproblem": "parser_and_evaluator_span_propagation", "dependency_type": "api_contract", "description": "The Source AST-coordinate conversion is consumed by parser and evaluator span-propagation scopes.", "evidence_paths": ["python/tvm/script/parser/core/diagnostics.py", "python/tvm/script/parser/core/evaluator.py", "python/tvm/script/parser/core/parser.py", "tests/python/tvmscript/test_tvmscript_parser_source.py"]}
+      ],
+      "information_profile": "private-workspace",
+      "concurrent_execution": true,
+      "communication_condition": "structured_message_and_artifact",
+      "message_delivery_policy": "Workers may send span-stack API decisions, AST coordinate conventions, targeted results, and explicit patch artifacts while active.",
+      "integration_policy": "Integrate the latest explicitly transferred artifacts and record whether either producer's contract information changed later propagation actions.",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "token_budget_per_agent": 60000,
+      "test_budget_per_agent": 8,
+      "wall_clock_budget_seconds": 1800,
+      "competence_gate_required": true,
+      "official_result_eligible": true
+    }
+  ]
+}

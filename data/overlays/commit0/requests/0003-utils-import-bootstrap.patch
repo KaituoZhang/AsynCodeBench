@@ -1,0 +1,12 @@
+diff --git a/src/requests/utils.py b/src/requests/utils.py
+index cf4e23a..6205f5d 100644
+--- a/src/requests/utils.py
++++ b/src/requests/utils.py
+@@ -61,5 +61,5 @@ def extract_zipped_paths(path):
+     just return the provided path unchanged.
+     """
+-    pass
++    return path
+ 
+ @contextlib.contextmanager
+ def atomic_open(filename):

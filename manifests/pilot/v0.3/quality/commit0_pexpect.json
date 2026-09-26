@@ -1,0 +1,228 @@
+{
+  "coordination_structure_tags": [
+    "interface_dependency",
+    "shared_abstraction",
+    "shared_state"
+  ],
+  "environment_requirements": [
+    "Python 3.10.12",
+    "pytest==9.0.3",
+    "ptyprocess==0.7.0",
+    "POSIX-like environment with pty support",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
+    "Run from the repository root with PYTHONPATH=.",
+    "Use origin/commit0_combined plus bootstrap overlays from configs/tasks/commit0_curated_tasks.v0.3.json."
+  ],
+  "evaluation_snapshots": [
+    {
+      "collected": 77,
+      "command": [
+        "python3.10",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_expect.py",
+        "tests/test_popen_spawn.py",
+        "tests/test_run.py",
+        "tests/test_async.py"
+      ],
+      "dependency_versions": {
+        "ptyprocess": "0.7.0",
+        "pytest": "9.0.3"
+      },
+      "duration_seconds": 1.1,
+      "errors": 0,
+      "evidence_scope": "public_initial_state",
+      "failed": 63,
+      "notes": [
+        "Verified with PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 and PYTHONPATH=<materialized-root> after applying only checksum-recorded bootstrap overlays.",
+        "Failures are caused by unfinished Expecter/searcher, SpawnBase, process utility, transport, run, replwrap, and async behavior."
+      ],
+      "passed": 14,
+      "python_version": "3.10.12",
+      "return_code": 1,
+      "schema_version": "0.3",
+      "skipped": 0,
+      "snapshot_id": "curated_commit0_initial_expect_transport_evaluator",
+      "source_ref": "origin/commit0_combined:21b5908ea5b9b38ca996fec50dc449bff5c2c82f+bootstrap-overlays"
+    },
+    {
+      "collected": 77,
+      "command": [
+        "python3.10",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_expect.py",
+        "tests/test_popen_spawn.py",
+        "tests/test_run.py",
+        "tests/test_async.py"
+      ],
+      "dependency_versions": {
+        "ptyprocess": "0.7.0",
+        "pytest": "9.0.3"
+      },
+      "duration_seconds": 62.01,
+      "errors": 0,
+      "evidence_scope": "evaluator_sanity_only",
+      "failed": 0,
+      "notes": [
+        "The complete local master/commit0 ref passes the same scoped evaluator in the same environment.",
+        "The complete ref is evaluator validation only and must not define decomposition, prompts, or agent-visible evidence."
+      ],
+      "passed": 77,
+      "python_version": "3.10.12",
+      "return_code": 0,
+      "schema_version": "0.3",
+      "skipped": 0,
+      "snapshot_id": "complete_commit0_expect_transport_evaluator_sanity",
+      "source_ref": "master:eb2820cec514c3ed5482e80ad3438cd31f2fa1ef"
+    }
+  ],
+  "known_limitations": [
+    "The local master/commit0 branch is complete. Benchmark workspaces must be materialized from origin/commit0_combined.",
+    "Raw origin/commit0_combined collection fails before bootstrap overlays because SpawnBase.buffer references missing property accessors.",
+    "The bootstrap overlay only makes the public tests importable and collectable; it does not implement SpawnBase buffer behavior.",
+    "The evaluator uses POSIX process-control behavior and should be run in a frozen POSIX-like environment with ptyprocess installed.",
+    "pxssh, ANSI, screen, socket_pexpect, and terminal-emulation tests are excluded from this scoped task.",
+    "Single-agent and multi-agent model results are evaluation outputs to report, not dataset qualification gates."
+  ],
+  "public_statement_sources": [
+    "README.rst@origin/commit0_combined",
+    "pexpect/*.py docstrings@origin/commit0_combined",
+    "tests/test_*.py@origin/commit0_combined",
+    "docs/audits/COMMIT0_CANDIDATE_REVIEW_virtualenv_pexpect_web3_v0.3.md"
+  ],
+  "quality_status": "qualification_ready",
+  "remaining_gates": [
+    "two independent human inclusion/exclusion annotations"
+  ],
+  "schema_version": "0.3",
+  "structure_rationale": "pexpect exposes semantic async dependencies between searcher/Expecter matching, SpawnBase public state, process utilities and transport read/write behavior, and high-level run/replwrap/async wrappers. Downstream workers can make stale assumptions about command parsing, executable lookup, bytes/text matching, EOF/TIMEOUT as exceptions or patterns, buffer windows, before/after/match state, or transport output normalization.",
+  "task_id": "commit0:pexpect",
+  "test_groups": [
+    {
+      "command": [
+        "python3.10",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_expect.py"
+      ],
+      "description": "Core expect/search, SpawnBase buffer, before/after/match, and pty-backed expect behavior.",
+      "group_id": "expect_spawn_local",
+      "owner_subproblem": "expect_search_layer",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python3.10",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_popen_spawn.py"
+      ],
+      "description": "Process utility and popen transport parsing/read/write/EOF/TIMEOUT behavior through SpawnBase expect APIs.",
+      "group_id": "popen_transport_local",
+      "owner_subproblem": "transport_layer",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python3.10",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_run.py"
+      ],
+      "description": "run helper behavior consuming SpawnBase and transport contracts.",
+      "group_id": "run_wrapper_local",
+      "owner_subproblem": "wrapper_layer",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python3.10",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_expect.py::ExpectTestCase::test_searchwindowsize",
+        "tests/test_expect.py::ExpectTestCase::test_before_after"
+      ],
+      "description": "SpawnBase state after expect/search window and buffer contracts are integrated.",
+      "group_id": "expect_spawn_cross_contract",
+      "owner_subproblem": null,
+      "prerequisites": [
+        "expect_search_layer artifact is integrated",
+        "spawn_api_state_layer artifact is integrated"
+      ],
+      "purpose": "cross_subproblem",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python3.10",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_popen_spawn.py::ExpectTestCase::test_expect",
+        "tests/test_run.py::RunFuncTestCase::test_run"
+      ],
+      "description": "Wrapper behavior after SpawnBase and transport contracts are integrated.",
+      "group_id": "transport_spawn_wrapper_cross_contract",
+      "owner_subproblem": null,
+      "prerequisites": [
+        "transport_layer artifact is integrated",
+        "spawn_api_state_layer artifact is integrated",
+        "wrapper_layer artifact is integrated"
+      ],
+      "purpose": "cross_subproblem",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python3.10",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_expect.py",
+        "tests/test_popen_spawn.py",
+        "tests/test_run.py",
+        "tests/test_async.py"
+      ],
+      "description": "Full scoped expect/transport evaluator.",
+      "group_id": "full_scoped_evaluator",
+      "owner_subproblem": null,
+      "prerequisites": [
+        "expect_search_layer artifact is integrated",
+        "spawn_api_state_layer artifact is integrated",
+        "transport_layer artifact is integrated",
+        "wrapper_layer artifact is integrated"
+      ],
+      "purpose": "full_evaluator",
+      "schema_version": "0.3"
+    }
+  ]
+}

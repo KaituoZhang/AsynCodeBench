@@ -1,0 +1,55 @@
+{
+  "benchmark": "AsynCodeBench",
+  "description": "Canonical comparison profile for the 16-task AsynCodeBench v0.3 release. A run may use different settings, but it is then exploratory rather than eligible for the official aggregate.",
+  "instrumentation": {
+    "final_evaluator_source": "asyncodebench_manifest",
+    "final_pytest_timeout_seconds": 900,
+    "probe_timeout_seconds": 60
+  },
+  "profile_id": "asyncodebench-v0.3-standard-30",
+  "protocols": {
+    "async_private": {
+      "manager_max_iterations": 30,
+      "max_rounds_chat": 2,
+      "max_subagents": "scenario_declared",
+      "subagent_max_iterations": 30
+    },
+    "caid_manager": {
+      "manager_max_iterations": 30,
+      "max_rounds_chat": 2,
+      "max_subagents": "scenario_declared",
+      "subagent_max_iterations": 30
+    },
+    "serial_specialists": {
+      "manager_max_iterations": 30,
+      "max_rounds_chat": 2,
+      "max_subagents": "scenario_declared",
+      "subagent_max_iterations": 30
+    },
+    "single": {
+      "manager_max_iterations": 30,
+      "max_rounds_chat": 2,
+      "max_subagents": "scenario_declared",
+      "subagent_max_iterations": 30
+    }
+  },
+  "release": "v0.3",
+  "required_agent_adapter_fields": [
+    "name",
+    "class",
+    "package_version_or_source_sha256",
+    "config_sha256"
+  ],
+  "required_provenance": [
+    "model",
+    "subagent_model",
+    "agent_adapter",
+    "generation_configuration",
+    "model_server",
+    "prompt",
+    "code_revisions",
+    "source",
+    "artifacts"
+  ],
+  "schema_version": "asyncodebench-execution-profile-v1"
+}

@@ -1,0 +1,132 @@
+{
+  "annotation_provenance": [],
+  "candidate_evidence_file": "docs/audits/COMMIT0_CANDIDATE_REVIEW_babel_geopandas_flask_v0.3.md",
+  "dependency_annotations": [
+    {
+      "consumer_subproblem": "dispatch_context_layer",
+      "dependency_type": "api_contract",
+      "description": "Flask request dispatch consumes sansio scaffold route registration, endpoint naming, URL map, and callback registry semantics.",
+      "evidence_paths": [
+        "src/flask/sansio/scaffold.py",
+        "src/flask/sansio/app.py",
+        "src/flask/app.py",
+        "tests/test_basic.py"
+      ],
+      "producer_subproblem": "scaffold_app_layer",
+      "schema_version": "0.3"
+    },
+    {
+      "consumer_subproblem": "dispatch_context_layer",
+      "dependency_type": "shared_state_contract",
+      "description": "Request and app context lifecycle code consumes session opening/saving, JSON provider response, and tagged session serialization contracts.",
+      "evidence_paths": [
+        "src/flask/app.py",
+        "src/flask/ctx.py",
+        "src/flask/sessions.py",
+        "src/flask/json/provider.py",
+        "tests/test_basic.py",
+        "tests/test_json.py",
+        "tests/test_session_interface.py"
+      ],
+      "producer_subproblem": "session_json_layer",
+      "schema_version": "0.3"
+    },
+    {
+      "consumer_subproblem": "templating_testing_layer",
+      "dependency_type": "integration_contract",
+      "description": "Template rendering and the test client consume current_app/request/session context state, URL defaults, JSON dumps, and response conversion behavior.",
+      "evidence_paths": [
+        "src/flask/ctx.py",
+        "src/flask/templating.py",
+        "src/flask/testing.py",
+        "tests/test_templating.py",
+        "tests/test_testing.py"
+      ],
+      "producer_subproblem": "dispatch_context_layer",
+      "schema_version": "0.3"
+    }
+  ],
+  "evaluator_command": [
+    "python3.10",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "tests/test_basic.py",
+    "tests/test_reqctx.py",
+    "tests/test_appctx.py",
+    "tests/test_json.py",
+    "tests/test_session_interface.py",
+    "tests/test_templating.py",
+    "tests/test_testing.py"
+  ],
+  "inclusion_decision": null,
+  "natural_subproblems": {
+    "scaffold_app_layer": [
+      "src/flask/sansio/scaffold.py",
+      "src/flask/sansio/app.py",
+      "src/flask/config.py",
+      "tests/test_basic.py"
+    ],
+    "dispatch_context_layer": [
+      "src/flask/app.py",
+      "src/flask/ctx.py",
+      "tests/test_basic.py",
+      "tests/test_reqctx.py",
+      "tests/test_appctx.py"
+    ],
+    "session_json_layer": [
+      "src/flask/sessions.py",
+      "src/flask/json/provider.py",
+      "src/flask/json/tag.py",
+      "tests/test_json.py",
+      "tests/test_session_interface.py"
+    ],
+    "templating_testing_layer": [
+      "src/flask/templating.py",
+      "src/flask/testing.py",
+      "tests/test_templating.py",
+      "tests/test_testing.py"
+    ]
+  },
+  "notes": [
+    "Task source and tests are unchanged; only import, syntax, and class-construction bootstrap overlays are applied.",
+    "The local main/commit0 branch is complete. Benchmark workspaces must be materialized from origin/commit0_combined.",
+    "The evaluator follows the audit recommendation to focus on basic dispatch, request/app context, JSON/session, templating, and testing behavior.",
+    "CLI, async extra, dev-server behavior, and full blueprint edge cases are intentionally out of scope for this v0.3 task.",
+    "The proposed label is a draft curation decision and not a final independent annotation."
+  ],
+  "problem_statement": "Restore the scoped Flask app, context, JSON/session, templating, and testing behavior exercised by the public Commit0 tests without modifying the tests.\n\nThe scaffold/app layer must implement route registration, endpoint naming, URL map setup, config attributes, and callback registries. The dispatch/context layer must consume those contracts to implement request dispatch, response conversion, error handling, and app/request context lifecycle. The session/JSON layer must provide JSONProvider and tagged session serialization contracts consumed by request processing and test clients. The templating/testing layer must consume context state, JSON dumps, and response/session behavior in template rendering and FlaskClient helpers.\n\nThe initial benchmark source is the stripped Commit0-style ref origin/commit0_combined, plus checksum-recorded bootstrap overlays that only make the public tests importable and collectable.",
+  "proposed_parallelizability_label": "partially_parallelizable",
+  "publicly_implicated_modules": [
+    "src/flask/app.py",
+    "src/flask/config.py",
+    "src/flask/ctx.py",
+    "src/flask/json/provider.py",
+    "src/flask/json/tag.py",
+    "src/flask/sansio/app.py",
+    "src/flask/sansio/scaffold.py",
+    "src/flask/sessions.py",
+    "src/flask/templating.py",
+    "src/flask/testing.py"
+  ],
+  "qualification_label": null,
+  "qualification_status": "pending_independent_annotation",
+  "quality_evidence_file": "manifests/pilot/v0.3/quality/commit0_flask.json",
+  "repository": "commit0/flask",
+  "schema_version": "0.3",
+  "source_materialization": "git archive of the stripped Commit0-style Flask ref origin/commit0_combined at af126af63a288df1d4edfe07e82a3b241aa4567a, plus checksum-recorded import/bootstrap overlays in configs/tasks/commit0_curated_tasks.v0.3.json",
+  "task_id": "commit0:flask",
+  "task_source": "Commit0",
+  "test_targets": [
+    "tests/test_basic.py",
+    "tests/test_reqctx.py",
+    "tests/test_appctx.py",
+    "tests/test_json.py",
+    "tests/test_session_interface.py",
+    "tests/test_templating.py",
+    "tests/test_testing.py"
+  ],
+  "upstream_version": "af126af63a288df1d4edfe07e82a3b241aa4567a"
+}

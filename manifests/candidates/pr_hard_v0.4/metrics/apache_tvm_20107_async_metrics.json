@@ -1,0 +1,100 @@
+{
+  "schema_version": "pr-hard-async-metrics-v0.4",
+  "task_id": "pr-hard:apache-tvm-20107",
+  "metric_annotation_id": "pr-hard-apache-tvm-20107.async-metrics.v0.4",
+  "aggregate_metrics": {
+    "primary_async_dependency_ids": [
+      "shared-core-to-relax-signature",
+      "shared-core-to-tirx-signature"
+    ],
+    "ADPR_denominator": "All dependency_points for this candidate.",
+    "minimum_success_condition_for_task_level_async_dependency_resolution": "Both fan-out dependency points pass in the final integrated workspace."
+  },
+  "source_task_record": "manifests/candidates/pr_hard_v0.4/tasks/apache_tvm_20107.json",
+  "source_quality_record": "manifests/candidates/pr_hard_v0.4/qualification/apache_tvm_20107.json",
+  "dependency_points": [
+    {
+      "dependency_id": "shared-core-to-relax-signature",
+      "dependency_type": "shared_api_contract",
+      "producer_subproblem": "shared_script_signature_core",
+      "consumer_subproblem": "relax_dependent_signature",
+      "producer_agent": "script_core_agent",
+      "consumer_agent": "relax_agent",
+      "producer_files": [
+        "include/tvm/script/printer/doc.h",
+        "python/tvm/runtime/script_printer.py",
+        "python/tvm/script/parser/_core.py",
+        "python/tvm/script/parser/core/diagnostics.py",
+        "python/tvm/script/parser/core/doc.py",
+        "python/tvm/script/parser/core/doc_core.py",
+        "python/tvm/script/parser/core/entry.py",
+        "python/tvm/script/parser/core/parser.py",
+        "python/tvm/script/printer/doc.py",
+        "src/script/printer/doc.cc",
+        "src/script/printer/doc_printer/python_doc_printer.cc",
+        "src/script/printer/ir/ir.cc",
+        "src/script/printer/utils.h"
+      ],
+      "consumer_files": [
+        "python/tvm/relax/script/parser/parser.py",
+        "src/relax/script/printer/dependent_type.cc",
+        "src/relax/script/printer/function.cc",
+        "src/relax/script/printer/tir.cc",
+        "src/relax/script/printer/utils.h"
+      ],
+      "contract_summary": "The generic Script AST and document model preserve ordered function type parameters that Relax consumes as dependent symbolic-variable signature metadata.",
+      "stale_failure_mode": "Relax can consume an older document shape, drop type parameters, or print a signature that cannot be parsed back with the same symbolic-variable order.",
+      "upstream_probe_tests": [
+        "tests/python/tvmscript/test_tvmscript_printer_python_doc_printer.py::test_print_function_doc_with_type_params"
+      ],
+      "downstream_probe_tests": [
+        "tests/python/relax/test_tvmscript_type_vars.py::test_type_vars_roundtrip"
+      ],
+      "integrated_probe_tests": [
+        "tests/python/relax/test_tvmscript_type_vars.py::test_type_vars_roundtrip"
+      ],
+      "metrics_enabled": ["ADPR", "DRS", "CAIL", "SAD"]
+    },
+    {
+      "dependency_id": "shared-core-to-tirx-signature",
+      "dependency_type": "shared_api_contract",
+      "producer_subproblem": "shared_script_signature_core",
+      "consumer_subproblem": "tirx_dependent_signature",
+      "producer_agent": "script_core_agent",
+      "consumer_agent": "tirx_agent",
+      "producer_files": [
+        "include/tvm/script/printer/doc.h",
+        "python/tvm/runtime/script_printer.py",
+        "python/tvm/script/parser/_core.py",
+        "python/tvm/script/parser/core/diagnostics.py",
+        "python/tvm/script/parser/core/doc.py",
+        "python/tvm/script/parser/core/doc_core.py",
+        "python/tvm/script/parser/core/entry.py",
+        "python/tvm/script/parser/core/parser.py",
+        "python/tvm/script/printer/doc.py",
+        "src/script/printer/doc.cc",
+        "src/script/printer/doc_printer/python_doc_printer.cc",
+        "src/script/printer/ir/ir.cc",
+        "src/script/printer/utils.h"
+      ],
+      "consumer_files": [
+        "python/tvm/tirx/script/parser/parser.py",
+        "src/tirx/script/printer/buffer.cc",
+        "src/tirx/script/printer/function.cc",
+        "src/tirx/script/printer/utils.h"
+      ],
+      "contract_summary": "The generic Script AST and document model preserve ordered function type parameters that TIRx consumes as dependent symbolic-variable signature metadata.",
+      "stale_failure_mode": "TIRx can consume an older document shape, drop type parameters, or print a signature that cannot be parsed back with the same symbolic-variable order.",
+      "upstream_probe_tests": [
+        "tests/python/tvmscript/test_tvmscript_printer_python_doc_printer.py::test_print_function_doc_with_type_params"
+      ],
+      "downstream_probe_tests": [
+        "tests/python/tirx/test_tvmscript_type_vars.py::test_type_vars_roundtrip"
+      ],
+      "integrated_probe_tests": [
+        "tests/python/tirx/test_tvmscript_type_vars.py::test_type_vars_roundtrip"
+      ],
+      "metrics_enabled": ["ADPR", "DRS", "CAIL", "SAD"]
+    }
+  ]
+}

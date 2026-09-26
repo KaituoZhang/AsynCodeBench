@@ -1,0 +1,255 @@
+{
+  "coordination_structure_tags": [
+    "interface_dependency",
+    "shared_abstraction"
+  ],
+  "environment_requirements": [
+    "Python 3.10.4",
+    "pytest==8.4.2",
+    "pyasn1==0.6.3",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
+    "Run from the repository root with PYTHONPATH=.",
+    "Use the stripped source ref origin/commit0_combined, not the local complete/default main or commit0 branch."
+  ],
+  "evaluation_snapshots": [
+    {
+      "collected": 66,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_common.py",
+        "tests/test_key.py",
+        "tests/test_load_save_keys.py",
+        "tests/test_pem.py",
+        "tests/test_pkcs1.py",
+        "tests/test_prime.py",
+        "tests/test_transform.py",
+        "tests/test_strings.py"
+      ],
+      "dependency_versions": {
+        "pyasn1": "0.6.3",
+        "pytest": "8.4.2"
+      },
+      "duration_seconds": 0.33,
+      "errors": 0,
+      "evidence_scope": "public_initial_state",
+      "failed": 64,
+      "notes": [
+        "Verified in the AsynCodeBench conda environment with PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 and PYTHONPATH=.",
+        "The command uses -o addopts= to disable the upstream pytest-cov addopts requirement in this minimal benchmark environment.",
+        "Failures are substantive unfinished implementation failures across arithmetic, key generation, serialization, and PKCS#1 behavior."
+      ],
+      "passed": 2,
+      "python_version": "3.10.4",
+      "return_code": 1,
+      "schema_version": "0.3",
+      "skipped": 0,
+      "snapshot_id": "commit0_combined_initial_evaluator",
+      "source_ref": "origin/commit0_combined:228b947d61f06612107205ab369a017ff63f9a8f"
+    },
+    {
+      "collected": 78,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_common.py",
+        "tests/test_key.py",
+        "tests/test_load_save_keys.py",
+        "tests/test_pem.py",
+        "tests/test_pkcs1.py",
+        "tests/test_prime.py",
+        "tests/test_transform.py",
+        "tests/test_strings.py"
+      ],
+      "dependency_versions": {
+        "pyasn1": "0.6.3",
+        "pytest": "8.4.2"
+      },
+      "duration_seconds": 1.95,
+      "errors": 0,
+      "evidence_scope": "evaluator_sanity_only",
+      "failed": 0,
+      "notes": [
+        "The local complete/default main branch passes the same scoped evaluator after installing pyasn1, the runtime dependency declared in pyproject.toml.",
+        "The complete ref is evaluator validation only and must not define decomposition, prompts, or agent-visible evidence."
+      ],
+      "passed": 78,
+      "python_version": "3.10.4",
+      "return_code": 0,
+      "schema_version": "0.3",
+      "skipped": 0,
+      "snapshot_id": "complete_commit0_evaluator_sanity",
+      "source_ref": "commit0/main:63772a68c3cd74b8714302f33d1ac13ec1a1fa52"
+    }
+  ],
+  "known_limitations": [
+    "The local main/commit0 branch is complete. Benchmark workspaces must be materialized from origin/commit0_combined.",
+    "CLI, parallel, mypy, and pkcs1_v2 tests are excluded because the v0.3 task targets the core library dependency chain.",
+    "Single-agent and multi-agent model results are evaluation outputs to report, not dataset qualification gates."
+  ],
+  "public_statement_sources": [
+    "README.md@origin/commit0_combined",
+    "rsa/*.py docstrings@origin/commit0_combined",
+    "tests/test_*.py@origin/commit0_combined",
+    "pyproject.toml@origin/commit0_combined"
+  ],
+  "quality_status": "qualification_ready",
+  "remaining_gates": [
+    "two independent human inclusion/exclusion annotations"
+  ],
+  "schema_version": "0.3",
+  "structure_rationale": "The task exposes natural async contracts from arithmetic and integer codecs to key generation, then from key/serialization contracts to the PKCS#1 crypto API. Downstream agents can make plausible but stale assumptions about inverse behavior, key CRT fields, byte sizing, DER/PEM return types, or padding contracts.",
+  "task_id": "commit0:python-rsa",
+  "test_groups": [
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_common.py",
+        "tests/test_prime.py",
+        "tests/test_transform.py"
+      ],
+      "description": "Integer sizing, modular inverse, primality, random-prime support, and integer/byte codec behavior.",
+      "group_id": "arithmetic_codec_local",
+      "owner_subproblem": "arithmetic_and_codec_core",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_key.py"
+      ],
+      "description": "RSA key generation, exponent/coefficient calculation, blinding, and key hashability.",
+      "group_id": "key_model_local",
+      "owner_subproblem": "key_generation_and_model",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_load_save_keys.py",
+        "tests/test_pem.py"
+      ],
+      "description": "DER and PEM load/save behavior for public and private keys.",
+      "group_id": "serialization_local",
+      "owner_subproblem": "serialization_contracts",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_pkcs1.py",
+        "tests/test_strings.py"
+      ],
+      "description": "PKCS#1 encrypt/decrypt, sign/verify, and string round-trips.",
+      "group_id": "pkcs1_local",
+      "owner_subproblem": "pkcs1_crypto_api",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_common.py::TestInverse::test_normal",
+        "tests/test_prime.py::PrimeTest::test_is_prime",
+        "tests/test_key.py::KeyGenTest::test_default_exponent",
+        "tests/test_key.py::KeyGenTest::test_custom_exponent"
+      ],
+      "description": "Key generation after modular inverse and primality contracts are integrated.",
+      "group_id": "arithmetic_key_cross_contract",
+      "owner_subproblem": null,
+      "prerequisites": [
+        "arithmetic_and_codec_core artifact is integrated",
+        "key_generation_and_model artifact is integrated"
+      ],
+      "purpose": "cross_subproblem",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_load_save_keys.py::PemTest::test_load_private_key",
+        "tests/test_pem.py::TestMarkers::test_values",
+        "tests/test_pkcs1.py::SignatureTest::test_sign_verify"
+      ],
+      "description": "PKCS#1 signing after key model and PEM/DER serialization contracts are integrated.",
+      "group_id": "serialization_pkcs1_cross_contract",
+      "owner_subproblem": null,
+      "prerequisites": [
+        "key_generation_and_model artifact is integrated",
+        "serialization_contracts artifact is integrated",
+        "pkcs1_crypto_api artifact is integrated"
+      ],
+      "purpose": "cross_subproblem",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_common.py",
+        "tests/test_key.py",
+        "tests/test_load_save_keys.py",
+        "tests/test_pem.py",
+        "tests/test_pkcs1.py",
+        "tests/test_prime.py",
+        "tests/test_transform.py",
+        "tests/test_strings.py"
+      ],
+      "description": "Core public python-rsa tests for common arithmetic, key generation, load/save, PEM, PKCS#1, primality, transforms, and string round-trips.",
+      "group_id": "full_evaluator",
+      "owner_subproblem": null,
+      "prerequisites": [],
+      "purpose": "full_evaluator",
+      "schema_version": "0.3"
+    }
+  ]
+}

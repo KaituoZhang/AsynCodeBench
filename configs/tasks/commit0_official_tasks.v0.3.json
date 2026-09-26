@@ -1,0 +1,46 @@
+{
+  "schema_version": "commit0-official-tasks-v0.3",
+  "source_candidate_policy": {
+    "original_user_candidate_count": 20,
+    "selection_rule": "Retain only the 15 Commit0-derived tasks included in the matched v0.4 community benchmark. Historical and excluded task artifacts are not distributed in the clean community branch.",
+    "excluded_candidates": [
+      {
+        "repository": "dulwich",
+        "reason": "Removed from the official release after execution review."
+      },
+      {
+        "repository": "fabric",
+        "reason": "Excluded after feasibility review; no official v0.3 task artifacts are released for this repository."
+      },
+      {
+        "repository": "fastapi",
+        "reason": "Excluded from the official v0.3 release set because the current task remains needs_revision: the scoped evaluator and bootstrap overlay require pinned-environment validation and human review before formal benchmark use."
+      },
+      {
+        "repository": "python-progressbar",
+        "reason": "Excluded from the official release after suitability review."
+      },
+      {
+        "repository": "graphene",
+        "reason": "Excluded from the matched 19-task v0.4 benchmark because its decomposition and measurement contract were not comparable to the retained tasks."
+      }
+    ]
+  },
+  "official_tasks": [
+    "cachetools",
+    "deprecated",
+    "portalocker",
+    "tinydb",
+    "wcwidth",
+    "requests",
+    "simpy",
+    "parsel",
+    "filesystem_spec",
+    "marshmallow",
+    "imapclient",
+    "pexpect",
+    "flask",
+    "python-rsa",
+    "cookiecutter"
+  ]
+}

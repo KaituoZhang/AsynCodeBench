@@ -1,0 +1,180 @@
+{
+  "aggregate_metrics": {
+    "ADPR_denominator": "All dependency_points unless a paper section explicitly reports primary_async_dependency_ids only.",
+    "dependency_point_count": 3,
+    "minimum_success_condition_for_task_level_async_dependency_resolution": "Both primary_async_dependency_ids pass in the final integrated workspace.",
+    "primary_async_dependency_ids": [
+      "requests.prep_to_transport.prepared_request_contract",
+      "requests.utils_to_adapters.proxy_tls_url_contract"
+    ],
+    "primary_paper_dependency_id": "requests.prep_to_transport.prepared_request_contract"
+  },
+  "annotation_notes": [
+    "The prep_to_transport dependency is the primary signal because Sessions and HTTPAdapter rely on prepared request, hook, cookie, auth, response, and utility contracts.",
+    "The proxy_tls_url dependency captures Requests-specific async risk around URL/proxy/TLS helper behavior consumed by adapters.",
+    "These labels identify public test-observable contracts and implicated files, not solution code."
+  ],
+  "dependency_points": [
+    {
+      "consumer_agent": "transport_agent",
+      "consumer_files": [
+        "src/requests/sessions.py",
+        "src/requests/adapters.py"
+      ],
+      "consumer_subproblem": "session_transport_layer",
+      "contract_summary": "PreparedRequest, Response, hooks, cookies, auth, and body/header utilities must be stable for Session and HTTPAdapter consumers.",
+      "dependency_id": "requests.prep_to_transport.prepared_request_contract",
+      "dependency_type": "interface_dependency",
+      "downstream_probe_tests": [
+        "tests/test_adapters.py::test_request_url_trims_leading_path_separators"
+      ],
+      "integrated_probe_tests": [
+        "tests/test_hooks.py::test_default_hooks",
+        "tests/test_utils.py::test_get_auth_from_url",
+        "tests/test_adapters.py::test_request_url_trims_leading_path_separators"
+      ],
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL",
+        "SAD"
+      ],
+      "primary_paper_probe": true,
+      "producer_agent": "prep_agent",
+      "producer_files": [
+        "src/requests/models.py",
+        "src/requests/cookies.py",
+        "src/requests/hooks.py",
+        "src/requests/auth.py",
+        "src/requests/utils.py"
+      ],
+      "producer_subproblem": "request_preparation_core",
+      "resolution_criteria": "Resolved when hook/auth preparation probes and adapter consumer probes pass in the integrated workspace.",
+      "stale_failure_mode": "The transport agent may implement send or adapter behavior against stale PreparedRequest, hook, cookie, or body-length assumptions.",
+      "upstream_probe_tests": [
+        "tests/test_hooks.py::test_default_hooks",
+        "tests/test_hooks.py::test_hooks",
+        "tests/test_utils.py::test_get_auth_from_url"
+      ]
+    },
+    {
+      "consumer_agent": "transport_agent",
+      "consumer_files": [
+        "src/requests/adapters.py",
+        "src/requests/sessions.py"
+      ],
+      "consumer_subproblem": "session_transport_layer",
+      "contract_summary": "Proxy selection, URL normalization, auth extraction, and TLS path helpers must match adapter and session expectations.",
+      "dependency_id": "requests.utils_to_adapters.proxy_tls_url_contract",
+      "dependency_type": "shared_api_contract",
+      "downstream_probe_tests": [
+        "tests/test_adapters.py::test_request_url_trims_leading_path_separators"
+      ],
+      "integrated_probe_tests": [
+        "tests/test_utils.py::test_select_proxies",
+        "tests/test_utils.py::test_prepend_scheme_if_needed",
+        "tests/test_adapters.py::test_request_url_trims_leading_path_separators"
+      ],
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL",
+        "SAD"
+      ],
+      "producer_agent": "prep_agent",
+      "producer_files": [
+        "src/requests/utils.py",
+        "src/requests/auth.py"
+      ],
+      "producer_subproblem": "request_preparation_core",
+      "resolution_criteria": "Resolved when URL/proxy utility probes and adapter URL consumer probes pass after integration.",
+      "stale_failure_mode": "The transport agent may encode proxies or request URLs around outdated utility contracts, with failures surfacing only in adapter tests.",
+      "upstream_probe_tests": [
+        "tests/test_utils.py::test_select_proxies",
+        "tests/test_utils.py::test_prepend_scheme_if_needed",
+        "tests/test_utils.py::test_urldefragauth"
+      ]
+    },
+    {
+      "consumer_agent": "integration_agent",
+      "consumer_files": [
+        "src/requests/__init__.py"
+      ],
+      "consumer_subproblem": "integration_validation",
+      "contract_summary": "Foundation structures, status codes, utilities, and compatibility exports must support package import and vendored dependency checks.",
+      "dependency_id": "requests.foundation_to_public_api.package_contract",
+      "dependency_type": "interface_dependency",
+      "downstream_probe_tests": [
+        "tests/test_packages.py::test_can_access_urllib3_attribute",
+        "tests/test_packages.py::test_can_access_idna_attribute",
+        "tests/test_packages.py::test_can_access_chardet_attribute"
+      ],
+      "integrated_probe_tests": [
+        "tests/test_utils.py::test_to_native_string",
+        "tests/test_packages.py::test_can_access_urllib3_attribute",
+        "tests/test_packages.py::test_can_access_idna_attribute"
+      ],
+      "metrics_enabled": [
+        "ADPR",
+        "DRS",
+        "CAIL",
+        "SAD"
+      ],
+      "producer_agent": "prep_agent",
+      "producer_files": [
+        "src/requests/status_codes.py",
+        "src/requests/structures.py",
+        "src/requests/utils.py"
+      ],
+      "producer_subproblem": "request_preparation_core",
+      "resolution_criteria": "Resolved when foundation utility probes and package compatibility probes pass in the integrated workspace.",
+      "stale_failure_mode": "The integration agent may preserve package exports around stale foundation assumptions, causing import/package tests to fail late.",
+      "upstream_probe_tests": [
+        "tests/test_utils.py::test_to_native_string",
+        "tests/test_utils.py::test_unicode_is_ascii"
+      ]
+    }
+  ],
+  "evaluation_checkpoint_policy": {
+    "checkpoint_record_fields": [
+      "run_id",
+      "scenario_id",
+      "checkpoint_id",
+      "logical_iteration",
+      "agent_id",
+      "visible_upstream_artifact_version",
+      "integrated_workspace_version",
+      "probe_test_results"
+    ],
+    "minimum_policy": "Run probe tests after each agent final artifact and after final integration.",
+    "recommended_policy": "Run probe tests after every committed patch, every explicit artifact transfer, and final integration."
+  },
+  "metric_annotation_id": "commit0-requests.async-metrics.v0.3",
+  "metric_definitions": {
+    "ADPR": {
+      "definition": "Fraction of registered dependency_points whose required integrated_probe_tests pass in the final integrated workspace.",
+      "name": "Async Dependency Pass Rate",
+      "unit": "fraction"
+    },
+    "CAIL": {
+      "definition": "downstream_resolution_step minus upstream_resolution_step when both probe groups have been evaluated.",
+      "name": "Cross-Agent Integration Lag",
+      "unit": "agent iteration or evaluation checkpoint"
+    },
+    "DRS": {
+      "definition": "First recorded checkpoint at which all required integrated_probe_tests for a dependency point pass.",
+      "name": "Dependency Resolution Step",
+      "unit": "agent iteration or evaluation checkpoint"
+    },
+    "SAD": {
+      "definition": "Interval during which a downstream worker acts on a contract assumption inconsistent with the latest upstream artifact visible in the integrated history.",
+      "name": "Stale Assumption Duration",
+      "unit": "agent iteration or event interval"
+    }
+  },
+  "purpose": "Dependency-level labels for measuring whether asynchronous multi-agent coding resolves Requests' preparation-to-transport contracts promptly.",
+  "schema_version": "0.3-async-metrics",
+  "source_quality_record": "manifests/pilot/v0.3/quality/commit0_requests.json",
+  "source_task_record": "manifests/pilot/v0.3/tasks/commit0_requests.json",
+  "task_id": "commit0:requests"
+}

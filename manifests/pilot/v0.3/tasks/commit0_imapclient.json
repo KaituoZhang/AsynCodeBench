@@ -1,0 +1,139 @@
+{
+  "annotation_provenance": [],
+  "candidate_evidence_file": "docs/audits/COMMIT0_CANDIDATE_REVIEW_chardet_dnspython_imapclient_v0.3.md",
+  "dependency_annotations": [
+    {
+      "consumer_subproblem": "response_parser_layer",
+      "dependency_type": "api_contract",
+      "description": "Response parser behavior consumes lexer tokenization, literal handling, IMAP protocol assertion, and bytes/text utility contracts.",
+      "evidence_paths": [
+        "imapclient/response_lexer.py",
+        "imapclient/util.py",
+        "imapclient/response_parser.py",
+        "tests/test_response_lexer.py",
+        "tests/test_response_parser.py"
+      ],
+      "producer_subproblem": "utility_lexer_layer",
+      "schema_version": "0.3"
+    },
+    {
+      "consumer_subproblem": "client_command_layer",
+      "dependency_type": "api_contract",
+      "description": "High-level IMAPClient search, fetch, folder, status, and store behavior consumes typed parsed response shapes from response_parser and response_types.",
+      "evidence_paths": [
+        "imapclient/response_parser.py",
+        "imapclient/response_types.py",
+        "imapclient/imapclient.py",
+        "tests/test_response_parser.py",
+        "tests/test_search.py",
+        "tests/test_folder_status.py",
+        "tests/test_store.py",
+        "tests/test_imapclient.py"
+      ],
+      "producer_subproblem": "response_parser_layer",
+      "schema_version": "0.3"
+    },
+    {
+      "consumer_subproblem": "client_command_layer",
+      "dependency_type": "shared_state_contract",
+      "description": "Client command construction and response normalization consume IMAP UTF-7, date formatting, bytes/text conversion, and fixed-offset datetime contracts.",
+      "evidence_paths": [
+        "imapclient/imap_utf7.py",
+        "imapclient/datetime_util.py",
+        "imapclient/fixed_offset.py",
+        "imapclient/util.py",
+        "imapclient/imapclient.py",
+        "tests/test_imap_utf7.py",
+        "tests/test_datetime_util.py",
+        "tests/test_util_functions.py",
+        "tests/test_search.py",
+        "tests/test_imapclient.py"
+      ],
+      "producer_subproblem": "utility_lexer_layer",
+      "schema_version": "0.3"
+    }
+  ],
+  "evaluator_command": [
+    "python3.10",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "tests/test_response_lexer.py",
+    "tests/test_response_parser.py",
+    "tests/test_imapclient.py",
+    "tests/test_search.py",
+    "tests/test_folder_status.py",
+    "tests/test_store.py",
+    "tests/test_datetime_util.py",
+    "tests/test_imap_utf7.py",
+    "tests/test_util_functions.py"
+  ],
+  "inclusion_decision": null,
+  "natural_subproblems": {
+    "client_command_layer": [
+      "imapclient/imapclient.py",
+      "imapclient/testable_imapclient.py",
+      "tests/test_imapclient.py",
+      "tests/test_search.py",
+      "tests/test_folder_status.py",
+      "tests/test_store.py"
+    ],
+    "response_parser_layer": [
+      "imapclient/response_parser.py",
+      "imapclient/response_types.py",
+      "tests/test_response_parser.py"
+    ],
+    "utility_lexer_layer": [
+      "imapclient/datetime_util.py",
+      "imapclient/fixed_offset.py",
+      "imapclient/imap_utf7.py",
+      "imapclient/response_lexer.py",
+      "imapclient/util.py",
+      "tests/test_response_lexer.py",
+      "tests/test_datetime_util.py",
+      "tests/test_imap_utf7.py",
+      "tests/test_util_functions.py"
+    ]
+  },
+  "notes": [
+    "Task source and tests are unchanged; only import/bootstrap overlays are applied.",
+    "The local master/commit0 branch is complete. Benchmark workspaces must be materialized from origin/commit0_combined.",
+    "The evaluator is scoped to response lexer/parser, typed responses, and high-level IMAPClient command behavior.",
+    "The proposed label is a draft curation decision and not a final independent annotation."
+  ],
+  "problem_statement": "Restore the scoped IMAPClient lexer, response parser, typed response, utility, and high-level client command behavior exercised by the public Commit0 tests without modifying the tests.\n\nThe utility/lexer layer must implement tokenization, literal handling, IMAP UTF-7, datetime/fixed-offset conversion, bytes/text helpers, and command formatting helpers. The parser layer must consume lexer and utility contracts to implement parse_response, parse_message_list, parse_fetch_response, and typed Address/Envelope/BodyData/SearchIds outputs. The client command layer must consume those typed parser outputs and utility contracts to implement search, fetch-related normalization, folder/status/store behavior, quota helpers, capabilities, raw commands, and command argument construction.\n\nThe initial benchmark source is the stripped Commit0-style ref origin/commit0_combined, plus checksum-recorded bootstrap overlays that only make public tests importable and collectable.",
+  "proposed_parallelizability_label": "partially_parallelizable",
+  "publicly_implicated_modules": [
+    "imapclient/datetime_util.py",
+    "imapclient/fixed_offset.py",
+    "imapclient/imap_utf7.py",
+    "imapclient/imapclient.py",
+    "imapclient/response_lexer.py",
+    "imapclient/response_parser.py",
+    "imapclient/response_types.py",
+    "imapclient/util.py",
+    "imapclient/version.py"
+  ],
+  "qualification_label": null,
+  "qualification_status": "pending_independent_annotation",
+  "quality_evidence_file": "manifests/pilot/v0.3/quality/commit0_imapclient.json",
+  "repository": "commit0/imapclient",
+  "schema_version": "0.3",
+  "source_materialization": "git archive of the stripped Commit0-style imapclient ref origin/commit0_combined at 7ca5a23640bcb0b102673eaaf5eaa6e7fcebd76b, plus checksum-recorded import/bootstrap overlays in configs/tasks/commit0_curated_tasks.v0.3.json",
+  "task_id": "commit0:imapclient",
+  "task_source": "Commit0",
+  "test_targets": [
+    "tests/test_response_lexer.py",
+    "tests/test_response_parser.py",
+    "tests/test_imapclient.py",
+    "tests/test_search.py",
+    "tests/test_folder_status.py",
+    "tests/test_store.py",
+    "tests/test_datetime_util.py",
+    "tests/test_imap_utf7.py",
+    "tests/test_util_functions.py"
+  ],
+  "upstream_version": "7ca5a23640bcb0b102673eaaf5eaa6e7fcebd76b"
+}

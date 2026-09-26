@@ -1,0 +1,320 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://anonymous.invalid/schemas/v0.4/pr_hard_candidate_registry.schema.json",
+  "title": "AsynCodeBench PR-hard candidate registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "release_status",
+    "environment_registry",
+    "source_policy",
+    "records"
+  ],
+  "properties": {
+    "schema_version": {"const": "pr-hard-candidates-v0.4"},
+    "release_status": {"const": "official_release_frozen"},
+    "environment_registry": {
+      "const": "configs/environments/pr_hard_tvm.v0.4.json"
+    },
+    "source_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "base_state",
+        "public_evidence",
+        "gold_policy",
+        "model_visible_git_history",
+        "trajectory_used_for_construction"
+      ],
+      "properties": {
+        "base_state": {"const": "first_parent_of_merged_pr"},
+        "public_evidence": {"const": "selected_upstream_test_changes_only"},
+        "gold_policy": {"const": "offline_qualification_only"},
+        "model_visible_git_history": {"const": false},
+        "trajectory_used_for_construction": {"const": false}
+      }
+    },
+    "records": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/candidate"}
+    }
+  },
+  "$defs": {
+    "sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "command": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "string_array": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "public_overlay": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "policy"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^data/overlays/pr_hard/.+\\.patch$"
+        },
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "policy": {
+          "enum": ["test_only_answer_free", "test_only_answer_free_sanitized"]
+        },
+        "sanitization_notes": {"type": "string", "minLength": 1}
+      }
+    },
+    "subproblem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "subproblem_id",
+        "role",
+        "writable_paths",
+        "primary_test_targets"
+      ],
+      "properties": {
+        "subproblem_id": {"type": "string", "minLength": 1},
+        "role": {"type": "string", "minLength": 1},
+        "writable_paths": {"$ref": "#/$defs/string_array"},
+        "primary_test_targets": {"$ref": "#/$defs/string_array"}
+      }
+    },
+    "dependency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dependency_id",
+        "producer_subproblem",
+        "consumer_subproblem",
+        "dependency_type",
+        "contract",
+        "upstream_evidence",
+        "downstream_evidence",
+        "integrated_evidence"
+      ],
+      "properties": {
+        "dependency_id": {"type": "string", "minLength": 1},
+        "producer_subproblem": {"type": "string", "minLength": 1},
+        "consumer_subproblem": {"type": "string", "minLength": 1},
+        "dependency_type": {
+          "enum": ["import", "api_contract", "test_contract", "integration"]
+        },
+        "contract": {"type": "string", "minLength": 40},
+        "upstream_evidence": {"$ref": "#/$defs/string_array"},
+        "downstream_evidence": {"$ref": "#/$defs/string_array"},
+        "integrated_evidence": {"$ref": "#/$defs/string_array"}
+      }
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "task_id",
+        "candidate_kind",
+        "repository",
+        "repository_url",
+        "pull_request_url",
+        "pull_request_number",
+        "base_sha",
+        "gold_sha",
+        "problem_statement",
+        "public_test_overlay",
+        "editable_paths",
+        "public_test_paths",
+        "focused_evaluator",
+        "regression_evaluator",
+        "environment_profile",
+        "difficulty_evidence",
+        "execution_eligibility",
+        "qualification_status"
+      ],
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "pattern": "^pr-hard:[a-z0-9_.-]+-[a-z0-9_.-]+-[0-9]+$"
+        },
+        "candidate_kind": {
+          "enum": ["single_agent_calibration", "multi_agent_benchmark_candidate"]
+        },
+        "repository": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+        },
+        "repository_url": {
+          "type": "string",
+          "pattern": "^https://github\\.com/.+\\.git$"
+        },
+        "pull_request_url": {
+          "type": "string",
+          "pattern": "^https://github\\.com/.+/pull/[0-9]+$"
+        },
+        "pull_request_number": {"type": "integer", "minimum": 1},
+        "base_sha": {"$ref": "#/$defs/sha"},
+        "gold_sha": {"$ref": "#/$defs/sha"},
+        "problem_statement": {"type": "string", "minLength": 80},
+        "public_test_overlay": {"$ref": "#/$defs/public_overlay"},
+        "supplemental_public_test_overlays": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/public_overlay"}
+        },
+        "editable_paths": {"$ref": "#/$defs/string_array"},
+        "public_test_paths": {"$ref": "#/$defs/string_array"},
+        "focused_evaluator": {"$ref": "#/$defs/command"},
+        "regression_evaluator": {"$ref": "#/$defs/command"},
+        "environment_profile": {
+          "enum": [
+            "tvm-cpu-llvm-source-build",
+            "tvm-cuda-codegen-source-build"
+          ]
+        },
+        "difficulty_evidence": {
+          "type": "object",
+          "required": [
+            "language_boundary",
+            "reasoning_scope",
+            "production_files_changed_by_gold",
+            "production_additions",
+            "production_deletions"
+          ],
+          "properties": {
+            "language_boundary": {"$ref": "#/$defs/string_array"},
+            "reasoning_scope": {"$ref": "#/$defs/string_array"},
+            "production_files_changed_by_gold": {"type": "integer", "minimum": 1},
+            "production_additions": {"type": "integer", "minimum": 1},
+            "production_deletions": {"type": "integer", "minimum": 0},
+            "upstream_reported_focused_base_result": {"type": "string"},
+            "upstream_reported_focused_gold_result": {"type": "string"}
+          }
+        },
+        "natural_responsibility_hypothesis": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["producer", "consumer", "contract", "status", "reason"],
+          "properties": {
+            "producer": {"type": "string", "minLength": 1},
+            "consumer": {"type": "string", "minLength": 1},
+            "contract": {"type": "string", "minLength": 1},
+            "status": {
+              "const": "not_admissible_for_current_path_owned_async_conditions"
+            },
+            "reason": {"type": "string", "minLength": 1}
+          }
+        },
+        "natural_subproblems": {
+          "type": "array",
+          "minItems": 2,
+          "items": {"$ref": "#/$defs/subproblem"}
+        },
+        "dependency_points": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/dependency"}
+        },
+        "scenario_manifest": {
+          "type": "string",
+          "pattern": "^manifests/candidates/pr_hard_v0\\.4/scenarios/.+\\.json$"
+        },
+        "qualification_record": {
+          "type": "string",
+          "pattern": "^manifests/candidates/pr_hard_v0\\.4/qualification/.+\\.json$"
+        },
+        "execution_eligibility": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "iterative_single_agent",
+              "iterative_single",
+              "serial_specialists",
+              "async_private",
+              "async_message"
+            ]
+          }
+        },
+        "qualification_status": {
+          "enum": [
+            "pending_local_red_green_and_environment_freeze",
+            "pending_local_red_green_environment_and_human_review",
+            "pending_human_review",
+            "qualified",
+            "needs_revision"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"candidate_kind": {"const": "single_agent_calibration"}}
+          },
+          "then": {
+            "required": ["natural_responsibility_hypothesis"],
+            "properties": {
+              "execution_eligibility": {
+                "prefixItems": [{"const": "iterative_single_agent"}],
+                "items": false,
+                "minItems": 1,
+                "maxItems": 1
+              },
+              "qualification_status": {
+                "const": "pending_local_red_green_and_environment_freeze"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "candidate_kind": {"const": "multi_agent_benchmark_candidate"}
+            }
+          },
+          "then": {
+            "required": [
+              "natural_subproblems",
+              "dependency_points",
+              "scenario_manifest",
+              "qualification_record"
+            ],
+            "oneOf": [
+              {
+                "properties": {
+                  "execution_eligibility": {
+                    "prefixItems": [
+                      {"const": "iterative_single"},
+                      {"const": "serial_specialists"},
+                      {"const": "async_private"},
+                      {"const": "async_message"}
+                    ],
+                    "items": false,
+                    "minItems": 4,
+                    "maxItems": 4
+                  },
+                  "qualification_status": {
+                    "enum": ["pending_human_review", "qualified"]
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "execution_eligibility": {
+                    "maxItems": 0
+                  },
+                  "qualification_status": {
+                    "const": "needs_revision"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

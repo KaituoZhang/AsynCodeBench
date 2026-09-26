@@ -1,0 +1,296 @@
+{
+  "scenarios": [
+    {
+      "agent_count": 1,
+      "assignments": [
+        {
+          "agent_id": "integrator",
+          "primary_test_targets": [
+            "portalocker_tests/tests.py",
+            "portalocker_tests/test_semaphore.py",
+            "portalocker_tests/temporary_file_lock.py",
+            "portalocker_tests/test_combined.py"
+          ],
+          "role": "iterative full-task coding agent",
+          "schema_version": "0.3",
+          "subproblem_id": "full_task",
+          "writable_paths": [
+            "portalocker/portalocker.py",
+            "portalocker/utils.py"
+          ]
+        }
+      ],
+      "communication_condition": "not_applicable",
+      "competence_gate_required": true,
+      "concurrent_execution": false,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "file_lock_utilities",
+          "dependency_type": "api_contract",
+          "description": "Lock, RLock, and semaphore utilities call the platform lock/unlock backend and depend on its flags and exceptions.",
+          "evidence_paths": [
+            "portalocker/portalocker.py",
+            "portalocker/utils.py",
+            "portalocker_tests/tests.py"
+          ],
+          "producer_subproblem": "platform_lock_backend",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "integration_validation",
+          "dependency_type": "test_contract",
+          "description": "Semaphore, temporary-file, process-lock, and combined-module tests require consistent backend and utility semantics.",
+          "evidence_paths": [
+            "portalocker/utils.py",
+            "portalocker_tests/tests.py",
+            "portalocker_tests/test_semaphore.py",
+            "portalocker_tests/temporary_file_lock.py",
+            "portalocker_tests/test_combined.py"
+          ],
+          "producer_subproblem": "file_lock_utilities",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "iterative_single",
+      "information_profile": "complete-task",
+      "integration_policy": "Agent submits its final workspace.",
+      "message_delivery_policy": "No inter-agent messages.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-portalocker.iterative-single.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 32,
+      "task_id": "commit0:portalocker",
+      "test_budget_per_agent": 10,
+      "token_budget_per_agent": 80000,
+      "wall_clock_budget_seconds": 2400
+    },
+    {
+      "agent_count": 2,
+      "assignments": [
+        {
+          "agent_id": "backend_agent",
+          "primary_test_targets": [
+            "portalocker_tests/tests.py"
+          ],
+          "role": "platform lock and unlock backend specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "platform_lock_backend",
+          "writable_paths": [
+            "portalocker/portalocker.py"
+          ]
+        },
+        {
+          "agent_id": "utilities_agent",
+          "primary_test_targets": [
+            "portalocker_tests/tests.py",
+            "portalocker_tests/test_semaphore.py",
+            "portalocker_tests/temporary_file_lock.py"
+          ],
+          "role": "file lock, reentrant lock, and semaphore specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "file_lock_utilities",
+          "writable_paths": [
+            "portalocker/utils.py"
+          ]
+        }
+      ],
+      "communication_condition": "completed_artifact_handoff",
+      "competence_gate_required": true,
+      "concurrent_execution": false,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "file_lock_utilities",
+          "dependency_type": "api_contract",
+          "description": "Lock, RLock, and semaphore utilities call the platform lock/unlock backend and depend on its flags and exceptions.",
+          "evidence_paths": [
+            "portalocker/portalocker.py",
+            "portalocker/utils.py",
+            "portalocker_tests/tests.py"
+          ],
+          "producer_subproblem": "platform_lock_backend",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "integration_validation",
+          "dependency_type": "test_contract",
+          "description": "Semaphore, temporary-file, process-lock, and combined-module tests require consistent backend and utility semantics.",
+          "evidence_paths": [
+            "portalocker/utils.py",
+            "portalocker_tests/tests.py",
+            "portalocker_tests/test_semaphore.py",
+            "portalocker_tests/temporary_file_lock.py",
+            "portalocker_tests/test_combined.py"
+          ],
+          "producer_subproblem": "file_lock_utilities",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "serial_specialists",
+      "information_profile": "private-workspace",
+      "integration_policy": "Integrate the backend before starting utilities, then run the POSIX core evaluator.",
+      "message_delivery_policy": "The backend specialist completes first. The utilities specialist then receives the completed backend artifact and its targeted test result.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-portalocker.serial-specialists.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 32,
+      "task_id": "commit0:portalocker",
+      "test_budget_per_agent": 10,
+      "token_budget_per_agent": 80000,
+      "wall_clock_budget_seconds": 2400
+    },
+    {
+      "agent_count": 2,
+      "assignments": [
+        {
+          "agent_id": "backend_agent",
+          "primary_test_targets": [
+            "portalocker_tests/tests.py"
+          ],
+          "role": "platform lock and unlock backend specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "platform_lock_backend",
+          "writable_paths": [
+            "portalocker/portalocker.py"
+          ]
+        },
+        {
+          "agent_id": "utilities_agent",
+          "primary_test_targets": [
+            "portalocker_tests/tests.py",
+            "portalocker_tests/test_semaphore.py",
+            "portalocker_tests/temporary_file_lock.py"
+          ],
+          "role": "file lock, reentrant lock, and semaphore specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "file_lock_utilities",
+          "writable_paths": [
+            "portalocker/utils.py"
+          ]
+        }
+      ],
+      "communication_condition": "none_in_flight",
+      "competence_gate_required": true,
+      "concurrent_execution": true,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "file_lock_utilities",
+          "dependency_type": "api_contract",
+          "description": "Lock, RLock, and semaphore utilities call the platform lock/unlock backend and depend on its flags and exceptions.",
+          "evidence_paths": [
+            "portalocker/portalocker.py",
+            "portalocker/utils.py",
+            "portalocker_tests/tests.py"
+          ],
+          "producer_subproblem": "platform_lock_backend",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "integration_validation",
+          "dependency_type": "test_contract",
+          "description": "Semaphore, temporary-file, process-lock, and combined-module tests require consistent backend and utility semantics.",
+          "evidence_paths": [
+            "portalocker/utils.py",
+            "portalocker_tests/tests.py",
+            "portalocker_tests/test_semaphore.py",
+            "portalocker_tests/temporary_file_lock.py",
+            "portalocker_tests/test_combined.py"
+          ],
+          "producer_subproblem": "file_lock_utilities",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "async_private",
+      "information_profile": "private-workspace",
+      "integration_policy": "Run all specialists concurrently and integrate final artifacts only after all workers finish.",
+      "message_delivery_policy": "No in-flight worker messages or artifacts are delivered.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-portalocker.async-private.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 32,
+      "task_id": "commit0:portalocker",
+      "test_budget_per_agent": 10,
+      "token_budget_per_agent": 80000,
+      "wall_clock_budget_seconds": 2400
+    },
+    {
+      "agent_count": 2,
+      "assignments": [
+        {
+          "agent_id": "backend_agent",
+          "primary_test_targets": [
+            "portalocker_tests/tests.py"
+          ],
+          "role": "platform lock and unlock backend specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "platform_lock_backend",
+          "writable_paths": [
+            "portalocker/portalocker.py"
+          ]
+        },
+        {
+          "agent_id": "utilities_agent",
+          "primary_test_targets": [
+            "portalocker_tests/tests.py",
+            "portalocker_tests/test_semaphore.py",
+            "portalocker_tests/temporary_file_lock.py"
+          ],
+          "role": "file lock, reentrant lock, and semaphore specialist",
+          "schema_version": "0.3",
+          "subproblem_id": "file_lock_utilities",
+          "writable_paths": [
+            "portalocker/utils.py"
+          ]
+        }
+      ],
+      "communication_condition": "structured_message_and_artifact",
+      "competence_gate_required": true,
+      "concurrent_execution": true,
+      "dependency_annotations": [
+        {
+          "consumer_subproblem": "file_lock_utilities",
+          "dependency_type": "api_contract",
+          "description": "Lock, RLock, and semaphore utilities call the platform lock/unlock backend and depend on its flags and exceptions.",
+          "evidence_paths": [
+            "portalocker/portalocker.py",
+            "portalocker/utils.py",
+            "portalocker_tests/tests.py"
+          ],
+          "producer_subproblem": "platform_lock_backend",
+          "schema_version": "0.3"
+        },
+        {
+          "consumer_subproblem": "integration_validation",
+          "dependency_type": "test_contract",
+          "description": "Semaphore, temporary-file, process-lock, and combined-module tests require consistent backend and utility semantics.",
+          "evidence_paths": [
+            "portalocker/utils.py",
+            "portalocker_tests/tests.py",
+            "portalocker_tests/test_semaphore.py",
+            "portalocker_tests/temporary_file_lock.py",
+            "portalocker_tests/test_combined.py"
+          ],
+          "producer_subproblem": "file_lock_utilities",
+          "schema_version": "0.3"
+        }
+      ],
+      "execution_mode": "async_message",
+      "information_profile": "private-workspace",
+      "integration_policy": "Integrate the latest explicitly transferred artifacts and record dependency-blocking versus stale-assumption failures.",
+      "message_delivery_policy": "Workers may transfer lock API assumptions, exception semantics, timeout behavior, tests, and artifacts.",
+      "official_result_eligible": false,
+      "scenario_id": "commit0-portalocker.async-message.v0.3",
+      "schema_version": "0.3",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 32,
+      "task_id": "commit0:portalocker",
+      "test_budget_per_agent": 10,
+      "token_budget_per_agent": 80000,
+      "wall_clock_budget_seconds": 2400
+    }
+  ],
+  "schema_version": "0.3",
+  "task_id": "commit0:portalocker"
+}

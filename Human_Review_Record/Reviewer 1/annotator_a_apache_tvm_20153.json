@@ -1,0 +1,25 @@
+{
+  "allowed_labels": [
+    "parallelizable",
+    "partially_parallelizable",
+    "effectively_serial"
+  ],
+  "annotator_id": "annotator_a",
+  "candidate_evidence_file": "manifests/candidates/pr_hard_v0.4/qualification/apache_tvm_20153.json",
+  "exclusion_reason": null,
+  "include": true,
+  "independence_instructions": [
+    "Use only the public, answer-free task, scenario, metric, qualification, and overlay evidence listed in the review worksheet.",
+    "Do not inspect the gold production patch, reference solution, hidden tests, or model-generated implementation.",
+    "Judge semantic naturalness yourself; automated qualification is evidence, not inclusion authority.",
+    "Confirm that ownership follows coherent responsibilities rather than arbitrary file partitions.",
+    "Confirm at least one genuine cross-owner producer-consumer dependency with public executable evidence.",
+    "Complete annotator_id, include, parallelizability_label, rationale, and exclusion_reason as applicable."
+  ],
+  "parallelizability_label": "partially_parallelizable",
+  "rationale": "This task is suitable for AsynCodeBench because PTX dialect schema and public API, operand lowering, and PTX helper rendering are natural compiler responsibilities connected as an ordered producer-consumer chain. Lowering consumes the schema's offset-capable address-slot metadata and rejection rules; rendering consumes lowering's normalized signed offsets and logical slot identities to produce collision-free helpers and valid memory-operand syntax. The public focused evaluator is meaningfully incomplete at the base with 1/12 passing and 11 intended failures, reaches 12/12 on the completed state, and has six exact role-local selectors; the selected regression evaluator reports 57 passes, while 45 optional ptxas certification cases skip because no CUDA toolkit is required for the scoped structural code-generation evidence. In private asynchronous work, lowering may use stale table metadata or rendering may assume an incompatible offset representation, causing unsupported address acceptance, helper-name collisions, or malformed PTX. The roles have local work but require both contracts for integration, so partially_parallelizable is the appropriate label.",
+  "schema_version": "0.3",
+  "source_task_id": null,
+  "task_id": "pr-hard:apache-tvm-20153",
+  "task_record_file": "manifests/candidates/pr_hard_v0.4/tasks/apache_tvm_20153.json"
+}

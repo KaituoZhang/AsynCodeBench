@@ -1,0 +1,24 @@
+{
+  "allowed_labels": [
+    "parallelizable",
+    "partially_parallelizable",
+    "effectively_serial"
+  ],
+  "annotator_id": "annotator_a",
+  "candidate_evidence_file": "manifests/candidates/commit0_async_screening_v0.3.json",
+  "exclusion_reason": null,
+  "include": true,
+  "independence_instructions": [
+    "Use only public Commit0 evidence and the draft task record.",
+    "Review the linked TaskQualityRecord, including the requirement to use origin/commit0_combined plus checksum-recorded bootstrap overlays.",
+    "Do not inspect reference branches, solution patches, or diffs.",
+    "Do not consult the other annotator before submitting.",
+    "Explicitly assess whether the registry/utility->core splits are natural AsynCodeBench dependencies rather than artificial file partitioning."
+  ],
+  "parallelizability_label": "partially_parallelizable",
+  "rationale": "After reviewing the filesystem_spec task, it's clear that it has the independent components of registry/utility and core, which can be developed and tested independently.",
+  "schema_version": "0.3",
+  "source_task_id": "commit0:filesystem_spec",
+  "task_id": "asyncodebench:filesystem_spec",
+  "task_record_file": "manifests/pilot/v0.3/tasks/commit0_filesystem_spec.json"
+}

@@ -1,0 +1,192 @@
+user_instruction: |
+  You are the manager in AsynCodeBench task {task_id}.
+
+  Repository: /workspace/{workspace_dir_name}
+  Scenario: {scenario_id}
+  Execution mode: {execution_mode}
+  Information profile: {information_profile}
+
+  Task specification:
+  {problem_statement}
+
+  Manifest-defined specialist assignments:
+  {assignment_summary}
+
+  Cross-agent dependency contracts:
+  {dependency_summary}
+
+  Integration policy: {integration_policy}
+  Message policy: {message_delivery_policy}
+
+  Use at most {max_agents} engineers. Delegate implementation without changing
+  public tests. Preserve API contracts and require each engineer to commit its
+  artifact. Engineers use private git worktrees; their edits are not visible to
+  peers until the harness integrates them. Treat the manifest dependencies as
+  first-class coordination constraints, not as optional hints.
+
+  Manager workspace rule: you are read-only. Never edit, create, delete, or
+  format repository files, and never implement the solution yourself. Only
+  specialists may change production code in their private worktrees. Manager
+  filesystem writes invalidate the benchmark run.
+
+  Final evaluator command:
+  {test_cmd} {test_dir}
+
+scan_analysis: |
+  Inspect the repository and public tests just enough to connect the task
+  specification and manifest dependency contracts to the unfinished code.
+  Identify producer-before-consumer constraints, likely interface assumptions,
+  and the smallest useful targeted tests. Do not implement solution code during
+  this phase. Use only read-only inspection commands. Do not use the file editor,
+  shell redirection, in-place formatting, or any command that changes git state.
+  Return a concise analysis that can support delegation.
+
+task_delegation: |
+  Delegate the task using the manifest-defined assignment boundaries and the
+  dependency order in your system context. Use no more than {max_agents} agents.
+  Create one task for each manifest assignment whenever capacity permits, and
+  assign non-overlapping writable files. Return only this JSON shape:
+  {{
+    "delegation_plan": {{
+      "first_round": {{
+        "num_agents": {max_agents},
+        "reasoning": "dependency-aware assignment rationale",
+        "tasks": [
+          {{
+            "engineer_id": "engineer_1",
+            "task_id": "manifest subproblem id",
+            "file_path": "comma-separated writable paths",
+            "functions_to_implement": ["assigned targets"],
+            "complexity": "simple|medium|complex",
+            "instruction": "scope, expected behavior, dependencies, and tests"
+          }}
+        ]
+      }},
+      "remaining_tasks": []
+    }}
+  }}
+
+assign_task: |
+  Engineer {engineer_id} completed round {completed_round} of {max_rounds} with
+  status {task_status}.
+
+  Completed artifact:
+  {completed_task_summary}
+
+  Running engineers:
+  {running_agents_summary}
+
+  Idle engineers:
+  {idle_agents_summary}
+
+  Inactive engineers:
+  {inactive_agents_summary}
+
+  Finished engineers:
+  {finished_agents_summary}
+
+  Decide whether a dependency-ready remaining assignment should be issued. Do
+  not assign work to a finished engineer and do not cross manifest scope. Return
+  only:
+  {{
+    "assign_task": {{
+      "reasoning": "decision rationale",
+      "assignments": []
+    }}
+  }}
+
+single_agent_instruction: |
+  Work on AsynCodeBench task {task_id} in {repo_path}.
+
+  Task specification:
+  {problem_statement}
+
+  Dependency contracts that must hold in the integrated implementation:
+  {dependency_summary}
+
+  Implement the complete task without modifying public tests. Work iteratively:
+  inspect relevant implementation and tests, edit the code, run targeted tests,
+  diagnose failures, and repair. Preserve public names and API behavior. Do not
+  delete existing code to hide failures. Run the final evaluator when useful:
+
+  {test_cmd} {test_dir}
+
+  Commit the completed implementation locally before finishing.
+
+subagent_prompt: |
+  You are specialist {engineer_id} in AsynCodeBench. Your workspace is the
+  private git worktree {worktree_path}; other specialists cannot see your edits
+  until the harness integrates your committed artifact.
+
+  Assignment:
+  {instruction}
+
+  Writable files: {file_path}
+  Detected targets: {functions}
+
+  Work iteratively: inspect relevant code and tests, implement only within the
+  writable scope, run narrow tests, diagnose failures, and repair. Do not modify
+  public tests or files owned by another assignment. If an unresolved dependency
+  requires an out-of-scope edit, report it instead of making that edit.
+
+  Every command and file edit must target {worktree_path}. Before running a
+  command, change directory to that exact worktree. Never read or write the
+  similarly named integrated repository under /workspace/*_repo.
+
+  Suggested test command:
+  {test_cmd} {test_dir}
+
+  Commit the final artifact locally before finishing.
+
+followup_prompt: |
+  Continue the dependency-aware assignment below.
+
+  {instruction}
+
+  Writable files: {file_path}
+  Detected targets: {functions}
+
+  Reinspect the latest integrated base, run relevant targeted tests, repair only
+  within scope, and commit the resulting artifact.
+
+conflict_resolution: |
+  The artifact has conflicts with the integrated workspace.
+  Conflict files:
+  {conflict_file_list}
+
+  Resolve the conflicts without editing outside your assigned writable paths.
+  Preserve already integrated public behavior, then commit the resolution.
+
+auto_reassign: |
+  Continue the same assignment because no usable commit was submitted.
+
+  {original_instruction}
+
+  Finish the scoped implementation, validate it, and submit a local commit.
+
+background_exploration: |
+  Inspect dependency-ready remaining assignments without editing files.
+
+  Running agents:
+  {running_agents_summary}
+
+  Remaining assignments:
+  {remaining_tasks}
+
+  Return concise contract and test information useful for the next assignment.
+
+manager_final_review_all: |
+  All specialist runs have ended.
+
+  Results:
+  {engineers_summary}
+
+  Integrated files:
+  {merged_files_summary}
+
+  {unmerged_worktrees_section}
+
+  Perform a bounded, read-only integration review of the recorded results.
+  Do not edit files, create commits, merge or cherry-pick branches, or rewrite
+  the task solution. The harness has already completed artifact integration;
+  any filesystem or Git change during this phase will be rejected and restored.

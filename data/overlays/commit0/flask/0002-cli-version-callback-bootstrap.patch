@@ -1,0 +1,15 @@
+diff --git a/src/flask/cli.py b/src/flask/cli.py
+index 245340c..d85385b 100644
+--- a/src/flask/cli.py
++++ b/src/flask/cli.py
+@@ -57,6 +57,10 @@ def prepare_import(path: str) -> str:
+     to the search path and return the actual module name that is expected.
+     """
+     pass
++
++def get_version(ctx: click.Context, param: click.Parameter, value: bool) -> None:
++    pass
++
+ version_option = click.Option(['--version'], help='Show the Flask version.', expose_value=False, callback=get_version, is_flag=True, is_eager=True)
+ 
+ class ScriptInfo:

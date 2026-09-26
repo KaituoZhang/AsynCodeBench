@@ -1,0 +1,70 @@
+{
+  "schema_version": "pr-hard-async-metrics-v0.4",
+  "task_id": "pr-hard:apache-tvm-20153",
+  "metric_annotation_id": "pr-hard-apache-tvm-20153.async-metrics.v0.4",
+  "aggregate_metrics": {
+    "primary_async_dependency_ids": [
+      "dialect-schema-to-lowering",
+      "operand-lowering-to-rendering"
+    ],
+    "ADPR_denominator": "All dependency_points for this candidate.",
+    "minimum_success_condition_for_task_level_async_dependency_resolution": "Both primary_async_dependency_ids pass in the final integrated workspace."
+  },
+  "source_task_record": "manifests/candidates/pr_hard_v0.4/tasks/apache_tvm_20153.json",
+  "source_quality_record": "manifests/candidates/pr_hard_v0.4/qualification/apache_tvm_20153.json",
+  "dependency_points": [
+    {
+      "dependency_id": "dialect-schema-to-lowering",
+      "dependency_type": "shared_api_contract",
+      "producer_subproblem": "ptx_dialect_schema",
+      "consumer_subproblem": "ptx_operand_lowering",
+      "producer_agent": "dialect_agent",
+      "consumer_agent": "lowering_agent",
+      "producer_files": [
+        "python/tvm/backend/cuda/ptx/__init__.py",
+        "python/tvm/backend/cuda/ptx/gen_stubs.py",
+        "python/tvm/backend/cuda/ptx/table.py",
+        "python/tvm/script/tirx.pyi"
+      ],
+      "consumer_files": ["python/tvm/backend/cuda/ptx/engine.py"],
+      "contract_summary": "The public ptx.addr expression and table-declared offset-capable address slots provide the operand metadata consumed by lowering, while unsupported address classes remain rejected.",
+      "stale_failure_mode": "Lowering can interpret stale table metadata or accept an address class for which the dialect schema does not define byte-offset semantics.",
+      "upstream_probe_tests": [
+        "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_registration_and_table_capabilities",
+        "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_table_validation_rejects_wrong_operand_classes"
+      ],
+      "downstream_probe_tests": [
+        "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_coercion_ir_order_and_shared_codegen",
+        "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_pointer_and_raw_address_validation"
+      ],
+      "integrated_probe_tests": [
+        "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_scalar_vector_cache_predicate_and_multi_address_codegen"
+      ],
+      "metrics_enabled": ["ADPR", "DRS", "CAIL", "SAD"]
+    },
+    {
+      "dependency_id": "operand-lowering-to-rendering",
+      "dependency_type": "integration_contract",
+      "producer_subproblem": "ptx_operand_lowering",
+      "consumer_subproblem": "ptx_rendering",
+      "producer_agent": "lowering_agent",
+      "consumer_agent": "render_agent",
+      "producer_files": ["python/tvm/backend/cuda/ptx/engine.py"],
+      "consumer_files": ["python/tvm/backend/cuda/ptx/render.py"],
+      "contract_summary": "Lowering passes normalized signed int32 byte offsets and logical address-slot identities that rendering consumes for unique helper names and in-bracket PTX displacement syntax.",
+      "stale_failure_mode": "The renderer can consume an incompatible offset representation or collide helper names when multiple logical address operands are lowered.",
+      "upstream_probe_tests": [
+        "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_offset_type_and_range_rejections",
+        "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_unrolled_expression_and_dynamic_rejection"
+      ],
+      "downstream_probe_tests": [
+        "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_zero_sign_boundaries_and_helper_names"
+      ],
+      "integrated_probe_tests": [
+        "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_scalar_vector_cache_predicate_and_multi_address_codegen",
+        "tests/python/tirx/codegen/test_ptx_addr.py::test_ptx_addr_printer_script_and_json_roundtrip"
+      ],
+      "metrics_enabled": ["ADPR", "DRS", "CAIL", "SAD"]
+    }
+  ]
+}

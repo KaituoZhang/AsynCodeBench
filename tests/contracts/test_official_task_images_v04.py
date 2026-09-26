@@ -1,0 +1,58 @@
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+from jsonschema import Draft202012Validator
+
+ROOT = Path(__file__).resolve().parents[2]
+REGISTRY = ROOT / "configs/environments/official_task_images.v0.4.json"
+SCHEMA = ROOT / "schemas/v0.4/official_task_images.schema.json"
+OFFICIAL = ROOT / "manifests/release/v0.4/official_tasks.json"
+TVM_TASKS = {
+    "asyncodebench:apache-tvm-20018",
+    "asyncodebench:apache-tvm-20073",
+    "asyncodebench:apache-tvm-20107",
+    "asyncodebench:apache-tvm-20153",
+}
+
+
+def load(path: Path) -> dict:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def test_official_task_image_registry_matches_schema_and_release() -> None:
+    registry = load(REGISTRY)
+    Draft202012Validator(load(SCHEMA)).validate(registry)
+
+    records = registry["records"]
+    official_ids = load(OFFICIAL)["official_task_ids"]
+    assert len(records) == 19
+    assert [record["task_id"] for record in records] == official_ids
+    assert len({record["image"] for record in records}) == 19
+    assert len({record["source_task_id"] for record in records}) == 19
+    assert "asyncodebench:graphene" not in official_ids
+
+
+def test_review_registry_preserves_public_images_without_identity_leaks() -> None:
+    records = load(REGISTRY)["records"]
+    compiler_records = [record for record in records if record["task_id"] in TVM_TASKS]
+    dependency_records = [record for record in records if record["task_id"] not in TVM_TASKS]
+    assert all(record["status"] == "published" for record in dependency_records)
+    assert all(record["digest"].startswith("sha256:") for record in dependency_records)
+    assert all(record["status"] == "pending_publish" for record in compiler_records)
+    assert all(record["digest"] is None for record in compiler_records)
+
+
+def test_compiler_task_images_use_the_frozen_runtime_contract() -> None:
+    records = {record["task_id"]: record for record in load(REGISTRY)["records"]}
+    assert records.keys() >= TVM_TASKS
+    for task_id in TVM_TASKS:
+        record = records[task_id]
+        assert record["source_task_id"] == task_id.replace(
+            "asyncodebench:", "pr-hard:", 1
+        )
+        assert record["image"].startswith(
+            "docker.io/asyncodebench-review/asyncodebench-tvm-"
+        )
+        assert record["runtime_root"] == "/opt/asyncodebench/runtime"

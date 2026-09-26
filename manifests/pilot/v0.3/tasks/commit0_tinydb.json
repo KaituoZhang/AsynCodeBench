@@ -1,0 +1,122 @@
+{
+  "annotation_provenance": [],
+  "candidate_evidence_file": "manifests/candidates/commit0_public_candidates_v0.2.json",
+  "dependency_annotations": [
+    {
+      "consumer_subproblem": "database_state_stack",
+      "dependency_type": "api_contract",
+      "description": "Table search and query caching consume QueryLike, freeze, and LRUCache behavior from the query and utility layer.",
+      "evidence_paths": [
+        "tinydb/utils.py",
+        "tinydb/queries.py",
+        "tinydb/table.py",
+        "tests/test_utils.py",
+        "tests/test_queries.py",
+        "tests/test_tables.py"
+      ],
+      "producer_subproblem": "query_contract_layer",
+      "schema_version": "0.3"
+    },
+    {
+      "consumer_subproblem": "integration_validation",
+      "dependency_type": "integration",
+      "description": "TinyDB, Table, Storage, and CachingMiddleware must agree on the complete database mapping, table names, document IDs, read/write lifecycle, and cache invalidation semantics.",
+      "evidence_paths": [
+        "tinydb/storages.py",
+        "tinydb/table.py",
+        "tinydb/database.py",
+        "tinydb/middlewares.py",
+        "tests/test_storages.py",
+        "tests/test_tables.py",
+        "tests/test_tinydb.py",
+        "tests/test_middlewares.py"
+      ],
+      "producer_subproblem": "database_state_stack",
+      "schema_version": "0.3"
+    },
+    {
+      "consumer_subproblem": "integration_validation",
+      "dependency_type": "test_contract",
+      "description": "Document transforms and composed queries are exercised through integrated TinyDB update, search, and cache paths.",
+      "evidence_paths": [
+        "tinydb/operations.py",
+        "tinydb/queries.py",
+        "tinydb/table.py",
+        "tests/test_operations.py",
+        "tests/test_tinydb.py"
+      ],
+      "producer_subproblem": "query_contract_layer",
+      "schema_version": "0.3"
+    }
+  ],
+  "evaluator_command": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "-o",
+    "addopts=",
+    "tests"
+  ],
+  "inclusion_decision": null,
+  "natural_subproblems": {
+    "database_state_stack": [
+      "tinydb/storages.py",
+      "tinydb/table.py",
+      "tinydb/database.py",
+      "tinydb/middlewares.py",
+      "tests/test_storages.py",
+      "tests/test_middlewares.py"
+    ],
+    "integration_validation": [
+      "tests/conftest.py",
+      "tests/test_operations.py",
+      "tests/test_tables.py",
+      "tests/test_tinydb.py"
+    ],
+    "query_contract_layer": [
+      "tinydb/utils.py",
+      "tinydb/queries.py",
+      "tinydb/operations.py",
+      "tests/test_utils.py",
+      "tests/test_queries.py"
+    ]
+  },
+  "notes": [
+    "The benchmark initial state is curated from raw Commit0 by data/overlays/commit0/tinydb/0001-import-bootstrap.patch with SHA-256 fa0d43a64a64d6bcd085661328bfca566f678f384ac4bf6c8bf2b79b0c01a464.",
+    "tinydb/__init__.py is excluded from the implementation surface because its automatic incomplete marker is a false positive.",
+    "The overlay restores only runtime class-definition prerequisites; it does not provide query, storage, table, database, middleware, or correct immutability behavior."
+  ],
+  "problem_statement": "Restore the unfinished public APIs in the TinyDB repository without modifying\nthe tests.\n\nThe query and utility layer must provide immutable query values, LRU caching,\nquery construction and composition, and document update operations.\n\nThe persistence and table layer must provide JSON and memory storage plus\ntable insertion, lookup, search, update, upsert, removal, ID allocation, query\ncaching, and complete-database read/write behavior.\n\nThe database and middleware layer must provide table lifecycle management,\ndefault-table forwarding, storage access and cleanup, and caching middleware\nread/write/flush behavior.\n\nPreserve the public package API and the shared database representation across\nall layers, and make the repository's test suite pass.",
+  "proposed_parallelizability_label": "partially_parallelizable",
+  "publicly_implicated_modules": [
+    "tinydb/database.py",
+    "tinydb/middlewares.py",
+    "tinydb/operations.py",
+    "tinydb/queries.py",
+    "tinydb/storages.py",
+    "tinydb/table.py",
+    "tinydb/utils.py"
+  ],
+  "qualification_label": null,
+  "qualification_status": "pending_independent_annotation",
+  "quality_evidence_file": "manifests/pilot/v0.3/quality/commit0_tinydb.json",
+  "repository": "commit0/tinydb",
+  "schema_version": "0.3",
+  "source_materialization": "git archive of the upstream Commit0 TinyDB repository at ed761a72c8c1e1cb24ca4dbcc089f35c5264d357 plus the verified curated bootstrap overlay recorded in configs/tasks/commit0_curated_tasks.v0.3.json",
+  "task_id": "commit0:tinydb",
+  "task_source": "Commit0",
+  "test_targets": [
+    "tests/conftest.py",
+    "tests/test_middlewares.py",
+    "tests/test_operations.py",
+    "tests/test_queries.py",
+    "tests/test_storages.py",
+    "tests/test_tables.py",
+    "tests/test_tinydb.py",
+    "tests/test_utils.py"
+  ],
+  "upstream_version": "ed761a72c8c1e1cb24ca4dbcc089f35c5264d357"
+}

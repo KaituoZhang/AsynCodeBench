@@ -1,0 +1,24 @@
+{
+  "allowed_labels": [
+    "parallelizable",
+    "partially_parallelizable",
+    "effectively_serial"
+  ],
+  "annotator_id": "annotator_b",
+  "candidate_evidence_file": "manifests/candidates/commit0_public_candidates_v0.2.json",
+  "exclusion_reason": null,
+  "include": true,
+  "independence_instructions": [
+    "Use only public Commit0 evidence and the draft task record.",
+    "Review the linked TaskQualityRecord for evaluator validity, test-group boundaries, limitations, and pending evaluations.",
+    "Do not inspect reference branches, solution patches, or diffs.",
+    "Do not consult the other annotator before submitting.",
+    "Complete include, label, rationale, and exclusion reason if needed."
+  ],
+  "parallelizability_label": "partially_parallelizable",
+  "rationale": "The decorators depend on the key functions, but the pieces can be worked on separately.",
+  "schema_version": "0.3",
+  "source_task_id": "commit0:cachetools",
+  "task_id": "asyncodebench:cachetools",
+  "task_record_file": "manifests/pilot/v0.3/tasks/commit0_cachetools.json"
+}

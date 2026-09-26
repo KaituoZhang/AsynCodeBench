@@ -1,0 +1,24 @@
+{
+  "allowed_labels": [
+    "parallelizable",
+    "partially_parallelizable",
+    "effectively_serial"
+  ],
+  "annotator_id": "annotator_a",
+  "candidate_evidence_file": "manifests/candidates/commit0_async_screening_v0.3.json",
+  "exclusion_reason": null,
+  "include": true,
+  "independence_instructions": [
+    "Use only public Commit0 evidence and the draft task record.",
+    "Review the linked TaskQualityRecord, including the requirement to use origin/commit0_combined plus checksum-recorded bootstrap overlays.",
+    "Do not inspect reference branches, solution patches, or diffs.",
+    "Do not consult the other annotator before submitting.",
+    "Explicitly assess whether the preparation->transport split is a natural AsynCodeBench dependency rather than artificial file partitioning."
+  ],
+  "parallelizability_label": "partially_parallelizable",
+  "rationale": "The requests task is partially parallelizable because while some components can be developed and tested independently, others have dependencies that limit their parallelization potential.",
+  "schema_version": "0.3",
+  "source_task_id": "commit0:requests",
+  "task_id": "asyncodebench:requests",
+  "task_record_file": "manifests/pilot/v0.3/tasks/commit0_requests.json"
+}

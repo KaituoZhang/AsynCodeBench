@@ -1,0 +1,295 @@
+{
+  "schema_version": "commit0-curated-tasks-v0.3",
+  "tasks": [
+    {
+      "task_id": "commit0:tinydb",
+      "repository": "tinydb",
+      "base_ref": "commit0",
+      "base_sha": "ed761a72c8c1e1cb24ca4dbcc089f35c5264d357",
+      "overlays": [
+        {
+          "path": "data/overlays/commit0/tinydb/0001-import-bootstrap.patch",
+          "sha256": "fa0d43a64a64d6bcd085661328bfca566f678f384ac4bf6c8bf2b79b0c01a464",
+          "rationale": "Restore only the two runtime class-definition prerequisites described by the public source: with_typehint uses object at runtime and FrozenDict exposes an intentionally unfinished _immutable stub. No query, storage, table, database, or middleware behavior is supplied."
+        }
+      ]
+    },
+    {
+      "task_id": "commit0:portalocker",
+      "repository": "portalocker",
+      "base_ref": "commit0",
+      "base_sha": "300136afca11ea23c79ecfd110ed0d2819322f11",
+      "overlays": [
+        {
+          "path": "data/overlays/commit0/portalocker/0001-import-bootstrap.patch",
+          "sha256": "b6b2f2c7fdbce4200774804a49d410648e17a573b42ca007e9471e5e8fa4c96c",
+          "rationale": "Expose intentionally unfinished lock and unlock stubs required by the public package API so the POSIX core evaluator can collect, and normalize missing end-of-file newlines so the upstream combined-module test preserves source boundaries. No operating-system locking, exception translation, timeout, lifecycle, or other implementation behavior is supplied."
+        }
+      ]
+    },
+    {
+      "task_id": "commit0:requests",
+      "repository": "requests",
+      "base_ref": "origin/commit0_combined",
+      "base_sha": "0e5a01d0ed71fd20b6a72cafe92b9a917ce93d7b",
+      "overlays": [
+        {
+          "path": "data/overlays/commit0/requests/0001-syntax-bootstrap.patch",
+          "sha256": "56d1a39303d1b3cf438bec1dae55e5ad5723d6e17cb94a87388a441d888f9651",
+          "rationale": "Restore only mechanical import/parse prerequisites so the stripped Requests source can collect tests: the SOCKS import fallback body and placeholder definitions for internally imported _copy_cookie_jar, default_hooks, and super_len. No SOCKS fallback function, adapter behavior, session behavior, request preparation, response handling, cookie behavior, hook dispatch, body-length behavior, or utility behavior is supplied."
+        },
+        {
+          "path": "data/overlays/commit0/requests/0002-status-codes-bootstrap.patch",
+          "sha256": "f8c49572a6daf5e7d4e65cb44e0787d6f7e69f559fd947d6441584db3fbaa661",
+          "rationale": "Restore only the missing status_codes._init symbol and the five redirect aliases needed by requests.models.REDIRECT_STATI during package import. The full status-code lookup table is not populated by the overlay."
+        },
+        {
+          "path": "data/overlays/commit0/requests/0003-utils-import-bootstrap.patch",
+          "sha256": "9f7f3012f0ff45c2c15e3b5fae529afd918a02e1831870b32af80f447e1b7c43",
+          "rationale": "Make extract_zipped_paths return its input path so adapter TLS context preload receives a filesystem path during package import. Zip extraction and path-materialization behavior remain unfinished."
+        }
+      ]
+    },
+    {
+      "task_id": "commit0:parsel",
+      "repository": "parsel",
+      "base_ref": "origin/commit0_combined",
+      "base_sha": "7e73d60665ef2e3ddfe3c1bb01eed981cd317c6f",
+      "python_dependencies": [
+        "psutil==5.6.3"
+      ],
+      "overlays": [
+        {
+          "path": "data/overlays/commit0/parsel/0001-xpathfuncs-setup-bootstrap.patch",
+          "sha256": "05da149bfc8d5508fb42a77cdbc15c8b3aee017056b38401883fab325e4006a8",
+          "rationale": "Expose only the package-import setup() hook that parsel.__init__ calls, delegating to the already stripped set_xpathfunc('has-class', has_class) implementation. No XPath extension registration behavior, has-class semantics, selector behavior, CSS translation, or utility behavior is supplied."
+        }
+      ]
+    },
+    {
+      "task_id": "commit0:filesystem_spec",
+      "repository": "filesystem_spec",
+      "base_ref": "origin/commit0_combined",
+      "base_sha": "0d34761c18d98009d76a1c19246606026c0e44a0",
+      "python_dependencies": [
+        "requests==2.32.3",
+        "zstandard==0.25.0"
+      ],
+      "overlays": [
+        {
+          "path": "data/overlays/commit0/filesystem_spec/0001-version-bootstrap.patch",
+          "sha256": "65c24451d258655b6af03f696543d51c6be1dbe710a0dd6bdebf1d1ecaef7e54",
+          "rationale": "Restore only the hatch-vcs generated fsspec._version module needed by fsspec.__init__ during direct checkout test execution. No filesystem, registry, core, utility, cache, or compression behavior is supplied."
+        },
+        {
+          "path": "data/overlays/commit0/filesystem_spec/0002-utils-import-bootstrap.patch",
+          "sha256": "9002018d1df90601b464ec3025df15a834218e705dbbe1cbb2c0b9296f7d92cb",
+          "rationale": "Expose only missing utility symbols imported by public modules and tests: is_exception, isfilelike, get_protocol, _unstrip_protocol, setup_logging, and nullcontext. The functions are intentionally unfinished placeholders."
+        },
+        {
+          "path": "data/overlays/commit0/filesystem_spec/0003-compression-import-bootstrap.patch",
+          "sha256": "a8c13b8dc4267cb12e2f95da9b46457c49d3c18ba24af7c07754206d6f129c25",
+          "rationale": "Expose only import-time compression callables noop_file, unzip, and zstandard_file so compression.py can import. Compression registration and codec behavior remain unfinished."
+        },
+        {
+          "path": "data/overlays/commit0/filesystem_spec/0004-core-import-bootstrap.patch",
+          "sha256": "3fb8eec337c914e7591e63192d5c3cd23b2ca6d56b2e43386b4c5bee53a59fdc",
+          "rationale": "Expose only missing core symbols get_compression and _expand_paths required by local imports and public tests. Path expansion and compression inference behavior remain unfinished."
+        }
+      ]
+    },
+    {
+      "task_id": "commit0:marshmallow",
+      "repository": "marshmallow",
+      "base_ref": "origin/commit0_combined",
+      "base_sha": "bd290d2b49f5030a2369aedc5538cffa4815982d",
+      "python_dependencies": [
+        "packaging==24.1",
+        "pytz==2026.2",
+        "simplejson==4.1.1"
+      ],
+      "overlays": [
+        {
+          "path": "data/overlays/commit0/marshmallow/0001-utils-import-bootstrap.patch",
+          "sha256": "e6a6a2a8021511d4a79bbfb762b30c5f6a1062c3cfbe2c41552c4efed2f08fde",
+          "rationale": "Expose only missing public utility symbols imported by fields/schema tests: timestamp helpers, ISO helpers, text coercion, awareness checks, and unknown-parameter validation. Most helper bodies remain intentionally unfinished stubs."
+        },
+        {
+          "path": "data/overlays/commit0/marshmallow/0002-schema-import-bootstrap.patch",
+          "sha256": "2854256b9b5ce69abe09c772803891821faf0b1ff430ec8b0bb79d1707dd17f6",
+          "rationale": "Allow SchemaMeta class construction by returning empty field/hook structures from stripped metaclass helpers. Field declaration, schema option, load, dump, and hook execution behavior remains unfinished."
+        },
+        {
+          "path": "data/overlays/commit0/marshmallow/0003-utils-collection-bootstrap.patch",
+          "sha256": "a2083367dea1122c592a595b1bd9bc2480810a57737102906c74277f61b614b3",
+          "rationale": "Provide only the minimal iterable collection predicate needed for public schema fixtures and Nested field construction to import. Full utility behavior remains unfinished."
+        },
+        {
+          "path": "data/overlays/commit0/marshmallow/0004-decorators-import-bootstrap.patch",
+          "sha256": "b6bd30a7f8643ad4b26652707467b633ddf5c43d884210d2188d01d7d7a3614a",
+          "rationale": "Make public decorators return the decorated function with minimal hook metadata so test modules can collect. Processor invocation, validation, load, and dump behavior remains unfinished."
+        }
+      ]
+    },
+    {
+      "task_id": "commit0:imapclient",
+      "repository": "imapclient",
+      "base_ref": "origin/commit0_combined",
+      "base_sha": "7ca5a23640bcb0b102673eaaf5eaa6e7fcebd76b",
+      "overlays": [
+        {
+          "path": "data/overlays/commit0/imapclient/0001-util-import-bootstrap.patch",
+          "sha256": "8afc48b65849df4e8acc8c652f43e9780bafe285be9e0caf4016d85c1cce5513",
+          "rationale": "Expose only util symbols imported by lexer/client modules and public tests: assert_imap_protocol, to_bytes, to_unicode, and chunk. The helper bodies remain unfinished placeholders."
+        },
+        {
+          "path": "data/overlays/commit0/imapclient/0002-class-import-bootstrap.patch",
+          "sha256": "c653d4c2c2744d36ed4845c86a5ecb5b8fdc68571eae40b2d0784ad940ee0fd7",
+          "rationale": "Allow public class/module construction by making require_capability an identity decorator and exposing datetime_to_native as an unfinished placeholder. Capability checks and datetime normalization remain unfinished."
+        },
+        {
+          "path": "data/overlays/commit0/imapclient/0003-iteritems-import-bootstrap.patch",
+          "sha256": "0dccd8a093d770de51e9a1f7503f56ec08f1b11ec482f6528d5d7e69eed2595e",
+          "rationale": "Expose only the iteritems name used by _dict_bytes_normaliser during class construction. Dictionary normalization behavior remains unfinished."
+        },
+        {
+          "path": "data/overlays/commit0/imapclient/0004-public-helper-import-bootstrap.patch",
+          "sha256": "b55139f9dc0dcbe7362af9668a9c1e43bd2dd9883337436e3f27f04b232c8745",
+          "rationale": "Expose version string, quota parsing, and search normalization helper names imported by public tests. The helper bodies remain unfinished placeholders."
+        },
+        {
+          "path": "data/overlays/commit0/imapclient/0005-text-helper-import-bootstrap.patch",
+          "sha256": "f27ec1e2ada7b6a9cac80a4aa1dd938b6f8a65ada959ea5e0f74003b531d9e3c",
+          "rationale": "Expose text-list and parenthesized-string helper names imported by public utility tests. Text normalization behavior remains unfinished."
+        }
+      ]
+    },
+    {
+      "task_id": "commit0:pexpect",
+      "repository": "pexpect",
+      "base_ref": "origin/commit0_combined",
+      "base_sha": "21b5908ea5b9b38ca996fec50dc449bff5c2c82f",
+      "overlays": [
+        {
+          "path": "data/overlays/commit0/pexpect/0001-spawnbase-buffer-property-bootstrap.patch",
+          "sha256": "4d83742e578221f6f9d737b48574cb001b6f51042f2e00e5d781d7c3c75401c9",
+          "rationale": "Expose only SpawnBase._get_buffer and SpawnBase._set_buffer placeholders so the stripped class-level buffer property can bind during public test collection. Buffer semantics remain unfinished."
+        }
+      ]
+    },
+    {
+      "task_id": "commit0:flask",
+      "repository": "flask",
+      "base_ref": "origin/commit0_combined",
+      "base_sha": "af126af63a288df1d4edfe07e82a3b241aa4567a",
+      "overlays": [
+        {
+          "path": "data/overlays/commit0/flask/0001-json-provider-default-bootstrap.patch",
+          "sha256": "fc74676eaba5570012dc8e89ec2a10a61d5904045a909b688b62b9176e8b0dfd",
+          "rationale": "Bootstrap-only patch that removes import, class construction, or syntax blockers so public Flask tests can collect; it does not implement scoped Flask runtime behavior."
+        },
+        {
+          "path": "data/overlays/commit0/flask/0002-cli-version-callback-bootstrap.patch",
+          "sha256": "f5844df5f46ac1859a4d05818d0a56cbbed3401ea0c7ec161cf5adca596db574",
+          "rationale": "Bootstrap-only patch that removes import, class construction, or syntax blockers so public Flask tests can collect; it does not implement scoped Flask runtime behavior."
+        },
+        {
+          "path": "data/overlays/commit0/flask/0003-cli-option-callbacks-bootstrap.patch",
+          "sha256": "20d99792cfdbf2607ad5db5628b5e5e92fdeb784f659f32d579d48a8b3b3e6d5",
+          "rationale": "Bootstrap-only patch that removes import, class construction, or syntax blockers so public Flask tests can collect; it does not implement scoped Flask runtime behavior."
+        },
+        {
+          "path": "data/overlays/commit0/flask/0004-cli-with-appcontext-bootstrap.patch",
+          "sha256": "bbf9c55c5feec914d6d87cdc037335a0305c89a4de1cc4977aaab8d47038cd62",
+          "rationale": "Bootstrap-only patch that removes import, class construction, or syntax blockers so public Flask tests can collect; it does not implement scoped Flask runtime behavior."
+        },
+        {
+          "path": "data/overlays/commit0/flask/0005-helper-split-blueprint-bootstrap.patch",
+          "sha256": "ff344fb93b7877448db457ad9e9d8c181dbd156aab838cfe2c2a1ad2e88ea56c",
+          "rationale": "Bootstrap-only patch that removes import, class construction, or syntax blockers so public Flask tests can collect; it does not implement scoped Flask runtime behavior."
+        },
+        {
+          "path": "data/overlays/commit0/flask/0006-scaffold-setupmethod-bootstrap.patch",
+          "sha256": "631d18cdfff142c9a942ede5e6423de7dbede8051a5cd3c4f2e057e999ff3bc3",
+          "rationale": "Bootstrap-only patch that removes import, class construction, or syntax blockers so public Flask tests can collect; it does not implement scoped Flask runtime behavior."
+        },
+        {
+          "path": "data/overlays/commit0/flask/0007-sansio-app-timedelta-bootstrap.patch",
+          "sha256": "112c9ea24671b4ff419912e8d295e3b3bda8e67e82483d6a61b0afb6272ca6c6",
+          "rationale": "Bootstrap-only patch that removes import, class construction, or syntax blockers so public Flask tests can collect; it does not implement scoped Flask runtime behavior."
+        },
+        {
+          "path": "data/overlays/commit0/flask/0008-json-tag-pass-methods-bootstrap.patch",
+          "sha256": "c8f9405ea832a71a73f4b40b1bc3767448bd1763d9e30d4f6b56cb51db6c4e0d",
+          "rationale": "Bootstrap-only patch that removes import, class construction, or syntax blockers so public Flask tests can collect; it does not implement scoped Flask runtime behavior."
+        },
+        {
+          "path": "data/overlays/commit0/flask/0009-session-null-fail-bootstrap.patch",
+          "sha256": "b8591ed5f3373a4333f1a6af92773c5f3782624c96c9e0ac1cadbbc0e53168af",
+          "rationale": "Bootstrap-only patch that removes import, class construction, or syntax blockers so public Flask tests can collect; it does not implement scoped Flask runtime behavior."
+        },
+        {
+          "path": "data/overlays/commit0/flask/0010-testing-base-url-fstring-bootstrap.patch",
+          "sha256": "58100b0bab357068d0dd40add37cde9d690f9eb3902a143a2bd2e757d111b1b7",
+          "rationale": "Bootstrap-only patch that removes import, class construction, or syntax blockers so public Flask tests can collect; it does not implement scoped Flask runtime behavior."
+        },
+        {
+          "path": "data/overlays/commit0/flask/0011-conftest-monkeypatch-sentinel-bootstrap.patch",
+          "sha256": "5678881b4022e089eb26d961b0674e6058f8874c384cc7a8f2875601ed08678c",
+          "rationale": "Bootstrap-only evaluator compatibility patch that removes dependence on the unstable package-level _pytest.monkeypatch.notset export in tests/conftest.py so public Flask tests remain stable across pytest minor versions. It preserves pytest MonkeyPatch's real missing-value sentinel and does not modify Flask implementation files or supply scoped Flask runtime behavior."
+        }
+      ]
+    },
+    {
+      "task_id": "commit0:cookiecutter",
+      "repository": "cookiecutter",
+      "base_ref": "origin/commit0_combined",
+      "base_sha": "c7a8c70a666270053d848f5664413af1af7a987f",
+      "overlays": [],
+      "python_dependencies": [
+        "pytest-mock==3.15.1",
+        "binaryornot==0.6.0",
+        "python-slugify==8.0.4",
+        "arrow==1.4.0"
+      ]
+    },
+    {
+      "task_id": "commit0:cachetools",
+      "repository": "cachetools",
+      "base_ref": "commit0",
+      "base_sha": "a0a7e2b73f9e146b8a8f2912948b17a918e5fe83",
+      "overlays": []
+    },
+    {
+      "task_id": "commit0:deprecated",
+      "repository": "deprecated",
+      "base_ref": "commit0",
+      "base_sha": "b7e2114c046abb489e4e23ab9f829778b076650d",
+      "overlays": []
+    },
+    {
+      "task_id": "commit0:python-rsa",
+      "repository": "python-rsa",
+      "base_ref": "origin/commit0_combined",
+      "base_sha": "228b947d61f06612107205ab369a017ff63f9a8f",
+      "python_dependencies": [
+        "pyasn1==0.6.3"
+      ],
+      "overlays": []
+    },
+    {
+      "task_id": "commit0:simpy",
+      "repository": "simpy",
+      "base_ref": "origin/commit0_combined",
+      "base_sha": "25496719af798e5a276289279651873ea5b6e7d1",
+      "overlays": []
+    },
+    {
+      "task_id": "commit0:wcwidth",
+      "repository": "wcwidth",
+      "base_ref": "commit0",
+      "base_sha": "0d0054189bdb0fc7b9de0456fc3cee2b67a6ceba",
+      "overlays": []
+    }
+  ]
+}

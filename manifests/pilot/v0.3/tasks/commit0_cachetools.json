@@ -1,0 +1,109 @@
+{
+  "annotation_provenance": [],
+  "candidate_evidence_file": "manifests/candidates/commit0_public_candidates_v0.2.json",
+  "dependency_annotations": [
+    {
+      "consumer_subproblem": "decorator_factories",
+      "dependency_type": "api_contract",
+      "description": "Decorator factories compose cache classes and cached() from src/cachetools/__init__.py.",
+      "evidence_paths": [
+        "src/cachetools/__init__.py",
+        "src/cachetools/func.py",
+        "tests/test_func.py"
+      ],
+      "producer_subproblem": "core_cache_api",
+      "schema_version": "0.3"
+    },
+    {
+      "consumer_subproblem": "decorator_factories",
+      "dependency_type": "api_contract",
+      "description": "Decorator typed/untyped behavior depends on hashkey and typedkey semantics from src/cachetools/keys.py.",
+      "evidence_paths": [
+        "src/cachetools/keys.py",
+        "src/cachetools/func.py",
+        "tests/test_keys.py",
+        "tests/test_func.py"
+      ],
+      "producer_subproblem": "key_construction",
+      "schema_version": "0.3"
+    },
+    {
+      "consumer_subproblem": "integration_validation",
+      "dependency_type": "test_contract",
+      "description": "Integration tests require cache_parameters, cache_info, cache_clear, maxsize edge cases, locking, and cache-specific behavior.",
+      "evidence_paths": [
+        "src/cachetools/func.py",
+        "tests/test_func.py"
+      ],
+      "producer_subproblem": "decorator_factories",
+      "schema_version": "0.3"
+    }
+  ],
+  "evaluator_command": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "-o",
+    "addopts=",
+    "tests"
+  ],
+  "inclusion_decision": null,
+  "natural_subproblems": {
+    "core_cache_api": [
+      "src/cachetools/__init__.py"
+    ],
+    "decorator_factories": [
+      "src/cachetools/func.py"
+    ],
+    "integration_validation": [
+      "tests/test_keys.py",
+      "tests/test_func.py"
+    ],
+    "key_construction": [
+      "src/cachetools/keys.py"
+    ],
+    "key_integration_validation": [
+      "tests/test_keys.py",
+      "tests/test_cached.py",
+      "tests/test_cachedmethod.py"
+    ]
+  },
+  "notes": [
+    "The proposed label is demonstrative and not a final annotation.",
+    "Task source, tests, and Commit0 implementation are unchanged.",
+    "The task statement is an answer-free synthesis of public docstrings, spec.pdf.bz2, and public tests at commit0."
+  ],
+  "problem_statement": "Complete the unfinished public APIs in `src/cachetools/keys.py` and\n`src/cachetools/func.py` without modifying the tests.\n\nThe key layer must implement hashable positional/keyword argument keys,\nmethod-key variants that ignore `self`, typed variants that distinguish equal\nvalues of different types, stable keyword handling, `_HashedTuple` behavior,\nand pickle compatibility.\n\nThe function-decorator layer must implement the FIFO, LFU, LRU, deprecated\nMRU, random-replacement, and TTL cache decorators using the existing cache\nclasses and `cached()` API. Preserve direct and configured decorator use,\ntyped/untyped key selection, `maxsize` edge cases, cache metadata methods,\ncache clearing, thread safety with a reentrant lock, RR `choice`, TTL\n`timer`/`ttl`, and the documented MRU deprecation warning.\n\nPreserve the existing public package API and make the repository's test suite\npass.",
+  "proposed_parallelizability_label": "partially_parallelizable",
+  "publicly_implicated_modules": [
+    "src/cachetools/__init__.py",
+    "src/cachetools/func.py",
+    "src/cachetools/keys.py"
+  ],
+  "qualification_label": null,
+  "qualification_status": "pending_independent_annotation",
+  "quality_evidence_file": "manifests/pilot/v0.3/quality/commit0_cachetools.json",
+  "repository": "commit0/cachetools",
+  "schema_version": "0.3",
+  "source_materialization": "git archive of the upstream Commit0 cachetools repository at the recorded commit0 SHA",
+  "task_id": "commit0:cachetools",
+  "task_source": "Commit0",
+  "test_targets": [
+    "tests/test_cache.py",
+    "tests/test_cached.py",
+    "tests/test_cachedmethod.py",
+    "tests/test_fifo.py",
+    "tests/test_func.py",
+    "tests/test_keys.py",
+    "tests/test_lfu.py",
+    "tests/test_lru.py",
+    "tests/test_mru.py",
+    "tests/test_rr.py",
+    "tests/test_tlru.py",
+    "tests/test_ttl.py"
+  ],
+  "upstream_version": "a0a7e2b73f9e146b8a8f2912948b17a918e5fe83"
+}

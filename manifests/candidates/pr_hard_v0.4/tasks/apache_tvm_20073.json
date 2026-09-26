@@ -1,0 +1,33 @@
+{
+  "schema_version": "pr-hard-task-v0.4",
+  "task_id": "pr-hard:apache-tvm-20073",
+  "task_source": "merged upstream pull request",
+  "repository": "apache/tvm",
+  "upstream_version": "62fb780bb0a8da62e3808f60a2343f6fd1d4b01f",
+  "source_materialization": "sanitized one-commit snapshot of the PR first parent plus a checksum-pinned public test overlay",
+  "problem_statement": "Preserve Python source locations throughout TVMScript parsing and TIRx IR construction. IRBuilder must maintain scoped active source-span state, Source must map AST coordinates to TVM spans, and parser and evaluator paths must attach direct, inline, and tile-primitive call spans without changing structural identity. Do not modify public tests.",
+  "publicly_implicated_modules": [
+    "include/tvm/script/ir_builder/base.h",
+    "python/tvm/script/ir_builder/base.py",
+    "python/tvm/script/parser/core/diagnostics.py",
+    "python/tvm/script/parser/core/evaluator.py",
+    "python/tvm/script/parser/core/parser.py",
+    "src/script/ir_builder/base.cc",
+    "src/tirx/script/builder/utils.h"
+  ],
+  "test_targets": [
+    "tests/python/tvmscript/test_tvmscript_ir_builder_tir.py",
+    "tests/python/tvmscript/test_tvmscript_parser_source.py"
+  ],
+  "evaluator_command": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/python/tvmscript/test_tvmscript_ir_builder_tir.py",
+    "tests/python/tvmscript/test_tvmscript_parser_source.py"
+  ],
+  "proposed_parallelizability_label": "partially_parallelizable",
+  "qualification_status": "qualified",
+  "official_result_eligible": true
+}

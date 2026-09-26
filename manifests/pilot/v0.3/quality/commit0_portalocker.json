@@ -1,0 +1,243 @@
+{
+  "coordination_structure_tags": [
+    "interface_dependency"
+  ],
+  "environment_requirements": [
+    "Python 3.10.4",
+    "POSIX locking environment",
+    "pytest==8.4.2",
+    "pytest-timeout==2.4.0",
+    "setuptools==82.0.1"
+  ],
+  "evaluation_snapshots": [
+    {
+      "collected": 0,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "-o",
+        "addopts=",
+        "portalocker_tests",
+        "--ignore=portalocker_tests/test_redis.py"
+      ],
+      "dependency_versions": {
+        "pytest": "8.4.2",
+        "pytest-timeout": "2.4.0",
+        "setuptools": "82.0.1"
+      },
+      "duration_seconds": 0.83,
+      "errors": 0,
+      "evidence_scope": "public_initial_state",
+      "failed": 0,
+      "notes": [
+        "Collection fails while importing portalocker because portalocker.portalocker.lock is absent at commit0.",
+        "This is an upstream bootstrap dependency, not an environment or tool-format failure."
+      ],
+      "passed": 0,
+      "python_version": "3.10.4",
+      "return_code": 4,
+      "schema_version": "0.3",
+      "skipped": 0,
+      "snapshot_id": "raw_commit0_collection",
+      "source_ref": "commit0:300136afca11ea23c79ecfd110ed0d2819322f11"
+    },
+    {
+      "collected": 40,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "-o",
+        "addopts=",
+        "portalocker_tests",
+        "--ignore=portalocker_tests/test_redis.py"
+      ],
+      "dependency_versions": {
+        "pytest": "8.4.2",
+        "pytest-timeout": "2.4.0",
+        "setuptools": "82.0.1"
+      },
+      "duration_seconds": 1.34,
+      "errors": 0,
+      "evidence_scope": "public_initial_state",
+      "failed": 31,
+      "notes": [
+        "All POSIX core tests collect successfully from the checksum-pinned curated initial state.",
+        "The two empty lock/unlock stubs are import controls and must not be counted as agent progress.",
+        "Missing end-of-file newlines are normalized so the combined-module evaluator has deterministic source boundaries; no implementation behavior is added."
+      ],
+      "passed": 9,
+      "python_version": "3.10.4",
+      "return_code": 1,
+      "schema_version": "0.3",
+      "skipped": 0,
+      "snapshot_id": "curated_commit0_initial",
+      "source_ref": "commit0:300136afca11ea23c79ecfd110ed0d2819322f11+overlay:b6b2f2c7fdbce4200774804a49d410648e17a573b42ca007e9471e5e8fa4c96c"
+    },
+    {
+      "collected": 40,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "-o",
+        "addopts=",
+        "portalocker_tests",
+        "--ignore=portalocker_tests/test_redis.py"
+      ],
+      "dependency_versions": {
+        "pytest": "8.4.2",
+        "pytest-timeout": "2.4.0",
+        "setuptools": "82.0.1"
+      },
+      "duration_seconds": 4.07,
+      "errors": 0,
+      "evidence_scope": "evaluator_sanity_only",
+      "failed": 0,
+      "notes": [
+        "All unchanged POSIX core tests pass.",
+        "The completed source is evaluator validation only and must not be exposed to agents or annotators."
+      ],
+      "passed": 40,
+      "python_version": "3.10.4",
+      "return_code": 0,
+      "schema_version": "0.3",
+      "skipped": 0,
+      "snapshot_id": "completed_core_evaluator_sanity",
+      "source_ref": "public-tag:v2.10.1"
+    }
+  ],
+  "known_limitations": [
+    "The released task uses a checksum-pinned curated state rather than byte-identical raw Commit0.",
+    "Portalocker is evaluated only on Linux/POSIX; Windows uses a different backend and is outside this task.",
+    "RedisLock is excluded from the core task because it requires the redis package and a running external service.",
+    "Several initial passing tests are false-positive controls under no-op lock stubs and must not count as progress."
+  ],
+  "public_statement_sources": [
+    "spec.pdf.bz2@commit0",
+    "portalocker/*.py docstrings@commit0",
+    "portalocker_tests/*.py@commit0"
+  ],
+  "quality_status": "qualification_ready",
+  "remaining_gates": [
+    "two independent human inclusion/exclusion annotations",
+    "recorded Linux/POSIX environment requirements and evaluator command",
+    "single-agent baseline result pending evaluation",
+    "specialist-local baseline results pending evaluation"
+  ],
+  "schema_version": "0.3",
+  "structure_rationale": "Platform lock/unlock and exception semantics are consumed by Lock, RLock, temporary-file, timeout, and semaphore utilities.",
+  "task_id": "commit0:portalocker",
+  "test_groups": [
+    {
+      "command": [
+        "python",
+        "-c",
+        "import portalocker"
+      ],
+      "description": "Verify that the checksum-pinned curated state imports. This control is not agent implementation progress.",
+      "group_id": "curated_state_control",
+      "owner_subproblem": null,
+      "prerequisites": [],
+      "purpose": "environment_control",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "portalocker_tests/tests.py",
+        "-k",
+        "test_exceptions or test_simple or test_exlusive or test_shared or test_nonblocking or test_lock_fileno"
+      ],
+      "description": "Direct POSIX lock/unlock, conflict, flag, fileno, and exception behavior. Curated initial result: 5 passed and 5 failed.",
+      "group_id": "platform_backend_local",
+      "owner_subproblem": "platform_lock_backend",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "--doctest-modules",
+        "portalocker/utils.py"
+      ],
+      "description": "Public coalesce, atomic-write, and semaphore filename doctests that do not require a completed lock backend. Curated initial result: 4 failed.",
+      "group_id": "utilities_local_doctest",
+      "owner_subproblem": "file_lock_utilities",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "portalocker_tests/temporary_file_lock.py",
+        "portalocker_tests/test_combined.py",
+        "portalocker_tests/test_semaphore.py",
+        "portalocker_tests/tests.py::test_with_timeout",
+        "portalocker_tests/tests.py::test_without_timeout",
+        "portalocker_tests/tests.py::test_without_fail",
+        "portalocker_tests/tests.py::test_truncate",
+        "portalocker_tests/tests.py::test_class",
+        "portalocker_tests/tests.py::test_acquire_release",
+        "portalocker_tests/tests.py::test_rlock_acquire_release_count",
+        "portalocker_tests/tests.py::test_rlock_acquire_release",
+        "portalocker_tests/tests.py::test_release_unacquired",
+        "portalocker_tests/tests.py::test_blocking_timeout",
+        "portalocker_tests/tests.py::test_shared_processes",
+        "portalocker_tests/tests.py::test_exclusive_processes",
+        "portalocker_tests/tests.py::test_locker_mechanism",
+        "portalocker_tests/tests.py::test_exception"
+      ],
+      "description": "Lock/RLock, timeout, process, semaphore, temporary-file, combined-module, and exception integration. Curated initial result: 5 passed and 26 failed.",
+      "group_id": "backend_utilities_cross_contract",
+      "owner_subproblem": null,
+      "prerequisites": [
+        "platform_lock_backend artifact is integrated",
+        "file_lock_utilities artifact is integrated"
+      ],
+      "purpose": "cross_subproblem",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "-o",
+        "addopts=",
+        "portalocker_tests",
+        "--ignore=portalocker_tests/test_redis.py"
+      ],
+      "description": "All 40 upstream POSIX core tests; RedisLock is excluded.",
+      "group_id": "full_evaluator",
+      "owner_subproblem": null,
+      "prerequisites": [],
+      "purpose": "full_evaluator",
+      "schema_version": "0.3"
+    }
+  ]
+}

@@ -1,0 +1,203 @@
+diff --git a/tests/python/relax/test_tvmscript_parser.py b/tests/python/relax/test_tvmscript_parser.py
+index b91a1e4544..1e7cddb116 100644
+--- a/tests/python/relax/test_tvmscript_parser.py
++++ b/tests/python/relax/test_tvmscript_parser.py
+@@ -995,6 +995,8 @@ def test_call_tir_with_tir_var():
+                     Y[vi] = X[vi]
+ 
+     _check(Module)
++    portable = Module.script(show_meta=True, extra_config={"script.use_pep695": False})
++    tvm.ir.assert_structural_equal(Module, tvm.script.from_source(portable))
+ 
+ 
+ def test_call_tir_with_grad():
+diff --git a/tests/python/relax/test_tvmscript_type_vars.py b/tests/python/relax/test_tvmscript_type_vars.py
+new file mode 100644
+index 0000000000..990a9582f7
+--- /dev/null
++++ b/tests/python/relax/test_tvmscript_type_vars.py
+@@ -0,0 +1,68 @@
++# Licensed to the Apache Software Foundation (ASF) under one
++# or more contributor license agreements.  See the NOTICE file
++# distributed with this work for additional information
++# regarding copyright ownership.  The ASF licenses this file
++# to you under the Apache License, Version 2.0 (the
++# "License"); you may not use this file except in compliance
++# with the License.  You may obtain a copy of the License at
++#
++#   http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing,
++# software distributed under the License is distributed on an
++# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
++# KIND, either express or implied.  See the License for the
++# specific language governing permissions and limitations
++# under the License.
++
++import sys
++from typing import TypeVar
++
++import tvm
++import tvm.testing
++from tvm.script import relax as R
++
++M = TypeVar("M")
++UNUSED_GENERIC = TypeVar("UNUSED_GENERIC", bound=int)
++
++
++def test_type_vars_roundtrip():
++    @R.function(private=True)
++    def func(
++        x: R.Tensor((M, "M * 2"), "float32"),
++    ) -> R.Tensor((M, "M * 2"), "float32"):
++        return x
++
++    script = func.script()
++    if sys.version_info >= (3, 12):
++        assert script.startswith("from __future__ import annotations\n\n")
++        assert "def main[M](" in script
++        assert 'R.Tensor((M, M * 2), dtype="float32")' in script
++        typed = tvm.script.from_source(
++            """
++@R.function(private=True)
++def func[M: int](x: R.Tensor((M, M * 2), "float32")):
++    return x
++"""
++        )
++        tvm.ir.assert_structural_equal(func, typed)
++    else:
++        assert "from __future__ import annotations" not in script
++        assert 'M = TypeVar("M")' in script
++        assert 'R.Tensor((M, "M * 2"), dtype="float32")' in script
++
++    portable = func.script(extra_config={"relax.use_pep695": False})
++    assert "from __future__ import annotations" not in portable
++    assert 'M = TypeVar("M")' in portable
++    assert 'R.Tensor((M, "M * 2"), dtype="float32")' in portable
++    assert "M = T.int64()" not in script
++    assert "UNUSED_GENERIC" not in script
++    assert [param.name for param in func.params] == ["x"]
++    assert not hasattr(func, "type_params")
++    assert func.attrs.get("relax.type_vars") is None
++    tvm.ir.assert_structural_equal(func, tvm.script.from_source(script))
++    tvm.ir.assert_structural_equal(func, tvm.script.from_source(portable))
++
++
++if __name__ == "__main__":
++    tvm.testing.main()
+diff --git a/tests/python/tirx/test_tvmscript_type_vars.py b/tests/python/tirx/test_tvmscript_type_vars.py
+new file mode 100644
+index 0000000000..c3d13f122b
+--- /dev/null
++++ b/tests/python/tirx/test_tvmscript_type_vars.py
+@@ -0,0 +1,67 @@
++# Licensed to the Apache Software Foundation (ASF) under one
++# or more contributor license agreements.  See the NOTICE file
++# distributed with this work for additional information
++# regarding copyright ownership.  The ASF licenses this file
++# to you under the Apache License, Version 2.0 (the
++# "License"); you may not use this file except in compliance
++# with the License.  You may obtain a copy of the License at
++#
++#   http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing,
++# software distributed under the License is distributed on an
++# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
++# KIND, either express or implied.  See the License for the
++# specific language governing permissions and limitations
++# under the License.
++
++import sys
++
++import tvm
++import tvm.testing
++
++
++def test_type_vars_roundtrip():
++    func = tvm.script.from_source(
++        """
++M = TypeVar("M")
++UNUSED = TypeVar("UNUSED")
++
++@T.prim_func(private=True)
++def func(A: T.Buffer((M, M * 2), "float32")):
++    A[0, 0] = T.float32(1)
++"""
++    )
++
++    script = func.script()
++    if sys.version_info >= (3, 12):
++        assert script.startswith("from __future__ import annotations\n\n")
++        assert "def main[M](" in script
++        assert 'T.Buffer((M, M * T.int64(2)), "float32")' in script
++        typed = tvm.script.from_source(
++            """
++@T.prim_func(private=True)
++def func[M: int](A: T.Buffer((M, M * 2), "float32")):
++    A[0, 0] = T.float32(1)
++"""
++        )
++        tvm.ir.assert_structural_equal(func, typed)
++    else:
++        assert "from __future__ import annotations" not in script
++        assert 'M = TypeVar("M")' in script
++
++    portable = func.script(extra_config={"script.use_pep695": False})
++    assert "from __future__ import annotations" not in portable
++    assert 'M = TypeVar("M")' in portable
++    assert 'T.Buffer((M, "M * T.int64(2)"), "float32")' in portable
++    assert "UNUSED" not in script
++    assert "M = T.int64()" not in script
++    assert len(func.params) == 1
++    assert not hasattr(func, "type_params")
++    assert func.attrs.get("tirx.type_vars") is None
++    tvm.ir.assert_structural_equal(func, tvm.script.from_source(script))
++    tvm.ir.assert_structural_equal(func, tvm.script.from_source(portable))
++
++
++if __name__ == "__main__":
++    tvm.testing.main()
+diff --git a/tests/python/tvmscript/test_tvmscript_printer_doc.py b/tests/python/tvmscript/test_tvmscript_printer_doc.py
+index 18c3cec267..571f75e35a 100644
+--- a/tests/python/tvmscript/test_tvmscript_printer_doc.py
++++ b/tests/python/tvmscript/test_tvmscript_printer_doc.py
+@@ -478,6 +478,7 @@ def test_function_doc(args, decorators, return_type, body):
+     assert list(doc.decorators) == decorators
+     assert doc.return_type == return_type
+     assert list(doc.body) == body
++    assert list(doc.type_params) == []
+ 
+ 
+ @pytest.mark.parametrize(
+diff --git a/tests/python/tvmscript/test_tvmscript_printer_python_doc_printer.py b/tests/python/tvmscript/test_tvmscript_printer_python_doc_printer.py
+index 9cf7baa302..0fe90a1a83 100644
+--- a/tests/python/tvmscript/test_tvmscript_printer_python_doc_printer.py
++++ b/tests/python/tvmscript/test_tvmscript_printer_python_doc_printer.py
+@@ -804,6 +804,26 @@ def test_print_function_doc(args, decorators, body, return_type, expected):
+     assert to_python_script(doc) == format_script(expected)  # test
+ 
+ 
++def test_print_function_doc_with_type_params():
++    doc = FunctionDoc(
++        IdDoc("func"),
++        [],
++        [],
++        None,
++        [ReturnDoc(IdDoc("T"))],
++        type_params=[
++            IdDoc("T"),
++            AssignDoc(IdDoc("U"), rhs=None, annotation=IdDoc("int")),
++        ],
++    )
++    assert to_python_script(doc) == format_script(
++        """
++        def func[T, U: int]():
++            return T
++        """
++    )
++
++
+ def get_func_doc_for_class(name):
+     args = [
+         AssignDoc(IdDoc("x"), rhs=None, annotation=IdDoc("int")),

@@ -1,0 +1,204 @@
+{
+  "coordination_structure_tags": [
+    "interface_dependency",
+    "shared_abstraction"
+  ],
+  "environment_requirements": [
+    "Python 3.10.12",
+    "pytest==9.0.3",
+    "urllib3==1.26.5",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
+    "Run from the repository root with PYTHONPATH=src.",
+    "Use the stripped source ref origin/commit0_combined plus bootstrap overlays from configs/tasks/commit0_curated_tasks.v0.3.json."
+  ],
+  "evaluation_snapshots": [
+    {
+      "collected": 243,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_structures.py",
+        "tests/test_utils.py",
+        "tests/test_hooks.py",
+        "tests/test_adapters.py",
+        "tests/test_packages.py"
+      ],
+      "dependency_versions": {
+        "pytest": "9.0.3",
+        "urllib3": "1.26.5"
+      },
+      "duration_seconds": 3.36,
+      "errors": 0,
+      "evidence_scope": "public_initial_state",
+      "failed": 175,
+      "notes": [
+        "Verified with PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 and PYTHONPATH=src after applying only checksum-recorded bootstrap overlays.",
+        "Failures are caused by unfinished structures, utilities, hooks, request preparation, response, adapter, and package behavior."
+      ],
+      "passed": 55,
+      "python_version": "3.10.12",
+      "return_code": 1,
+      "schema_version": "0.3",
+      "skipped": 13,
+      "snapshot_id": "curated_commit0_initial_local_core",
+      "source_ref": "origin/commit0_combined:0e5a01d0ed71fd20b6a72cafe92b9a917ce93d7b+bootstrap-overlays"
+    },
+    {
+      "collected": 243,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_structures.py",
+        "tests/test_utils.py",
+        "tests/test_hooks.py",
+        "tests/test_adapters.py",
+        "tests/test_packages.py"
+      ],
+      "dependency_versions": {
+        "pytest": "9.0.3",
+        "urllib3": "1.26.5"
+      },
+      "duration_seconds": 0.36,
+      "errors": 0,
+      "evidence_scope": "evaluator_sanity_only",
+      "failed": 0,
+      "notes": [
+        "The complete/default local commit0 ref passes the same scoped evaluator in the same environment.",
+        "The complete ref is evaluator validation only and must not define decomposition, prompts, or agent-visible evidence."
+      ],
+      "passed": 230,
+      "python_version": "3.10.12",
+      "return_code": 0,
+      "schema_version": "0.3",
+      "skipped": 13,
+      "snapshot_id": "complete_commit0_local_core_sanity",
+      "source_ref": "commit0:1ae6fc3137a11e11565ed22436aa1e77277ac98c"
+    }
+  ],
+  "known_limitations": [
+    "The local commit0/default branch is complete. Benchmark workspaces must be materialized from origin/commit0_combined.",
+    "Full Requests tests are not used as the v0.3 evaluator in this environment because pytest-httpbin is unavailable and tests/test_help.py hits a pyOpenSSL/OpenSSL X509_V_FLAG_NOTIFY_POLICY mismatch.",
+    "Bootstrap overlays supply only import/collection prerequisites; they do not implement Requests behavior.",
+    "Single-agent and multi-agent model results are evaluation outputs to report, not dataset qualification gates."
+  ],
+  "public_statement_sources": [
+    "README.md@origin/commit0_combined",
+    "src/requests/*.py docstrings@origin/commit0_combined",
+    "tests/test_*.py@origin/commit0_combined",
+    "manifests/candidates/commit0_async_screening_v0.3.json"
+  ],
+  "quality_status": "qualification_ready",
+  "remaining_gates": [
+    "two independent human inclusion/exclusion annotations"
+  ],
+  "schema_version": "0.3",
+  "structure_rationale": "Requests exposes a natural producer/consumer split: sessions and adapters consume prepared request, response, hook, cookie, auth, URL, proxy, and body-length contracts from the preparation core. Asynchronous workers can make stale assumptions about those interfaces that only fail once transport and package tests are integrated.",
+  "task_id": "commit0:requests",
+  "test_groups": [
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_structures.py",
+        "tests/test_utils.py",
+        "tests/test_hooks.py"
+      ],
+      "description": "Foundation structures, URL/proxy/header/body utilities, hooks, cookies, auth, requests, prepared requests, and responses.",
+      "group_id": "request_preparation_core_local",
+      "owner_subproblem": "request_preparation_core",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_adapters.py"
+      ],
+      "description": "Adapter request URL, proxy, TLS, pool, send, and response behavior.",
+      "group_id": "session_transport_layer_local",
+      "owner_subproblem": "session_transport_layer",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_packages.py"
+      ],
+      "description": "Package import and vendored dependency compatibility checks.",
+      "group_id": "package_import_local",
+      "owner_subproblem": "integration_validation",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_hooks.py::test_default_hooks",
+        "tests/test_utils.py::test_select_proxies",
+        "tests/test_utils.py::test_get_auth_from_url",
+        "tests/test_adapters.py::test_request_url_trims_leading_path_separators"
+      ],
+      "description": "Transport behavior after hook, auth, proxy, and URL preparation contracts are integrated.",
+      "group_id": "prep_transport_cross_contract",
+      "owner_subproblem": null,
+      "prerequisites": [
+        "request_preparation_core artifact is integrated",
+        "session_transport_layer artifact is integrated"
+      ],
+      "purpose": "cross_subproblem",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/test_structures.py",
+        "tests/test_utils.py",
+        "tests/test_hooks.py",
+        "tests/test_adapters.py",
+        "tests/test_packages.py"
+      ],
+      "description": "Public local-core subset excluding httpbin integration tests and the pyOpenSSL help test for environment reasons.",
+      "group_id": "full_evaluator",
+      "owner_subproblem": null,
+      "prerequisites": [],
+      "purpose": "full_evaluator",
+      "schema_version": "0.3"
+    }
+  ]
+}

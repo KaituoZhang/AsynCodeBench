@@ -1,0 +1,115 @@
+{
+  "schema_version": "pr-hard-tvm-environments-v0.4",
+  "status": "automated_qualification_frozen",
+  "common": {
+    "source_checkout": "candidate base_sha with matching pinned submodules",
+    "model_visible_git_history": false,
+    "python_import_root": "python",
+    "task_local_ffi_install": "Install 3rdparty/tvm-ffi from the candidate checkout with --no-build-isolation; the two pinned TVM bases use different tvm-ffi ABIs and must not share one editable installation.",
+    "runtime_library_root": "build",
+    "build_system": "CMake plus Ninja",
+    "qualification_host": "Ubuntu 22.04.4 LTS, Linux 5.15.0-124-generic x86_64",
+    "tool_versions": {
+      "python": "3.11.16",
+      "pytest": "9.1.1",
+      "cmake": "4.4.2",
+      "ninja": "1.13.2",
+      "llvm": "18.1.8",
+      "cc": "Ubuntu GCC 11.4.0",
+      "cxx": "Ubuntu G++ 11.4.0"
+    },
+    "locks": [
+      {
+        "path": "configs/environments/pr_hard_tvm.v0.4.conda-lock.txt",
+        "sha256": "1c44901e30620de95c78a35e6d72230868ffdbcf206bda6143706e1ba0e83618",
+        "kind": "micromamba_explicit"
+      },
+      {
+        "path": "configs/environments/pr_hard_tvm.v0.4.requirements-lock.txt",
+        "sha256": "b2279a1089af16e16e267f554e009617883c995ce891ffdf69dc73f5060d1fb0",
+        "kind": "python_requirements"
+      }
+    ],
+    "task_local_submodules": {
+      "pr-hard:apache-tvm-20153": {
+        "tvm_ffi_sha": "12dbf053b3d9ba4ebd9da3123b1aeca79cf74229",
+        "recursive_submodule_manifest_sha256": "2c046b5b99c80e41c7f252500eeffb069ec9e8826aae53ba06eff83b8f415939"
+      },
+      "pr-hard:apache-tvm-20107": {
+        "tvm_ffi_sha": "12dbf053b3d9ba4ebd9da3123b1aeca79cf74229",
+        "recursive_submodule_manifest_sha256": "b99a4ed564aecb0175670f1407a39e8e778f0ceef18f5cd2000ec631a4331b95"
+      },
+      "pr-hard:apache-tvm-20073": {
+        "tvm_ffi_sha": "3e8b2a860936fdacc85d65ec07bcebe150d23b5f",
+        "recursive_submodule_manifest_sha256": "835f296c60c2737aeeecb764f22a3d2a74017e4e2d55a3a8d8ce2ea0bdfcf88e"
+      },
+      "pr-hard:apache-tvm-20018": {
+        "tvm_ffi_sha": "5411a642d98bba14d4cb1e19a793c5b6758be019",
+        "recursive_submodule_manifest_sha256": "da5a428050d02f03535fa7ad7704208f4d13442eeb530300e885498fd6344e35"
+      }
+    },
+    "rebuild_before_evaluation": [
+      "cmake",
+      "--build",
+      "build",
+      "--parallel"
+    ],
+    "required_frozen_evidence": [
+      "immutable environment-lock digests",
+      "operating-system release",
+      "C and C++ compiler versions",
+      "LLVM version and llvm-config path",
+      "Python version and dependency lock",
+      "CMake and Ninja versions",
+      "submodule SHAs",
+      "configure command",
+      "base-red and gold-green evaluator logs",
+      "cold-build and incremental-evaluator durations"
+    ]
+  },
+  "profiles": {
+    "tvm-cpu-llvm-source-build": {
+      "configure": [
+        "cmake",
+        "-S",
+        ".",
+        "-B",
+        "build",
+        "-G",
+        "Ninja",
+        "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
+        "-DUSE_LLVM=llvm-config",
+        "-DUSE_CUDA=OFF",
+        "-DUSE_GTEST=OFF"
+      ],
+      "requires_cuda_toolkit": false,
+      "requires_gpu_execution": false,
+      "used_by": [
+        "pr-hard:apache-tvm-20107",
+        "pr-hard:apache-tvm-20073",
+        "pr-hard:apache-tvm-20018"
+      ]
+    },
+    "tvm-cuda-codegen-source-build": {
+      "configure": [
+        "cmake",
+        "-S",
+        ".",
+        "-B",
+        "build",
+        "-G",
+        "Ninja",
+        "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
+        "-DUSE_LLVM=llvm-config",
+        "-DUSE_CUDA=OFF",
+        "-DUSE_GTEST=OFF"
+      ],
+      "requires_cuda_toolkit": false,
+      "requires_gpu_execution": false,
+      "notes": "TVM's CUDA source-code generator is compiled with USE_CUDA=OFF. Focused tests lower TIRx and inspect generated CUDA/PTX source without launching a kernel. Upstream ptxas certification cases skip when no CUDA toolkit is present; those skips are reported separately and are not used as required Dependency Checker evidence.",
+      "used_by": [
+        "pr-hard:apache-tvm-20153"
+      ]
+    }
+  }
+}

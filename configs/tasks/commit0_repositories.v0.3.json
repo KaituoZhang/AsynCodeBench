@@ -1,0 +1,35 @@
+{
+  "schema_version": "commit0-repositories-v0.3",
+  "repositories": [
+    {
+      "name": "cachetools",
+      "origin_url": "https://github.com/commit-0/cachetools.git",
+      "commit0_sha": "a0a7e2b73f9e146b8a8f2912948b17a918e5fe83"
+    },
+    {
+      "name": "deprecated",
+      "origin_url": "https://github.com/commit-0/deprecated.git",
+      "commit0_sha": "b7e2114c046abb489e4e23ab9f829778b076650d"
+    },
+    {
+      "name": "portalocker",
+      "origin_url": "https://github.com/commit-0/portalocker.git",
+      "commit0_sha": "300136afca11ea23c79ecfd110ed0d2819322f11"
+    },
+    {
+      "name": "tinydb",
+      "origin_url": "https://github.com/commit-0/tinydb.git",
+      "commit0_sha": "ed761a72c8c1e1cb24ca4dbcc089f35c5264d357"
+    },
+    {
+      "name": "voluptuous",
+      "origin_url": "https://github.com/commit-0/voluptuous.git",
+      "commit0_sha": "d98e0a0b6a909d26dca6ac1a87cf1a3b60fb62d4"
+    },
+    {
+      "name": "wcwidth",
+      "origin_url": "https://github.com/commit-0/wcwidth.git",
+      "commit0_sha": "0d0054189bdb0fc7b9de0456fc3cee2b67a6ceba"
+    }
+  ]
+}

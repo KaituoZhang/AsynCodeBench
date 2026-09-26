@@ -1,0 +1,119 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - submission/anonymous-review
+      - agent/community-ready-release
+      - agent/community-ready-release-clean
+      - agent/reproducible-model-evaluation
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark-contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+      - run: python -m pip install -U pip
+      - run: python -m pip install -e ".[dev]"
+      - name: Materialize pinned contract-test repositories
+        run: python scripts/materialize_contract_test_repositories.py
+      - run: PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest -q tests/contracts
+      - run: python scripts/build_release_index.py --check
+      - run: python scripts/build_v04_release_index.py --check
+      - name: Lint public result and release tooling
+        run: >-
+          python -m ruff check
+          scripts/build_release_index.py
+          scripts/build_v04_release_index.py
+          scripts/analyze_run_process_metrics.py
+          scripts/summarize_model_task_runs.py
+          scripts/aggregate_model_task_results.py
+          scripts/check_repository_hygiene.py
+          scripts/check_openhands_runtime_consistency.py
+          scripts/materialize_openhands_sdk.py
+          scripts/materialize_contract_test_repositories.py
+          scripts/smoke_openhands_event_roundtrip.py
+          tests/contracts/test_release_bundle.py
+          tests/contracts/test_result_admission.py
+          tests/contracts/test_public_documentation.py
+          --select F,E9,I,B,UP,SIM
+      - run: >-
+          python scripts/check_markdown_links.py
+          README.md
+          Human_Review_Record/README.md
+          Human_Review_Record/Reviewer 2/README.md
+          docs/README.md
+          docs/QUICKSTART.md
+          docs/AGENT_ADAPTER.md
+          docs/RESULT_VALIDITY.md
+          docs/MODEL_EXPERIMENT_RUNBOOK.md
+          docs/ASYNCODEBENCH_HARNESS_V2.md
+          docs/EVALUATION_METRICS.md
+          reproductions/async-swe-agents/README.md
+
+  native-harness:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: reproductions/async-swe-agents
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          python-version: "3.12"
+      - name: Materialize locked OpenHands source
+        run: python ../../scripts/materialize_openhands_sdk.py --require-clean
+      - run: uv sync --frozen --extra dev
+      - name: Verify OpenHands runtime consistency
+        run: |
+          uv run python ../../scripts/check_openhands_runtime_consistency.py --require-clean
+          uv run python ../../scripts/smoke_openhands_event_roundtrip.py
+      - run: uv run asyncodebench tasks
+      - run: uv run asyncodebench release-status
+      - run: uv run pytest -q tests
+      - name: Lint native harness public surface
+        run: >-
+          uv run ruff check
+          asyncodebench_harness
+          agents
+          core/workspace.py
+          protocols/asyncodebench
+          run_asyncodebench.py
+          tests/test_agent_adapter_contract.py
+          tests/test_run_bundle.py
+          tests/test_check_run_health.py
+          tests/test_cli_doctor.py
+          tests/test_asyncodebench_harness_v2.py
+          tests/test_workspace_networking.py
+          --select F,E9,I
+      - name: Dry-run all native protocols
+        run: |
+          for protocol in single serial_specialists async_private caid_manager async_manager; do
+            uv run python run_asyncodebench.py \
+              --task_id asyncodebench:cachetools \
+              --protocol "$protocol" \
+              --model openai/ci-placeholder \
+              --dry_run
+          done
+
+  repository-hygiene:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Reject secrets, private environments, datasets, and run outputs
+        run: python scripts/check_repository_hygiene.py
+      - name: Reject double-blind identity leaks
+        run: python scripts/check_anonymity.py

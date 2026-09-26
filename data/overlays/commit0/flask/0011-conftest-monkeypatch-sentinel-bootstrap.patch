@@ -1,0 +1,49 @@
+diff --git a/tests/conftest.py b/tests/conftest.py
+--- a/tests/conftest.py
++++ b/tests/conftest.py
+@@ -1,34 +1,37 @@
+ import os
+ import pkgutil
+ import sys
+ 
+ import pytest
+-from _pytest import monkeypatch
++try:
++    from _pytest.monkeypatch import notset as _missing_env
++except ImportError:
++    from _pytest.monkeypatch import NOTSET as _missing_env
+ 
+ from flask import Flask
+ from flask.globals import request_ctx
+ 
+ 
+ @pytest.fixture(scope="session", autouse=True)
+ def _standard_os_environ():
+     """Set up ``os.environ`` at the start of the test session to have
+     standard values. Returns a list of operations that is used by
+     :func:`._reset_os_environ` after each test.
+     """
+-    mp = monkeypatch.MonkeyPatch()
++    mp = pytest.MonkeyPatch()
+     out = (
+-        (os.environ, "FLASK_ENV_FILE", monkeypatch.notset),
+-        (os.environ, "FLASK_APP", monkeypatch.notset),
+-        (os.environ, "FLASK_DEBUG", monkeypatch.notset),
+-        (os.environ, "FLASK_RUN_FROM_CLI", monkeypatch.notset),
+-        (os.environ, "WERKZEUG_RUN_MAIN", monkeypatch.notset),
++        (os.environ, "FLASK_ENV_FILE", _missing_env),
++        (os.environ, "FLASK_APP", _missing_env),
++        (os.environ, "FLASK_DEBUG", _missing_env),
++        (os.environ, "FLASK_RUN_FROM_CLI", _missing_env),
++        (os.environ, "WERKZEUG_RUN_MAIN", _missing_env),
+     )
+ 
+     for _, key, value in out:
+-        if value is monkeypatch.notset:
++        if value is _missing_env:
+             mp.delenv(key, False)
+         else:
+             mp.setenv(key, value)
+ 
+     yield out
+     mp.undo()

@@ -1,0 +1,134 @@
+{
+  "schema_version": "0.3",
+  "task_id": "pr-hard:apache-tvm-20018",
+  "candidate_status": "qualified",
+  "scenarios": [
+    {
+      "schema_version": "0.3",
+      "scenario_id": "pr-hard-apache-tvm-20018.iterative-single.v0.4",
+      "task_id": "pr-hard:apache-tvm-20018",
+      "execution_mode": "iterative_single",
+      "agent_count": 1,
+      "assignments": [
+        {
+          "schema_version": "0.3",
+          "agent_id": "integrator",
+          "role": "iterative full-task coding agent",
+          "subproblem_id": "full_task",
+          "writable_paths": [
+            "include/tvm/tirx/builtin.h", "include/tvm/tirx/op.h", "include/tvm/tirx/script/builder/ir.h", "include/tvm/tirx/stmt.h", "include/tvm/tirx/stmt_functor.h",
+            "python/tvm/tirx/__init__.py", "python/tvm/tirx/op.py", "python/tvm/tirx/script/builder/ir.py", "python/tvm/tirx/script/parser/parser.py", "python/tvm/tirx/stmt.py", "python/tvm/tirx/stmt_functor.py",
+            "src/relax/op/tensor/inspect.cc", "src/relax/transform/compute_prim_value.cc", "src/target/llvm/codegen_llvm.cc", "src/target/llvm/codegen_llvm.h", "src/target/source/codegen_c.cc", "src/target/source/codegen_c.h",
+            "src/tirx/ir/stmt.cc", "src/tirx/ir/stmt_functor.cc", "src/tirx/ir/tir_visitor_with_path.cc", "src/tirx/ir/tir_visitor_with_path.h", "src/tirx/op/builtin.cc", "src/tirx/op/op.cc", "src/tirx/script/builder/ir.cc", "src/tirx/script/printer/stmt.cc", "src/tirx/transform/make_packed_api.cc", "src/tirx/transform/split_host_device.cc", "src/tirx/transform/storage_rewrite.cc"
+          ],
+          "primary_test_targets": [
+            "tests/python/tirx-base/test_tir_base.py::test_return_accepts_expr_and_roundtrips",
+            "tests/python/tvmscript/test_tvmscript_syntax_sugar.py::test_return_statement",
+            "tests/python/tirx-transform/test_tir_transform_make_packed_api.py::test_return_from_parallel_scope_is_rejected",
+            "tests/python/tirx-base/test_tir_base.py::test_return_const"
+          ]
+        }
+      ],
+      "dependency_annotations": [
+        {"schema_version": "0.3", "producer_subproblem": "return_ir_core", "consumer_subproblem": "return_script_surface", "dependency_type": "api_contract", "description": "TVMScript construction, parsing, and rendering consume the first-class Return node and visitor contract.", "evidence_paths": ["include/tvm/tirx/stmt.h", "src/tirx/ir/stmt.cc", "python/tvm/tirx/script/parser/parser.py", "src/tirx/script/printer/stmt.cc", "tests/python/tvmscript/test_tvmscript_syntax_sugar.py"]},
+        {"schema_version": "0.3", "producer_subproblem": "return_script_surface", "consumer_subproblem": "return_lowering_codegen_integration", "dependency_type": "integration", "description": "Return statements emitted by TVMScript must be legalized and emitted as valid C/LLVM terminators after legacy-return retirement.", "evidence_paths": ["python/tvm/tirx/script/parser/parser.py", "src/tirx/transform/make_packed_api.cc", "src/tirx/transform/split_host_device.cc", "src/target/llvm/codegen_llvm.cc", "tests/python/tirx-base/test_tir_base.py"]}
+      ],
+      "information_profile": "complete-task",
+      "concurrent_execution": false,
+      "communication_condition": "not_applicable",
+      "message_delivery_policy": "No inter-agent messages.",
+      "integration_policy": "Agent submits its final workspace.",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "token_budget_per_agent": 60000,
+      "test_budget_per_agent": 8,
+      "wall_clock_budget_seconds": 1800,
+      "competence_gate_required": true,
+      "official_result_eligible": true
+    },
+    {
+      "schema_version": "0.3",
+      "scenario_id": "pr-hard-apache-tvm-20018.serial-specialists.v0.4",
+      "task_id": "pr-hard:apache-tvm-20018",
+      "execution_mode": "serial_specialists",
+      "agent_count": 3,
+      "assignments": [
+        {"schema_version": "0.3", "agent_id": "return_core_agent", "role": "TIRx Return IR schema and visitor specialist", "subproblem_id": "return_ir_core", "writable_paths": ["include/tvm/tirx/stmt.h", "include/tvm/tirx/stmt_functor.h", "python/tvm/tirx/__init__.py", "python/tvm/tirx/stmt.py", "python/tvm/tirx/stmt_functor.py", "src/tirx/ir/stmt.cc", "src/tirx/ir/stmt_functor.cc", "src/tirx/ir/tir_visitor_with_path.cc", "src/tirx/ir/tir_visitor_with_path.h"], "primary_test_targets": ["tests/python/tirx-base/test_tir_base.py::test_return_accepts_expr_and_roundtrips", "tests/python/tirx-base/test_tir_base.py::test_return_stmt_functor_traversal_and_mutation", "tests/python/tirx/transform/test_stmt_functor.py::test_return"]},
+        {"schema_version": "0.3", "agent_id": "return_script_agent", "role": "TVMScript Return construction, parsing, and rendering specialist", "subproblem_id": "return_script_surface", "writable_paths": ["include/tvm/tirx/script/builder/ir.h", "python/tvm/tirx/script/builder/ir.py", "python/tvm/tirx/script/parser/parser.py", "src/tirx/script/builder/ir.cc", "src/tirx/script/printer/stmt.cc"], "primary_test_targets": ["tests/python/tvmscript/test_tvmscript_syntax_sugar.py::test_return_statement", "tests/python/tvmscript/test_tvmscript_printer_tir.py::test_return_statement"]},
+        {"schema_version": "0.3", "agent_id": "return_backend_agent", "role": "Return legality, legacy-contract retirement, and target emission specialist", "subproblem_id": "return_lowering_codegen_integration", "writable_paths": ["include/tvm/tirx/builtin.h", "include/tvm/tirx/op.h", "python/tvm/tirx/op.py", "src/relax/op/tensor/inspect.cc", "src/relax/transform/compute_prim_value.cc", "src/target/llvm/codegen_llvm.cc", "src/target/llvm/codegen_llvm.h", "src/target/source/codegen_c.cc", "src/target/source/codegen_c.h", "src/tirx/op/builtin.cc", "src/tirx/op/op.cc", "src/tirx/transform/make_packed_api.cc", "src/tirx/transform/split_host_device.cc", "src/tirx/transform/storage_rewrite.cc"], "primary_test_targets": ["tests/python/tirx-transform/test_tir_transform_make_packed_api.py::test_return_from_parallel_scope_is_rejected", "tests/python/tirx-transform/test_tir_transform_split_host_device.py::test_device_kernel_nonzero_return_is_rejected", "tests/python/tirx-base/test_tir_base.py::test_return_const"]}
+      ],
+      "dependency_annotations": [
+        {"schema_version": "0.3", "producer_subproblem": "return_ir_core", "consumer_subproblem": "return_script_surface", "dependency_type": "api_contract", "description": "TVMScript construction, parsing, and rendering consume the first-class Return node and visitor contract.", "evidence_paths": ["include/tvm/tirx/stmt.h", "src/tirx/ir/stmt.cc", "python/tvm/tirx/script/parser/parser.py", "src/tirx/script/printer/stmt.cc", "tests/python/tvmscript/test_tvmscript_syntax_sugar.py"]},
+        {"schema_version": "0.3", "producer_subproblem": "return_script_surface", "consumer_subproblem": "return_lowering_codegen_integration", "dependency_type": "integration", "description": "Return statements emitted by TVMScript must be legalized and emitted as valid C/LLVM terminators after legacy-return retirement.", "evidence_paths": ["python/tvm/tirx/script/parser/parser.py", "src/tirx/transform/make_packed_api.cc", "src/tirx/transform/split_host_device.cc", "src/target/llvm/codegen_llvm.cc", "tests/python/tirx-base/test_tir_base.py"]}
+      ],
+      "information_profile": "private-workspace",
+      "concurrent_execution": false,
+      "communication_condition": "completed_artifact_handoff",
+      "message_delivery_policy": "Run the Return IR core first, deliver it to the Script specialist, then deliver the integrated core and Script artifact to the lowering/codegen specialist.",
+      "integration_policy": "Apply artifacts in chain order and evaluate the combined workspace after each handoff.",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "token_budget_per_agent": 60000,
+      "test_budget_per_agent": 8,
+      "wall_clock_budget_seconds": 1800,
+      "competence_gate_required": true,
+      "official_result_eligible": true
+    },
+    {
+      "schema_version": "0.3",
+      "scenario_id": "pr-hard-apache-tvm-20018.async-private.v0.4",
+      "task_id": "pr-hard:apache-tvm-20018",
+      "execution_mode": "async_private",
+      "agent_count": 3,
+      "assignments": [
+        {"schema_version": "0.3", "agent_id": "return_core_agent", "role": "TIRx Return IR schema and visitor specialist", "subproblem_id": "return_ir_core", "writable_paths": ["include/tvm/tirx/stmt.h", "include/tvm/tirx/stmt_functor.h", "python/tvm/tirx/__init__.py", "python/tvm/tirx/stmt.py", "python/tvm/tirx/stmt_functor.py", "src/tirx/ir/stmt.cc", "src/tirx/ir/stmt_functor.cc", "src/tirx/ir/tir_visitor_with_path.cc", "src/tirx/ir/tir_visitor_with_path.h"], "primary_test_targets": ["tests/python/tirx-base/test_tir_base.py::test_return_accepts_expr_and_roundtrips", "tests/python/tirx-base/test_tir_base.py::test_return_stmt_functor_traversal_and_mutation", "tests/python/tirx/transform/test_stmt_functor.py::test_return"]},
+        {"schema_version": "0.3", "agent_id": "return_script_agent", "role": "TVMScript Return construction, parsing, and rendering specialist", "subproblem_id": "return_script_surface", "writable_paths": ["include/tvm/tirx/script/builder/ir.h", "python/tvm/tirx/script/builder/ir.py", "python/tvm/tirx/script/parser/parser.py", "src/tirx/script/builder/ir.cc", "src/tirx/script/printer/stmt.cc"], "primary_test_targets": ["tests/python/tvmscript/test_tvmscript_syntax_sugar.py::test_return_statement", "tests/python/tvmscript/test_tvmscript_printer_tir.py::test_return_statement"]},
+        {"schema_version": "0.3", "agent_id": "return_backend_agent", "role": "Return legality, legacy-contract retirement, and target emission specialist", "subproblem_id": "return_lowering_codegen_integration", "writable_paths": ["include/tvm/tirx/builtin.h", "include/tvm/tirx/op.h", "python/tvm/tirx/op.py", "src/relax/op/tensor/inspect.cc", "src/relax/transform/compute_prim_value.cc", "src/target/llvm/codegen_llvm.cc", "src/target/llvm/codegen_llvm.h", "src/target/source/codegen_c.cc", "src/target/source/codegen_c.h", "src/tirx/op/builtin.cc", "src/tirx/op/op.cc", "src/tirx/transform/make_packed_api.cc", "src/tirx/transform/split_host_device.cc", "src/tirx/transform/storage_rewrite.cc"], "primary_test_targets": ["tests/python/tirx-transform/test_tir_transform_make_packed_api.py::test_return_from_parallel_scope_is_rejected", "tests/python/tirx-transform/test_tir_transform_split_host_device.py::test_device_kernel_nonzero_return_is_rejected", "tests/python/tirx-base/test_tir_base.py::test_return_const"]}
+      ],
+      "dependency_annotations": [
+        {"schema_version": "0.3", "producer_subproblem": "return_ir_core", "consumer_subproblem": "return_script_surface", "dependency_type": "api_contract", "description": "TVMScript construction, parsing, and rendering consume the first-class Return node and visitor contract.", "evidence_paths": ["include/tvm/tirx/stmt.h", "src/tirx/ir/stmt.cc", "python/tvm/tirx/script/parser/parser.py", "src/tirx/script/printer/stmt.cc", "tests/python/tvmscript/test_tvmscript_syntax_sugar.py"]},
+        {"schema_version": "0.3", "producer_subproblem": "return_script_surface", "consumer_subproblem": "return_lowering_codegen_integration", "dependency_type": "integration", "description": "Return statements emitted by TVMScript must be legalized and emitted as valid C/LLVM terminators after legacy-return retirement.", "evidence_paths": ["python/tvm/tirx/script/parser/parser.py", "src/tirx/transform/make_packed_api.cc", "src/tirx/transform/split_host_device.cc", "src/target/llvm/codegen_llvm.cc", "tests/python/tirx-base/test_tir_base.py"]}
+      ],
+      "information_profile": "private-workspace",
+      "concurrent_execution": true,
+      "communication_condition": "none_in_flight",
+      "message_delivery_policy": "No in-flight worker messages or artifacts are delivered.",
+      "integration_policy": "Run all three specialists concurrently in private workspaces and integrate their final artifacts only after all finish.",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "token_budget_per_agent": 60000,
+      "test_budget_per_agent": 8,
+      "wall_clock_budget_seconds": 1800,
+      "competence_gate_required": true,
+      "official_result_eligible": true
+    },
+    {
+      "schema_version": "0.3",
+      "scenario_id": "pr-hard-apache-tvm-20018.async-message.v0.4",
+      "task_id": "pr-hard:apache-tvm-20018",
+      "execution_mode": "async_message",
+      "agent_count": 3,
+      "assignments": [
+        {"schema_version": "0.3", "agent_id": "return_core_agent", "role": "TIRx Return IR schema and visitor specialist", "subproblem_id": "return_ir_core", "writable_paths": ["include/tvm/tirx/stmt.h", "include/tvm/tirx/stmt_functor.h", "python/tvm/tirx/__init__.py", "python/tvm/tirx/stmt.py", "python/tvm/tirx/stmt_functor.py", "src/tirx/ir/stmt.cc", "src/tirx/ir/stmt_functor.cc", "src/tirx/ir/tir_visitor_with_path.cc", "src/tirx/ir/tir_visitor_with_path.h"], "primary_test_targets": ["tests/python/tirx-base/test_tir_base.py::test_return_accepts_expr_and_roundtrips", "tests/python/tirx-base/test_tir_base.py::test_return_stmt_functor_traversal_and_mutation", "tests/python/tirx/transform/test_stmt_functor.py::test_return"]},
+        {"schema_version": "0.3", "agent_id": "return_script_agent", "role": "TVMScript Return construction, parsing, and rendering specialist", "subproblem_id": "return_script_surface", "writable_paths": ["include/tvm/tirx/script/builder/ir.h", "python/tvm/tirx/script/builder/ir.py", "python/tvm/tirx/script/parser/parser.py", "src/tirx/script/builder/ir.cc", "src/tirx/script/printer/stmt.cc"], "primary_test_targets": ["tests/python/tvmscript/test_tvmscript_syntax_sugar.py::test_return_statement", "tests/python/tvmscript/test_tvmscript_printer_tir.py::test_return_statement"]},
+        {"schema_version": "0.3", "agent_id": "return_backend_agent", "role": "Return legality, legacy-contract retirement, and target emission specialist", "subproblem_id": "return_lowering_codegen_integration", "writable_paths": ["include/tvm/tirx/builtin.h", "include/tvm/tirx/op.h", "python/tvm/tirx/op.py", "src/relax/op/tensor/inspect.cc", "src/relax/transform/compute_prim_value.cc", "src/target/llvm/codegen_llvm.cc", "src/target/llvm/codegen_llvm.h", "src/target/source/codegen_c.cc", "src/target/source/codegen_c.h", "src/tirx/op/builtin.cc", "src/tirx/op/op.cc", "src/tirx/transform/make_packed_api.cc", "src/tirx/transform/split_host_device.cc", "src/tirx/transform/storage_rewrite.cc"], "primary_test_targets": ["tests/python/tirx-transform/test_tir_transform_make_packed_api.py::test_return_from_parallel_scope_is_rejected", "tests/python/tirx-transform/test_tir_transform_split_host_device.py::test_device_kernel_nonzero_return_is_rejected", "tests/python/tirx-base/test_tir_base.py::test_return_const"]}
+      ],
+      "dependency_annotations": [
+        {"schema_version": "0.3", "producer_subproblem": "return_ir_core", "consumer_subproblem": "return_script_surface", "dependency_type": "api_contract", "description": "TVMScript construction, parsing, and rendering consume the first-class Return node and visitor contract.", "evidence_paths": ["include/tvm/tirx/stmt.h", "src/tirx/ir/stmt.cc", "python/tvm/tirx/script/parser/parser.py", "src/tirx/script/printer/stmt.cc", "tests/python/tvmscript/test_tvmscript_syntax_sugar.py"]},
+        {"schema_version": "0.3", "producer_subproblem": "return_script_surface", "consumer_subproblem": "return_lowering_codegen_integration", "dependency_type": "integration", "description": "Return statements emitted by TVMScript must be legalized and emitted as valid C/LLVM terminators after legacy-return retirement.", "evidence_paths": ["python/tvm/tirx/script/parser/parser.py", "src/tirx/transform/make_packed_api.cc", "src/tirx/transform/split_host_device.cc", "src/target/llvm/codegen_llvm.cc", "tests/python/tirx-base/test_tir_base.py"]}
+      ],
+      "information_profile": "private-workspace",
+      "concurrent_execution": true,
+      "communication_condition": "structured_message_and_artifact",
+      "message_delivery_policy": "Workers may send Return node shape, Script emission assumptions, legality constraints, targeted results, and explicit patch artifacts while active.",
+      "integration_policy": "Integrate the latest explicitly transferred artifacts and record whether delivered schema and Script contracts changed later lowering/codegen actions.",
+      "shared_agent_scaffold": "iterative-inspect-edit-test-repair",
+      "step_budget_per_agent": 24,
+      "token_budget_per_agent": 60000,
+      "test_budget_per_agent": 8,
+      "wall_clock_budget_seconds": 1800,
+      "competence_gate_required": true,
+      "official_result_eligible": true
+    }
+  ]
+}
