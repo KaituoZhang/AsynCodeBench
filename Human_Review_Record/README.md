@@ -1,16 +1,40 @@
 # Human Review Record
 
-This directory provides community-facing archive copies of the four completed
-PR-hard v0.4 reviews submitted by reviewer \`pz0512\` on 2026-08-29.
+This directory provides community-facing archive copies of all 19 required
+human reviews in the AsynCodeBench v0.4.1 release. Every task was included and
+labelled \`partially_parallelizable\`. Reviewer identifiers are reproduced
+exactly as recorded in the original forms.
 
-| Task | Decision | Parallelizability | Review record | Qualification evidence |
-| --- | --- | --- | --- | --- |
-| \`apache-tvm-20018\` | Include | Partially parallelizable | [JSON](pz0512_apache_tvm_20018.json) | [JSON](../manifests/candidates/pr_hard_v0.4/qualification/apache_tvm_20018.json) |
-| \`apache-tvm-20073\` | Include | Partially parallelizable | [JSON](pz0512_apache_tvm_20073.json) | [JSON](../manifests/candidates/pr_hard_v0.4/qualification/apache_tvm_20073.json) |
-| \`apache-tvm-20107\` | Include | Partially parallelizable | [JSON](pz0512_apache_tvm_20107.json) | [JSON](../manifests/candidates/pr_hard_v0.4/qualification/apache_tvm_20107.json) |
-| \`apache-tvm-20153\` | Include | Partially parallelizable | [JSON](pz0512_apache_tvm_20153.json) | [JSON](../manifests/candidates/pr_hard_v0.4/qualification/apache_tvm_20153.json) |
+## Commit0 tasks
+
+| Task | Reviewer | Review record | Canonical form |
+| --- | --- | --- | --- |
+| \`cachetools\` | \`annotator_3284\` | [JSON](annotator_3284_cachetools.json) | [JSON](../manifests/annotations/asyncodebench_v0.3/cachetools/annotator_a.json) |
+| \`cookiecutter\` | \`pZ512\` | [JSON](pZ512_cookiecutter.json) | [JSON](../manifests/annotations/asyncodebench_v0.3/cookiecutter/annotator_a.json) |
+| \`deprecated\` | \`pZ512\` | [JSON](pZ512_deprecated.json) | [JSON](../manifests/annotations/asyncodebench_v0.3/deprecated/annotator_a.json) |
+| \`filesystem_spec\` | \`pZ512\` | [JSON](pZ512_filesystem_spec.json) | [JSON](../manifests/annotations/asyncodebench_v0.3/filesystem_spec/annotator_a.json) |
+| \`flask\` | \`pZ512\` | [JSON](pZ512_flask.json) | [JSON](../manifests/annotations/asyncodebench_v0.3/flask/annotator_a.json) |
+| \`imapclient\` | \`pZ512\` | [JSON](pZ512_imapclient.json) | [JSON](../manifests/annotations/asyncodebench_v0.3/imapclient/annotator_a.json) |
+| \`marshmallow\` | \`pZ512\` | [JSON](pZ512_marshmallow.json) | [JSON](../manifests/annotations/asyncodebench_v0.3/marshmallow/annotator_a.json) |
+| \`parsel\` | \`pZ512\` | [JSON](pZ512_parsel.json) | [JSON](../manifests/annotations/asyncodebench_v0.3/parsel/annotator_a.json) |
+| \`pexpect\` | \`pZ512\` | [JSON](pZ512_pexpect.json) | [JSON](../manifests/annotations/asyncodebench_v0.3/pexpect/annotator_a.json) |
+| \`portalocker\` | \`pZ512\` | [JSON](pZ512_portalocker.json) | [JSON](../manifests/annotations/asyncodebench_v0.3/portalocker/annotator_a.json) |
+| \`python-rsa\` | \`pZ512\` | [JSON](pZ512_python_rsa.json) | [JSON](../manifests/annotations/asyncodebench_v0.3/python_rsa/annotator_a.json) |
+| \`requests\` | \`pZ512\` | [JSON](pZ512_requests.json) | [JSON](../manifests/annotations/asyncodebench_v0.3/requests/annotator_a.json) |
+| \`simpy\` | \`pZ512\` | [JSON](pZ512_simpy.json) | [JSON](../manifests/annotations/asyncodebench_v0.3/simpy/annotator_a.json) |
+| \`tinydb\` | \`pZ512\` | [JSON](pZ512_tinydb.json) | [JSON](../manifests/annotations/asyncodebench_v0.3/tinydb/annotator_a.json) |
+| \`wcwidth\` | \`pZ512\` | [JSON](pZ512_wcwidth.json) | [JSON](../manifests/annotations/asyncodebench_v0.3/wcwidth/annotator_a.json) |
+
+## PR-hard tasks
+
+| Task | Reviewer | Review record | Qualification evidence |
+| --- | --- | --- | --- |
+| \`apache-tvm-20018\` | \`pz0512\` | [JSON](pz0512_apache_tvm_20018.json) | [JSON](../manifests/candidates/pr_hard_v0.4/qualification/apache_tvm_20018.json) |
+| \`apache-tvm-20073\` | \`pz0512\` | [JSON](pz0512_apache_tvm_20073.json) | [JSON](../manifests/candidates/pr_hard_v0.4/qualification/apache_tvm_20073.json) |
+| \`apache-tvm-20107\` | \`pz0512\` | [JSON](pz0512_apache_tvm_20107.json) | [JSON](../manifests/candidates/pr_hard_v0.4/qualification/apache_tvm_20107.json) |
+| \`apache-tvm-20153\` | \`pz0512\` | [JSON](pz0512_apache_tvm_20153.json) | [JSON](../manifests/candidates/pr_hard_v0.4/qualification/apache_tvm_20153.json) |
 
 The canonical machine-consumed forms remain under
-[\`manifests/annotations/pr_hard_v0.4/\`](../manifests/annotations/pr_hard_v0.4/).
-The files here are byte-identical archival copies added for discoverability;
-they do not replace the canonical annotation paths.
+[\`manifests/annotations/\`](../manifests/annotations/). The files here are
+byte-identical archival copies added for discoverability; they do not replace
+the canonical annotation paths.

@@ -1,3 +1,4 @@
+import json
 import re
 from pathlib import Path
 
@@ -35,21 +36,29 @@ def test_readme_is_a_concise_community_entry_point():
 
 
 def test_public_human_review_archive_matches_canonical_forms():
-    for task in ("20018", "20073", "20107", "20153"):
-        archive = (
-            ROOT
-            / "Human_Review_Record"
-            / f"pz0512_apache_tvm_{task}.json"
+    canonical_paths = sorted(
+        (ROOT / "manifests/annotations/asyncodebench_v0.3").glob(
+            "*/annotator_a.json"
         )
-        canonical = (
-            ROOT
-            / "manifests"
-            / "annotations"
-            / "pr_hard_v0.4"
-            / f"apache_tvm_{task}"
-            / "annotator_a.json"
+    ) + sorted(
+        (ROOT / "manifests/annotations/pr_hard_v0.4").glob(
+            "*/annotator_a.json"
         )
-        assert archive.read_bytes() == canonical.read_bytes()
+    )
+    archive_paths = sorted((ROOT / "Human_Review_Record").glob("*.json"))
+
+    def by_task(paths):
+        return {
+            json.loads(path.read_text())["task_id"]: path
+            for path in paths
+        }
+
+    canonical_by_task = by_task(canonical_paths)
+    archive_by_task = by_task(archive_paths)
+    assert len(canonical_by_task) == len(archive_by_task) == 19
+    assert canonical_by_task.keys() == archive_by_task.keys()
+    for task_id, canonical in canonical_by_task.items():
+        assert archive_by_task[task_id].read_bytes() == canonical.read_bytes()
 
 
 def test_current_guides_do_not_offer_legacy_execution_commands():
