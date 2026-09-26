@@ -4,7 +4,6 @@
 
 **Dependency-centric evaluation of asynchronous multi-agent coding**
 
-[![CI](https://github.com/KaituoZhang/AsynCodeBench/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/KaituoZhang/AsynCodeBench/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/badge/release-v0.4.1-orange.svg)](manifests/release/v0.4/official_tasks.json)
 [![Tasks](https://img.shields.io/badge/tasks-19-4C78A8.svg)](manifests/release/v0.4/task_index.json)
 [![Protocols](https://img.shields.io/badge/protocols-5-59A14F.svg)](configs/evaluation/protocol_registry.v2.json)

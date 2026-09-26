@@ -47,7 +47,7 @@ jobs:
           --select F,E9,I,B,UP,SIM
       - run: >-
           python scripts/check_markdown_links.py
-          README
+          README.md
           docs/README.md
           docs/QUICKSTART.md
           docs/AGENT_ADAPTER.md

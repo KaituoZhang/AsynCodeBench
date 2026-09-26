@@ -3,7 +3,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 CURRENT_GUIDES = (
-    ROOT / "README",
+    ROOT / "README.md",
     ROOT / "docs" / "QUICKSTART.md",
     ROOT / "docs" / "MODEL_EXPERIMENT_RUNBOOK.md",
     ROOT / "docs" / "ASYNCODEBENCH_HARNESS_V2.md",
@@ -21,7 +21,7 @@ def shell_blocks(document: str) -> list[str]:
 
 
 def test_readme_is_a_concise_community_entry_point():
-    readme = read(ROOT / "README")
+    readme = read(ROOT / "README.md")
 
     assert readme.startswith("# AsynCodeBench\n")
     assert "19 repository-level tasks" in readme

@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "asyncodebench"
 version = "0.4.1"
 description = "Dependency-aware benchmark for asynchronous multi-agent software engineering"
-readme = "README"
+readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
   "pydantic>=2.7,<3",
