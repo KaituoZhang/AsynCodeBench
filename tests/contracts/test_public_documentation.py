@@ -1,9 +1,7 @@
-import json
 import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-RELEASE_INDEX = ROOT / "manifests" / "release" / "v0.4" / "task_index.json"
 CURRENT_GUIDES = (
     ROOT / "README",
     ROOT / "docs" / "QUICKSTART.md",
@@ -22,34 +20,17 @@ def shell_blocks(document: str) -> list[str]:
     return re.findall(r"```(?:bash|sh|shell)\n(.*?)\n```", document, re.DOTALL)
 
 
-def test_readme_release_facts_match_machine_readable_index():
-    index = json.loads(read(RELEASE_INDEX))
+def test_readme_is_a_minimal_community_preview():
     readme = read(ROOT / "README")
-    flat_readme = readme.replace("\n", " ")
-    official_block = re.search(
-        r"## Official Tasks\s+```text\n(.*?)\n```",
-        readme,
-        re.DOTALL,
+    prose = " ".join(
+        line.strip() for line in readme.splitlines() if line and not line.startswith("#")
     )
 
-    assert official_block is not None
-    assert official_block.group(1).split() == [
-        task["task_id"].removeprefix("asyncodebench:") for task in index["tasks"]
-    ]
-    assert f"**{index['task_count']} official repository-level tasks**" in readme
-    assert f"**{index['scenario_count']} task-protocol scenarios**" in readme
-    assert (
-        f"**{index['dependency_point_count']} executable producer/consumer "
-        "dependency points**"
-    ) in flat_readme
-    assert (
-        f"automated audit is complete for "
-        f"{index['automated_audit_complete_task_count']}/{index['task_count']} tasks"
-    ) in flat_readme
-    assert (
-        f"required human approval is complete for "
-        f"{index['human_review_passed_task_count']}/{index['task_count']} tasks"
-    ) in flat_readme
+    assert readme.startswith("# AsynCodeBench\n")
+    assert "19 repository-level tasks" in prose
+    assert "five controlled protocols" in prose
+    assert "community-ready preview" in prose
+    assert prose.count(".") == 2
 
 
 def test_current_guides_do_not_offer_legacy_execution_commands():
@@ -76,14 +57,21 @@ def test_current_guides_use_canonical_protocol_and_brand_names():
             "https://github.com/KaituoZhang/Asynccodebench.git",
             "",
         )
-    readme = read(ROOT / "README")
+    protocol_guide = read(
+        ROOT
+        / "reproductions"
+        / "async-swe-agents"
+        / "protocols"
+        / "README.md"
+    )
     for protocol in (
         "single",
         "serial_specialists",
         "async_private",
         "caid_manager",
+        "async_manager",
     ):
-        assert f"`{protocol}`" in readme
+        assert f"`{protocol}`" in protocol_guide
 
 
 def test_result_validity_uses_canonical_derived_report_directory():
@@ -97,7 +85,6 @@ def test_preview_installation_and_clean_checkout_validation_are_explicit():
     clone_command = (
         "git clone --branch agent/community-ready-release-clean --single-branch"
     )
-    assert clone_command in read(ROOT / "README")
     assert clone_command in read(ROOT / "docs" / "QUICKSTART.md")
 
     setup = read(ROOT / "scripts" / "setup_evaluation.sh")
