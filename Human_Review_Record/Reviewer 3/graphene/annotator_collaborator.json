@@ -1,0 +1,25 @@
+{
+    "allowed_labels":  [
+                           "parallelizable",
+                           "partially_parallelizable",
+                           "effectively_serial"
+                       ],
+    "annotator_id":  "phib",
+    "candidate_evidence_file":  "docs/audits/COMMIT0_CANDIDATE_REVIEW_networkx_graphene_tlslite_v0.3.md",
+    "exclusion_reason":  null,
+    "include":  true,
+    "independence_instructions":  [
+                                      "Use only public Commit0 evidence, the audit note, and the draft task record.",
+                                      "Review the linked TaskQualityRecord, including the requirement to use origin/commit0_combined plus checksum-recorded bootstrap overlays.",
+                                      "Do not inspect reference branches, solution patches, or diffs.",
+                                      "Do not consult the other annotator before submitting.",
+                                      "Explicitly assess whether the mounting/object-input/schema splits are natural AsynCodeBench dependencies rather than artificial file partitioning.",
+                                      "Explicitly assess whether the props bootstrap overlay is acceptable as a non-solution collection prerequisite for the scoped type/schema task."
+                                  ],
+    "parallelizability_label":  "partially_parallelizable",
+    "rationale":  "definitions.py relies on argument.py and base.py, which are typemounting layer and object input metadata layer",
+    "schema_version":  "0.3",
+    "source_task_id":  "commit0:graphene",
+    "task_id":  "asyncodebench:graphene",
+    "task_record_file":  "manifests/pilot/v0.3/tasks/commit0_graphene.json"
+}
