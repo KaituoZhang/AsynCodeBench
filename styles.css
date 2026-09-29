@@ -167,12 +167,17 @@ select { min-height: 48px; padding: 0 36px 0 13px; border: 1px solid var(--line)
 .checks { padding: 0; list-style: none; display: grid; gap: 9px; }
 .checks li::before { content: "✓"; color: var(--green); font-weight: 800; margin-right: 10px; }
 
-.closing-grid { display: grid; grid-template-columns: 1.2fr .8fr .8fr; gap: 16px; }
-.closing-card { border: 1px solid var(--line); border-radius: 18px; padding: 24px; background: white; }
+.closing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.closing-card { min-width: 0; border: 1px solid var(--line); border-radius: 18px; padding: 24px; background: white; }
 .closing-card h3 { font-size: 18px; }
 .closing-card p { color: var(--ink-soft); font-size: 14px; }
-.citation-pending { background: #eef2ed; border-style: dashed; }
-.status-dot { display: block; width: 10px; height: 10px; margin-bottom: 34px; border-radius: 50%; background: var(--orange); box-shadow: 0 0 0 6px #f8ead5; }
+.citation-card { grid-column: 1 / -1; background: #eef2ed; scroll-margin-top: 100px; }
+.citation-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; margin-bottom: 18px; }
+.citation-head h3 { margin: 5px 0 8px; font-size: 26px; }
+.citation-head p { margin: 0; max-width: 720px; font-size: 16px; }
+.paper-label { color: var(--green); font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.paper-actions { display: flex; flex-wrap: wrap; gap: 8px; flex: 0 0 auto; }
+.citation-card pre { white-space: pre-wrap; overflow-wrap: anywhere; }
 .citation { white-space: pre-wrap; word-break: break-word; background: #eef2ed; color: var(--ink); border-color: var(--line); }
 .site-footer { border-top: 1px solid var(--line); padding: 30px 0; color: var(--ink-soft); font-size: 13px; }
 .footer-row { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
@@ -187,6 +192,7 @@ select { min-height: 48px; padding: 0 36px 0 13px; border: 1px solid var(--line)
   .run-nav { position: static; display: flex; overflow-x: auto; }
   .run-nav a { border-left: 0; border-bottom: 2px solid var(--line); white-space: nowrap; }
   .category-summary { grid-template-columns: repeat(3, 1fr); }
+  .citation-head { display: grid; }
 }
 @media (max-width: 700px) {
   .container { width: min(calc(100% - 28px), var(--max)); }

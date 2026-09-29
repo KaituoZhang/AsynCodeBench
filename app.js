@@ -1,6 +1,17 @@
 const REPO_ROOT = "https://github.com/KaituoZhang/AsynCodeBench";
 const REPO = `${REPO_ROOT}/tree/main`;
 const REPO_FILE = path => `${REPO_ROOT}/blob/main/${path}`;
+const PAPER_URL = "https://arxiv.org/abs/2609.32662";
+const PAPER_PDF = "https://arxiv.org/pdf/2609.32662";
+const BIBTEX = `@misc{zhang2026asyncodebenchbenchmarkingcollaborationasynchronous,
+  title={AsynCodeBench: Benchmarking Collaboration of Asynchronous Multi-Agent Systems in Software Engineering},
+  author={Kaituo Zhang and Zhen Xiong and Zhimeng Jiang and Mingyu Zhong and Zhouyuan Yuan and Zhecheng Li and Bowen Lin and Chia-Yuan Chang and Mingzhi Hu and Huazheng Wang and Ying Lin},
+  year={2026},
+  eprint={2609.32662},
+  archivePrefix={arXiv},
+  primaryClass={cs.SE},
+  url={https://arxiv.org/abs/2609.32662},
+}`;
 
 const TASKS = [
   { id:"cachetools", project:"cachetools", domain:"Caching", nodes:4, deps:5, agents:2, summary:"Implement cache key construction and decorator factories while preserving typed keys, metadata, limits, and lock semantics." },
@@ -60,8 +71,8 @@ const METRICS = [
 
 const copyBlock = (text, lang="bash") => `<div class="code-wrap"><pre><code class="language-${lang}">${escapeHtml(text.replaceAll("\n+", "\n"))}</code></pre><button class="copy" data-copy>Copy</button></div>`;
 const escapeHtml = value => value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-const header = current => `<a class="skip-link" href="#main">Skip to content</a><header class="site-header"><div class="container nav"><a class="brand" href="/"><span class="brand-mark">A↗</span><span>AsynCodeBench</span></a><nav class="nav-links" aria-label="Primary"><a href="/" ${current==="home"?'aria-current="page"':''}>Overview</a><a href="/run/" ${current==="run"?'aria-current="page"':''}>Quick Run</a><a href="${REPO}" target="_blank" rel="noreferrer">GitHub</a><a class="nav-task" href="/tasks/" ${current==="tasks"?'aria-current="page"':''}>Explore ${TASKS.length} tasks</a><a class="nav-cta" href="/run/">Run a task →</a></nav></div></header>`;
-const footer = () => `<footer class="site-footer"><div class="container footer-row"><span>AsynCodeBench · Dependency-aware asynchronous coding evaluation</span><span><a href="${REPO_FILE("LICENSE")}">Apache-2.0</a> · <span>Citation coming with the paper</span> · <a href="${REPO_ROOT}/graphs/contributors">Contributors</a></span></div></footer>`;
+const header = current => `<a class="skip-link" href="#main">Skip to content</a><header class="site-header"><div class="container nav"><a class="brand" href="/"><span class="brand-mark">A↗</span><span>AsynCodeBench</span></a><nav class="nav-links" aria-label="Primary"><a href="/" ${current==="home"?'aria-current="page"':''}>Overview</a><a href="/run/" ${current==="run"?'aria-current="page"':''}>Quick Run</a><a href="${PAPER_URL}" target="_blank" rel="noreferrer">Paper</a><a href="${REPO}" target="_blank" rel="noreferrer">GitHub</a><a class="nav-task" href="/tasks/" ${current==="tasks"?'aria-current="page"':''}>Explore ${TASKS.length} tasks</a><a class="nav-cta" href="/run/">Run a task →</a></nav></div></header>`;
+const footer = () => `<footer class="site-footer"><div class="container footer-row"><span>AsynCodeBench · Dependency-aware asynchronous coding evaluation</span><span><a href="${PAPER_URL}" target="_blank" rel="noreferrer">Paper</a> · <a href="#citation">BibTeX</a> · <a href="${REPO_FILE("LICENSE")}">Apache-2.0</a> · <a href="${REPO_ROOT}/graphs/contributors">Contributors</a></span></div></footer>`;
 
 function home() {
   document.title = "AsynCodeBench — Evaluate asynchronous coding agents";
@@ -79,7 +90,7 @@ function home() {
     <section class="section"><div class="container"><div class="section-head"><span class="section-kicker">Controlled comparison</span><div><h2>Same task. Same decomposition. Five ways to work.</h2><p class="section-lede">Each protocol changes execution, information flow, or manager write authority while keeping the underlying software task fixed.</p></div></div><div class="protocol-grid">${PROTOCOLS.map((p,i)=>`<article class="protocol"><code>0${i+1} / ${p[0]}</code><h3>${p[1]}</h3><p>${p[2]}</p></article>`).join("")}</div></div></section>
     <section class="section alt"><div class="container"><div class="section-head"><span class="section-kicker">Metrics</span><div><h2>Measure dependency resolution—not just arrival.</h2><p class="section-lede">Executable Dependency Checkers observe producer, consumer, and integrated contracts at controlled checkpoints.</p></div></div><table class="metric-table"><thead><tr><th>Metric</th><th>What it captures</th><th>Direction</th></tr></thead><tbody>${METRICS.map(m=>`<tr><td class="metric-name">${m[0]}</td><td>${m[1]}</td><td class="direction">${m[2]}</td></tr>`).join("")}</tbody></table></div></section>
     ${quickStart(false)}
-    <section class="section"><div class="container"><div class="section-head"><span class="section-kicker">Use & extend</span><div><h2>Built for reproducible evaluation.</h2><p class="section-lede">Run the built-in OpenHands adapter or connect your own coding agent without replacing benchmark semantics.</p></div></div><div class="closing-grid"><article class="closing-card citation-pending"><span class="status-dot"></span><h3>Citation coming soon</h3><p>We are keeping this space ready for the official paper citation. The BibTeX and arXiv link will appear here after the paper is released.</p></article><article class="closing-card"><h3>Apache-2.0</h3><p>Benchmark code and metadata are released under Apache-2.0. Upstream projects retain their own licenses.</p><a href="${REPO_FILE("LICENSE")}">Read the license →</a></article><article class="closing-card"><h3>Contributors</h3><p>Created and maintained by Kaituo Zhang, with community contributions welcome.</p><a href="${REPO_ROOT}/graphs/contributors">Meet the contributors →</a></article></div></div></section>
+    <section class="section"><div class="container"><div class="section-head"><span class="section-kicker">Use & extend</span><div><h2>Built for reproducible evaluation.</h2><p class="section-lede">Run the built-in OpenHands adapter or connect your own coding agent without replacing benchmark semantics.</p></div></div><div class="closing-grid"><article class="closing-card citation-card" id="citation"><div class="citation-head"><div><span class="paper-label">arXiv:2609.32662 · cs.SE</span><h3>Cite AsynCodeBench</h3><p>AsynCodeBench: Benchmarking Collaboration of Asynchronous Multi-Agent Systems in Software Engineering</p></div><div class="paper-actions"><a class="button primary" href="${PAPER_URL}" target="_blank" rel="noreferrer">Read the paper ↗</a><a class="button" href="${PAPER_PDF}" target="_blank" rel="noreferrer">PDF ↗</a></div></div>${copyBlock(BIBTEX,"bibtex")}</article><article class="closing-card"><h3>Apache-2.0</h3><p>Benchmark code and metadata are released under Apache-2.0. Upstream projects retain their own licenses.</p><a href="${REPO_FILE("LICENSE")}">Read the license →</a></article><article class="closing-card"><h3>Contributors</h3><p>Created and maintained by Kaituo Zhang, with community contributions welcome.</p><a href="${REPO_ROOT}/graphs/contributors">Meet the contributors →</a></article></div></div></section>
   </main>${footer()}`;
 }
 
