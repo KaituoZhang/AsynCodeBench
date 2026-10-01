@@ -1,5 +1,10 @@
 {
-  "bundles": [],
+  "bundles": [
+    {
+      "path": "manifests/release/v0.4/baselines/qwen35-9b-wcwidth-single-v01/run_bundle.json",
+      "sha256": "15629e280efc872d60c2444a355d827c1e3fa83522ef387fe66f03aaec11e06a"
+    }
+  ],
   "release": "v0.4",
   "schema_version": "asyncodebench-validated-baselines-v1"
 }

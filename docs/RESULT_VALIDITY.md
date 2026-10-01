@@ -259,6 +259,29 @@ The stable gate additionally requires 19/19 one-human approvals and at least
 one checksum-registered public baseline bundle. Missing evidence remains an
 explicit nonzero gate rather than being inferred from prose.
 
+To register a new public core-task baseline, run an official protocol from this
+checkout, then validate and package its complete output directory:
+
+```bash
+python scripts/register_v04_baseline.py \
+  reproductions/async-swe-agents/outputs/asyncodebench/v0.3/<model>/<task>/<protocol>/<run-version> \
+  --name <public-baseline-name> --check
+python scripts/register_v04_baseline.py \
+  reproductions/async-swe-agents/outputs/asyncodebench/v0.3/<model>/<task>/<protocol>/<run-version> \
+  --name <public-baseline-name>
+python scripts/build_v04_release_index.py --check
+cd reproductions/async-swe-agents
+uv run asyncodebench release-status --require stable
+```
+
+The first command checks eligibility without changing files. The second copies
+the complete result into `manifests/release/v0.4/baselines/`, records its SHA-256
+in `validated_baselines.json`, and regenerates the v0.4 release indexes. Inspect
+the copied artifacts before publishing them. A coding failure can be a valid
+baseline; a run with a mismatched release index, missing provenance, or failed
+instrumentation cannot. The registry must contain a real, public result bundle;
+the builder rejects missing, altered, ineligible, or non-official bundles.
+
 ## Existing Results
 
 Do not rerun an old campaign blindly. First run `inspect-run` over every

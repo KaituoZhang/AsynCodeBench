@@ -1,0 +1,312 @@
+...................FFFFFs.....FF....FF                                   [100%]
+=================================== FAILURES ===================================
+________________________ test_longer_emoji_zwj_sequence ________________________
+
+    @pytest.mark.skipif(NARROW_ONLY, reason="Test cannot verify on python 'narrow' builds")
+    def test_longer_emoji_zwj_sequence():
+        """
+        A much longer emoji ZWJ sequence of 10 total codepoints is just 2 cells!
+    
+        Also test the same sequence in duplicate, verifying multiple VS-16 sequences
+        in a single function call.
+        """
+        # 'Category Code', 'East Asian Width property' -- 'description'
+        phrase = (u"\U0001F9D1"   # 'So', 'W' -- ADULT
+                  u"\U0001F3FB"   # 'Sk', 'W' -- EMOJI MODIFIER FITZPATRICK TYPE-1-2
+                  u"\u200d"       # 'Cf', 'N' -- ZERO WIDTH JOINER
+                  u"\u2764"       # 'So', 'N' -- HEAVY BLACK HEART
+                  u"\uFE0F"       # 'Mn', 'A' -- VARIATION SELECTOR-16
+                  u"\u200d"       # 'Cf', 'N' -- ZERO WIDTH JOINER
+                  u"\U0001F48B"   # 'So', 'W' -- KISS MARK
+                  u"\u200d"       # 'Cf', 'N' -- ZERO WIDTH JOINER
+                  u"\U0001F9D1"   # 'So', 'W' -- ADULT
+                  u"\U0001F3FD"   # 'Sk', 'W' -- EMOJI MODIFIER FITZPATRICK TYPE-4
+        ) * 2
+        # This test adapted from https://www.unicode.org/L2/L2023/23107-terminal-suppt.pdf
+        expect_length_each = (2, 0, 0, 1, 0, 0, 2, 0, 2, 0) * 2
+        expect_length_phrase = 4
+    
+        # exercise,
+        length_each = tuple(map(wcwidth.wcwidth, phrase))
+        length_phrase = wcwidth.wcswidth(phrase)
+    
+        # verify.
+        assert length_each == expect_length_each
+>       assert length_phrase == expect_length_phrase
+E       assert 14 == 4
+
+tests/test_emojis.py:145: AssertionError
+_____________________ test_recommended_emoji_zwj_sequences _____________________
+
+    @pytest.mark.skipif(NARROW_ONLY, reason="Some sequences in text file are not compatible with 'narrow' builds")
+    def test_recommended_emoji_zwj_sequences():
+        """
+        Test wcswidth of all of the unicode.org-published emoji-zwj-sequences.txt
+        """
+        # given,
+        lines, sequences = read_sequences_from_file('emoji-zwj-sequences.txt')
+    
+        errors = []
+        # Exercise, track by zipping with original text file line, a debugging aide
+        num = 0
+        for sequence, line in zip(sequences, lines):
+            num += 1
+            measured_width = wcwidth.wcswidth(sequence)
+            if measured_width != 2:
+                errors.append({
+                    'expected_width': 2,
+                    'line': line,
+                    'measured_width': measured_width,
+                    'sequence': sequence,
+                })
+    
+        # verify
+>       assert errors == []
+E       AssertionError: assert [{'expected_w...u200d👦'}, ...] == []
+E         
+E         Left contains 1418 more items, first extra item: {'expected_width': 2, 'line': '1F468 200D 2764 FE0F 200D 1F468             ; RGI_Emoji_ZWJ_Sequence  ; couple with hea...                                 # E2.0   [1] (👨\u200d❤️\u200d👨)', 'measured_width': 5, 'sequence': '👨\u200d❤️\u200d👨'}
+E         Use -v to get more diff
+
+tests/test_emojis.py:181: AssertionError
+___________________ test_recommended_variation_16_sequences ____________________
+
+    def test_recommended_variation_16_sequences():
+        """
+        Test wcswidth of all of the unicode.org-published emoji-variation-sequences.txt
+        """
+        # given,
+        lines, sequences = read_sequences_from_file('emoji-variation-sequences.txt')
+    
+        errors = []
+        num = 0
+        for sequence, line in zip(sequences, lines):
+            num += 1
+            if '\ufe0f' not in sequence:
+                # filter for only \uFE0F (VS-16)
+                continue
+            measured_width = wcwidth.wcswidth(sequence)
+            if measured_width != 2:
+                errors.append({
+                    'expected_width': 2,
+                    'line': line,
+                    'measured_width': wcwidth.wcswidth(sequence),
+                    'sequence': sequence,
+                })
+    
+        # verify
+>       assert errors == []
+E       AssertionError: assert [{'expected_w...': '3️'}, ...] == []
+E         
+E         Left contains 213 more items, first extra item: {'expected_width': 2, 'line': '0023 FE0F  ; emoji style; # (1.1) NUMBER SIGN', 'measured_width': 1, 'sequence': '#️'}
+E         Use -v to get more diff
+
+tests/test_emojis.py:209: AssertionError
+_____________________________ test_unicode_9_vs16 ______________________________
+
+    def test_unicode_9_vs16():
+        """Verify effect of VS-16 on unicode_version 9.0 and later"""
+        phrase = (u"\u2640"        # FEMALE SIGN
+                  u"\uFE0F")       # VARIATION SELECTOR-16
+    
+        expect_length_each = (1, 0)
+        expect_length_phrase = 2
+    
+        # exercise,
+>       length_each = tuple(wcwidth.wcwidth(w_char, unicode_version='9.0') for w_char in phrase)
+
+tests/test_emojis.py:222: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_emojis.py:222: in <genexpr>
+    length_each = tuple(wcwidth.wcwidth(w_char, unicode_version='9.0') for w_char in phrase)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+wc = '♀', unicode_version = '9.0'
+
+    @lru_cache(maxsize=1000)
+    def wcwidth(wc, unicode_version='auto'):
+        """
+        Given one Unicode character, return its printable length on a terminal.
+    
+        :param str wc: A single Unicode character.
+        :param str unicode_version: A Unicode version number, such as
+            6.0.0. A list of version levels suported by wcwidth
+            is returned by :func:list_versions.
+    
+            Any version string may be specified without error -- the nearest
+            matching version is selected.  When latest (default), the
+            highest Unicode version level is used.
+        :return: The width, in cells, necessary to display the character of
+            Unicode string character, wc.  Returns 0 if the wc argument has
+            no printable effect on a terminal (such as NUL \\0), -1 if wc is
+            not printable, or has an indeterminate effect on the terminal, such as
+            a control character.  Otherwise, the number of column positions the
+            character occupies on a graphic terminal (1 or 2) is returned.
+        :rtype: int
+    
+        See :ref:Specification for details of cell measurement.
+        """
+        # Handle empty string
+        if not wc:
+            return 0
+    
+        # Get the code point
+        try:
+            ucs = ord(wc)
+        except (TypeError, ValueError):
+            return -1
+    
+        # Determine the Unicode version to use
+        if unicode_version == 'auto':
+            import os
+            env_version = os.environ.get('UNICODE_VERSION', 'auto')
+            unicode_version = _wcmatch_version(env_version)
+    
+        # Import tables
+        from .table_wide import WIDE_EASTASIAN
+        from .table_zero import ZERO_WIDTH
+    
+        # Check for zero-width characters
+>       if _bisearch(ucs, ZERO_WIDTH[unicode_version]):
+E       KeyError: '9.0'
+
+wcwidth/wcwidth.py:159: KeyError
+_____________________________ test_unicode_8_vs16 ______________________________
+
+    def test_unicode_8_vs16():
+        """Verify that VS-16 has no effect on unicode_version 8.0 and earler"""
+        phrase = (u"\u2640"        # FEMALE SIGN
+                  u"\uFE0F")       # VARIATION SELECTOR-16
+    
+        expect_length_each = (1, 0)
+        expect_length_phrase = 1
+    
+        # exercise,
+>       length_each = tuple(wcwidth.wcwidth(w_char, unicode_version='8.0') for w_char in phrase)
+
+tests/test_emojis.py:238: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_emojis.py:238: in <genexpr>
+    length_each = tuple(wcwidth.wcwidth(w_char, unicode_version='8.0') for w_char in phrase)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+wc = '♀', unicode_version = '8.0'
+
+    @lru_cache(maxsize=1000)
+    def wcwidth(wc, unicode_version='auto'):
+        """
+        Given one Unicode character, return its printable length on a terminal.
+    
+        :param str wc: A single Unicode character.
+        :param str unicode_version: A Unicode version number, such as
+            6.0.0. A list of version levels suported by wcwidth
+            is returned by :func:list_versions.
+    
+            Any version string may be specified without error -- the nearest
+            matching version is selected.  When latest (default), the
+            highest Unicode version level is used.
+        :return: The width, in cells, necessary to display the character of
+            Unicode string character, wc.  Returns 0 if the wc argument has
+            no printable effect on a terminal (such as NUL \\0), -1 if wc is
+            not printable, or has an indeterminate effect on the terminal, such as
+            a control character.  Otherwise, the number of column positions the
+            character occupies on a graphic terminal (1 or 2) is returned.
+        :rtype: int
+    
+        See :ref:Specification for details of cell measurement.
+        """
+        # Handle empty string
+        if not wc:
+            return 0
+    
+        # Get the code point
+        try:
+            ucs = ord(wc)
+        except (TypeError, ValueError):
+            return -1
+    
+        # Determine the Unicode version to use
+        if unicode_version == 'auto':
+            import os
+            env_version = os.environ.get('UNICODE_VERSION', 'auto')
+            unicode_version = _wcmatch_version(env_version)
+    
+        # Import tables
+        from .table_wide import WIDE_EASTASIAN
+        from .table_zero import ZERO_WIDTH
+    
+        # Check for zero-width characters
+>       if _bisearch(ucs, ZERO_WIDTH[unicode_version]):
+E       KeyError: '8.0'
+
+wcwidth/wcwidth.py:159: KeyError
+__________________________ test_nearest_lowint40_str ___________________________
+
+    def test_nearest_lowint40_str():
+        """wcwidth._wcmatch_version('4.0') returns nearest '4.1.0'."""
+        # given
+        given, expected = '4.0', '4.1.0'
+        warnings.resetwarnings()
+        wcwidth._wcmatch_version.cache_clear()
+    
+        # exercise
+>       with pytest.warns(UserWarning):
+E       Failed: DID NOT WARN. No warnings of type (<class 'UserWarning'>,) were emitted.
+E        Emitted warnings: [].
+
+tests/test_ucslevel.py:81: Failed
+________________________ test_nearest_lowint40_unicode _________________________
+
+    def test_nearest_lowint40_unicode():
+        """wcwidth._wcmatch_version(u'4.0') returns nearest u'4.1.0'."""
+        # given
+        given, expected = u'4.0', u'4.1.0'
+        warnings.resetwarnings()
+        wcwidth._wcmatch_version.cache_clear()
+    
+        # exercise
+>       with pytest.warns(UserWarning):
+E       Failed: DID NOT WARN. No warnings of type (<class 'UserWarning'>,) were emitted.
+E        Emitted warnings: [].
+
+tests/test_ucslevel.py:97: Failed
+_____________________________ test_nonint_unicode ______________________________
+
+    def test_nonint_unicode():
+        """wcwidth._wcmatch_version(u'x.y.z') returns latest (unicode)."""
+        # given
+        given, expected = u'x.y.z', wcwidth.list_versions()[-1]
+        warnings.resetwarnings()
+        wcwidth._wcmatch_version.cache_clear()
+    
+        # exercise
+>       with pytest.warns(UserWarning):
+E       Failed: DID NOT WARN. No warnings of type (<class 'UserWarning'>,) were emitted.
+E        Emitted warnings: [].
+
+tests/test_ucslevel.py:161: Failed
+_______________________________ test_nonint_str ________________________________
+
+    def test_nonint_str():
+        """wcwidth._wcmatch_version(u'x.y.z') returns latest (str)."""
+        # given
+        given, expected = 'x.y.z', wcwidth.list_versions()[-1]
+        warnings.resetwarnings()
+        wcwidth._wcmatch_version.cache_clear()
+    
+        # exercise
+>       with pytest.warns(UserWarning):
+E       Failed: DID NOT WARN. No warnings of type (<class 'UserWarning'>,) were emitted.
+E        Emitted warnings: [].
+
+tests/test_ucslevel.py:177: Failed
+=========================== short test summary info ============================
+FAILED tests/test_emojis.py::test_longer_emoji_zwj_sequence - assert 14 == 4
+FAILED tests/test_emojis.py::test_recommended_emoji_zwj_sequences - Assertion...
+FAILED tests/test_emojis.py::test_recommended_variation_16_sequences - Assert...
+FAILED tests/test_emojis.py::test_unicode_9_vs16 - KeyError: '9.0'
+FAILED tests/test_emojis.py::test_unicode_8_vs16 - KeyError: '8.0'
+FAILED tests/test_ucslevel.py::test_nearest_lowint40_str - Failed: DID NOT WA...
+FAILED tests/test_ucslevel.py::test_nearest_lowint40_unicode - Failed: DID NO...
+FAILED tests/test_ucslevel.py::test_nonint_unicode - Failed: DID NOT WARN. No...
+FAILED tests/test_ucslevel.py::test_nonint_str - Failed: DID NOT WARN. No war...
+9 failed, 28 passed, 1 skipped, 1 deselected in 0.23s

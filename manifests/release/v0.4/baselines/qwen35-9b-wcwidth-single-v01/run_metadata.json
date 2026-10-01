@@ -1,0 +1,313 @@
+{
+  "agent_adapter": {
+    "class": "agents.openhands:OpenHandsAgentAdapter",
+    "config": {},
+    "config_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "name": "openhands",
+    "package": "async-swe-agents",
+    "package_version": "0.1.0",
+    "source_sha256": "c97caa1ea1cef766e4ab4946df6ece0042f89757e2cd9b3cafa7488307afc60e"
+  },
+  "artifacts": {
+    "metrics": {
+      "path": "/home/kzhang42/Github_Test/AsynCodeBench-from-site/manifests/pilot/v0.3/metrics/commit0_wcwidth_async_metrics.json",
+      "sha256": "f8388c8ac1cd188f834926716015a49dfaeeeaf36651e2cadd0b032cd4dfc52a"
+    },
+    "quality": {
+      "path": "/home/kzhang42/Github_Test/AsynCodeBench-from-site/manifests/pilot/v0.3/quality/commit0_wcwidth.json",
+      "sha256": "837b4b956d5865960f0e1623ca94745c3b2051f8a11d942d26d95b18888b6e60"
+    },
+    "scenario": {
+      "path": "/home/kzhang42/Github_Test/AsynCodeBench-from-site/manifests/pilot/v0.3/scenarios/commit0_wcwidth.json",
+      "sha256": "1745a4c31a80729491e402e9170af543bf7e4f4b24aa0fa0253f513861f9afb7"
+    },
+    "task": {
+      "path": "/home/kzhang42/Github_Test/AsynCodeBench-from-site/manifests/pilot/v0.3/tasks/commit0_wcwidth.json",
+      "sha256": "f97c73ea0f21f1dad850cede184f99c9ebd17de5d000d9d1b83ed4354a66cad6"
+    }
+  },
+  "budgets": {
+    "manager_max_iterations": 100,
+    "max_rounds_chat": 2,
+    "max_subagents": 1,
+    "subagent_max_iterations": 100
+  },
+  "code_revisions": {
+    "async_swe_agents": "23b3b561160219d198d98199d5f941013c537f25",
+    "asyncodebench": "23b3b561160219d198d98199d5f941013c537f25",
+    "software_agent_sdk": "944284310d9a5f1ccad0ef8c2d7c4c38342b9952"
+  },
+  "created_at": "2026-09-30T16:15:18.088321+00:00",
+  "environment": {
+    "ASYNCODEBENCH_WORKSPACE_DOCKER_NETWORK": "host",
+    "ASYNCODEBENCH_WORKSPACE_HOST_PORT": "51004",
+    "LLM_MAX_OUTPUT_TOKENS": "32768",
+    "LLM_TEMPERATURE": "0.6",
+    "LLM_TOP_K": "20",
+    "LLM_TOP_P": "0.95"
+  },
+  "execution_profile": {
+    "deviations": [],
+    "matched": true,
+    "observed": {
+      "final_evaluator_source": "asyncodebench_manifest",
+      "final_pytest_timeout_seconds": 900,
+      "manager_max_iterations": 100,
+      "max_rounds_chat": 2,
+      "max_subagents": 1,
+      "probe_timeout_seconds": 60,
+      "scenario_declared_agents": 1,
+      "subagent_max_iterations": 100
+    },
+    "path": "configs/evaluation/official_execution_profile.v2.json",
+    "profile_id": "asyncodebench-v0.3-standard-100",
+    "schema_version": "asyncodebench-execution-profile-v2",
+    "sha256": "4d63f8d7176c0391528b39e283cd2f7ba53c15c99bc958f9674ebbe65cbef609"
+  },
+  "generation_configuration": {
+    "ASYNCODEBENCH_CONDENSER_MAX_TOKENS": "98232",
+    "ASYNCODEBENCH_VLLM_CONFIG_JSON": {
+      "VLLM_USE_FLASHINFER_SAMPLER": 0,
+      "cuda_visible_devices": "0",
+      "dtype": "bfloat16",
+      "enable_auto_tool_choice": true,
+      "generation_config": "auto",
+      "gpu_memory_utilization": 0.9,
+      "language_model_only": true,
+      "max_model_len": 131072,
+      "max_num_batched_tokens": 32768,
+      "max_num_seqs": 4,
+      "model": "Qwen/Qwen3.5-9B",
+      "reasoning_parser": "qwen3",
+      "revision": "c202236235762e1c871ad0ccb60c8ee5ba337b9a",
+      "seed": 1,
+      "tensor_parallel_size": 1,
+      "tool_call_parser": "qwen3_coder",
+      "vllm_version": "0.28.1rc1.dev87+g6d4562c59.cu129"
+    },
+    "LLM_EXTRA_BODY_JSON": {
+      "chat_template_kwargs": {
+        "enable_thinking": true
+      },
+      "seed": 1
+    },
+    "LLM_MAX_INPUT_TOKENS": "131072",
+    "LLM_MAX_OUTPUT_TOKENS": "32768",
+    "LLM_NUM_RETRIES": "2",
+    "LLM_TEMPERATURE": "0.6",
+    "LLM_TIMEOUT": "7200",
+    "LLM_TOP_K": "20",
+    "LLM_TOP_P": "0.95",
+    "chat_template": {
+      "path": null,
+      "sha256": null,
+      "source": "model_server_default"
+    },
+    "parameters": {
+      "ASYNCODEBENCH_CONDENSER_MAX_TOKENS": {
+        "source": "environment",
+        "value": "98232"
+      },
+      "ASYNCODEBENCH_VLLM_CONFIG_JSON": {
+        "source": "environment",
+        "value": {
+          "VLLM_USE_FLASHINFER_SAMPLER": 0,
+          "cuda_visible_devices": "0",
+          "dtype": "bfloat16",
+          "enable_auto_tool_choice": true,
+          "generation_config": "auto",
+          "gpu_memory_utilization": 0.9,
+          "language_model_only": true,
+          "max_model_len": 131072,
+          "max_num_batched_tokens": 32768,
+          "max_num_seqs": 4,
+          "model": "Qwen/Qwen3.5-9B",
+          "reasoning_parser": "qwen3",
+          "revision": "c202236235762e1c871ad0ccb60c8ee5ba337b9a",
+          "seed": 1,
+          "tensor_parallel_size": 1,
+          "tool_call_parser": "qwen3_coder",
+          "vllm_version": "0.28.1rc1.dev87+g6d4562c59.cu129"
+        }
+      },
+      "LLM_CONTEXT_WINDOW": {
+        "source": "sdk_or_provider_default",
+        "value": null
+      },
+      "LLM_EXTRA_BODY_JSON": {
+        "source": "environment",
+        "value": {
+          "chat_template_kwargs": {
+            "enable_thinking": true
+          },
+          "seed": 1
+        }
+      },
+      "LLM_MAX_INPUT_TOKENS": {
+        "source": "environment",
+        "value": "131072"
+      },
+      "LLM_MAX_OUTPUT_TOKENS": {
+        "source": "environment",
+        "value": "32768"
+      },
+      "LLM_NUM_RETRIES": {
+        "source": "environment",
+        "value": "2"
+      },
+      "LLM_TEMPERATURE": {
+        "source": "environment",
+        "value": "0.6"
+      },
+      "LLM_TIMEOUT": {
+        "source": "environment",
+        "value": "7200"
+      },
+      "LLM_TOP_K": {
+        "source": "environment",
+        "value": "20"
+      },
+      "LLM_TOP_P": {
+        "source": "environment",
+        "value": "0.95"
+      }
+    },
+    "schema_version": "asyncodebench-generation-configuration-v1"
+  },
+  "hardware": {
+    "gpus": [
+      {
+        "driver_version": "550.127.05",
+        "index": "0",
+        "memory_total_mib": "81920",
+        "name": "NVIDIA A100-SXM4-80GB"
+      },
+      {
+        "driver_version": "550.127.05",
+        "index": "1",
+        "memory_total_mib": "81920",
+        "name": "NVIDIA A100-SXM4-80GB"
+      },
+      {
+        "driver_version": "550.127.05",
+        "index": "2",
+        "memory_total_mib": "81920",
+        "name": "NVIDIA A100-SXM4-80GB"
+      },
+      {
+        "driver_version": "550.127.05",
+        "index": "3",
+        "memory_total_mib": "81920",
+        "name": "NVIDIA A100-SXM4-80GB"
+      },
+      {
+        "driver_version": "550.127.05",
+        "index": "4",
+        "memory_total_mib": "81920",
+        "name": "NVIDIA A100-SXM4-80GB"
+      },
+      {
+        "driver_version": "550.127.05",
+        "index": "5",
+        "memory_total_mib": "81920",
+        "name": "NVIDIA A100-SXM4-80GB"
+      },
+      {
+        "driver_version": "550.127.05",
+        "index": "6",
+        "memory_total_mib": "81920",
+        "name": "NVIDIA A100-SXM4-80GB"
+      },
+      {
+        "driver_version": "550.127.05",
+        "index": "7",
+        "memory_total_mib": "81920",
+        "name": "NVIDIA A100-SXM4-80GB"
+      }
+    ]
+  },
+  "harness_version": "asyncodebench-harness-v2.0",
+  "model": "openai/Qwen/Qwen3.5-9B",
+  "model_server": {
+    "base_url": "http://127.0.0.1:8007/v1",
+    "configured": true,
+    "input_context_limit": 131072,
+    "kind": "vllm",
+    "models": [
+      {
+        "created": 1790784918,
+        "id": "Qwen/Qwen3.5-9B",
+        "max_model_len": 131072,
+        "object": "model",
+        "owned_by": "vllm",
+        "parent": null,
+        "permission": [
+          {
+            "allow_create_engine": false,
+            "allow_fine_tuning": false,
+            "allow_logprobs": true,
+            "allow_sampling": true,
+            "allow_search_indices": false,
+            "allow_view": true,
+            "created": 1790784918,
+            "group": null,
+            "id": "modelperm-9fd3546b8dc4b347",
+            "is_blocking": false,
+            "object": "model_permission",
+            "organization": "*"
+          }
+        ],
+        "root": "Qwen/Qwen3.5-9B"
+      }
+    ],
+    "models_error": null,
+    "probed": true,
+    "reachable": true,
+    "version": {
+      "version": "0.28.1rc1.dev87+g6d4562c59"
+    },
+    "version_error": null
+  },
+  "prompt": {
+    "path": "/home/kzhang42/Github_Test/AsynCodeBench-from-site/reproductions/async-swe-agents/prompts/asyncodebench.yaml",
+    "sha256": "fa87817bf5866a4980c94529c95188dc7ee0f6d09b9810337b7f94d4f041b6a2"
+  },
+  "protocol": "single",
+  "release": "v0.3",
+  "runtime_distribution": {
+    "backend": "container_image",
+    "digest_pinned": true,
+    "official_image": "docker.io/wentingzhao/wcwidth@sha256:b2540793fd3142e38e248119b02782084d05ff543407c651eaf1a1b94901c0e5",
+    "registry_task_id": "asyncodebench:wcwidth"
+  },
+  "scenario_id": "asyncodebench-wcwidth.iterative-single.v0.3",
+  "schema_version": "0.1",
+  "software": {
+    "packages": {
+      "fire": "0.7.1",
+      "litellm": "1.84.1",
+      "openhands-agent-server": "1.29.2",
+      "openhands-sdk": "1.29.2",
+      "openhands-tools": "1.29.2",
+      "openhands-workspace": "1.29.2"
+    },
+    "platform": "Linux-5.15.0-124-generic-x86_64-with-glibc2.35",
+    "python": "3.12.12"
+  },
+  "source": {
+    "base_ref": "commit0",
+    "base_sha": "0d0054189bdb0fc7b9de0456fc3cee2b67a6ceba",
+    "overlays": [],
+    "repository": "wcwidth"
+  },
+  "source_scenario_id": "commit0-wcwidth.iterative-single.v0.3",
+  "source_task_id": "commit0:wcwidth",
+  "subagent_model": "openai/Qwen/Qwen3.5-9B",
+  "task_id": "asyncodebench:wcwidth",
+  "workspace_constraints": {
+    "agent_network_policy": null,
+    "build_parallel_jobs": null,
+    "cpu_limit": null,
+    "deny_agent_network": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "communication_condition": "not_applicable",
+  "execution_mode": "iterative_single",
+  "harness": "asyncodebench-harness-v2.0",
+  "information_profile": "complete-task",
+  "integration_policy": "Agent submits its final workspace.",
+  "message_delivery_policy": "No inter-agent messages.",
+  "protocol": "single",
+  "scenario_id": "asyncodebench-wcwidth.iterative-single.v0.3",
+  "schema_version": "0.1",
+  "scope_policy": "full_task_workspace",
+  "source_scenario_id": "commit0-wcwidth.iterative-single.v0.3",
+  "source_task_id": "commit0:wcwidth",
+  "task_id": "asyncodebench:wcwidth"
+}

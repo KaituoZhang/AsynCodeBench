@@ -6,6 +6,9 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
+import re
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -51,6 +54,50 @@ def artifact(path: Path) -> dict[str, str]:
         "path": str(path.relative_to(ROOT)),
         "sha256": sha256(path),
     }
+
+
+def validate_baselines(root: Path, registry: dict, task_ids: set[str], validate_fn=None) -> int:
+    """Count only in-tree bundles that pass the official result validator."""
+    if registry.get("schema_version") != "asyncodebench-validated-baselines-v1" or registry.get("release") != "v0.4":
+        raise ValueError("invalid v0.4 baseline registry header")
+    bundles = registry.get("bundles")
+    if not isinstance(bundles, list):
+        raise ValueError("baseline registry bundles must be a list")
+    if bundles and validate_fn is None:
+        runner = root / "reproductions/async-swe-agents"
+        sys.path.insert(0, str(runner))
+        from asyncodebench_harness.results import validate_run_bundle
+
+        validate_fn = validate_run_bundle
+    seen = set()
+    baseline_dir = (root / "manifests/release/v0.4/baselines").resolve()
+    for entry in bundles:
+        if not isinstance(entry, dict) or not isinstance(entry.get("path"), str):
+            raise ValueError("baseline entry requires a repository-relative path")
+        name = entry["path"]
+        path = (root / name).resolve()
+        if Path(name).is_absolute() or path.name != "run_bundle.json" or not path.is_relative_to(baseline_dir) or name in seen:
+            raise ValueError(f"invalid or duplicate baseline path: {name}")
+        seen.add(name)
+        digest = entry.get("sha256")
+        if not isinstance(digest, str) or re.fullmatch(r"[0-9a-f]{64}", digest) is None:
+            raise ValueError(f"invalid baseline checksum: {name}")
+        if not path.is_file() or sha256(path) != digest:
+            raise ValueError(f"baseline bundle checksum mismatch: {name}")
+        previous_root = os.environ.get("ASYNCODEBENCH_ROOT")
+        os.environ["ASYNCODEBENCH_ROOT"] = str(root.resolve())
+        try:
+            result = validate_fn(path.parent)
+        finally:
+            if previous_root is None:
+                os.environ.pop("ASYNCODEBENCH_ROOT", None)
+            else:
+                os.environ["ASYNCODEBENCH_ROOT"] = previous_root
+        if result.get("status") != "valid" or not result.get("eligibility", {}).get("official_aggregate"):
+            raise ValueError(f"baseline does not pass official validation: {name}: {result.get('issues')}")
+        if result.get("task_id") not in task_ids:
+            raise ValueError(f"baseline task is outside the v0.4 release: {name}")
+    return len(bundles)
 
 
 def added_entry(record: dict) -> dict:
@@ -163,20 +210,42 @@ def build_documents() -> tuple[dict, dict]:
     tasks.extend(added_entry(records[task_id]) for task_id in ADDED_TASK_IDS)
 
     baseline_registry = artifact(BASELINES)
+    baseline_count = validate_baselines(
+        ROOT, load_json(BASELINES), {task["task_id"] for task in tasks}
+    )
+    community_preview_ready = all(
+        task["quality_status"] == "qualification_ready"
+        and task["annotation_status"]["automated_audit_complete"]
+        for task in tasks
+    )
+    stable_release_ready = (
+        community_preview_ready
+        and all(task["annotation_status"]["human_review_passed"] for task in tasks)
+        and baseline_count > 0
+    )
     execution_profile = dict(v03["execution_profile"])
     common = {
-        "automated_audit_complete_task_count": len(tasks),
-        "community_preview_ready": True,
+        "automated_audit_complete_task_count": sum(
+            bool(task["annotation_status"]["automated_audit_complete"])
+            for task in tasks
+        ),
+        "community_preview_ready": community_preview_ready,
         "execution_profile": execution_profile,
-        "human_review_complete_task_count": len(tasks),
-        "human_review_passed_task_count": len(tasks),
+        "human_review_complete_task_count": sum(
+            bool(task["annotation_status"]["human_review_complete"])
+            for task in tasks
+        ),
+        "human_review_passed_task_count": sum(
+            bool(task["annotation_status"]["human_review_passed"])
+            for task in tasks
+        ),
         "human_review_policy": HUMAN_POLICY,
         "release": "v0.4",
-        "release_stage": "community_preview",
+        "release_stage": "stable" if stable_release_ready else "community_preview",
         "release_version": "0.4.1",
-        "stable_release_ready": False,
+        "stable_release_ready": stable_release_ready,
         "task_count": len(tasks),
-        "validated_baseline_bundle_count": 0,
+        "validated_baseline_bundle_count": baseline_count,
         "validated_baseline_registry": baseline_registry,
     }
     index = {

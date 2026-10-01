@@ -1,0 +1,336 @@
+{
+  "cost_metrics": {
+    "cost_usd": 0.0,
+    "errored_test_invocations": 0,
+    "failing_test_invocations": 0,
+    "input_tokens": 5500404,
+    "integration_attempts": 0,
+    "manager_cost_usd": 0.0,
+    "message_breakdown": {
+      "framework_message_bytes": 0,
+      "framework_message_count": 0,
+      "framework_message_count_by_type": {},
+      "message_event_bytes": 1843,
+      "message_event_count": 1
+    },
+    "message_bytes": 1843,
+    "message_count": 1,
+    "model_calls": 99,
+    "output_tokens": 48695,
+    "passing_test_invocations": 6,
+    "runtime_seconds": 722.3,
+    "subagent_cost_usd": 0,
+    "subagent_count": 0,
+    "subagent_iterations_total": 0,
+    "test_invocations": 6,
+    "test_invocations_by_event_log": {
+      "single_agent_events.jsonl": {
+        "failing_test_invocations": 0,
+        "passing_test_invocations": 6,
+        "test_invocations": 6
+      }
+    },
+    "total_tokens": 5549099,
+    "wall_clock_duration_seconds": 763.391819
+  },
+  "dependency_metrics": {
+    "ADPR": {
+      "mean_value_across_reports": null,
+      "per_report": []
+    },
+    "DRS_CAIL_SAD_by_report": [],
+    "SAD": {
+      "candidate_incident_count": 0,
+      "candidate_incidents": [],
+      "definition_status": "automatic proxy only; full SAD requires structured message/artifact visibility logs or human audit"
+    },
+    "metric_annotation_id": "commit0-wcwidth.async-metrics.v0.3",
+    "missing_communication": {
+      "candidate_incident_count": 0,
+      "candidate_incidents": [],
+      "definition_status": "automatic proxy only; requires human audit for final labels"
+    },
+    "primary_async_dependency_ids": [
+      "wcwidth.unicode_versions_to_width.version_matching_contract"
+    ]
+  },
+  "formal_metrics": {
+    "ADPR": {
+      "name": "Async Dependency Pass Rate",
+      "per_report": [],
+      "value": null
+    },
+    "DRS_score": {
+      "formula": "(1 / |D_i|) * sum_{d in D_i} pass(d)",
+      "name": "Dependency Resolution Score",
+      "note": "This is the paper_structure_reference DRS score. The metric guide's DRS means Dependency Resolution Step and is reported separately.",
+      "value": null
+    },
+    "DRS_step": {
+      "name": "Dependency Resolution Step",
+      "value_source": "dependency_metrics.DRS_CAIL_SAD_by_report[*].dependency_metrics[*].DRS"
+    },
+    "FSAR": {
+      "denominator": 1,
+      "formula": "# failed subagent attempts / # total subagent attempts",
+      "name": "Failed Subagent Attempt Rate",
+      "numerator": 0,
+      "value": 0.0
+    },
+    "FSR": {
+      "denominator": 1,
+      "formula": "# successful runs / # total runs",
+      "name": "Final Success Rate",
+      "numerator": 0,
+      "value": 0.0
+    },
+    "IFR": {
+      "components": {
+        "semantic_integration_failure": false,
+        "textual_patch_conflict": false
+      },
+      "denominator": 1,
+      "formula": "# runs with merge, import, or integration failure / # total runs",
+      "name": "Integration Failure Rate",
+      "numerator": 0,
+      "value": 0.0
+    },
+    "MRR": {
+      "denominator": 0,
+      "formula": "# failed subagent attempts recovered into usable merged artifacts / # raw failed subagent attempts",
+      "name": "Manager Recovery Rate",
+      "numerator": 0,
+      "status": "only meaningful for manager-mediated protocols with structured repair events",
+      "value": null
+    },
+    "SAR": {
+      "formula": "# consumer attempts based on outdated producer contract / # consumer attempts",
+      "name": "Stale Assumption Rate",
+      "note": "The current traces expose stale-assumption candidates, but not enough structured visibility state to divide by audited consumer attempts without human review.",
+      "proxy_candidate_count": 0,
+      "proxy_consumer_attempt_count": 0,
+      "run_level_proxy_indicator": 0.0,
+      "status": "requires_human_or_structured_visibility_audit",
+      "value": null
+    },
+    "SVR": {
+      "denominator": 0,
+      "evidence_source": "derived_from_agent_responses",
+      "formula": "# scoped agent attempts modifying out-of-scope files / # total scoped agent attempts",
+      "name": "Scope Violation Rate",
+      "numerator": 0,
+      "unique_agent_denominator": 0,
+      "unique_agent_numerator": 0,
+      "unique_agent_value": null,
+      "value": null,
+      "violations": []
+    },
+    "cost_and_runtime": {
+      "agent_turns_or_model_calls": 99,
+      "api_cost_usd": 0.0,
+      "merge_review_cycles": 0,
+      "subagent_attempts": 1,
+      "token_count": 5549099,
+      "wall_clock_time_seconds": 763.391819
+    }
+  },
+  "limitations": [
+    "SAD is reported as proxy candidates unless structured artifact-visibility/message logs are available.",
+    "Missing communication incidents are proxy candidates and require human trajectory audit for paper labels.",
+    "Duplicated contract implementation is detected by conservative patch-name heuristics and should be confirmed by human review."
+  ],
+  "metric_names_followed": {
+    "dependency_metrics": [
+      "ADPR",
+      "DRS",
+      "CAIL",
+      "SAD"
+    ],
+    "process_metrics": [
+      "patch/file generation success",
+      "textual patch conflict",
+      "semantic integration failure",
+      "tests passed before and after integration",
+      "duplicated file or function work",
+      "stale-assumption incident count",
+      "missing communication incident count",
+      "reviewer repair success",
+      "wasted model or test work after invalidation",
+      "asynchronous overlap duration",
+      "actions taken after a relevant but undelivered teammate update",
+      "serial-to-async performance delta under fixed decomposition"
+    ]
+  },
+  "metrics_manifest": "/home/kzhang42/Github_Test/AsynCodeBench-from-site/manifests/pilot/v0.3/metrics/commit0_wcwidth_async_metrics.json",
+  "primary_outcome": {
+    "collected": 39,
+    "errors": 0,
+    "exitcode": 1,
+    "failed": 9,
+    "final_success": false,
+    "passed": 28,
+    "synthetic_summary": false,
+    "total": 38,
+    "upstream_evaluator": "asyncodebench_manifest"
+  },
+  "process_metrics": {
+    "actions_taken_after_relevant_but_undelivered_teammate_update": {
+      "automatic_proxy_count": 0,
+      "candidate_incidents": [],
+      "status": "proxy based on agent_response intervals and communication_condition"
+    },
+    "agent_termination": {
+      "agent_attempt_count": 1,
+      "iteration_cap_hit_count": 1,
+      "legacy_compatibility_inference_count": 0,
+      "manager_phase_iteration_cap_hit_count": 1,
+      "manager_phase_terminations": [
+        {
+          "cumulative_manager_iterations": 99,
+          "iteration_cap_hit": true,
+          "iterations": 99,
+          "max_iterations": 100,
+          "termination_reason": "iteration_limit"
+        }
+      ],
+      "reason_counts": {
+        "iteration_limit": 1
+      }
+    },
+    "asynchronous_overlap_duration": {
+      "agent_response_intervals": [
+        {
+          "agent": "single_agent",
+          "duration_seconds": 722.316063,
+          "end_time": "2026-09-30T11:27:42.934885",
+          "start_time": "2026-09-30T11:15:40.618822",
+          "task_id": "single_agent"
+        }
+      ],
+      "overlap_seconds_with_two_or_more_agents_active": 0.0
+    },
+    "duplicated_file_or_function_work": {
+      "added_definitions_by_file": {},
+      "duplicated_contract_implementation_candidate_count": 0,
+      "duplicated_contract_implementation_candidates": [],
+      "duplicated_contract_unique_added_symbol_count": 0,
+      "duplicated_contract_unique_added_symbols": [],
+      "duplicated_file_work": {}
+    },
+    "missing_communication_incident_count": {
+      "automatic_proxy_count": 0,
+      "candidate_incidents": [],
+      "status": "proxy_candidates_require_human_audit"
+    },
+    "patch_file_generation_success": {
+      "agent_attempt_count": 1,
+      "agent_files_modified": {
+        "single_agent": []
+      },
+      "failed_agent_attempt_count": 0,
+      "modified_files": [],
+      "patch_diff_exists": false,
+      "successful_agent_attempt_count": 0
+    },
+    "reviewer_repair_success": {
+      "manager_review_count": 0,
+      "merged_review_count": 0,
+      "reviewer_repair_success_count": 0
+    },
+    "scope_violation_rate": {
+      "SVR": null,
+      "evidence_source": "derived_from_agent_responses",
+      "scoped_agent_attempt_count": 0,
+      "unique_agent_SVR": null,
+      "unique_scoped_agent_count": 0,
+      "unique_violating_agent_count": 0,
+      "violating_agent_attempt_count": 0,
+      "violations": []
+    },
+    "semantic_integration_failure": {
+      "definition": "final evaluator failed after patch generation without textual merge conflict",
+      "observed": false
+    },
+    "stale_assumption_incident_count": {
+      "automatic_proxy_count": 0,
+      "candidate_sources": {
+        "downstream_before_upstream_resolution": [],
+        "duplicated_contract_implementation": []
+      },
+      "status": "proxy_candidates_require_human_audit"
+    },
+    "tests_passed_before_and_after_integration": {
+      "after_integration_final_success": false,
+      "after_integration_passed": 28,
+      "after_integration_source": "report.json and final runner evaluator",
+      "after_integration_total": 38,
+      "before_integration_source": "agent event logs and local pytest observations",
+      "dependency_checkpoint_reports": []
+    },
+    "textual_patch_conflict": {
+      "conflict_event_count": 0,
+      "observed": false
+    },
+    "wasted_model_or_test_work_after_invalidation": {
+      "duplicated_contract_candidate_count": 0,
+      "duplicated_contract_unique_added_symbol_count": 0,
+      "failed_attempt_cost_usd": 0,
+      "failed_attempt_count": 0,
+      "failed_attempt_tokens": 0,
+      "status": "proxy; exact invalidation requires structured artifact-version visibility logs"
+    }
+  },
+  "run_dir": "outputs/asyncodebench/v0.3/qwen35-9b/wcwidth/single/wcwidth-single-public-v01",
+  "schema_version": "0.1-run-process-metrics",
+  "serial_to_async_performance_delta_under_fixed_decomposition": null,
+  "strict_dependency_metrics": {
+    "checkpoint_count": 1,
+    "dependency_metrics": [
+      {
+        "consumer_agent": "width_agent",
+        "dependency_id": "wcwidth.unicode_versions_to_width.version_matching_contract",
+        "downstream_resolution_step": null,
+        "final_integrated_pass": false,
+        "producer_agent": "version_agent",
+        "status": "unresolved_final_integrated",
+        "strict_CAIL": null,
+        "strict_DRS": null,
+        "upstream_resolution_step": 1
+      },
+      {
+        "consumer_agent": "integrator",
+        "dependency_id": "wcwidth.width_to_integration.public_width_contract",
+        "downstream_resolution_step": null,
+        "final_integrated_pass": false,
+        "producer_agent": "width_agent",
+        "status": "unresolved_final_integrated",
+        "strict_CAIL": null,
+        "strict_DRS": null,
+        "upstream_resolution_step": 1
+      }
+    ],
+    "final_checkpoint_id": "final_integrated",
+    "final_integrated_ADPR": {
+      "resolved": 0,
+      "total": 2,
+      "value": 0.0
+    },
+    "metric_annotation_id": "commit0-wcwidth.async-metrics.v0.3",
+    "schema_version": "0.1",
+    "strict_CAIL": {
+      "max": null,
+      "mean": null,
+      "min": null,
+      "observed_count": 0,
+      "unobserved_count": 2
+    },
+    "strict_DRS": {
+      "max": null,
+      "min": null,
+      "observed_count": 0,
+      "unresolved_count": 2
+    },
+    "task_id": "commit0:wcwidth"
+  },
+  "task_id": "commit0:wcwidth"
+}

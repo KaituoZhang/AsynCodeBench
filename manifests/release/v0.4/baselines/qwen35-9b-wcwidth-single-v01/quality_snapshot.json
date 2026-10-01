@@ -1,0 +1,198 @@
+{
+  "coordination_structure_tags": [
+    "interface_dependency"
+  ],
+  "environment_requirements": [
+    "Python 3.10.4",
+    "pytest==9.0.3",
+    "setuptools==82.0.1",
+    "Run from the repository root with PYTHONPATH pointing at the repository; package metadata tests are excluded."
+  ],
+  "evaluation_snapshots": [
+    {
+      "collected": 38,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "-o",
+        "addopts=",
+        "tests",
+        "-k",
+        "not test_package_version"
+      ],
+      "dependency_versions": {
+        "pytest": "9.0.3",
+        "setuptools": "82.0.1"
+      },
+      "duration_seconds": 0.28,
+      "errors": 0,
+      "evidence_scope": "public_initial_state",
+      "failed": 37,
+      "notes": [
+        "All core tests collect successfully once the packaging metadata test is excluded.",
+        "Failures are caused by unfinished unicode_versions.py and wcwidth.py implementations.",
+        "The skipped test is the public upstream narrow-build guard and is not agent progress."
+      ],
+      "passed": 0,
+      "python_version": "3.10.4",
+      "return_code": 1,
+      "schema_version": "0.3",
+      "skipped": 1,
+      "snapshot_id": "commit0_initial_core",
+      "source_ref": "commit0:0d0054189bdb0fc7b9de0456fc3cee2b67a6ceba"
+    },
+    {
+      "collected": 38,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "-o",
+        "addopts=",
+        "tests",
+        "-k",
+        "not test_package_version"
+      ],
+      "dependency_versions": {
+        "pytest": "9.0.3",
+        "setuptools": "82.0.1"
+      },
+      "duration_seconds": 0.18,
+      "errors": 0,
+      "evidence_scope": "evaluator_sanity_only",
+      "failed": 0,
+      "notes": [
+        "The public completed branch passes the same core non-packaging evaluator in the same environment.",
+        "Completed source is evaluator validation only and must not define decomposition, prompts, or agent-visible evidence."
+      ],
+      "passed": 37,
+      "python_version": "3.10.4",
+      "return_code": 0,
+      "schema_version": "0.3",
+      "skipped": 1,
+      "snapshot_id": "completed_evaluator_sanity_core",
+      "source_ref": "public-ref:origin/master"
+    }
+  ],
+  "known_limitations": [
+    "The evaluator excludes one package metadata test so that the benchmark measures implementation behavior rather than editable-install state.",
+    "The task is small and has only one writable algorithm module plus one version-catalog module; it is best treated as an interface-dependency pilot, not a large shared-abstraction task.",
+    "The version local test group is not fully isolated because tests/test_ucslevel.py also exercises _wcmatch_version() in wcwidth.py."
+  ],
+  "public_statement_sources": [
+    "spec.pdf.bz2@commit0",
+    "wcwidth/*.py docstrings@commit0",
+    "tests/*.py@commit0"
+  ],
+  "quality_status": "qualification_ready",
+  "remaining_gates": [
+    "two independent human inclusion/exclusion annotations",
+    "recorded environment requirements and evaluator command",
+    "single-agent baseline result pending evaluation",
+    "serial-specialist result after version-catalog handoff pending evaluation"
+  ],
+  "schema_version": "0.3",
+  "structure_rationale": "The width algorithm consumes the Unicode version catalog through list_versions() and must keep version matching, table lookup, and public width semantics consistent.",
+  "task_id": "commit0:wcwidth",
+  "test_groups": [
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_core.py::test_package_version"
+      ],
+      "description": "Packaging metadata check excluded from the benchmark evaluator because it requires installed distribution metadata rather than unfinished implementation behavior.",
+      "group_id": "package_metadata_control",
+      "owner_subproblem": null,
+      "prerequisites": [],
+      "purpose": "environment_control",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_ucslevel.py"
+      ],
+      "description": "Unicode version list and nearest-version matching. This group depends on list_versions() from the version catalog and _wcmatch_version() from the width layer.",
+      "group_id": "unicode_version_catalog_local",
+      "owner_subproblem": "unicode_version_catalog",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_core.py",
+        "tests/test_emojis.py",
+        "tests/test_table_integrity.py",
+        "-k",
+        "not test_package_version"
+      ],
+      "description": "Binary search, single-codepoint widths, string widths, emoji VS-16/ZWJ behavior, and table integrity.",
+      "group_id": "width_algorithm_local",
+      "owner_subproblem": "width_algorithm",
+      "prerequisites": [],
+      "purpose": "specialist_local",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_ucslevel.py",
+        "tests/test_core.py",
+        "tests/test_emojis.py",
+        "-k",
+        "not test_package_version"
+      ],
+      "description": "Integrated version matching and width behavior. The width layer must consume the completed version catalog without stale assumptions about ordering or format.",
+      "group_id": "version_width_cross_contract",
+      "owner_subproblem": null,
+      "prerequisites": [
+        "unicode_version_catalog artifact is integrated",
+        "width_algorithm artifact is integrated"
+      ],
+      "purpose": "cross_subproblem",
+      "schema_version": "0.3"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "-o",
+        "addopts=",
+        "tests",
+        "-k",
+        "not test_package_version"
+      ],
+      "description": "All core wcwidth tests except package metadata version resolution.",
+      "group_id": "full_evaluator",
+      "owner_subproblem": null,
+      "prerequisites": [],
+      "purpose": "full_evaluator",
+      "schema_version": "0.3"
+    }
+  ]
+}

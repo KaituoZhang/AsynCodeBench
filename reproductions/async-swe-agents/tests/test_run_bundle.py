@@ -599,18 +599,18 @@ def test_cli_reports_release_and_review_status(capsys):
     assert status["human_review_complete_task_count"] == 19
     assert status["human_review_passed_task_count"] == 19
     assert status["executable_release_complete"] is True
-    assert status["release_stage"] == "community_preview"
+    assert status["release_stage"] == "stable"
     assert status["community_preview_ready"] is True
-    assert status["stable_release_ready"] is False
-    assert status["validated_baseline_bundle_count"] == 0
+    assert status["stable_release_ready"] is True
+    assert status["validated_baseline_bundle_count"] == 1
     assert status["human_validation_complete"] is True
     assert status["pending_human_review_task_ids"] == []
 
 
-def test_cli_release_gate_accepts_preview_and_rejects_stable(capsys):
+def test_cli_release_gate_accepts_preview_and_stable(capsys):
     assert cli_main(["release-status", "--require", "preview"]) == 0
     capsys.readouterr()
-    assert cli_main(["release-status", "--require", "stable"]) == 2
+    assert cli_main(["release-status", "--require", "stable"]) == 0
 
 
 def test_cli_dry_runs_all_four_protocols(capsys):

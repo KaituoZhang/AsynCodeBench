@@ -1,0 +1,49 @@
+{
+  "checkpoint_count": 1,
+  "dependency_metrics": [
+    {
+      "consumer_agent": "width_agent",
+      "dependency_id": "wcwidth.unicode_versions_to_width.version_matching_contract",
+      "downstream_resolution_step": null,
+      "final_integrated_pass": false,
+      "producer_agent": "version_agent",
+      "status": "unresolved_final_integrated",
+      "strict_CAIL": null,
+      "strict_DRS": null,
+      "upstream_resolution_step": 1
+    },
+    {
+      "consumer_agent": "integrator",
+      "dependency_id": "wcwidth.width_to_integration.public_width_contract",
+      "downstream_resolution_step": null,
+      "final_integrated_pass": false,
+      "producer_agent": "width_agent",
+      "status": "unresolved_final_integrated",
+      "strict_CAIL": null,
+      "strict_DRS": null,
+      "upstream_resolution_step": 1
+    }
+  ],
+  "final_checkpoint_id": "final_integrated",
+  "final_integrated_ADPR": {
+    "resolved": 0,
+    "total": 2,
+    "value": 0.0
+  },
+  "metric_annotation_id": "commit0-wcwidth.async-metrics.v0.3",
+  "schema_version": "0.1",
+  "strict_CAIL": {
+    "max": null,
+    "mean": null,
+    "min": null,
+    "observed_count": 0,
+    "unobserved_count": 2
+  },
+  "strict_DRS": {
+    "max": null,
+    "min": null,
+    "observed_count": 0,
+    "unresolved_count": 2
+  },
+  "task_id": "commit0:wcwidth"
+}

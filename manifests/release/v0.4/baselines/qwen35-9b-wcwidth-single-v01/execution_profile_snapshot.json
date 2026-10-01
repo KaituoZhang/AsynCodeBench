@@ -1,0 +1,62 @@
+{
+  "benchmark": "AsynCodeBench",
+  "description": "Canonical capability profile for the 16-task AsynCodeBench v0.3 release. Each model-facing agent run may stop early through the FinishTool and has a hard cap of 100 model responses. The preserved v1 profile remains the historical 30-response low-budget profile.",
+  "instrumentation": {
+    "final_evaluator_source": "asyncodebench_manifest",
+    "final_pytest_timeout_seconds": 900,
+    "probe_timeout_seconds": 60
+  },
+  "iteration_semantics": {
+    "budget_scope": "per_model_facing_agent_run",
+    "hard_limit_outcome": "MaxIterationsReached",
+    "primary_completion_signal": "agent_finish_tool",
+    "stuck_detection": true,
+    "unit": "model_response"
+  },
+  "profile_id": "asyncodebench-v0.3-standard-100",
+  "protocols": {
+    "async_private": {
+      "manager_max_iterations": 100,
+      "max_rounds_chat": 2,
+      "max_subagents": "scenario_declared",
+      "subagent_max_iterations": 100
+    },
+    "caid_manager": {
+      "manager_max_iterations": 100,
+      "max_rounds_chat": 2,
+      "max_subagents": "scenario_declared",
+      "subagent_max_iterations": 100
+    },
+    "serial_specialists": {
+      "manager_max_iterations": 100,
+      "max_rounds_chat": 2,
+      "max_subagents": "scenario_declared",
+      "subagent_max_iterations": 100
+    },
+    "single": {
+      "manager_max_iterations": 100,
+      "max_rounds_chat": 2,
+      "max_subagents": "scenario_declared",
+      "subagent_max_iterations": 100
+    }
+  },
+  "release": "v0.3",
+  "required_agent_adapter_fields": [
+    "name",
+    "class",
+    "package_version_or_source_sha256",
+    "config_sha256"
+  ],
+  "required_provenance": [
+    "model",
+    "subagent_model",
+    "agent_adapter",
+    "generation_configuration",
+    "model_server",
+    "prompt",
+    "code_revisions",
+    "source",
+    "artifacts"
+  ],
+  "schema_version": "asyncodebench-execution-profile-v2"
+}

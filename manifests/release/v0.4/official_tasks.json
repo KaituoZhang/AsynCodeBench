@@ -39,15 +39,15 @@
     "asyncodebench:apache-tvm-20153"
   ],
   "release": "v0.4",
-  "release_stage": "community_preview",
+  "release_stage": "stable",
   "release_version": "0.4.1",
   "schema_version": "asyncodebench-release-tasks-v1",
-  "stable_release_ready": false,
+  "stable_release_ready": true,
   "task_count": 19,
   "task_namespace": "asyncodebench",
-  "validated_baseline_bundle_count": 0,
+  "validated_baseline_bundle_count": 1,
   "validated_baseline_registry": {
     "path": "manifests/release/v0.4/validated_baselines.json",
-    "sha256": "f9d33c2eb9712858b337277f2695a50be8341811e6b659cb79a60297b2c06553"
+    "sha256": "42886036a2bdd942d010eb829bbb869b3e06c4239ec8afb580135ba37ce35269"
   }
 }

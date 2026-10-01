@@ -56,7 +56,23 @@ if [[ "${#_legacy_asyncodebench_vars[@]}" -gt 0 ]]; then
 fi
 unset _legacy_asyncodebench_vars _legacy_name _canonical_name
 
-export ASYNCODEBENCH_ROOT="${ASYNCODEBENCH_ROOT:-$(cd "$REPO_ROOT/../.." && pwd)}"
+# A checkout-local runner must use that checkout's released contracts.  A
+# previously sourced env.sh can leave ASYNCODEBENCH_ROOT pointing at another
+# checkout, which mixes code and manifests while still producing a run bundle.
+_checkout_root="$(cd "$REPO_ROOT/../.." && pwd)"
+if [[ -f "$_checkout_root/manifests/release/v0.4/task_index.json" ]]; then
+  if [[ -n "${ASYNCODEBENCH_ROOT:-}" ]]; then
+    _configured_root="$(readlink -f "$ASYNCODEBENCH_ROOT" 2>/dev/null || printf '%s' "$ASYNCODEBENCH_ROOT")"
+    if [[ "$_configured_root" != "$_checkout_root" ]]; then
+      echo "Warning: ignoring stale ASYNCODEBENCH_ROOT=$_configured_root; using checkout $_checkout_root" >&2
+    fi
+  fi
+  export ASYNCODEBENCH_ROOT="$_checkout_root"
+else
+  # Installed runners outside a checkout still accept an explicit source root.
+  export ASYNCODEBENCH_ROOT="${ASYNCODEBENCH_ROOT:-$_checkout_root}"
+fi
+unset _checkout_root _configured_root
 
 if [[ -z "${LLM_BASE_URL:-}" ]]; then
   _env_fail "LLM_BASE_URL is required in $ENV_FILE"

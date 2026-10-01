@@ -1,0 +1,19 @@
+{
+  "model": "openai/Qwen/Qwen3.5-9B",
+  "manager": {
+    "cost": 0.0,
+    "prompt_tokens": 5500404,
+    "completion_tokens": 48695,
+    "total_tokens": 5549099,
+    "duration": 722.316063
+  },
+  "subagents": {},
+  "total": {
+    "cost": 0.0,
+    "prompt_tokens": 5500404,
+    "completion_tokens": 48695,
+    "total_tokens": 5549099,
+    "duration": 722.316063,
+    "wall_clock_duration": 763.391819
+  }
+}

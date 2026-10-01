@@ -1,0 +1,1344 @@
+{
+  "created": 1790785663.9930675,
+  "duration": 0.22802042961120605,
+  "exitcode": 1,
+  "root": "/workspace/wcwidth_repo",
+  "environment": {},
+  "summary": {
+    "passed": 28,
+    "failed": 9,
+    "skipped": 1,
+    "total": 38,
+    "collected": 39,
+    "deselected": 1
+  },
+  "collectors": [
+    {
+      "nodeid": "",
+      "outcome": "passed",
+      "result": [
+        {
+          "nodeid": "tests",
+          "type": "Package"
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/test_core.py",
+      "outcome": "passed",
+      "result": [
+        {
+          "nodeid": "tests/test_core.py::test_package_version",
+          "type": "Function",
+          "lineno": 20,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_core.py::test_empty_string",
+          "type": "Function",
+          "lineno": 32
+        },
+        {
+          "nodeid": "tests/test_core.py::test_hello_jp",
+          "type": "Function",
+          "lineno": 71
+        },
+        {
+          "nodeid": "tests/test_core.py::test_wcswidth_substr",
+          "type": "Function",
+          "lineno": 93
+        },
+        {
+          "nodeid": "tests/test_core.py::test_null_width_0",
+          "type": "Function",
+          "lineno": 115
+        },
+        {
+          "nodeid": "tests/test_core.py::test_control_c0_width_negative_1",
+          "type": "Function",
+          "lineno": 131
+        },
+        {
+          "nodeid": "tests/test_core.py::test_combining_width",
+          "type": "Function",
+          "lineno": 155
+        },
+        {
+          "nodeid": "tests/test_core.py::test_combining_cafe",
+          "type": "Function",
+          "lineno": 171
+        },
+        {
+          "nodeid": "tests/test_core.py::test_combining_enclosing",
+          "type": "Function",
+          "lineno": 186
+        },
+        {
+          "nodeid": "tests/test_core.py::test_balinese_script",
+          "type": "Function",
+          "lineno": 201
+        },
+        {
+          "nodeid": "tests/test_core.py::test_kr_jamo",
+          "type": "Function",
+          "lineno": 224
+        },
+        {
+          "nodeid": "tests/test_core.py::test_kr_jamo_filler",
+          "type": "Function",
+          "lineno": 254
+        },
+        {
+          "nodeid": "tests/test_core.py::test_devanagari_script",
+          "type": "Function",
+          "lineno": 276
+        },
+        {
+          "nodeid": "tests/test_core.py::test_tamil_script",
+          "type": "Function",
+          "lineno": 325
+        },
+        {
+          "nodeid": "tests/test_core.py::test_kannada_script",
+          "type": "Function",
+          "lineno": 346
+        },
+        {
+          "nodeid": "tests/test_core.py::test_kannada_script_2",
+          "type": "Function",
+          "lineno": 368
+        },
+        {
+          "nodeid": "tests/test_core.py::test_zero_wide_conflict",
+          "type": "Function",
+          "lineno": 390
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/test_emojis.py",
+      "outcome": "passed",
+      "result": [
+        {
+          "nodeid": "tests/test_emojis.py::test_unfinished_zwj_sequence",
+          "type": "Function",
+          "lineno": 54
+        },
+        {
+          "nodeid": "tests/test_emojis.py::test_non_recommended_zwj_sequence",
+          "type": "Function",
+          "lineno": 74
+        },
+        {
+          "nodeid": "tests/test_emojis.py::test_another_emoji_zwj_sequence",
+          "type": "Function",
+          "lineno": 94
+        },
+        {
+          "nodeid": "tests/test_emojis.py::test_longer_emoji_zwj_sequence",
+          "type": "Function",
+          "lineno": 114
+        },
+        {
+          "nodeid": "tests/test_emojis.py::test_recommended_emoji_zwj_sequences",
+          "type": "Function",
+          "lineno": 157
+        },
+        {
+          "nodeid": "tests/test_emojis.py::test_recommended_variation_16_sequences",
+          "type": "Function",
+          "lineno": 184
+        },
+        {
+          "nodeid": "tests/test_emojis.py::test_unicode_9_vs16",
+          "type": "Function",
+          "lineno": 212
+        },
+        {
+          "nodeid": "tests/test_emojis.py::test_unicode_8_vs16",
+          "type": "Function",
+          "lineno": 228
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/test_table_integrity.py",
+      "outcome": "passed",
+      "result": [
+        {
+          "nodeid": "tests/test_table_integrity.py::test_verify_table_integrity",
+          "type": "Function",
+          "lineno": 9
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/test_ucslevel.py",
+      "outcome": "passed",
+      "result": [
+        {
+          "nodeid": "tests/test_ucslevel.py::test_latest",
+          "type": "Function",
+          "lineno": 12
+        },
+        {
+          "nodeid": "tests/test_ucslevel.py::test_exact_410_str",
+          "type": "Function",
+          "lineno": 24
+        },
+        {
+          "nodeid": "tests/test_ucslevel.py::test_exact_410_unicode",
+          "type": "Function",
+          "lineno": 36
+        },
+        {
+          "nodeid": "tests/test_ucslevel.py::test_nearest_505_str",
+          "type": "Function",
+          "lineno": 48
+        },
+        {
+          "nodeid": "tests/test_ucslevel.py::test_nearest_505_unicode",
+          "type": "Function",
+          "lineno": 60
+        },
+        {
+          "nodeid": "tests/test_ucslevel.py::test_nearest_lowint40_str",
+          "type": "Function",
+          "lineno": 72
+        },
+        {
+          "nodeid": "tests/test_ucslevel.py::test_nearest_lowint40_unicode",
+          "type": "Function",
+          "lineno": 88
+        },
+        {
+          "nodeid": "tests/test_ucslevel.py::test_nearest_800_str",
+          "type": "Function",
+          "lineno": 104
+        },
+        {
+          "nodeid": "tests/test_ucslevel.py::test_nearest_800_unicode",
+          "type": "Function",
+          "lineno": 116
+        },
+        {
+          "nodeid": "tests/test_ucslevel.py::test_nearest_999_str",
+          "type": "Function",
+          "lineno": 128
+        },
+        {
+          "nodeid": "tests/test_ucslevel.py::test_nearest_999_unicode",
+          "type": "Function",
+          "lineno": 140
+        },
+        {
+          "nodeid": "tests/test_ucslevel.py::test_nonint_unicode",
+          "type": "Function",
+          "lineno": 152
+        },
+        {
+          "nodeid": "tests/test_ucslevel.py::test_nonint_str",
+          "type": "Function",
+          "lineno": 168
+        }
+      ]
+    },
+    {
+      "nodeid": "tests",
+      "outcome": "passed",
+      "result": [
+        {
+          "nodeid": "tests/test_core.py",
+          "type": "Module"
+        },
+        {
+          "nodeid": "tests/test_emojis.py",
+          "type": "Module"
+        },
+        {
+          "nodeid": "tests/test_table_integrity.py",
+          "type": "Module"
+        },
+        {
+          "nodeid": "tests/test_ucslevel.py",
+          "type": "Module"
+        }
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "nodeid": "tests/test_core.py::test_empty_string",
+      "lineno": 32,
+      "outcome": "passed",
+      "keywords": [
+        "test_empty_string",
+        "test_core.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00033344700932502747,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00023653730750083923,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00011352077126502991,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_core.py::test_hello_jp",
+      "lineno": 71,
+      "outcome": "passed",
+      "keywords": [
+        "test_hello_jp",
+        "test_core.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00010790303349494934,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00031508877873420715,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00010285153985023499,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_core.py::test_wcswidth_substr",
+      "lineno": 93,
+      "outcome": "passed",
+      "keywords": [
+        "test_wcswidth_substr",
+        "test_core.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00010561197996139526,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00017007440328598022,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.0001320876181125641,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_core.py::test_null_width_0",
+      "lineno": 115,
+      "outcome": "passed",
+      "keywords": [
+        "test_null_width_0",
+        "test_core.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00010802224278450012,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00021741166710853577,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 9.915977716445923e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_core.py::test_control_c0_width_negative_1",
+      "lineno": 131,
+      "outcome": "passed",
+      "keywords": [
+        "test_control_c0_width_negative_1",
+        "test_core.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.000103045254945755,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00016213580965995789,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 9.784847497940063e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_core.py::test_combining_width",
+      "lineno": 155,
+      "outcome": "passed",
+      "keywords": [
+        "test_combining_width",
+        "test_core.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00010142102837562561,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00016272813081741333,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 9.759142994880676e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_core.py::test_combining_cafe",
+      "lineno": 171,
+      "outcome": "passed",
+      "keywords": [
+        "test_combining_cafe",
+        "test_core.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00010140612721443176,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00015481188893318176,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 9.806826710700989e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_core.py::test_combining_enclosing",
+      "lineno": 186,
+      "outcome": "passed",
+      "keywords": [
+        "test_combining_enclosing",
+        "test_core.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00010193884372711182,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00015025213360786438,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.0001010410487651825,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_core.py::test_balinese_script",
+      "lineno": 201,
+      "outcome": "passed",
+      "keywords": [
+        "test_balinese_script",
+        "test_core.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00011105090379714966,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.0001822449266910553,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 9.872391819953918e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_core.py::test_kr_jamo",
+      "lineno": 224,
+      "outcome": "passed",
+      "keywords": [
+        "test_kr_jamo",
+        "test_core.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0001031532883644104,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00015075504779815674,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 9.774044156074524e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_core.py::test_kr_jamo_filler",
+      "lineno": 254,
+      "outcome": "passed",
+      "keywords": [
+        "test_kr_jamo_filler",
+        "test_core.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0001018419861793518,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00013995543122291565,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 9.718909859657288e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_core.py::test_devanagari_script",
+      "lineno": 276,
+      "outcome": "passed",
+      "keywords": [
+        "test_devanagari_script",
+        "test_core.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00010922923684120178,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.0001789480447769165,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 9.998679161071777e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_core.py::test_tamil_script",
+      "lineno": 325,
+      "outcome": "passed",
+      "keywords": [
+        "test_tamil_script",
+        "test_core.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00010225549340248108,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00017311424016952515,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 9.798258543014526e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_core.py::test_kannada_script",
+      "lineno": 346,
+      "outcome": "passed",
+      "keywords": [
+        "test_kannada_script",
+        "test_core.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00010185688734054565,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00016665831208229065,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 9.859725832939148e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_core.py::test_kannada_script_2",
+      "lineno": 368,
+      "outcome": "passed",
+      "keywords": [
+        "test_kannada_script_2",
+        "test_core.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00010110437870025635,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.0001545548439025879,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 9.665265679359436e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_core.py::test_zero_wide_conflict",
+      "lineno": 390,
+      "outcome": "passed",
+      "keywords": [
+        "test_zero_wide_conflict",
+        "test_core.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00010344386100769043,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.0001492425799369812,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00010182708501815796,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_emojis.py::test_unfinished_zwj_sequence",
+      "lineno": 54,
+      "outcome": "passed",
+      "keywords": [
+        "test_unfinished_zwj_sequence",
+        "skipif",
+        "pytestmark",
+        "test_emojis.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00011331960558891296,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00016725808382034302,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 9.980052709579468e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_emojis.py::test_non_recommended_zwj_sequence",
+      "lineno": 74,
+      "outcome": "passed",
+      "keywords": [
+        "test_non_recommended_zwj_sequence",
+        "skipif",
+        "pytestmark",
+        "test_emojis.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00010725855827331543,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00014052540063858032,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 9.732693433761597e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_emojis.py::test_another_emoji_zwj_sequence",
+      "lineno": 94,
+      "outcome": "passed",
+      "keywords": [
+        "test_another_emoji_zwj_sequence",
+        "skipif",
+        "pytestmark",
+        "test_emojis.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00010627135634422302,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00016979873180389404,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 9.825453162193298e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_emojis.py::test_longer_emoji_zwj_sequence",
+      "lineno": 114,
+      "outcome": "failed",
+      "keywords": [
+        "test_longer_emoji_zwj_sequence",
+        "skipif",
+        "pytestmark",
+        "test_emojis.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00010580569505691528,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00039763376116752625,
+        "outcome": "failed",
+        "crash": {
+          "path": "/workspace/wcwidth_repo/tests/test_emojis.py",
+          "lineno": 145,
+          "message": "assert 14 == 4"
+        },
+        "traceback": [
+          {
+            "path": "tests/test_emojis.py",
+            "lineno": 145,
+            "message": "AssertionError"
+          }
+        ],
+        "longrepr": "@pytest.mark.skipif(NARROW_ONLY, reason=\"Test cannot verify on python 'narrow' builds\")\n    def test_longer_emoji_zwj_sequence():\n        \"\"\"\n        A much longer emoji ZWJ sequence of 10 total codepoints is just 2 cells!\n    \n        Also test the same sequence in duplicate, verifying multiple VS-16 sequences\n        in a single function call.\n        \"\"\"\n        # 'Category Code', 'East Asian Width property' -- 'description'\n        phrase = (u\"\\U0001F9D1\"   # 'So', 'W' -- ADULT\n                  u\"\\U0001F3FB\"   # 'Sk', 'W' -- EMOJI MODIFIER FITZPATRICK TYPE-1-2\n                  u\"\\u200d\"       # 'Cf', 'N' -- ZERO WIDTH JOINER\n                  u\"\\u2764\"       # 'So', 'N' -- HEAVY BLACK HEART\n                  u\"\\uFE0F\"       # 'Mn', 'A' -- VARIATION SELECTOR-16\n                  u\"\\u200d\"       # 'Cf', 'N' -- ZERO WIDTH JOINER\n                  u\"\\U0001F48B\"   # 'So', 'W' -- KISS MARK\n                  u\"\\u200d\"       # 'Cf', 'N' -- ZERO WIDTH JOINER\n                  u\"\\U0001F9D1\"   # 'So', 'W' -- ADULT\n                  u\"\\U0001F3FD\"   # 'Sk', 'W' -- EMOJI MODIFIER FITZPATRICK TYPE-4\n        ) * 2\n        # This test adapted from https://www.unicode.org/L2/L2023/23107-terminal-suppt.pdf\n        expect_length_each = (2, 0, 0, 1, 0, 0, 2, 0, 2, 0) * 2\n        expect_length_phrase = 4\n    \n        # exercise,\n        length_each = tuple(map(wcwidth.wcwidth, phrase))\n        length_phrase = wcwidth.wcswidth(phrase)\n    \n        # verify.\n        assert length_each == expect_length_each\n>       assert length_phrase == expect_length_phrase\nE       assert 14 == 4\n\ntests/test_emojis.py:145: AssertionError"
+      },
+      "teardown": {
+        "duration": 0.00018250569701194763,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_emojis.py::test_recommended_emoji_zwj_sequences",
+      "lineno": 157,
+      "outcome": "failed",
+      "keywords": [
+        "test_recommended_emoji_zwj_sequences",
+        "skipif",
+        "pytestmark",
+        "test_emojis.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00013108178973197937,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.03610833361744881,
+        "outcome": "failed",
+        "crash": {
+          "path": "/workspace/wcwidth_repo/tests/test_emojis.py",
+          "lineno": 181,
+          "message": "AssertionError: assert [{'expected_w...u200d\ud83d\udc66'}, ...] == []\n  \n  Left contains 1418 more items, first extra item: {'expected_width': 2, 'line': '1F468 200D 2764 FE0F 200D 1F468             ; RGI_Emoji_ZWJ_Sequence  ; couple with hea...                                 # E2.0   [1] (\ud83d\udc68\\u200d\u2764\ufe0f\\u200d\ud83d\udc68)', 'measured_width': 5, 'sequence': '\ud83d\udc68\\u200d\u2764\ufe0f\\u200d\ud83d\udc68'}\n  Use -v to get more diff"
+        },
+        "traceback": [
+          {
+            "path": "tests/test_emojis.py",
+            "lineno": 181,
+            "message": "AssertionError"
+          }
+        ],
+        "longrepr": "@pytest.mark.skipif(NARROW_ONLY, reason=\"Some sequences in text file are not compatible with 'narrow' builds\")\n    def test_recommended_emoji_zwj_sequences():\n        \"\"\"\n        Test wcswidth of all of the unicode.org-published emoji-zwj-sequences.txt\n        \"\"\"\n        # given,\n        lines, sequences = read_sequences_from_file('emoji-zwj-sequences.txt')\n    \n        errors = []\n        # Exercise, track by zipping with original text file line, a debugging aide\n        num = 0\n        for sequence, line in zip(sequences, lines):\n            num += 1\n            measured_width = wcwidth.wcswidth(sequence)\n            if measured_width != 2:\n                errors.append({\n                    'expected_width': 2,\n                    'line': line,\n                    'measured_width': measured_width,\n                    'sequence': sequence,\n                })\n    \n        # verify\n>       assert errors == []\nE       AssertionError: assert [{'expected_w...u200d\ud83d\udc66'}, ...] == []\nE         \nE         Left contains 1418 more items, first extra item: {'expected_width': 2, 'line': '1F468 200D 2764 FE0F 200D 1F468             ; RGI_Emoji_ZWJ_Sequence  ; couple with hea...                                 # E2.0   [1] (\ud83d\udc68\\u200d\u2764\ufe0f\\u200d\ud83d\udc68)', 'measured_width': 5, 'sequence': '\ud83d\udc68\\u200d\u2764\ufe0f\\u200d\ud83d\udc68'}\nE         Use -v to get more diff\n\ntests/test_emojis.py:181: AssertionError"
+      },
+      "teardown": {
+        "duration": 0.00017173215746879578,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_emojis.py::test_recommended_variation_16_sequences",
+      "lineno": 184,
+      "outcome": "failed",
+      "keywords": [
+        "test_recommended_variation_16_sequences",
+        "test_emojis.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0001244470477104187,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.007805954664945602,
+        "outcome": "failed",
+        "crash": {
+          "path": "/workspace/wcwidth_repo/tests/test_emojis.py",
+          "lineno": 209,
+          "message": "AssertionError: assert [{'expected_w...': '3\ufe0f'}, ...] == []\n  \n  Left contains 213 more items, first extra item: {'expected_width': 2, 'line': '0023 FE0F  ; emoji style; # (1.1) NUMBER SIGN', 'measured_width': 1, 'sequence': '#\ufe0f'}\n  Use -v to get more diff"
+        },
+        "traceback": [
+          {
+            "path": "tests/test_emojis.py",
+            "lineno": 209,
+            "message": "AssertionError"
+          }
+        ],
+        "longrepr": "def test_recommended_variation_16_sequences():\n        \"\"\"\n        Test wcswidth of all of the unicode.org-published emoji-variation-sequences.txt\n        \"\"\"\n        # given,\n        lines, sequences = read_sequences_from_file('emoji-variation-sequences.txt')\n    \n        errors = []\n        num = 0\n        for sequence, line in zip(sequences, lines):\n            num += 1\n            if '\\ufe0f' not in sequence:\n                # filter for only \\uFE0F (VS-16)\n                continue\n            measured_width = wcwidth.wcswidth(sequence)\n            if measured_width != 2:\n                errors.append({\n                    'expected_width': 2,\n                    'line': line,\n                    'measured_width': wcwidth.wcswidth(sequence),\n                    'sequence': sequence,\n                })\n    \n        # verify\n>       assert errors == []\nE       AssertionError: assert [{'expected_w...': '3\ufe0f'}, ...] == []\nE         \nE         Left contains 213 more items, first extra item: {'expected_width': 2, 'line': '0023 FE0F  ; emoji style; # (1.1) NUMBER SIGN', 'measured_width': 1, 'sequence': '#\ufe0f'}\nE         Use -v to get more diff\n\ntests/test_emojis.py:209: AssertionError"
+      },
+      "teardown": {
+        "duration": 0.00017084553837776184,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_emojis.py::test_unicode_9_vs16",
+      "lineno": 212,
+      "outcome": "failed",
+      "keywords": [
+        "test_unicode_9_vs16",
+        "test_emojis.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00012437626719474792,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00015590712428092957,
+        "outcome": "failed",
+        "crash": {
+          "path": "/workspace/wcwidth_repo/wcwidth/wcwidth.py",
+          "lineno": 159,
+          "message": "KeyError: '9.0'"
+        },
+        "traceback": [
+          {
+            "path": "tests/test_emojis.py",
+            "lineno": 222,
+            "message": ""
+          },
+          {
+            "path": "tests/test_emojis.py",
+            "lineno": 222,
+            "message": "in <genexpr>"
+          },
+          {
+            "path": "wcwidth/wcwidth.py",
+            "lineno": 159,
+            "message": "KeyError"
+          }
+        ],
+        "longrepr": "def test_unicode_9_vs16():\n        \"\"\"Verify effect of VS-16 on unicode_version 9.0 and later\"\"\"\n        phrase = (u\"\\u2640\"        # FEMALE SIGN\n                  u\"\\uFE0F\")       # VARIATION SELECTOR-16\n    \n        expect_length_each = (1, 0)\n        expect_length_phrase = 2\n    \n        # exercise,\n>       length_each = tuple(wcwidth.wcwidth(w_char, unicode_version='9.0') for w_char in phrase)\n\ntests/test_emojis.py:222: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \ntests/test_emojis.py:222: in <genexpr>\n    length_each = tuple(wcwidth.wcwidth(w_char, unicode_version='9.0') for w_char in phrase)\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nwc = '\u2640', unicode_version = '9.0'\n\n    @lru_cache(maxsize=1000)\n    def wcwidth(wc, unicode_version='auto'):\n        \"\"\"\n        Given one Unicode character, return its printable length on a terminal.\n    \n        :param str wc: A single Unicode character.\n        :param str unicode_version: A Unicode version number, such as\n            6.0.0. A list of version levels suported by wcwidth\n            is returned by :func:list_versions.\n    \n            Any version string may be specified without error -- the nearest\n            matching version is selected.  When latest (default), the\n            highest Unicode version level is used.\n        :return: The width, in cells, necessary to display the character of\n            Unicode string character, wc.  Returns 0 if the wc argument has\n            no printable effect on a terminal (such as NUL \\\\0), -1 if wc is\n            not printable, or has an indeterminate effect on the terminal, such as\n            a control character.  Otherwise, the number of column positions the\n            character occupies on a graphic terminal (1 or 2) is returned.\n        :rtype: int\n    \n        See :ref:Specification for details of cell measurement.\n        \"\"\"\n        # Handle empty string\n        if not wc:\n            return 0\n    \n        # Get the code point\n        try:\n            ucs = ord(wc)\n        except (TypeError, ValueError):\n            return -1\n    \n        # Determine the Unicode version to use\n        if unicode_version == 'auto':\n            import os\n            env_version = os.environ.get('UNICODE_VERSION', 'auto')\n            unicode_version = _wcmatch_version(env_version)\n    \n        # Import tables\n        from .table_wide import WIDE_EASTASIAN\n        from .table_zero import ZERO_WIDTH\n    \n        # Check for zero-width characters\n>       if _bisearch(ucs, ZERO_WIDTH[unicode_version]):\nE       KeyError: '9.0'\n\nwcwidth/wcwidth.py:159: KeyError"
+      },
+      "teardown": {
+        "duration": 0.00017457455396652222,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_emojis.py::test_unicode_8_vs16",
+      "lineno": 228,
+      "outcome": "failed",
+      "keywords": [
+        "test_unicode_8_vs16",
+        "test_emojis.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00012498721480369568,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00015923380851745605,
+        "outcome": "failed",
+        "crash": {
+          "path": "/workspace/wcwidth_repo/wcwidth/wcwidth.py",
+          "lineno": 159,
+          "message": "KeyError: '8.0'"
+        },
+        "traceback": [
+          {
+            "path": "tests/test_emojis.py",
+            "lineno": 238,
+            "message": ""
+          },
+          {
+            "path": "tests/test_emojis.py",
+            "lineno": 238,
+            "message": "in <genexpr>"
+          },
+          {
+            "path": "wcwidth/wcwidth.py",
+            "lineno": 159,
+            "message": "KeyError"
+          }
+        ],
+        "longrepr": "def test_unicode_8_vs16():\n        \"\"\"Verify that VS-16 has no effect on unicode_version 8.0 and earler\"\"\"\n        phrase = (u\"\\u2640\"        # FEMALE SIGN\n                  u\"\\uFE0F\")       # VARIATION SELECTOR-16\n    \n        expect_length_each = (1, 0)\n        expect_length_phrase = 1\n    \n        # exercise,\n>       length_each = tuple(wcwidth.wcwidth(w_char, unicode_version='8.0') for w_char in phrase)\n\ntests/test_emojis.py:238: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \ntests/test_emojis.py:238: in <genexpr>\n    length_each = tuple(wcwidth.wcwidth(w_char, unicode_version='8.0') for w_char in phrase)\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nwc = '\u2640', unicode_version = '8.0'\n\n    @lru_cache(maxsize=1000)\n    def wcwidth(wc, unicode_version='auto'):\n        \"\"\"\n        Given one Unicode character, return its printable length on a terminal.\n    \n        :param str wc: A single Unicode character.\n        :param str unicode_version: A Unicode version number, such as\n            6.0.0. A list of version levels suported by wcwidth\n            is returned by :func:list_versions.\n    \n            Any version string may be specified without error -- the nearest\n            matching version is selected.  When latest (default), the\n            highest Unicode version level is used.\n        :return: The width, in cells, necessary to display the character of\n            Unicode string character, wc.  Returns 0 if the wc argument has\n            no printable effect on a terminal (such as NUL \\\\0), -1 if wc is\n            not printable, or has an indeterminate effect on the terminal, such as\n            a control character.  Otherwise, the number of column positions the\n            character occupies on a graphic terminal (1 or 2) is returned.\n        :rtype: int\n    \n        See :ref:Specification for details of cell measurement.\n        \"\"\"\n        # Handle empty string\n        if not wc:\n            return 0\n    \n        # Get the code point\n        try:\n            ucs = ord(wc)\n        except (TypeError, ValueError):\n            return -1\n    \n        # Determine the Unicode version to use\n        if unicode_version == 'auto':\n            import os\n            env_version = os.environ.get('UNICODE_VERSION', 'auto')\n            unicode_version = _wcmatch_version(env_version)\n    \n        # Import tables\n        from .table_wide import WIDE_EASTASIAN\n        from .table_zero import ZERO_WIDTH\n    \n        # Check for zero-width characters\n>       if _bisearch(ucs, ZERO_WIDTH[unicode_version]):\nE       KeyError: '8.0'\n\nwcwidth/wcwidth.py:159: KeyError"
+      },
+      "teardown": {
+        "duration": 0.00017556548118591309,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_table_integrity.py::test_verify_table_integrity",
+      "lineno": 9,
+      "outcome": "skipped",
+      "keywords": [
+        "test_verify_table_integrity",
+        "skipif",
+        "pytestmark",
+        "test_table_integrity.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00012518838047981262,
+        "outcome": "skipped",
+        "longrepr": "('/workspace/wcwidth_repo/tests/test_table_integrity.py', 10, 'Skipped: Test only with a single version of python')"
+      },
+      "teardown": {
+        "duration": 0.00011699274182319641,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ucslevel.py::test_latest",
+      "lineno": 12,
+      "outcome": "passed",
+      "keywords": [
+        "test_latest",
+        "test_ucslevel.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00011797994375228882,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00018739327788352966,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00010614097118377686,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ucslevel.py::test_exact_410_str",
+      "lineno": 24,
+      "outcome": "passed",
+      "keywords": [
+        "test_exact_410_str",
+        "test_ucslevel.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00010774657130241394,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00014893338084220886,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 9.885430335998535e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ucslevel.py::test_exact_410_unicode",
+      "lineno": 36,
+      "outcome": "passed",
+      "keywords": [
+        "test_exact_410_unicode",
+        "test_ucslevel.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00010325014591217041,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00011526420712471008,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 9.868666529655457e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ucslevel.py::test_nearest_505_str",
+      "lineno": 48,
+      "outcome": "passed",
+      "keywords": [
+        "test_nearest_505_str",
+        "test_ucslevel.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00010208785533905029,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00018728524446487427,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 9.630993008613586e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ucslevel.py::test_nearest_505_unicode",
+      "lineno": 60,
+      "outcome": "passed",
+      "keywords": [
+        "test_nearest_505_unicode",
+        "test_ucslevel.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0001056566834449768,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00011527910828590393,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00010081380605697632,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ucslevel.py::test_nearest_lowint40_str",
+      "lineno": 72,
+      "outcome": "failed",
+      "keywords": [
+        "test_nearest_lowint40_str",
+        "test_ucslevel.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00010391324758529663,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00026747584342956543,
+        "outcome": "failed",
+        "crash": {
+          "path": "/workspace/wcwidth_repo/tests/test_ucslevel.py",
+          "lineno": 81,
+          "message": "Failed: DID NOT WARN. No warnings of type (<class 'UserWarning'>,) were emitted.\n Emitted warnings: []."
+        },
+        "traceback": [
+          {
+            "path": "tests/test_ucslevel.py",
+            "lineno": 81,
+            "message": "Failed"
+          }
+        ],
+        "longrepr": "def test_nearest_lowint40_str():\n        \"\"\"wcwidth._wcmatch_version('4.0') returns nearest '4.1.0'.\"\"\"\n        # given\n        given, expected = '4.0', '4.1.0'\n        warnings.resetwarnings()\n        wcwidth._wcmatch_version.cache_clear()\n    \n        # exercise\n>       with pytest.warns(UserWarning):\nE       Failed: DID NOT WARN. No warnings of type (<class 'UserWarning'>,) were emitted.\nE        Emitted warnings: [].\n\ntests/test_ucslevel.py:81: Failed"
+      },
+      "teardown": {
+        "duration": 0.00016950443387031555,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ucslevel.py::test_nearest_lowint40_unicode",
+      "lineno": 88,
+      "outcome": "failed",
+      "keywords": [
+        "test_nearest_lowint40_unicode",
+        "test_ucslevel.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0001256316900253296,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00026706233620643616,
+        "outcome": "failed",
+        "crash": {
+          "path": "/workspace/wcwidth_repo/tests/test_ucslevel.py",
+          "lineno": 97,
+          "message": "Failed: DID NOT WARN. No warnings of type (<class 'UserWarning'>,) were emitted.\n Emitted warnings: []."
+        },
+        "traceback": [
+          {
+            "path": "tests/test_ucslevel.py",
+            "lineno": 97,
+            "message": "Failed"
+          }
+        ],
+        "longrepr": "def test_nearest_lowint40_unicode():\n        \"\"\"wcwidth._wcmatch_version(u'4.0') returns nearest u'4.1.0'.\"\"\"\n        # given\n        given, expected = u'4.0', u'4.1.0'\n        warnings.resetwarnings()\n        wcwidth._wcmatch_version.cache_clear()\n    \n        # exercise\n>       with pytest.warns(UserWarning):\nE       Failed: DID NOT WARN. No warnings of type (<class 'UserWarning'>,) were emitted.\nE        Emitted warnings: [].\n\ntests/test_ucslevel.py:97: Failed"
+      },
+      "teardown": {
+        "duration": 0.00015740841627120972,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ucslevel.py::test_nearest_800_str",
+      "lineno": 104,
+      "outcome": "passed",
+      "keywords": [
+        "test_nearest_800_str",
+        "test_ucslevel.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00012160465121269226,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00017301365733146667,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00010459497570991516,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ucslevel.py::test_nearest_800_unicode",
+      "lineno": 116,
+      "outcome": "passed",
+      "keywords": [
+        "test_nearest_800_unicode",
+        "test_ucslevel.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00010776892304420471,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.0001219622790813446,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.000102996826171875,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ucslevel.py::test_nearest_999_str",
+      "lineno": 128,
+      "outcome": "passed",
+      "keywords": [
+        "test_nearest_999_str",
+        "test_ucslevel.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00010631605982780457,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00022245198488235474,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00010145828127861023,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ucslevel.py::test_nearest_999_unicode",
+      "lineno": 140,
+      "outcome": "passed",
+      "keywords": [
+        "test_nearest_999_unicode",
+        "test_ucslevel.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00010420754551887512,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00013877823948860168,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 9.884685277938843e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ucslevel.py::test_nonint_unicode",
+      "lineno": 152,
+      "outcome": "failed",
+      "keywords": [
+        "test_nonint_unicode",
+        "test_ucslevel.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00010198354721069336,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00022302567958831787,
+        "outcome": "failed",
+        "crash": {
+          "path": "/workspace/wcwidth_repo/tests/test_ucslevel.py",
+          "lineno": 161,
+          "message": "Failed: DID NOT WARN. No warnings of type (<class 'UserWarning'>,) were emitted.\n Emitted warnings: []."
+        },
+        "traceback": [
+          {
+            "path": "tests/test_ucslevel.py",
+            "lineno": 161,
+            "message": "Failed"
+          }
+        ],
+        "longrepr": "def test_nonint_unicode():\n        \"\"\"wcwidth._wcmatch_version(u'x.y.z') returns latest (unicode).\"\"\"\n        # given\n        given, expected = u'x.y.z', wcwidth.list_versions()[-1]\n        warnings.resetwarnings()\n        wcwidth._wcmatch_version.cache_clear()\n    \n        # exercise\n>       with pytest.warns(UserWarning):\nE       Failed: DID NOT WARN. No warnings of type (<class 'UserWarning'>,) were emitted.\nE        Emitted warnings: [].\n\ntests/test_ucslevel.py:161: Failed"
+      },
+      "teardown": {
+        "duration": 0.0001630634069442749,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ucslevel.py::test_nonint_str",
+      "lineno": 168,
+      "outcome": "failed",
+      "keywords": [
+        "test_nonint_str",
+        "test_ucslevel.py",
+        "tests",
+        "wcwidth_repo",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0001232139766216278,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00024421513080596924,
+        "outcome": "failed",
+        "crash": {
+          "path": "/workspace/wcwidth_repo/tests/test_ucslevel.py",
+          "lineno": 177,
+          "message": "Failed: DID NOT WARN. No warnings of type (<class 'UserWarning'>,) were emitted.\n Emitted warnings: []."
+        },
+        "traceback": [
+          {
+            "path": "tests/test_ucslevel.py",
+            "lineno": 177,
+            "message": "Failed"
+          }
+        ],
+        "longrepr": "def test_nonint_str():\n        \"\"\"wcwidth._wcmatch_version(u'x.y.z') returns latest (str).\"\"\"\n        # given\n        given, expected = 'x.y.z', wcwidth.list_versions()[-1]\n        warnings.resetwarnings()\n        wcwidth._wcmatch_version.cache_clear()\n    \n        # exercise\n>       with pytest.warns(UserWarning):\nE       Failed: DID NOT WARN. No warnings of type (<class 'UserWarning'>,) were emitted.\nE        Emitted warnings: [].\n\ntests/test_ucslevel.py:177: Failed"
+      },
+      "teardown": {
+        "duration": 0.00015553459525108337,
+        "outcome": "passed"
+      }
+    }
+  ],
+  "asyncodebench": {
+    "final_evaluator_source": "asyncodebench_manifest",
+    "final_test_cmd": "python -m pytest -q -p no:cacheprovider -o addopts= -k 'not test_package_version'",
+    "final_test_targets": [
+      "tests"
+    ],
+    "final_pytest_timeout_seconds": 900,
+    "timed_out": false,
+    "canonical_test_restore": {
+      "canonical_ref": "0d0054189bdb0fc7b9de0456fc3cee2b67a6ceba",
+      "restored_paths": [],
+      "untracked_paths_removed": []
+    },
+    "synthetic_summary": false
+  }
+}

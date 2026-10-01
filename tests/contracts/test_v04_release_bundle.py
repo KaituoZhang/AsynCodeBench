@@ -40,8 +40,8 @@ def test_v04_unifies_nineteen_qualified_tasks() -> None:
     assert index["human_review_passed_task_count"] == 19
     assert index["automated_audit_complete_task_count"] == 19
     assert index["community_preview_ready"] is True
-    assert index["stable_release_ready"] is False
-    assert index["validated_baseline_bundle_count"] == 0
+    assert index["stable_release_ready"] is True
+    assert index["validated_baseline_bundle_count"] == 1
     assert len(index["tasks"]) == len(official["official_task_ids"]) == 19
     assert len({task["task_id"] for task in index["tasks"]}) == 19
     assert "asyncodebench:graphene" not in official["official_task_ids"]

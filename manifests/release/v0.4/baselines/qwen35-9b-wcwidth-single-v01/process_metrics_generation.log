@@ -1,0 +1,9 @@
+task_id: commit0:wcwidth
+run_dir: outputs/asyncodebench/v0.3/qwen35-9b/wcwidth/single/wcwidth-single-public-v01
+final: 28/38 success=False
+cost: $0.0 tokens=5549099 wall_clock=763.391819
+ADPR reports: []
+strict: final_ADPR=0.0 DRS={'max': None, 'min': None, 'observed_count': 0, 'unresolved_count': 2} CAIL={'max': None, 'mean': None, 'min': None, 'observed_count': 0, 'unobserved_count': 2}
+process: attempts=1 failed_attempts=0 textual_conflict=False semantic_integration_failure=False duplicated_contract_unique_symbols=0 (candidates=0) async_overlap=0.0
+formal: FSR=0.0 DRS_score=None SAR_proxy=None FSAR=0.0 IFR=0.0 SVR=None MRR=None
+wrote: outputs/asyncodebench/v0.3/qwen35-9b/wcwidth/single/wcwidth-single-public-v01/process_metrics_summary.json

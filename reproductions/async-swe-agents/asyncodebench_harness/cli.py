@@ -742,7 +742,22 @@ def build_parser():
     return parser
 
 
+def _pin_checkout_root():
+    """A source-checkout CLI must read contracts from its own checkout."""
+    checkout = Path(__file__).resolve().parents[3]
+    if not (checkout / "manifests/release/v0.4/task_index.json").is_file():
+        return
+    configured = os.getenv("ASYNCODEBENCH_ROOT")
+    if configured and Path(configured).expanduser().resolve() != checkout:
+        print(
+            f"Warning: ignoring stale ASYNCODEBENCH_ROOT={configured}; using checkout {checkout}",
+            file=sys.stderr,
+        )
+    os.environ["ASYNCODEBENCH_ROOT"] = str(checkout)
+
+
 def main(argv=None):
+    _pin_checkout_root()
     args = build_parser().parse_args(argv)
     if args.command == "run" and not args.model:
         raise SystemExit("--model or LLM_MODEL is required")

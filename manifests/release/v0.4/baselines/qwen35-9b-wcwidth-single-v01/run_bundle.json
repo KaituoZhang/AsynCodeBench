@@ -1,0 +1,184 @@
+{
+  "agent_adapter": {
+    "class": "agents.openhands:OpenHandsAgentAdapter",
+    "config": {},
+    "config_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "name": "openhands",
+    "package": "async-swe-agents",
+    "package_version": "0.1.0",
+    "source_sha256": "c97caa1ea1cef766e4ab4946df6ece0042f89757e2cd9b3cafa7488307afc60e"
+  },
+  "artifacts": {
+    "agent_events/single_agent_events.jsonl": {
+      "bytes": 322253,
+      "sha256": "760d5e7d1d70a2468bb3077d27d9660aa8f88f3e3429a6e6113308825a3e5f91"
+    },
+    "cost.json": {
+      "bytes": 405,
+      "sha256": "502d054a2136050409818c2b6a7bfa9f1111fcde6da47969285b2faa505f8d4a"
+    },
+    "dependency_probe_checkpoints.jsonl": {
+      "bytes": 11395,
+      "sha256": "791984610c0d457d035c30c37a7d147d988817569f909674cba51822c4ef066e"
+    },
+    "execution_profile_snapshot.json": {
+      "bytes": 1903,
+      "sha256": "4d63f8d7176c0391528b39e283cd2f7ba53c15c99bc958f9674ebbe65cbef609"
+    },
+    "final_repo/wcwidth.tar.gz": {
+      "bytes": 1321560,
+      "sha256": "9362301af4e5c4934f3b1d0e99664dfa73c3f1b1a9479f79f357be0e6022edcf"
+    },
+    "metrics_snapshot.json": {
+      "bytes": 7354,
+      "sha256": "f8388c8ac1cd188f834926716015a49dfaeeeaf36651e2cadd0b032cd4dfc52a"
+    },
+    "outputs.jsonl": {
+      "bytes": 1328,
+      "sha256": "e0f36be027e24fd158959b46fec3552a7362a92dcb5367350faeb6bb759956eb"
+    },
+    "process_metrics_generation.log": {
+      "bytes": 753,
+      "sha256": "d12ebafdd736cce061a1860a40ecb73d153c30a2d934a2fe5264acb805861282"
+    },
+    "process_metrics_summary.json": {
+      "bytes": 11487,
+      "sha256": "e3592304d07f5982346954bced312c6868ff9f4e633d3f5739a6556a60c72ef2"
+    },
+    "protocol.json": {
+      "bytes": 592,
+      "sha256": "0f02e21bade331de7d0bd4026abf7680708b53b1142a3e7e893d04ed79ba86e8"
+    },
+    "quality_snapshot.json": {
+      "bytes": 6410,
+      "sha256": "837b4b956d5865960f0e1623ca94745c3b2051f8a11d942d26d95b18888b6e60"
+    },
+    "report.json": {
+      "bytes": 45661,
+      "sha256": "f1e49069ce6062705d96ab260f5ec1195879d251d0b99d6625b3990ecd7e4533"
+    },
+    "run_20260930_111518.log": {
+      "bytes": 46542,
+      "sha256": "cf65d4c22dbc53b842cf16a82029f0ef66f6945dca1563f50a4a2e2faa60d0a6"
+    },
+    "run_metadata.json": {
+      "bytes": 9701,
+      "sha256": "514a4f17b43c0cc6c06985aedcb6cd95de638e21d65bb8e45f48bf01d18372cb"
+    },
+    "runtime.txt": {
+      "bytes": 5,
+      "sha256": "5ea049c775b186f7b8885d60f7dade121aaf83f454ec064ec06f0bc60db0efb4"
+    },
+    "scenario_manifest_snapshot.json": {
+      "bytes": 11536,
+      "sha256": "1745a4c31a80729491e402e9170af543bf7e4f4b24aa0fa0253f513861f9afb7"
+    },
+    "scenario_snapshot.json": {
+      "bytes": 2248,
+      "sha256": "14eace1ca44355042a243694e1c070b0aa120dec6287b519324b0ff6a4d18904"
+    },
+    "strict_dependency_metrics.json": {
+      "bytes": 1325,
+      "sha256": "759724a772d20582ce7912711161eda7ca1d5a9ae421af6195d68d4e9c72754e"
+    },
+    "task_snapshot.json": {
+      "bytes": 3826,
+      "sha256": "f97c73ea0f21f1dad850cede184f99c9ebd17de5d000d9d1b83ed4354a66cad6"
+    },
+    "wcwidth_pytest_exit_code.txt": {
+      "bytes": 1,
+      "sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    "wcwidth_test_output.txt": {
+      "bytes": 13218,
+      "sha256": "244f46c89295b57da3b8f65b0b689accdfec6947a9b43f1e05a25714fc309458"
+    }
+  },
+  "benchmark": "AsynCodeBench",
+  "created_at": "2026-09-30T16:28:02.967663+00:00",
+  "eligibility": {
+    "dependency_metrics": true,
+    "efficiency_metrics": true,
+    "functional_metrics": true,
+    "official_aggregate": true,
+    "official_profile": true,
+    "provenance_complete": true
+  },
+  "execution_profile": {
+    "deviations": [],
+    "matched": true,
+    "observed": {
+      "final_evaluator_source": "asyncodebench_manifest",
+      "final_pytest_timeout_seconds": 900,
+      "manager_max_iterations": 100,
+      "max_rounds_chat": 2,
+      "max_subagents": 1,
+      "probe_timeout_seconds": 60,
+      "scenario_declared_agents": 1,
+      "subagent_max_iterations": 100
+    },
+    "path": "configs/evaluation/official_execution_profile.v2.json",
+    "profile_id": "asyncodebench-v0.3-standard-100",
+    "schema_version": "asyncodebench-execution-profile-v2",
+    "sha256": "4d63f8d7176c0391528b39e283cd2f7ba53c15c99bc958f9674ebbe65cbef609"
+  },
+  "final_test": {
+    "collected": 39,
+    "errors": 0,
+    "evaluation_failure_kind": null,
+    "exit_code": 1,
+    "failed": 9,
+    "outcome": "failed",
+    "passed": 28,
+    "success": false,
+    "synthetic_summary": false,
+    "timed_out": false
+  },
+  "instrumentation": {
+    "dependency_checkpoint_records": 1,
+    "evaluator_source": "asyncodebench_manifest",
+    "hard_failures": [],
+    "issues": [],
+    "model_execution": {
+      "iterations": [
+        99,
+        99
+      ],
+      "model_calls": 99,
+      "observed": true,
+      "total_tokens": 5549099,
+      "zero_iteration_run": false
+    },
+    "observations": [],
+    "review_flags": [],
+    "status": "valid",
+    "valid": true
+  },
+  "protocol": "single",
+  "provenance": {
+    "benchmark_revision": "23b3b561160219d198d98199d5f941013c537f25",
+    "generation_configuration_recorded": true,
+    "generation_configuration_sha256": "1dc0051a8dd7c8674def1dd2a27b51be0edbf269e64c007574e6f65cebc9d067",
+    "missing_required_fields": [],
+    "model": "openai/Qwen/Qwen3.5-9B",
+    "model_server_recorded": true,
+    "model_server_sha256": "9d6e7a7f229d4502778556b8bd9a157ff53f6eafb5d2c6a937ed5e287f32db31",
+    "prompt_sha256": "fa87817bf5866a4980c94529c95188dc7ee0f6d09b9810337b7f94d4f041b6a2",
+    "required_fields_complete": true,
+    "runner_revision": "23b3b561160219d198d98199d5f941013c537f25",
+    "sdk_revision": "944284310d9a5f1ccad0ef8c2d7c4c38342b9952",
+    "subagent_model": "openai/Qwen/Qwen3.5-9B"
+  },
+  "release": "v0.3",
+  "release_index": {
+    "path": "manifests/release/v0.3/task_index.json",
+    "release_version": "0.3.0",
+    "sha256": "fd45ae3d382cfd386eb5af86a7ac94aa15196d69b99120ebd62faa1019360936"
+  },
+  "scenario_id": "asyncodebench-wcwidth.iterative-single.v0.3",
+  "schema_version": "0.2",
+  "source_scenario_id": "commit0-wcwidth.iterative-single.v0.3",
+  "source_task_id": "commit0:wcwidth",
+  "status": "valid",
+  "task_id": "asyncodebench:wcwidth"
+}
